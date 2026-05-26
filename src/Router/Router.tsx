@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
 import type { RouteItem } from './types.ts';
 import { getParamsObject } from './utils.ts';
@@ -13,6 +13,7 @@ export const Router = ({ routeList }: RouterProps) => {
 	const { pathname } = window.location;
 
 	const [route, setRoute] = useState<string>(pathname);
+	const navigationState = useRef<unknown>(undefined);
 
 	useEffect(() => {
 		const handler = (event: PopStateEvent) => setRoute((event.target as Window).location.pathname);
@@ -36,8 +37,12 @@ export const Router = ({ routeList }: RouterProps) => {
 		return getParamsObject(routeItem.params, split);
 	}, [routeItem]);
 
+	const updateNavigationState = useCallback((arg: unknown) => {
+		navigationState.current = arg;
+	}, []);
+
 	return (
-		<RouterProvider setRoute={setRoute} params={params}>
+		<RouterProvider setRoute={setRoute} params={params} updateNavigationState={updateNavigationState}>
 			{routeItem?.element || PAGE_NOT_FOUND}
 		</RouterProvider>
 	);
