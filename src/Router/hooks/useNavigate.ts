@@ -16,6 +16,7 @@ export const useNavigate = () => {
 			if (arg === -1) return history.go(-1);
 			if (arg.state) context.updateNavigationState(arg.state);
 			context.setRoute(arg.pathname);
+			history.pushState(null, '', arg.pathname);
 		},
 		[context]
 	);

@@ -16,7 +16,7 @@ export const Post = () => {
 				<span>To home page</span>
 			</Link>
 			<div
-				onClick={() => navigate({ pathname: `${pathname}/comment/${id}` })}
+				onClick={() => navigate({ pathname: `${pathname}/comment/${id}`, state: { commentId: id } })}
 				style={{ cursor: 'pointer' }}
 			>{`To comment ${id}`}</div>
 		</div>
