@@ -1,0 +1,12 @@
+import { Link } from './Router/Link.tsx';
+
+export const Home = () => {
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+			<h3>Home</h3>
+			<Link to="/about">
+				<span>To about page</span>
+			</Link>
+		</div>
+	);
+};
