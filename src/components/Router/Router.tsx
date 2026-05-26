@@ -1,9 +1,12 @@
-import { type ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
+import type { RouteItem } from './types.ts';
 
 type RouterProps = {
-	routes: Record<string, ReactElement>;
+	routes: RouteItem[];
 };
+
+const PAGE_NOT_FOUND = 'error 404. Page not found';
 
 export const Router = ({ routes }: RouterProps) => {
 	const { pathname } = window.location;
@@ -18,5 +21,7 @@ export const Router = ({ routes }: RouterProps) => {
 		return () => window.removeEventListener('popstate', handler);
 	}, []);
 
-	return <RouterProvider setRoute={setRoute}>{routes[route] || null}</RouterProvider>;
+	const routeItem = routes.find(el => el.path === route)?.element || PAGE_NOT_FOUND;
+
+	return <RouterProvider setRoute={setRoute}>{routeItem}</RouterProvider>;
 };
