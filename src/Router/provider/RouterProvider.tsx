@@ -3,6 +3,6 @@ import { RouterContext, type RouterContextProps } from '../context/RouterContext
 
 type RouterProviderProps = RouterContextProps & { children: ReactNode };
 
-export const RouterProvider = ({ children, setRoute }: RouterProviderProps) => {
-	return <RouterContext value={{ setRoute }}>{children}</RouterContext>;
+export const RouterProvider = ({ children, setRoute, params }: RouterProviderProps) => {
+	return <RouterContext value={{ setRoute, params }}>{children}</RouterContext>;
 };

@@ -9,5 +9,5 @@ export type ClientRouteItem = {
 };
 
 export type RouteItem = ClientRouteItem & {
-	params?: string[];
+	params?: { key: string; value: string }[];
 };

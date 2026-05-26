@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import type { ClientRouteItem } from './types.ts';
+import type { RouteItem } from './types.ts';
+import { getParamsObject } from './utils.ts';
 
 type RouterProps = {
-	routeList: ClientRouteItem[];
+	routeList: RouteItem[];
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
@@ -14,17 +15,30 @@ export const Router = ({ routeList }: RouterProps) => {
 	const [route, setRoute] = useState<string>(pathname);
 
 	useEffect(() => {
-		const handler = (event: PopStateEvent) => {
-			setRoute((event.target as Window).location.pathname);
-		};
+		const handler = (event: PopStateEvent) => setRoute((event.target as Window).location.pathname);
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
 	}, []);
 
 	const routeItem = useMemo(
-		() => routeList.find(el => el.path === route)?.element || PAGE_NOT_FOUND,
+		() =>
+			routeList.find(el => {
+				const isRoot = el.path === '/';
+				return (route === el.path && isRoot) || (!isRoot && route.startsWith(el.path));
+			}),
 		[route, routeList]
 	);
 
-	return <RouterProvider setRoute={setRoute}>{routeItem}</RouterProvider>;
+	const params = useMemo(() => {
+		if (!routeItem?.params) return {};
+		const { pathname } = window.location;
+		const split = pathname.split('/');
+		return getParamsObject(routeItem.params, split);
+	}, [routeItem]);
+
+	return (
+		<RouterProvider setRoute={setRoute} params={params}>
+			{routeItem?.element || PAGE_NOT_FOUND}
+		</RouterProvider>
+	);
 };

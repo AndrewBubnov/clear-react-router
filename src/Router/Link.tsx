@@ -12,6 +12,7 @@ export const Link = ({ children, to }: LinkProps) => {
 		onClick: e => {
 			children.props?.onClick?.(e);
 			setRoute(to);
+			history.pushState(null, '', to);
 		},
 		style: { cursor: 'pointer' },
 	});
