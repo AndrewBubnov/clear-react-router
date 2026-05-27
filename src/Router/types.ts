@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 
 export type ClientRouteItem = {
 	path: string;
-	element: ReactElement;
+	element: (() => ReactElement) | ReactElement;
 	loader?(...args: unknown[]): Promise<unknown>;
-	fallback?: ReactElement;
-	errorElement?: ReactElement;
+	fallback?: (() => ReactElement) | ReactElement;
+	errorElement?: (() => ReactElement) | ReactElement;
 	children?: ClientRouteItem[];
 };
 

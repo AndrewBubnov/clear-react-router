@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation, processLoader } from './utils.ts';
 import type { Location, RouteItem } from './types.ts';
@@ -32,6 +32,11 @@ export const Router = ({ routeList }: RouterProps) => {
 		processLoader(setLoaderResult, setLoaderError)(routeItem);
 	}, [routeItem]);
 
+	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
+		if (!Component) return null;
+		return typeof Component === 'function' ? <Component /> : Component;
+	}, []);
+
 	const params = useMemo(() => {
 		if (!routeItem?.params) return {};
 		const { pathname } = window.location;
@@ -50,10 +55,10 @@ export const Router = ({ routeList }: RouterProps) => {
 	);
 
 	if (routeItem?.loader && !loaderError && !loaderResult)
-		return <RouterProvider {...providerProps}>{routeItem?.fallback || null}</RouterProvider>;
+		return <RouterProvider {...providerProps}>{renderElement(routeItem?.fallback)}</RouterProvider>;
 
 	if (routeItem?.loader && loaderError)
-		return <RouterProvider {...providerProps}>{routeItem?.errorElement || null}</RouterProvider>;
+		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;
 
-	return <RouterProvider {...providerProps}>{routeItem?.element || PAGE_NOT_FOUND}</RouterProvider>;
+	return <RouterProvider {...providerProps}>{renderElement(routeItem?.element) || PAGE_NOT_FOUND}</RouterProvider>;
 };

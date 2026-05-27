@@ -1,6 +1,6 @@
 import './App.css';
 import { Router } from './Router/Router.tsx';
-import { routeList } from './router.tsx';
+import { routeList } from './router.ts';
 
 function App() {
 	return <Router routeList={routeList} />;

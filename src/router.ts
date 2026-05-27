@@ -12,14 +12,14 @@ import { createRouter } from './Router/utils.ts';
 export const routeList = createRouter([
 	{
 		path: '/',
-		element: <Home />,
+		element: Home,
 		loader: () => new Promise((resolve, _) => setTimeout(() => resolve('hello'), 1000)),
-		fallback: <Fallback />,
-		errorElement: <ErrorComponent />,
+		fallback: Fallback,
+		errorElement: ErrorComponent,
 	},
-	{ path: '/about', element: <About /> },
-	{ path: '/test', element: <Test /> },
-	{ path: '/user/:userId', element: <User /> },
-	{ path: '/post/:postId', element: <Post />, children: [{ path: '/comment/:commentId', element: <Comment /> }] },
-	{ path: '*', element: <NotFound /> },
+	{ path: '/about', element: About },
+	{ path: '/test', element: Test },
+	{ path: '/user/:userId', element: User },
+	{ path: '/post/:postId', element: Post, children: [{ path: '/comment/:commentId', element: Comment }] },
+	{ path: '*', element: NotFound },
 ]);
