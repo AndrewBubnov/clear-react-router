@@ -1,10 +1,10 @@
 import { createContext } from 'react';
+import type { Location } from '../types.ts';
 
 export type RouterContextProps = {
-	setRoute(route: string): void;
+	location: Location;
+	setLocation(route: Location): void;
 	params: Record<string, string>;
-	updateNavigationState(arg: unknown): void;
-	navigationState?: unknown;
 };
 
 export const RouterContext = createContext({} as RouterContextProps);

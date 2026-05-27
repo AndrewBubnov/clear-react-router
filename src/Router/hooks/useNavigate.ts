@@ -1,23 +1,16 @@
-import { use, useCallback } from 'react';
-import { RouterContext } from '../context/RouterContext.ts';
-
-type NavigateProps = {
-	pathname: string;
-	state?: unknown;
-};
+import { useCallback } from 'react';
+import { useRouterContext } from './useRouterContext.ts';
+import type { Location } from '../types.ts';
 
 export const useNavigate = () => {
-	const context = use(RouterContext);
-
-	if (!context) throw new Error('useNavigate hook must be used within RouterProvider');
+	const { setLocation } = useRouterContext('useNavigate');
 
 	return useCallback(
-		(arg: NavigateProps | -1) => {
+		(arg: Location | -1) => {
 			if (arg === -1) return history.go(-1);
-			if (arg.state) context.updateNavigationState(arg.state);
-			context.setRoute(arg.pathname);
+			setLocation(arg);
 			history.pushState(null, '', arg.pathname);
 		},
-		[context]
+		[setLocation]
 	);
 };

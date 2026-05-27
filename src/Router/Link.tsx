@@ -1,5 +1,5 @@
 import { cloneElement, type ReactElement, type MouseEvent, type CSSProperties } from 'react';
-import { useRouterProvider } from './hooks/useRouterProvider.ts';
+import { useRouterContext } from './hooks/useRouterContext.ts';
 
 type LinkProps = {
 	to: string;
@@ -7,11 +7,11 @@ type LinkProps = {
 };
 
 export const Link = ({ children, to }: LinkProps) => {
-	const { setRoute } = useRouterProvider();
+	const { setLocation } = useRouterContext('Link component');
 	return cloneElement(children, {
 		onClick: e => {
 			children.props?.onClick?.(e);
-			setRoute(to);
+			setLocation({ pathname: to });
 			history.pushState(null, '', to);
 		},
 		style: { cursor: 'pointer' },

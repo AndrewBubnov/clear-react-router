@@ -1,10 +1,7 @@
-import { use } from 'react';
-import { RouterContext } from '../context/RouterContext.ts';
+import { useRouterContext } from './useRouterContext.ts';
 
 export const useParams = <T>() => {
-	const context = use(RouterContext);
+	const { params } = useRouterContext('useLocation');
 
-	if (!context) throw new Error('useParams hook must be used within RouterProvider');
-
-	return context.params as T;
+	return params as T;
 };

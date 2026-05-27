@@ -11,3 +11,9 @@ export type ClientRouteItem = {
 export type RouteItem = ClientRouteItem & {
 	params?: { key: string; value: string }[];
 };
+
+export type Location = {
+	pathname: string;
+	search?: string;
+	state?: unknown;
+};

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import type { RouteItem } from './types.ts';
+import type { Location, RouteItem } from './types.ts';
 import { getParamsObject, removeNumbers, removeSlashes } from './utils.ts';
 
 type RouterProps = {
@@ -10,20 +10,17 @@ type RouterProps = {
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 
 export const Router = ({ routeList }: RouterProps) => {
-	const { pathname } = window.location;
-
-	const [route, setRoute] = useState<string>(pathname);
-	const [navigationState, updateNavigationState] = useState<unknown>(undefined);
+	const [location, setLocation] = useState<Location>(window.location);
 
 	useEffect(() => {
-		const handler = (event: PopStateEvent) => setRoute((event.target as Window).location.pathname);
+		const handler = (event: PopStateEvent) => setLocation((event.target as Window).location);
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
 	}, []);
 
 	const routeItem = useMemo(
-		() => routeList.find(el => removeSlashes(el.path) === removeSlashes(removeNumbers(route))),
-		[route, routeList]
+		() => routeList.find(el => removeSlashes(el.path) === removeSlashes(removeNumbers(location.pathname))),
+		[location, routeList]
 	);
 
 	const params = useMemo(() => {
@@ -34,12 +31,7 @@ export const Router = ({ routeList }: RouterProps) => {
 	}, [routeItem]);
 
 	return (
-		<RouterProvider
-			setRoute={setRoute}
-			params={params}
-			navigationState={navigationState}
-			updateNavigationState={updateNavigationState}
-		>
+		<RouterProvider location={location} setLocation={setLocation} params={params}>
 			{routeItem?.element || PAGE_NOT_FOUND}
 		</RouterProvider>
 	);
