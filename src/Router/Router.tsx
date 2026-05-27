@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
+import { areOriginsEqual, getParamsObject, parseWindowLocation } from './utils.ts';
 import type { Location, RouteItem } from './types.ts';
-import { getParamsObject, parseWindowLocation, removeNumbers, removeSlashes } from './utils.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
@@ -19,7 +19,7 @@ export const Router = ({ routeList }: RouterProps) => {
 	}, []);
 
 	const routeItem = useMemo(
-		() => routeList.find(el => removeSlashes(el.path) === removeSlashes(removeNumbers(location.pathname))),
+		() => routeList.find(el => areOriginsEqual(el.path, location.pathname)),
 		[location.pathname, routeList]
 	);
 

@@ -40,8 +40,11 @@ export const getParamsObject = (params: RouteItem['params'], split: string[]) =>
 		.map(el => ({ index: split.findIndex(item => item === el.key), value: el.value }))
 		.reduce((acc, cur) => ({ ...acc, [cur.value]: split[cur.index + 1] }), {});
 
-export const removeSlashes = (str: string) => str.replace(/\/+/g, '');
-export const removeNumbers = (str: string) => str.replace(/\d+/g, '');
+const removeSlashes = (str: string) => str.replace(/\/+/g, '');
+const removeNumbers = (str: string) => str.replace(/\d+/g, '');
+
+export const areOriginsEqual = (origin1: string, origin2: string): boolean =>
+	removeSlashes(removeNumbers(origin1)) === removeSlashes(removeNumbers(origin2));
 
 export const parseWindowLocation = (location: typeof window.location): Location => ({
 	pathname: location.pathname,
