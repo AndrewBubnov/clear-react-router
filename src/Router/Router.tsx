@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import { areOriginsEqual, getParamsObject, parseWindowLocation, processLoader } from './utils.ts';
+import { comparePaths, getParamsObject, parseWindowLocation, processLoader } from './utils.ts';
 import type { Location, RouteItem } from './types.ts';
 
 type RouterProps = {
@@ -15,10 +15,12 @@ export const Router = ({ routeList }: RouterProps) => {
 	const [loaderResult, setLoaderResult] = useState<unknown>();
 	const [loaderError, setLoaderError] = useState<boolean>(false);
 
-	const routeItem = useMemo(
-		() => routeList.find(el => el.path === ALL_LOCATIONS || areOriginsEqual(el.path, location.pathname)),
-		[location.pathname, routeList]
-	);
+	const routeItem = useMemo(() => {
+		return routeList.find(el => {
+			const pageNotFound = el.path === ALL_LOCATIONS;
+			return pageNotFound || comparePaths(el, location.pathname);
+		});
+	}, [location.pathname, routeList]);
 
 	useEffect(() => {
 		const handler = (event: PopStateEvent) => setLocation(parseWindowLocation((event.target as Window).location));
