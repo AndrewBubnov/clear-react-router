@@ -1,4 +1,4 @@
-import type { ClientRouteItem, RouteItem } from './types.ts';
+import type { ClientRouteItem, Location, RouteItem } from './types.ts';
 
 const parseClientRouteItem = (
 	el: ClientRouteItem,
@@ -42,3 +42,8 @@ export const getParamsObject = (params: RouteItem['params'], split: string[]) =>
 
 export const removeSlashes = (str: string) => str.replace(/\/+/g, '');
 export const removeNumbers = (str: string) => str.replace(/\d+/g, '');
+
+export const parseWindowLocation = (location: typeof window.location): Location => ({
+	pathname: location.pathname,
+	search: location.search,
+});
