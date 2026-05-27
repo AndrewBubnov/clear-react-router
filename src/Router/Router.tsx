@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import { areOriginsEqual, getParamsObject, parseWindowLocation } from './utils.ts';
+import { areOriginsEqual, getParamsObject, parseWindowLocation, processLoader } from './utils.ts';
 import type { Location, RouteItem } from './types.ts';
 
 type RouterProps = {
@@ -27,14 +27,7 @@ export const Router = ({ routeList }: RouterProps) => {
 	}, []);
 
 	useEffect(() => {
-		(async () => {
-			try {
-				setLoaderError(false);
-				setLoaderResult(routeItem?.loader ? await routeItem?.loader() : undefined);
-			} catch {
-				setLoaderError(true);
-			}
-		})();
+		processLoader(setLoaderResult, setLoaderError)(routeItem);
 	}, [routeItem]);
 
 	const params = useMemo(() => {

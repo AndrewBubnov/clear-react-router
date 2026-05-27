@@ -50,3 +50,14 @@ export const parseWindowLocation = (location: typeof window.location): Location 
 	pathname: location.pathname,
 	search: location.search,
 });
+
+export const processLoader =
+	(setLoaderResult: (arg: unknown) => void, setLoaderError: (arg: boolean) => void) =>
+	async (routeItem?: RouteItem) => {
+		try {
+			setLoaderError(false);
+			setLoaderResult(routeItem?.loader ? await routeItem?.loader() : undefined);
+		} catch {
+			setLoaderError(true);
+		}
+	};
