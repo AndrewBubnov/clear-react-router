@@ -8,6 +8,7 @@ type RouterProps = {
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
+const ALL_LOCATIONS = '*';
 
 export const Router = ({ routeList }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
@@ -19,7 +20,7 @@ export const Router = ({ routeList }: RouterProps) => {
 	}, []);
 
 	const routeItem = useMemo(
-		() => routeList.find(el => areOriginsEqual(el.path, location.pathname)),
+		() => routeList.find(el => el.path === ALL_LOCATIONS || areOriginsEqual(el.path, location.pathname)),
 		[location.pathname, routeList]
 	);
 

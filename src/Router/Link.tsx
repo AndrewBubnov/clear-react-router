@@ -8,7 +8,7 @@ type LinkProps = {
 
 export const Link = ({ children, to }: LinkProps) => {
 	const { setLocation } = useRouterContext('Link component');
-	return cloneElement(children, {
+	const cloned = cloneElement(children, {
 		onClick: e => {
 			children.props?.onClick?.(e);
 			setLocation({ pathname: to });
@@ -16,4 +16,9 @@ export const Link = ({ children, to }: LinkProps) => {
 		},
 		style: { cursor: 'pointer' },
 	});
+	return (
+		<a style={{ cursor: 'pointer' }} onClick={e => e.preventDefault()}>
+			{cloned}
+		</a>
+	);
 };

@@ -4,6 +4,7 @@ import { Test } from './components/Test.tsx';
 import { Post } from './components/Post.tsx';
 import { Comment } from './components/Comment.tsx';
 import { User } from './components/User.tsx';
+import { NotFound } from './components/NotFound.tsx';
 import { createRouter } from './Router/utils.ts';
 
 export const routeList = createRouter([
@@ -12,4 +13,5 @@ export const routeList = createRouter([
 	{ path: '/test', element: <Test /> },
 	{ path: '/user/:userId', element: <User /> },
 	{ path: '/post/:postId', element: <Post />, children: [{ path: '/comment/:commentId', element: <Comment /> }] },
+	{ path: '*', element: <NotFound /> },
 ]);
