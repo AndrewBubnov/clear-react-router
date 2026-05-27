@@ -5,10 +5,18 @@ import { Post } from './components/Post.tsx';
 import { Comment } from './components/Comment.tsx';
 import { User } from './components/User.tsx';
 import { NotFound } from './components/NotFound.tsx';
+import { Fallback } from './components/Fallback.tsx';
+import { ErrorComponent } from './components/ErrorComponent.tsx';
 import { createRouter } from './Router/utils.ts';
 
 export const routeList = createRouter([
-	{ path: '/', element: <Home /> },
+	{
+		path: '/',
+		element: <Home />,
+		loader: () => new Promise((resolve, _) => setTimeout(() => resolve('hello'), 1000)),
+		fallback: <Fallback />,
+		errorElement: <ErrorComponent />,
+	},
 	{ path: '/about', element: <About /> },
 	{ path: '/test', element: <Test /> },
 	{ path: '/user/:userId', element: <User /> },

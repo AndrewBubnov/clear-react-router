@@ -4,6 +4,7 @@ export type ClientRouteItem = {
 	path: string;
 	element: ReactElement;
 	loader?(...args: unknown[]): Promise<unknown>;
+	fallback?: ReactElement;
 	errorElement?: ReactElement;
 	children?: ClientRouteItem[];
 };
