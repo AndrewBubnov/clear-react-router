@@ -18,11 +18,12 @@ export const useLoader = (routeItem: RouteItem | undefined) => {
 	useEffect(() => {
 		(async () => {
 			if (!routeItem?.loader) return;
-			const currentCacheTimestamp = cacheTimestamps[window.location.pathname];
+			const { pathname } = window.location;
+			const currentCacheTimestamp = cacheTimestamps[pathname];
 			if (currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0)) return;
 			setLoaderCache(prevState =>
 				Object.keys(prevState)
-					.filter(el => el !== window.location.pathname)
+					.filter(el => el !== pathname)
 					.reduce((acc, cur) => ({ ...acc, [cur]: prevState[cur] }), {})
 			);
 			try {
@@ -30,9 +31,9 @@ export const useLoader = (routeItem: RouteItem | undefined) => {
 				const result = await routeItem?.loader();
 				setCacheTimestamps(prevState => ({
 					...prevState,
-					[window.location.pathname]: Date.now(),
+					[pathname]: Date.now(),
 				}));
-				updateCache({ key: window.location.pathname, value: result });
+				updateCache({ key: pathname, value: result });
 			} catch {
 				setLoaderError(true);
 			}
