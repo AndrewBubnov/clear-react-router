@@ -16,6 +16,7 @@ export const routeList = createRouter([
 		loader: () => new Promise((resolve, _) => setTimeout(() => resolve('hello'), 1000)),
 		fallback: Fallback,
 		errorElement: ErrorComponent,
+		staleTime: 10000,
 	},
 	{ path: '/about', element: About },
 	{ path: '/test', element: Test },

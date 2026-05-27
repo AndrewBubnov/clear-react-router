@@ -45,17 +45,6 @@ export const parseWindowLocation = (location: typeof window.location): Location 
 	search: location.search,
 });
 
-export const processLoader =
-	(setLoaderResult: (arg: unknown) => void, setLoaderError: (arg: boolean) => void) =>
-	async (routeItem?: RouteItem) => {
-		try {
-			setLoaderError(false);
-			setLoaderResult(routeItem?.loader ? await routeItem?.loader() : undefined);
-		} catch {
-			setLoaderError(true);
-		}
-	};
-
 export const comparePaths = (el: RouteItem, pathname: string) => {
 	const splitElementPath = el.path.split('/').filter(Boolean);
 	const paramsLength = el.params ? Object.keys(el.params).length : 0;

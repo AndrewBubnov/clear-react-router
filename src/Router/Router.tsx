@@ -1,7 +1,8 @@
 import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import { comparePaths, getParamsObject, parseWindowLocation, processLoader } from './utils.ts';
+import { comparePaths, getParamsObject, parseWindowLocation } from './utils.ts';
 import type { Location, RouteItem } from './types.ts';
+import { useLoader } from './hooks/useLoader.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
@@ -12,23 +13,19 @@ const ALL_LOCATIONS = '*';
 
 export const Router = ({ routeList }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
-	const [loaderResult, setLoaderResult] = useState<unknown>();
-	const [loaderError, setLoaderError] = useState<boolean>(false);
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
 		[location.pathname, routeList]
 	);
 
+	const { loaderError, loaderCache } = useLoader(routeItem);
+
 	useEffect(() => {
 		const handler = (event: PopStateEvent) => setLocation(parseWindowLocation((event.target as Window).location));
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
 	}, []);
-
-	useEffect(() => {
-		processLoader(setLoaderResult, setLoaderError)(routeItem);
-	}, [routeItem]);
 
 	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
 		if (!Component) return null;
@@ -47,12 +44,12 @@ export const Router = ({ routeList }: RouterProps) => {
 			location,
 			setLocation,
 			params,
-			loaderResult,
+			loaderCache,
 		}),
-		[loaderResult, location, params]
+		[loaderCache, location, params]
 	);
 
-	if (routeItem?.loader && !loaderError && !loaderResult)
+	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.fallback)}</RouterProvider>;
 
 	if (routeItem?.loader && loaderError)

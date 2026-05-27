@@ -1,7 +1,7 @@
 import { useRouterContext } from './useRouterContext.ts';
 
 export const useLoaderState = <T>() => {
-	const { loaderResult } = useRouterContext('useLoaderState');
+	const { loaderCache } = useRouterContext('useLoaderState');
 
-	return loaderResult as T;
+	return loaderCache[window.location.pathname] as T;
 };
