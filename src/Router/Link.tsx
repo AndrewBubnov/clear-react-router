@@ -16,9 +16,5 @@ export const Link = ({ children, to }: LinkProps) => {
 		},
 		style: { cursor: 'pointer' },
 	});
-	return (
-		<a style={{ cursor: 'pointer' }} onClick={e => e.preventDefault()}>
-			{cloned}
-		</a>
-	);
+	return <a style={{ cursor: 'pointer' }}>{cloned}</a>;
 };
