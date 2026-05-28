@@ -1,8 +1,8 @@
 import { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from './utils.ts';
-import type { Location, RouteItem } from './types.ts';
 import { useLoader } from './hooks/useLoader.ts';
+import type { Location, RouteItem } from './types.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
@@ -19,7 +19,7 @@ export const Router = ({ routeList }: RouterProps) => {
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache } = useLoader(routeItem);
+	const { loaderError, loaderCache, revalidateCache } = useLoader(routeItem);
 
 	useEffect(() => {
 		const handler = (event: PopStateEvent) => setLocation(parseWindowLocation((event.target as Window).location));
@@ -31,6 +31,14 @@ export const Router = ({ routeList }: RouterProps) => {
 		if (!Component) return null;
 		return typeof Component === 'function' ? <Component /> : Component;
 	}, []);
+
+	const prefetchLoader = useCallback(
+		async (pathname: string) => {
+			const item = routeList.find(el => comparePaths(el, pathname));
+			if (item) await revalidateCache(item);
+		},
+		[revalidateCache, routeList]
+	);
 
 	const params = useMemo(() => {
 		if (!routeItem?.params) return {};
@@ -45,8 +53,9 @@ export const Router = ({ routeList }: RouterProps) => {
 			setLocation,
 			params,
 			loaderCache,
+			prefetchLoader,
 		}),
-		[loaderCache, location, params]
+		[loaderCache, location, params, prefetchLoader]
 	);
 
 	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])

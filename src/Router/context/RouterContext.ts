@@ -6,6 +6,7 @@ export type RouterContextProps = {
 	setLocation(route: Location): void;
 	params: Record<string, string>;
 	loaderCache: Record<string, unknown>;
+	prefetchLoader(arg: string): Promise<void>;
 };
 
 export const RouterContext = createContext({} as RouterContextProps);

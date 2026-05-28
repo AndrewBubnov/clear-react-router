@@ -15,15 +15,23 @@ export const useLoader = (routeItem: RouteItem | undefined) => {
 		[]
 	);
 
-	useEffect(() => {
-		(async () => {
+	const isCacheItemFresh = useCallback(
+		(routeItem?: RouteItem) => {
+			if (!routeItem) return true;
+			const currentCacheTimestamp = cacheTimestamps[routeItem.path];
+			return Boolean(currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0));
+		},
+		[cacheTimestamps]
+	);
+
+	const revalidateCache = useCallback(
+		async (routeItem?: RouteItem) => {
 			if (!routeItem?.loader) return;
-			const { pathname } = window.location;
-			const currentCacheTimestamp = cacheTimestamps[pathname];
-			if (currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0)) return;
+			if (isCacheItemFresh(routeItem)) return;
+
 			setLoaderCache(prevState =>
 				Object.keys(prevState)
-					.filter(el => el !== pathname)
+					.filter(el => el !== routeItem.path)
 					.reduce((acc, cur) => ({ ...acc, [cur]: prevState[cur] }), {})
 			);
 			try {
@@ -31,14 +39,19 @@ export const useLoader = (routeItem: RouteItem | undefined) => {
 				const result = await routeItem?.loader();
 				setCacheTimestamps(prevState => ({
 					...prevState,
-					[pathname]: Date.now(),
+					[routeItem.path]: Date.now(),
 				}));
-				updateCache({ key: pathname, value: result });
+				updateCache({ key: routeItem.path, value: result });
 			} catch {
 				setLoaderError(true);
 			}
-		})();
-	}, [cacheTimestamps, routeItem, updateCache]);
+		},
+		[isCacheItemFresh, updateCache]
+	);
 
-	return { loaderCache, loaderError };
+	useEffect(() => {
+		(async () => await revalidateCache(routeItem))();
+	}, [revalidateCache, routeItem]);
+
+	return { loaderCache, loaderError, revalidateCache };
 };
