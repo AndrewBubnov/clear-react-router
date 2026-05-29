@@ -28,6 +28,18 @@ export const Router = ({ routeList }: RouterProps) => {
 		return () => window.removeEventListener('popstate', handler);
 	}, []);
 
+	const updateLocation = useCallback(
+		(nextLocation: Location) => {
+			if (window.location.pathname !== blockedRoute.from) {
+				setLocation(nextLocation);
+				history.pushState(null, '', nextLocation.pathname);
+				return;
+			}
+			setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
+		},
+		[blockedRoute.from]
+	);
+
 	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
 		if (!Component) return null;
 		return typeof Component === 'function' ? <Component /> : Component;
@@ -39,23 +51,14 @@ export const Router = ({ routeList }: RouterProps) => {
 				if (prevState.from === payload && type === 'charge') return prevState;
 				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
 				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') setLocation({ pathname: prevState.to });
+				if (type === 'process') {
+					setLocation({ pathname: prevState.to });
+					history.pushState(null, '', prevState.to);
+				}
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
 		[]
-	);
-
-	const updateLocation = useCallback(
-		(nextLocation: Location) => {
-			if (window.location.pathname !== blockedRoute.from) {
-				setLocation(nextLocation);
-				history.pushState(null, '', nextLocation.pathname);
-				return;
-			}
-			setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
-		},
-		[blockedRoute.from]
 	);
 
 	const prefetchLoader = useCallback(
