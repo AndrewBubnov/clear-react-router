@@ -23,4 +23,4 @@ export type Location = {
 
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
-export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge'; payload?: string };
+export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };

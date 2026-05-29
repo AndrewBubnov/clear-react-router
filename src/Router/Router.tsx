@@ -39,7 +39,8 @@ export const Router = ({ routeList }: RouterProps) => {
 				if (prevState.from === payload && type === 'charge') return prevState;
 				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
 				if (type === 'reset') return { ...prevState, to: '' };
-				setLocation({ pathname: prevState.to });
+				if (type === 'process') setLocation({ pathname: prevState.to });
+				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
 		[]
