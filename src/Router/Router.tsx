@@ -49,6 +49,7 @@ export const Router = ({ routeList }: RouterProps) => {
 		(nextLocation: Location) => {
 			if (window.location.pathname !== blockedRoute.from) {
 				setLocation(nextLocation);
+				history.pushState(null, '', nextLocation.pathname);
 				return;
 			}
 			setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
