@@ -2,7 +2,7 @@ import { type ReactElement, useCallback, useEffect, useMemo, useState } from 're
 import { RouterProvider } from './provider/RouterProvider.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from './utils.ts';
 import { useLoader } from './hooks/useLoader.ts';
-import type { Location, RouteItem } from './types.ts';
+import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from './types.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
@@ -13,6 +13,7 @@ const ALL_LOCATIONS = '*';
 
 export const Router = ({ routeList }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
+	const [blockedRoute, setBlockedRoute] = useState<{ from: string; to: string }>({ from: '', to: '' });
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
@@ -32,6 +33,29 @@ export const Router = ({ routeList }: RouterProps) => {
 		return typeof Component === 'function' ? <Component /> : Component;
 	}, []);
 
+	const updateBlockedRoute = useCallback(
+		({ type, payload = '' }: UpdateBlockedRouteProps) =>
+			setBlockedRoute(prevState => {
+				if (prevState.from === payload && type === 'charge') return prevState;
+				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
+				if (type === 'reset') return { ...prevState, to: '' };
+				setLocation({ pathname: prevState.to });
+				return { from: '', to: '' };
+			}),
+		[]
+	);
+
+	const updateLocation = useCallback(
+		(nextLocation: Location) => {
+			if (window.location.pathname !== blockedRoute.from) {
+				setLocation(nextLocation);
+				return;
+			}
+			setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
+		},
+		[blockedRoute.from]
+	);
+
 	const prefetchLoader = useCallback(
 		async (pathname: string) => {
 			const item = routeList.find(el => comparePaths(el, pathname));
@@ -47,15 +71,23 @@ export const Router = ({ routeList }: RouterProps) => {
 		return getParamsObject(routeItem.params, split);
 	}, [routeItem]);
 
+	const blockerState: BlockerState = useMemo(() => {
+		if (blockedRoute.from && blockedRoute.to) return 'blocked';
+		if (blockedRoute.from) return 'charged';
+		return 'unblocked';
+	}, [blockedRoute]);
+
 	const providerProps = useMemo(
 		() => ({
 			location,
-			setLocation,
+			updateLocation,
 			params,
 			loaderCache,
 			prefetchLoader,
+			updateBlockedRoute,
+			blockerState,
 		}),
-		[loaderCache, location, params, prefetchLoader]
+		[blockerState, loaderCache, location, params, prefetchLoader, updateBlockedRoute, updateLocation]
 	);
 
 	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])

@@ -20,3 +20,7 @@ export type Location = {
 	search?: string;
 	state?: unknown;
 };
+
+export type BlockerState = 'blocked' | 'unblocked' | 'charged';
+
+export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge'; payload?: string };
