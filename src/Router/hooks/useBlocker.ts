@@ -15,7 +15,10 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 		blockerState,
 	} = useRouterContext();
 
-	useEffect(() => updateBlockedRoute(blockerFn() ? { type: 'charge', payload: pathname } : { type: 'unblock' }));
+	useEffect(
+		() => updateBlockedRoute(blockerFn() ? { type: 'charge', payload: pathname } : { type: 'unblock' }),
+		[blockerFn, pathname, updateBlockedRoute]
+	);
 
 	return {
 		state: blockerState,
