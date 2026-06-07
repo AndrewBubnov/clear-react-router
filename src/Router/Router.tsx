@@ -35,11 +35,11 @@ export const Router = ({ routeList }: RouterProps) => {
 
 	const updateLocation = useCallback(
 		(nextLocation: Location) => {
-			if (window.location.pathname !== blockedRoute.from) {
+			if (blockedRoute.from) {
+				setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
+			} else {
 				setNextLocation(nextLocation);
-				return;
 			}
-			setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
 		},
 		[blockedRoute.from, setNextLocation]
 	);
