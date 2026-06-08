@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { comparePaths } from '../utils.ts';
+import { comparePaths } from '../utils/utils.ts';
 import type { RouteItem } from '../types.ts';
 
 export const useLoader = (routeList: RouteItem[], currentRouteItem: RouteItem | undefined) => {

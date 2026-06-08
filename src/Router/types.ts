@@ -8,6 +8,8 @@ export type ClientRouteItem = {
 	errorElement?: (() => ReactElement) | ReactElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	beforeLoad?: () => Promise<unknown>;
+	afterLoad?: () => Promise<unknown>;
 };
 
 export type RouteItem = ClientRouteItem & {

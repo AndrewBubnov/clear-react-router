@@ -2,7 +2,7 @@ import { type ReactElement, useCallback, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
 import { useBlockNavigation } from './hooks/useBlockNavigation.ts';
 import { useLoader } from './hooks/useLoader.ts';
-import { comparePaths, getParamsObject, parseWindowLocation } from './utils.ts';
+import { comparePaths, getParamsObject, parseWindowLocation } from './utils/utils.ts';
 import type { Location, RouteItem } from './types.ts';
 
 type RouterProps = {
@@ -15,7 +15,7 @@ const ALL_LOCATIONS = '*';
 export const Router = ({ routeList }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
 
-	const { blockerState, updateLocation, updateBlockedRoute } = useBlockNavigation(setLocation);
+	const { blockerState, updateLocation, updateBlockedRoute } = useBlockNavigation(routeList, setLocation);
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),

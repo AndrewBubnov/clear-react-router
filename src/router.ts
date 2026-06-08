@@ -7,7 +7,8 @@ import { User } from './components/User.tsx';
 import { NotFound } from './components/NotFound.tsx';
 import { Fallback } from './components/Fallback.tsx';
 import { ErrorComponent } from './components/ErrorComponent.tsx';
-import { createRouter } from './Router/utils.ts';
+import { createRouter } from './Router/utils/utils.ts';
+import { redirect } from './Router/utils/redirect.ts';
 
 export const routeList = createRouter([
 	{
@@ -27,6 +28,10 @@ export const routeList = createRouter([
 	{ path: '/about', element: About },
 	{ path: '/test', element: Test },
 	{ path: '/user/:userId', element: User },
-	{ path: '/post/:postId', element: Post, children: [{ path: '/comment/:commentId', element: Comment }] },
+	{
+		path: '/post/:postId',
+		element: Post,
+		children: [{ path: '/comment/:commentId', element: Comment, beforeLoad: () => redirect('/') }],
+	},
 	{ path: '*', element: NotFound },
 ]);
