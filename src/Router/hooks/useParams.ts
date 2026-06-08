@@ -1,7 +1,7 @@
-import { useServiceContext } from './useServiceContext.ts';
+import { useNavigationState } from './useServiceContext.ts';
 
 export const useParams = <T>() => {
-	const { params } = useServiceContext('useLocation');
+	const { params } = useNavigationState();
 
 	return params as T;
 };

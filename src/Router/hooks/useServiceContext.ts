@@ -1,12 +1,26 @@
 import { useContext } from 'react';
-import { RouterContext } from '../context/RouterContext.ts';
+import { ActionsContext, DataContext, NavigationContext } from '../context/RouterContext.ts';
 
-const ERROR_MESSAGE = 'must be used within Router component';
+export const useNavigationState = () => {
+	const context = useContext(NavigationContext);
 
-export const useServiceContext = (name: string = 'hooks and components') => {
-	const context = useContext(RouterContext);
+	if (!Object.keys(context).length) throw new Error('useNavigationState must be used within Router component');
 
-	if (!Object.keys(context).length) throw new Error(`${name} ${ERROR_MESSAGE}`);
+	return context;
+};
+
+export const useRouterActions = () => {
+	const context = useContext(ActionsContext);
+
+	if (!Object.keys(context).length) throw new Error('useRouterActions must be used within Router component');
+
+	return context;
+};
+
+export const useRouterData = () => {
+	const context = useContext(DataContext);
+
+	if (!Object.keys(context).length) throw new Error('useRouterData must be used within Router component');
 
 	return context;
 };

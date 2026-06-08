@@ -1,16 +1,24 @@
 import { createContext } from 'react';
 import type { BlockerState, Location, UpdateBlockedRouteProps } from '../types.ts';
 
-export type RouterContextProps = {
+export type NavigationContextValue = {
 	location: Location;
-	updateLocation(route: Location): void;
 	params: Record<string, string>;
-	loaderCache: Record<string, unknown>;
-	prefetchLoader(arg: string): Promise<void>;
-	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	blockerState: BlockerState;
-	context: object;
+};
+
+export type ActionsContextValue = {
+	updateLocation(route: Location): void;
+	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
+	prefetchLoader(arg: string): Promise<void>;
 	setContext(arg: object): void;
 };
 
-export const RouterContext = createContext({} as RouterContextProps);
+export type DataContextValue = {
+	loaderCache: Record<string, unknown>;
+	context: Record<string, unknown>;
+};
+
+export const ActionsContext = createContext({} as ActionsContextValue);
+export const DataContext = createContext({} as DataContextValue);
+export const NavigationContext = createContext({} as NavigationContextValue);
