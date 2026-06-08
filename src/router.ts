@@ -13,7 +13,13 @@ export const routeList = createRouter([
 	{
 		path: '/',
 		element: Home,
-		loader: () => new Promise((resolve, _) => setTimeout(() => resolve('hello'), 1000)),
+		loader: () =>
+			new Promise((resolve, _) =>
+				setTimeout(() => {
+					console.log('fetched');
+					resolve('hello');
+				}, 1000)
+			),
 		fallback: Fallback,
 		errorElement: ErrorComponent,
 		staleTime: 10000,

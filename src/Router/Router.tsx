@@ -22,20 +22,12 @@ export const Router = ({ routeList }: RouterProps) => {
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, revalidateCache } = useLoader(routeItem);
+	const { loaderError, loaderCache, prefetchLoader } = useLoader(routeList, routeItem);
 
 	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
 		if (!Component) return null;
 		return typeof Component === 'function' ? <Component /> : Component;
 	}, []);
-
-	const prefetchLoader = useCallback(
-		async (pathname: string) => {
-			const item = routeList.find(el => comparePaths(el, pathname));
-			if (item) await revalidateCache(item);
-		},
-		[revalidateCache, routeList]
-	);
 
 	const params = useMemo(() => {
 		if (!routeItem?.params) return {};

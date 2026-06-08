@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RouteItem } from '../types.ts';
+import { comparePaths } from '../utils.ts';
 
-export const useLoader = (routeItem: RouteItem | undefined) => {
+export const useLoader = (routeList: RouteItem[], currentRouteItem: RouteItem | undefined) => {
 	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
 	const [cacheTimestamps, setCacheTimestamps] = useState<Record<string, number>>({});
 	const [loaderError, setLoaderError] = useState<boolean>(false);
@@ -49,9 +50,17 @@ export const useLoader = (routeItem: RouteItem | undefined) => {
 		[isCacheItemFresh, updateCache]
 	);
 
-	useEffect(() => {
-		(async () => await revalidateCache(routeItem))();
-	}, [revalidateCache, routeItem]);
+	const prefetchLoader = useCallback(
+		async (pathname: string) => {
+			const item = routeList.find(el => comparePaths(el, pathname));
+			if (item) await revalidateCache(item);
+		},
+		[revalidateCache, routeList]
+	);
 
-	return { loaderCache, loaderError, revalidateCache };
+	useEffect(() => {
+		(async () => await revalidateCache(currentRouteItem))();
+	}, [revalidateCache, currentRouteItem]);
+
+	return { loaderCache, loaderError, prefetchLoader };
 };
