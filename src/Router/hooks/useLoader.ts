@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { RouteItem } from '../types.ts';
 import { comparePaths } from '../utils.ts';
+import type { RouteItem } from '../types.ts';
 
 export const useLoader = (routeList: RouteItem[], currentRouteItem: RouteItem | undefined) => {
 	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
