@@ -2,8 +2,9 @@ import { Link } from '../Router/Link.tsx';
 import { useParams } from '../Router/hooks/useParams.ts';
 import { useNavigate } from '../Router/hooks/useNavigate.ts';
 import { useLocation } from '../Router/hooks/useLocation.ts';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useBlocker } from '../Router/hooks/useBlocker.ts';
+import { useBeforeUnload } from '../Router/hooks/useBeforeUnload.ts';
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
 
@@ -14,6 +15,13 @@ export const Post = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 	const { state, process, reset } = useBlocker(() => Boolean(text.length));
+
+	const onSave = useCallback(() => {
+		setPost(text);
+		setText('');
+	}, [text]);
+
+	useBeforeUnload(onSave);
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '0 100px' }}>
@@ -36,13 +44,7 @@ export const Post = () => {
 				<>
 					<h3>{`Post ${postId}`}</h3>
 					<input type="text" value={text} onChange={e => setText(e.target.value)} />
-					<button
-						onClick={() => {
-							setPost(text);
-							setText('');
-						}}
-						style={{ width: 'fit-content' }}
-					>
+					<button onClick={onSave} style={{ width: 'fit-content' }}>
 						Save post
 					</button>
 					{post}
