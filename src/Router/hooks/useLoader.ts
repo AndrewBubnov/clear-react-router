@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { comparePaths } from '../utils/utils.ts';
 import type { RouteItem } from '../types.ts';
 
-export const useLoader = (routeList: RouteItem[], currentRouteItem: RouteItem | undefined) => {
+type UseLoader = {
+	routeList: RouteItem[];
+	currentRouteItem: RouteItem | undefined;
+};
+
+export const useLoader = ({ currentRouteItem, routeList }: UseLoader) => {
 	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
 	const [cacheTimestamps, setCacheTimestamps] = useState<Record<string, number>>({});
 	const [loaderError, setLoaderError] = useState<boolean>(false);

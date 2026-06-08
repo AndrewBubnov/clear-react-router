@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import { useRouterContext } from './useRouterContext.ts';
+import { useServiceContext } from './useServiceContext.ts';
 import type { Location } from '../types.ts';
 
 export const useNavigate = () => {
-	const { updateLocation } = useRouterContext('useNavigate');
+	const { updateLocation } = useServiceContext('useNavigate');
 
 	return useCallback(
 		(arg: Location | -1) => {

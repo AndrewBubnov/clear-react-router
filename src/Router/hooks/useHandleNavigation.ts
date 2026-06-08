@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types.ts';
 import { comparePaths, parseWindowLocation } from '../utils/utils.ts';
 import { Redirect } from '../utils/redirect.ts';
+import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types.ts';
 
 type BlockedRoute = { from: string; to: string };
 
-export const useBlockNavigation = (routeList: RouteItem[], setLocation: (arg: Location) => void) => {
+type UseHandleNavigation = {
+	routeList: RouteItem[];
+	setLocation: (arg: Location) => void;
+	context: Record<string, unknown>;
+};
+
+export const useHandleNavigation = ({ setLocation, routeList, context }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
 	const prevPathname = useRef<string>('');
@@ -14,19 +20,18 @@ export const useBlockNavigation = (routeList: RouteItem[], setLocation: (arg: Lo
 		async (nextLocation: Location) => {
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-				if (nextItem?.beforeLoad) await nextItem?.beforeLoad();
+				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
 				setLocation(nextLocation);
 				history.pushState(null, '', nextLocation.pathname);
 				prevPathname.current = nextLocation.pathname;
-				if (nextItem?.afterLoad) await nextItem?.afterLoad();
+				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (redirect) {
 				if (!(redirect instanceof Redirect)) return redirect;
-				if (redirect.url === nextLocation.pathname) return;
 				history.replaceState(null, '', `${redirect.url}${redirect.search || ''}`);
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
 		},
-		[routeList, setLocation]
+		[context, routeList, setLocation]
 	);
 
 	const updateBlockedRoute = useCallback(
@@ -66,6 +71,11 @@ export const useBlockNavigation = (routeList: RouteItem[], setLocation: (arg: Lo
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
 	}, [blockedRoute.from, setNextLocation]);
+
+	useEffect(() => {
+		const currentLocation = parseWindowLocation(window.location);
+		setNextLocation(currentLocation);
+	}, [setNextLocation]);
 
 	const blockerState: BlockerState = useMemo(() => {
 		if (blockedRoute.from && blockedRoute.to) return 'blocked';

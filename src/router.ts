@@ -31,7 +31,15 @@ export const routeList = createRouter([
 	{
 		path: '/post/:postId',
 		element: Post,
-		children: [{ path: '/comment/:commentId', element: Comment, beforeLoad: () => redirect('/') }],
+		children: [
+			{
+				path: '/comment/:commentId',
+				element: Comment,
+				beforeLoad: context => {
+					if (!context.isAuthorized) return redirect('/');
+				},
+			},
+		],
 	},
 	{ path: '*', element: NotFound },
 ]);

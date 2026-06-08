@@ -1,6 +1,6 @@
 import { type ReactElement, type MouseEvent, type CSSProperties } from 'react';
 import { useNavigate } from './hooks/useNavigate.ts';
-import { useRouterContext } from './hooks/useRouterContext.ts';
+import { useServiceContext } from './hooks/useServiceContext.ts';
 
 type LinkProps = {
 	to: string;
@@ -9,7 +9,7 @@ type LinkProps = {
 };
 
 export const Link = ({ children, to, prefetch = true }: LinkProps) => {
-	const { prefetchLoader } = useRouterContext();
+	const { prefetchLoader } = useServiceContext();
 	const navigate = useNavigate();
 	return (
 		<a

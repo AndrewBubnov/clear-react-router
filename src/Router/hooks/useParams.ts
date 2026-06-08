@@ -1,7 +1,7 @@
-import { useRouterContext } from './useRouterContext.ts';
+import { useServiceContext } from './useServiceContext.ts';
 
 export const useParams = <T>() => {
-	const { params } = useRouterContext('useLocation');
+	const { params } = useServiceContext('useLocation');
 
 	return params as T;
 };

@@ -9,6 +9,8 @@ export type RouterContextProps = {
 	prefetchLoader(arg: string): Promise<void>;
 	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	blockerState: BlockerState;
+	context: object;
+	setContext(arg: object): void;
 };
 
 export const RouterContext = createContext({} as RouterContextProps);

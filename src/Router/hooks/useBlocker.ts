@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouterContext } from './useRouterContext.ts';
+import { useServiceContext } from './useServiceContext.ts';
 import type { BlockerState } from '../types.ts';
 
 type UseBlockerReturnValue = {
@@ -13,7 +13,7 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 		updateBlockedRoute,
 		location: { pathname },
 		blockerState,
-	} = useRouterContext();
+	} = useServiceContext();
 
 	const shouldBlock = blockerFn();
 

@@ -1,28 +1,34 @@
 import { type ReactElement, useCallback, useMemo, useState } from 'react';
 import { RouterProvider } from './provider/RouterProvider.tsx';
-import { useBlockNavigation } from './hooks/useBlockNavigation.ts';
+import { useHandleNavigation } from './hooks/useHandleNavigation.ts';
 import { useLoader } from './hooks/useLoader.ts';
 import { comparePaths, getParamsObject, parseWindowLocation } from './utils/utils.ts';
 import type { Location, RouteItem } from './types.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
+	initialContext?: Record<string, unknown>;
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = ({ routeList }: RouterProps) => {
+export const Router = ({ routeList, initialContext = {} }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
-
-	const { blockerState, updateLocation, updateBlockedRoute } = useBlockNavigation(routeList, setLocation);
+	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader } = useLoader(routeList, routeItem);
+	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
+		setLocation,
+		routeList,
+		context,
+	});
+
+	const { loaderError, loaderCache, prefetchLoader } = useLoader({ routeList, currentRouteItem: routeItem });
 
 	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
 		if (!Component) return null;
@@ -45,8 +51,10 @@ export const Router = ({ routeList }: RouterProps) => {
 			prefetchLoader,
 			updateBlockedRoute,
 			blockerState,
+			context,
+			setContext,
 		}),
-		[blockerState, loaderCache, location, params, prefetchLoader, updateBlockedRoute, updateLocation]
+		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
 	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])
