@@ -1,3 +1,4 @@
+import { createRouter, redirect } from './clear-router';
 import { Home } from './components/Home.tsx';
 import { About } from './components/About.tsx';
 import { Test } from './components/Test.tsx';
@@ -7,10 +8,8 @@ import { User } from './components/User.tsx';
 import { NotFound } from './components/NotFound.tsx';
 import { Fallback } from './components/Fallback.tsx';
 import { ErrorComponent } from './components/ErrorComponent.tsx';
-import { createRouter } from './Router/utils/utils.ts';
-import { redirect } from './Router/utils/redirect.ts';
 
-export const routeList = createRouter([
+export const routes = createRouter([
 	{
 		path: '/',
 		element: Home,

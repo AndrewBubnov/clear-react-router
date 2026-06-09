@@ -1,5 +1,13 @@
 import { useCallback, useState } from 'react';
-import { useRouterContext, Link, useBeforeUnload, useNavigate, useLocation, useBlocker, useParams } from '../Router';
+import {
+	useRouterContext,
+	Link,
+	useBeforeUnload,
+	useNavigate,
+	useLocation,
+	useBlocker,
+	useParams,
+} from '../clear-router';
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
 

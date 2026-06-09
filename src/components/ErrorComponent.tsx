@@ -1,4 +1,4 @@
-import { Link, useLocation } from '../Router';
+import { Link, useLocation } from '../clear-router';
 
 export const ErrorComponent = () => {
 	console.log(useLocation());

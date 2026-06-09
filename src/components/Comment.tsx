@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from '../Router';
+import { Link, useLocation, useParams } from '../clear-router';
 
 export const Comment = () => {
 	const { postId, commentId } = useParams<{ postId: string; commentId: string }>();

@@ -7,6 +7,8 @@ import { useLoaderState } from './hooks/useLoaderState.ts';
 import { useBlocker } from './hooks/useBlocker.ts';
 import { useBeforeUnload } from './hooks/useBeforeUnload.ts';
 import { useRouterContext } from './hooks/useRouterContext.ts';
+import { createRouter } from './utils/utils.ts';
+import { redirect } from './utils/redirect.ts';
 
 export {
 	Router,
@@ -18,4 +20,6 @@ export {
 	useRouterContext,
 	useBlocker,
 	useBeforeUnload,
+	createRouter,
+	redirect,
 };

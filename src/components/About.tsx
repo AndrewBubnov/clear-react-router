@@ -1,4 +1,4 @@
-import { Link } from '../Router';
+import { Link } from '../clear-router';
 
 const id = Math.ceil(Math.random() * 100 + 1);
 

@@ -1,4 +1,4 @@
-import { Link } from '../Router';
+import { Link } from '../clear-router';
 
 export const NotFound = () => {
 	return (

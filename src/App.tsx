@@ -1,9 +1,9 @@
 import './App.css';
-import { Router } from './Router/components/Router.tsx';
-import { routeList } from './config.ts';
+import { Router } from './clear-router';
+import { routes } from './routes.ts';
 
 function App() {
-	return <Router routeList={routeList} />;
+	return <Router routeList={routes} />;
 }
 
 export default App;
