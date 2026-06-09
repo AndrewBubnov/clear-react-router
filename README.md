@@ -30,10 +30,11 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 ### `redirect(url, search?)`
 
 Redirects from `beforeLoad`.
-
-beforeLoad: async () => {
-  if (!isAuthenticated) return redirect('/login');
-}
+```
+beforeLoad: context => {
+					if (!context.isAuthorized) return redirect('/');
+				}
+```
 
 ### `Link`
 
