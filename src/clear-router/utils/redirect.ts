@@ -9,4 +9,4 @@ export class Redirect {
 	}
 }
 
-export const redirect = (url: string, search?: string): Promise<never> => Promise.reject(new Redirect(url, search));
+export const redirect = (url: string, search?: string) => Promise.reject(new Redirect(url, search));

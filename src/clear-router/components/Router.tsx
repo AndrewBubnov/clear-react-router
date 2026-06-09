@@ -1,7 +1,8 @@
-import { type ReactElement, useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { RouterProvider } from '../provider/RouterProvider.tsx';
 import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
+import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
 import type { Location, RouteItem } from '../types/types.ts';
 
@@ -29,11 +30,6 @@ export const Router = ({ routeList, initialContext = {} }: RouterProps) => {
 	});
 
 	const { loaderError, loaderCache, prefetchLoader } = useLoader({ routeList, currentRouteItem: routeItem });
-
-	const renderElement = useCallback((Component?: (() => ReactElement) | ReactElement) => {
-		if (!Component) return null;
-		return typeof Component === 'function' ? <Component /> : Component;
-	}, []);
 
 	const params = useMemo(() => {
 		if (!routeItem?.params) return {};
