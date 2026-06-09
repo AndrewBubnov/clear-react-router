@@ -24,7 +24,7 @@ export const Post = () => {
 		setText('');
 	}, [text]);
 
-	useBeforeUnload(onSave);
+	useBeforeUnload(text ? onSave : undefined);
 
 	const { setContext } = useRouterContext();
 

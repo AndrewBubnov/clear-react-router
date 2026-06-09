@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 
-export const useBeforeUnload = (callback: () => void) => {
+export const useBeforeUnload = (callback?: () => void) => {
 	useEffect(() => {
 		const handler = (event: BeforeUnloadEvent) => {
+			if (!callback) return;
 			event.preventDefault();
 			callback();
 		};
