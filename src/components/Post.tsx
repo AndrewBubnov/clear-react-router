@@ -11,7 +11,7 @@ import {
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
 
-export const Post = () => {
+const Post = () => {
 	const [text, setText] = useState('');
 	const [post, setPost] = useState('');
 	const { postId } = useParams<{ postId: string }>();
@@ -74,3 +74,5 @@ export const Post = () => {
 		</div>
 	);
 };
+
+export default Post;

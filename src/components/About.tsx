@@ -2,7 +2,7 @@ import { Link } from '../clear-router';
 
 const id = Math.ceil(Math.random() * 100 + 1);
 
-export const About = () => {
+const About = () => {
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>About</h3>
@@ -12,3 +12,5 @@ export const About = () => {
 		</div>
 	);
 };
+
+export default About;

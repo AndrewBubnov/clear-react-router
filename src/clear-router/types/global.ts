@@ -1,11 +1,14 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
+
+export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
 export type ClientRouteItem = {
 	path: string;
-	element: (() => ReactElement) | ReactElement;
+	element: (() => ReactElement) | ReactElement | LazyComponent;
 	loader?(...args: unknown[]): Promise<unknown>;
-	fallback?: (() => ReactElement) | ReactElement;
+	loaderFallback?: (() => ReactElement) | ReactElement;
 	errorElement?: (() => ReactElement) | ReactElement;
+	fallback?: (() => ReactElement) | ReactElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
 	beforeLoad?: (context: Record<string, unknown>) => Promise<unknown> | undefined;
@@ -13,6 +16,7 @@ export type ClientRouteItem = {
 };
 
 export type RouteItem = ClientRouteItem & {
+	element: (() => ReactElement) | ReactElement;
 	params?: { key: string; value: string }[];
 	cacheTimestamp?: number;
 };

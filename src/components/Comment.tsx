@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from '../clear-router';
 
-export const Comment = () => {
+const Comment = () => {
 	const { postId, commentId } = useParams<{ postId: string; commentId: string }>();
 	const { state } = useLocation();
 
@@ -14,3 +14,5 @@ export const Comment = () => {
 		</div>
 	);
 };
+
+export default Comment;

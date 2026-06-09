@@ -1,6 +1,6 @@
 import { Link, useLoaderState } from '../clear-router';
 
-export const Home = () => {
+const Home = () => {
 	console.log(useLoaderState());
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -11,3 +11,5 @@ export const Home = () => {
 		</div>
 	);
 };
+
+export default Home;

@@ -49,7 +49,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 	);
 
 	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])
-		return <RouterProvider {...providerProps}>{renderElement(routeItem?.fallback)}</RouterProvider>;
+		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
 	if (routeItem?.loader && loaderError)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;

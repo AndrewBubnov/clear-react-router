@@ -1,4 +1,8 @@
-import type { ClientRouteItem, Location, RouteItem } from '../types/global.ts';
+import { createLazyComponent } from './createLazyComponent.tsx';
+import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global.ts';
+import type { ReactElement } from 'react';
+
+const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 
 const parseClientRouteItem = (
 	el: ClientRouteItem,
@@ -26,7 +30,14 @@ const parseClientRouteItem = (
 
 	const path = currentParams.length ? `${parentPath}${splitPath.slice(0, splitPath.length - 1).join('/')}` : el.path;
 
-	const currentRoute: RouteItem = { ...el, path, params: currentParams };
+	const resolvedElement = isLazy(el) ? createLazyComponent(el.element as LazyComponent, el.fallback) : el.element;
+
+	const currentRoute: RouteItem = {
+		...el,
+		path,
+		params: currentParams,
+		element: resolvedElement as (() => ReactElement) | ReactElement,
+	};
 
 	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, currentParams, path)) || [];
 
