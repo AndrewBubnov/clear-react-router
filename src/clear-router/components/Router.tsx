@@ -31,12 +31,7 @@ export const Router = ({ routeList, initialContext = {} }: RouterProps) => {
 
 	const { loaderError, loaderCache, prefetchLoader } = useLoader({ routeList, currentRouteItem: routeItem });
 
-	const params = useMemo(() => {
-		if (!routeItem?.params) return {};
-		const { pathname } = window.location;
-		const split = pathname.split('/');
-		return getParamsObject(routeItem.params, split);
-	}, [routeItem]);
+	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
 
 	const providerProps = useMemo(
 		() => ({
