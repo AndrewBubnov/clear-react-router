@@ -8,13 +8,13 @@ import type { Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
-	initialContext?: Record<string, unknown>;
+	context?: Record<string, unknown>;
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = ({ routeList, initialContext = {} }: RouterProps) => {
+export const Router = ({ routeList, context: initialContext = {} }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
