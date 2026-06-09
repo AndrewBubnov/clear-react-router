@@ -23,13 +23,14 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[location.pathname, routeList]
 	);
 
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache } = useLoader(routeList);
+
 	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
+		revalidateCache,
 	});
-
-	const { loaderError, loaderCache, prefetchLoader } = useLoader({ routeList, currentRouteItem: routeItem });
 
 	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
 

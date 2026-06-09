@@ -9,9 +9,10 @@ type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
+	revalidateCache(routeItem?: RouteItem): Promise<void>;
 };
 
-export const useHandleNavigation = ({ setLocation, routeList, context }: UseHandleNavigation) => {
+export const useHandleNavigation = ({ setLocation, routeList, context, revalidateCache }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
 	const prevPathname = useRef<string>('');
@@ -21,6 +22,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context }: UseHand
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
+				await revalidateCache(nextItem);
 				setLocation(nextLocation);
 				history.pushState(null, '', nextLocation.pathname);
 				prevPathname.current = nextLocation.pathname;
@@ -31,7 +33,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context }: UseHand
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
 		},
-		[context, routeList, setLocation]
+		[context, revalidateCache, routeList, setLocation]
 	);
 
 	const updateBlockedRoute = useCallback(
