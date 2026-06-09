@@ -8,7 +8,7 @@ export type NavigationContextValue = {
 };
 
 export type ActionsContextValue = {
-	updateLocation(route: Location): void;
+	updateLocation(route: Location): Promise<void>;
 	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	prefetchLoader(arg: string): Promise<void>;
 	setContext(arg: object): void;

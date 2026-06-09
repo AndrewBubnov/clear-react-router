@@ -48,24 +48,24 @@ export const useHandleNavigation = ({ setLocation, routeList, context }: UseHand
 	);
 
 	const updateLocation = useCallback(
-		(nextLocation: Location) => {
+		async (nextLocation: Location) => {
 			if (blockedRoute.from) {
 				setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
 			} else {
-				setNextLocation(nextLocation);
+				await setNextLocation(nextLocation);
 			}
 		},
 		[blockedRoute.from, setNextLocation]
 	);
 
 	useEffect(() => {
-		const handler = (event: PopStateEvent) => {
+		const handler = async (event: PopStateEvent) => {
 			const newLocation = (event.target as Window).location;
 			if (prevPathname.current === blockedRoute.from) {
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
 				history.replaceState(null, '', prevPathname.current);
 			} else {
-				setNextLocation(parseWindowLocation(newLocation));
+				await setNextLocation(parseWindowLocation(newLocation));
 			}
 		};
 		window.addEventListener('popstate', handler);

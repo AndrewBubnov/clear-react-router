@@ -6,9 +6,9 @@ export const useNavigate = () => {
 	const { updateLocation } = useRouterActions();
 
 	return useCallback(
-		(arg: Location | -1) => {
+		async (arg: Location | -1) => {
 			if (arg === -1) return history.go(-1);
-			updateLocation(arg);
+			await updateLocation(arg);
 		},
 		[updateLocation]
 	);
