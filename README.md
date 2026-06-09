@@ -82,8 +82,7 @@ Blocks navigation when callback returns `true`.
 | `process()` | `() => void` | Confirm navigation and proceed |
 | `reset()` | `() => void` | Cancel navigation |
 
-**Example:**
-
+```
 const { state, process, reset } = useBlocker(() => hasUnsavedChanges);
 
 useEffect(() => {
@@ -96,6 +95,7 @@ useEffect(() => {
     }
   }
 }, [state, process, reset]);
+```
 
 ### `useBeforeUnload(callback?)`
 
@@ -109,8 +109,7 @@ Executes a callback when the page is about to be closed or reloaded. Perfect for
 
 **Note:** This hook does not show a browser confirmation dialog. It silently executes the callback, allowing you to save user data in the background before the page closes.
 
-**Example:**
-
+```
 const [text, setText] = useState('');
 const onSave = useCallback(() => {
   localStorage.setItem('draft', text);
@@ -118,3 +117,4 @@ const onSave = useCallback(() => {
 
 // Auto-save when user tries to close/reload the page
 useBeforeUnload(text ? onSave : undefined);
+```
