@@ -63,7 +63,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context }: UseHand
 			const newLocation = (event.target as Window).location;
 			if (prevPathname.current === blockedRoute.from) {
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
-				history.replaceState(null, '', prevPathname.current);
+				history.pushState(null, '', prevPathname.current);
 			} else {
 				await setNextLocation(parseWindowLocation(newLocation));
 			}
