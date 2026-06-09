@@ -4,7 +4,7 @@ import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
 import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
-import type { Location, RouteItem } from '../types/types.ts';
+import type { Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];

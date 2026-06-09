@@ -1,4 +1,4 @@
-import type { ClientRouteItem, Location, RouteItem } from '../types/types.ts';
+import type { ClientRouteItem, Location, RouteItem } from '../types/global.ts';
 
 const parseClientRouteItem = (
 	el: ClientRouteItem,
