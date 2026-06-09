@@ -1,5 +1,4 @@
-import { Link } from '../Router/Link.tsx';
-import { useParams } from '../Router/hooks/useParams.ts';
+import { Link, useParams } from '../Router';
 
 export const User = () => {
 	const { userId } = useParams<{ userId: string }>();

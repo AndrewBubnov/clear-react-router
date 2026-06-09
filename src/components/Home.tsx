@@ -1,5 +1,4 @@
-import { Link } from '../Router/Link.tsx';
-import { useLoaderState } from '../Router/hooks/useLoaderState.ts';
+import { Link, useLoaderState } from '../Router';
 
 export const Home = () => {
 	console.log(useLoaderState());

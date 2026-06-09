@@ -1,11 +1,5 @@
-import { Link } from '../Router/Link.tsx';
-import { useParams } from '../Router/hooks/useParams.ts';
-import { useNavigate } from '../Router/hooks/useNavigate.ts';
-import { useLocation } from '../Router/hooks/useLocation.ts';
 import { useCallback, useState } from 'react';
-import { useBlocker } from '../Router/hooks/useBlocker.ts';
-import { useBeforeUnload } from '../Router/hooks/useBeforeUnload.ts';
-import { useRouterContext } from '../Router/hooks/useRouterContext.ts';
+import { useRouterContext, Link, useBeforeUnload, useNavigate, useLocation, useBlocker, useParams } from '../Router';
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
 

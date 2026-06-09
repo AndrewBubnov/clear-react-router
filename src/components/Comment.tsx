@@ -1,6 +1,4 @@
-import { Link } from '../Router/Link.tsx';
-import { useParams } from '../Router/hooks/useParams.ts';
-import { useLocation } from '../Router/hooks/useLocation.ts';
+import { Link, useLocation, useParams } from '../Router';
 
 export const Comment = () => {
 	const { postId, commentId } = useParams<{ postId: string; commentId: string }>();

@@ -1,5 +1,4 @@
-import { Link } from '../Router/Link.tsx';
-import { useLocation } from '../Router/hooks/useLocation.ts';
+import { Link, useLocation } from '../Router';
 
 export const ErrorComponent = () => {
 	console.log(useLocation());

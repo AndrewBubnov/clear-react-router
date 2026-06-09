@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigationState, useRouterActions } from './useServiceContext.ts';
-import type { BlockerState } from '../types.ts';
+import type { BlockerState } from '../types/types.ts';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
