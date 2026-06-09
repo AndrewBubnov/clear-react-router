@@ -22,10 +22,10 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
-				await revalidateCache(nextItem);
 				setLocation(nextLocation);
 				history.pushState(null, '', nextLocation.pathname);
 				prevPathname.current = nextLocation.pathname;
+				await revalidateCache(nextItem);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (redirect) {
 				if (!(redirect instanceof Redirect)) return redirect;
@@ -65,7 +65,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 			const newLocation = (event.target as Window).location;
 			if (prevPathname.current === blockedRoute.from) {
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
-				history.pushState(null, '', prevPathname.current);
+				history.replaceState(null, '', prevPathname.current);
 			} else {
 				await setNextLocation(parseWindowLocation(newLocation));
 			}

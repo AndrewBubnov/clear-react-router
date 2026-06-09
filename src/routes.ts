@@ -14,11 +14,11 @@ export const routes = createRouter([
 				setTimeout(() => {
 					console.log('fetched');
 					resolve('hello');
-				}, 1000)
+				}, 3000)
 			),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
-		staleTime: 10000,
+		staleTime: 1000,
 	},
 	{ path: '/about', element: () => import('./components/About.tsx') },
 	{ path: '/test', element: Test },
