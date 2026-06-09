@@ -53,7 +53,19 @@ Component for client-side navigation with prefetch support.
 Returns function to navigate programmatically:
 
 - `navigate({ pathname: '/about' })` - navigate to path
+- `navigate({ pathname: '/user/123', state: { fromDashboard: true } })` - navigate with state
 - `navigate(-1)` - go back
+
+**Note:** Navigation state can be accessed via `useLocation()`:
+
+```
+const navigate = useNavigate();
+navigate({ pathname: '/profile', state: { userId: 123 } });
+
+// In Profile component
+const { state } = useLocation();
+console.log(state); // { userId: 123 }
+```
 
 ### `useParams<T>()`
 
@@ -64,7 +76,10 @@ const params = useParams<{ userId: string }>();
 
 ### `useLocation()`
 
-Returns current location `{ pathname, search }`.
+Returns current location `{ pathname, search, state }`.
+```
+const { pathname, search, state } = useLocation();
+```
 
 ### `useLoaderState()`
 
@@ -118,3 +133,37 @@ const onSave = useCallback(() => {
 // Auto-save when user tries to close/reload the page
 useBeforeUnload(text ? onSave : undefined);
 ```
+## Route Configuration
+
+### `RouteItem`
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `path` | `string` | Route path, e.g., `/user/:userId` |
+| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
+| `loader` | `() => Promise<unknown>` | Fetch data |
+| `beforeLoad` | `(context) => Promise<void>` | Auth checks, redirects |
+| `afterLoad` | `(context) => Promise<void>` | Analytics, side effects |
+| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
+| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
+| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
+| `staleTime` | `number` | Cache duration in ms for loader data |
+| `children` | `RouteItem[]` | Nested routes |
+
+## Lazy Loading
+
+Clear Router supports code-splitting out of the box. Simply pass a function that returns a dynamic import:
+```
+{
+  path: '/heavy-page',
+  element: () => import('./pages/HeavyComponent'),
+  fallback: () => <div>Loading...</div>,
+}
+```
+
+## Requirements
+- React 16.6+ (for React.lazy and Suspense)
+- Use `default` export for your lazy-loaded components
+
+ ## License
+ MIT
