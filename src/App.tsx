@@ -1,9 +1,3 @@
-import './App.css';
-import { Router } from './clear-router';
-import { routes } from './routes.ts';
-
-function App() {
-	return <Router routeList={routes} />;
-}
+const App = () => null;
 
 export default App;
