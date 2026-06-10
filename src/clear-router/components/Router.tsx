@@ -31,7 +31,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		context,
 		revalidateCache,
 	});
-
+	console.log(isLoadingMap);
 	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
 
 	const providerProps = useMemo(
