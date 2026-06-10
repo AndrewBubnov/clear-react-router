@@ -24,8 +24,10 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
 				setLocation(nextLocation);
-				history.pushState(null, '', nextLocation.pathname);
-				prevPathname.current = nextLocation.pathname;
+				if (nextLocation.pathname !== window.location.pathname) {
+					history.pushState(null, '', nextLocation.pathname);
+					prevPathname.current = nextLocation.pathname;
+				}
 				await revalidateCache(nextItem);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (redirect) {
@@ -65,21 +67,22 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 
 	useEffect(() => {
 		const handler = async (event: PopStateEvent) => {
-			const newLocation = (event.target as Window).location;
+			const newLocation = parseWindowLocation((event.target as Window).location);
 			if (prevPathname.current === blockedRoute.from) {
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
 				history.replaceState(null, '', prevPathname.current);
 			} else {
-				await setNextLocationRef.current(parseWindowLocation(newLocation));
+				setLocation(newLocation);
 			}
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockedRoute.from, setNextLocationRef]);
+	}, [blockedRoute.from, setLocation]);
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
 		setNextLocationRef.current(currentLocation);
+		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
 	const blockerState: BlockerState = useMemo(() => {

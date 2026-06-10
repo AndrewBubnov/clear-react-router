@@ -13,13 +13,13 @@ export const routes = createRouter([
 		loader: () =>
 			new Promise((resolve, _) =>
 				setTimeout(() => {
-					console.log('fetched');
+					// console.log('fetched');
 					resolve('hello');
-				}, 3000)
+				}, 500)
 			),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
-		staleTime: 1000,
+		staleTime: 10000,
 	},
 	{
 		path: '/about',
@@ -28,7 +28,7 @@ export const routes = createRouter([
 			new Promise((resolve, _) =>
 				setTimeout(() => {
 					resolve('about');
-				}, 3000)
+				}, 500)
 			),
 		loaderFallback: Fallback,
 	},

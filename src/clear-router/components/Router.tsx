@@ -23,7 +23,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache } = useLoader(routeList);
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoadingMap } = useLoader(routeList);
 
 	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
 		setLocation,
@@ -49,10 +49,10 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
-	if (routeItem?.loader && !loaderError && !loaderCache[routeItem?.path])
+	if (routeItem?.loader && !loaderError && isLoadingMap[location.pathname])
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
-	if (routeItem?.loader && loaderError)
+	if (loaderError)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;
 
 	return <RouterProvider {...providerProps}>{renderElement(routeItem?.element) || PAGE_NOT_FOUND}</RouterProvider>;

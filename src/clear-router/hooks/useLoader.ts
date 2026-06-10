@@ -6,6 +6,7 @@ export const useLoader = (routeList: RouteItem[]) => {
 	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
 	const [cacheTimestamps, setCacheTimestamps] = useState<Record<string, number>>({});
 	const [loaderError, setLoaderError] = useState<boolean>(false);
+	const [isLoadingMap, setIsLoadingMap] = useState<Record<string, boolean>>({});
 
 	const updateCache = useCallback(
 		({ key, value }: { key: string; value: unknown }) =>
@@ -29,7 +30,7 @@ export const useLoader = (routeList: RouteItem[]) => {
 		async (routeItem?: RouteItem) => {
 			if (!routeItem?.loader) return;
 			if (isCacheItemFresh(routeItem)) return;
-
+			setIsLoadingMap(prev => ({ ...prev, [routeItem.path]: true }));
 			setLoaderCache(prevState =>
 				Object.keys(prevState)
 					.filter(el => el !== routeItem.path)
@@ -45,6 +46,8 @@ export const useLoader = (routeList: RouteItem[]) => {
 				updateCache({ key: routeItem.path, value: result });
 			} catch {
 				setLoaderError(true);
+			} finally {
+				setIsLoadingMap(prev => ({ ...prev, [routeItem.path]: false }));
 			}
 		},
 		[isCacheItemFresh, updateCache]
@@ -58,5 +61,5 @@ export const useLoader = (routeList: RouteItem[]) => {
 		[revalidateCache, routeList]
 	);
 
-	return { loaderCache, loaderError, prefetchLoader, revalidateCache };
+	return { loaderCache, loaderError, prefetchLoader, revalidateCache, isLoadingMap };
 };
