@@ -63,21 +63,6 @@ export const comparePaths = (el: RouteItem, pathname: string) => {
 	const splitElementPath = el.path.split('/').filter(Boolean);
 	const paramsLength = el.params ? Object.keys(el.params).length : 0;
 	const splitPathname = pathname.split('/').filter(Boolean);
-	if (
-		splitElementPath.every((item, index) => item === splitPathname[index + (index ? 1 : 0)]) &&
-		splitPathname.length === splitElementPath.length + paramsLength
-	) {
-		console.log({ el, pathname, splitElementPath, splitPathname, paramsLength });
-	}
-
-	// console.log(
-	// 	'splitElementPath.every((item, index) => item === splitPathname[index + (index ? 1 : 0)]) = ',
-	// 	splitElementPath.every((item, index) => item === splitPathname[index + (index ? 1 : 0)])
-	// );
-	// console.log(
-	// 	'splitPathname.length === splitElementPath.length + paramsLength = ',
-	// 	splitPathname.length === splitElementPath.length + paramsLength
-	// );
 	return (
 		splitElementPath.every((item, index) => item === splitPathname[index + (index ? 1 : 0)]) &&
 		splitPathname.length === splitElementPath.length + paramsLength
