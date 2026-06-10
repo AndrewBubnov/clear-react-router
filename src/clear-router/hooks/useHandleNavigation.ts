@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { comparePaths, parseWindowLocation } from '../utils/utils.ts';
 import { Redirect } from '../utils/redirect.ts';
 import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
+import { useLatest } from './useLatest.ts';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -36,17 +37,19 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 		[context, revalidateCache, routeList, setLocation]
 	);
 
+	const setNextLocationRef = useLatest(setNextLocation);
+
 	const updateBlockedRoute = useCallback(
 		({ type, payload = '' }: UpdateBlockedRouteProps) =>
 			setBlockedRoute(prevState => {
 				if (prevState.from === payload && type === 'charge') return prevState;
 				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
 				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') setNextLocation({ pathname: prevState.to });
+				if (type === 'process') setNextLocationRef.current({ pathname: prevState.to });
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
-		[setNextLocation]
+		[setNextLocationRef]
 	);
 
 	const updateLocation = useCallback(
@@ -54,10 +57,10 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 			if (blockedRoute.from) {
 				setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
 			} else {
-				await setNextLocation(nextLocation);
+				await setNextLocationRef.current(nextLocation);
 			}
 		},
-		[blockedRoute.from, setNextLocation]
+		[blockedRoute.from, setNextLocationRef]
 	);
 
 	useEffect(() => {
@@ -67,17 +70,17 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
 				history.replaceState(null, '', prevPathname.current);
 			} else {
-				await setNextLocation(parseWindowLocation(newLocation));
+				await setNextLocationRef.current(parseWindowLocation(newLocation));
 			}
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockedRoute.from, setNextLocation]);
+	}, [blockedRoute.from, setNextLocationRef]);
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
-		setNextLocation(currentLocation);
-	}, [setNextLocation]);
+		setNextLocationRef.current(currentLocation);
+	}, [setNextLocationRef]);
 
 	const blockerState: BlockerState = useMemo(() => {
 		if (blockedRoute.from && blockedRoute.to) return 'blocked';

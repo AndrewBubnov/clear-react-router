@@ -21,7 +21,17 @@ export const routes = createRouter([
 		errorElement: ErrorComponent,
 		staleTime: 1000,
 	},
-	{ path: '/about', element: () => import('./components/About.tsx') },
+	{
+		path: '/about',
+		element: () => import('./components/About.tsx'),
+		loader: () =>
+			new Promise((resolve, _) =>
+				setTimeout(() => {
+					resolve('about');
+				}, 3000)
+			),
+		loaderFallback: Fallback,
+	},
 	{ path: '/test', element: Test },
 	{ path: '/user', element: UserList },
 	{ path: '/user/:userId', element: User },
