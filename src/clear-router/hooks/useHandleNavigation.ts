@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { comparePaths, parseWindowLocation } from '../utils/utils.ts';
-import { Redirect } from '../utils/redirect.ts';
+import { comparePaths, parseWindowLocation } from '../utils/utils';
+import { Redirect } from '../utils/redirect';
 import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
-import { useLatest } from './useLatest.ts';
+import { useLatest } from './useLatest';
 
 type BlockedRoute = { from: string; to: string };
 

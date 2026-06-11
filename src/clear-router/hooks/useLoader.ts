@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { comparePaths } from '../utils/utils.ts';
+import { comparePaths } from '../utils/utils';
 import type { RouteItem } from '../types/global.ts';
 
 export const useLoader = (routeList: RouteItem[]) => {
