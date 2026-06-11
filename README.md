@@ -1,5 +1,3 @@
-[![npm version](https://badge.fury.io/js/clear-react-router.svg)](https://www.npmjs.com/package/clear-react-router)
-
 A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, and prefetching.
 
 ## Features
