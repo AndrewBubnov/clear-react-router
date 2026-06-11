@@ -6,7 +6,7 @@ export default defineConfig({
 	plugins: [react()],
 
 	build: {
-		target: 'esnext',
+		target: 'es2020',
 
 		lib: {
 			entry: resolve(__dirname, 'index.ts'),
@@ -21,12 +21,15 @@ export default defineConfig({
 				format: 'es',
 				entryFileNames: 'index.js',
 				chunkFileNames: 'chunks/[name].js',
-
 				preserveModules: false,
 			},
 		},
 
-		sourcemap: false,
 		minify: false,
+		sourcemap: false,
+	},
+
+	define: {
+		'process.env.NODE_ENV': '"production"',
 	},
 });
