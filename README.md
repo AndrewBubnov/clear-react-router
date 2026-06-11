@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/clear-react-router.svg)](https://www.npmjs.com/package/clear-react-router)
+
 A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, and prefetching.
 
 ## Features
@@ -14,6 +16,23 @@ A lightweight, type-safe routing library for React applications with nested rout
 
 ## API
 
+### `createRouter(routes)`
+
+Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic params, builds nested paths.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `path` | `string` | Route path, e.g., `/user/:userId` |
+| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
+| `loader` | `() => Promise<unknown>` | Fetch data |
+| `beforeLoad` | `(context) => Promise<void>` | Auth checks, redirects |
+| `afterLoad` | `(context) => Promise<void>` | Analytics, side effects |
+| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
+| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
+| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
+| `staleTime` | `number` | Cache duration in ms for loader data |
+| `children` | `RouteItem[]` | Nested routes |
+
 ### `Router`
 
 Main component that renders the application based on current URL.
@@ -22,19 +41,6 @@ Main component that renders the application based on current URL.
 |------|------|-------------|
 | `routeList` | `RouteItem[]` | Array of route configurations |
 | `context` | `object` | Optional initial context (user, theme, etc.) |
-
-### `createRouter(routes)`
-
-Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic params, builds nested paths.
-
-### `redirect(url, search?)`
-
-Redirects from `beforeLoad`.
-```
-beforeLoad: context => {
-					if (!context.isAuthorized) return redirect('/');
-				}
-```
 
 ### `Link`
 
@@ -45,6 +51,15 @@ Component for client-side navigation with prefetch support.
 | `to` | `string` | required |
 | `prefetch` | `boolean` | `true` |
 | `children` | `ReactElement` | required |
+
+### `redirect(url, search?)`
+
+Redirects from `beforeLoad`.
+```
+beforeLoad: context => {
+	if (!context.isAuthorized) return redirect('/');
+}
+```
 
 ## Hooks
 
@@ -120,7 +135,7 @@ Executes a callback when the page is about to be closed or reloaded. Perfect for
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `callback` | `() => void | undefined` | Function to execute before page unload (e.g., auto-save) |
+| `callback` | `() => void \| undefined` | Function to execute before page unload (e.g., auto-save) |
 
 **Note:** This hook does not show a browser confirmation dialog. It silently executes the callback, allowing you to save user data in the background before the page closes.
 
@@ -133,22 +148,6 @@ const onSave = useCallback(() => {
 // Auto-save when user tries to close/reload the page
 useBeforeUnload(text ? onSave : undefined);
 ```
-## Route Configuration
-
-### `RouteItem`
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `path` | `string` | Route path, e.g., `/user/:userId` |
-| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `() => Promise<unknown>` | Fetch data |
-| `beforeLoad` | `(context) => Promise<void>` | Auth checks, redirects |
-| `afterLoad` | `(context) => Promise<void>` | Analytics, side effects |
-| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
-| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
-| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
-| `staleTime` | `number` | Cache duration in ms for loader data |
-| `children` | `RouteItem[]` | Nested routes |
 
 ## Lazy Loading
 
