@@ -23,7 +23,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoadingMap } = useLoader(routeList);
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader(routeList);
 
 	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
 		setLocation,
@@ -49,7 +49,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
-	if (routeItem?.loader && !loaderError && isLoadingMap[location.pathname])
+	if (routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
 	if (loaderError)

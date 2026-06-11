@@ -15,7 +15,7 @@ export type ActionsContextValue = {
 };
 
 export type DataContextValue = {
-	loaderCache: Record<string, unknown>;
+	loaderCache: unknown;
 	context: Record<string, unknown>;
 };
 

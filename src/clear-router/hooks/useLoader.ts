@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { comparePaths } from '../utils/utils.ts';
 import type { RouteItem } from '../types/global.ts';
 
 export const useLoader = (routeList: RouteItem[]) => {
 	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
-	const [cacheTimestamps, setCacheTimestamps] = useState<Record<string, number>>({});
 	const [loaderError, setLoaderError] = useState<boolean>(false);
 	const [isLoadingMap, setIsLoadingMap] = useState<Record<string, boolean>>({});
+	const cacheTimestampsRef = useRef<Record<string, number>>({});
 
 	const updateCache = useCallback(
 		({ key, value }: { key: string; value: unknown }) =>
@@ -17,14 +17,11 @@ export const useLoader = (routeList: RouteItem[]) => {
 		[]
 	);
 
-	const isCacheItemFresh = useCallback(
-		(routeItem?: RouteItem) => {
-			if (!routeItem) return true;
-			const currentCacheTimestamp = cacheTimestamps[routeItem.path];
-			return Boolean(currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0));
-		},
-		[cacheTimestamps]
-	);
+	const isCacheItemFresh = useCallback((routeItem?: RouteItem) => {
+		if (!routeItem) return true;
+		const currentCacheTimestamp = cacheTimestampsRef.current[routeItem.path];
+		return Boolean(currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0));
+	}, []);
 
 	const revalidateCache = useCallback(
 		async (routeItem?: RouteItem) => {
@@ -39,10 +36,7 @@ export const useLoader = (routeList: RouteItem[]) => {
 			try {
 				setLoaderError(false);
 				const result = await routeItem?.loader();
-				setCacheTimestamps(prevState => ({
-					...prevState,
-					[routeItem.path]: Date.now(),
-				}));
+				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [routeItem.path]: Date.now() };
 				updateCache({ key: routeItem.path, value: result });
 			} catch {
 				setLoaderError(true);
@@ -61,5 +55,11 @@ export const useLoader = (routeList: RouteItem[]) => {
 		[revalidateCache, routeList]
 	);
 
-	return { loaderCache, loaderError, prefetchLoader, revalidateCache, isLoadingMap };
+	return {
+		loaderCache: loaderCache[window.location.pathname],
+		loaderError,
+		prefetchLoader,
+		revalidateCache,
+		isLoading: isLoadingMap[window.location.pathname],
+	};
 };

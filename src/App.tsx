@@ -1,3 +1,5 @@
-const App = () => null;
+function App() {
+	return null;
+}
 
 export default App;
