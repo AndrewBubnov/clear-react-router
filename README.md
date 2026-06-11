@@ -34,8 +34,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 Redirects from `beforeLoad`.
 ```
 beforeLoad: context => {
-					if (!context.isAuthorized) return redirect('/');
-				}
+	if (!context.isAuthorized) return redirect('/');
+}
 ```
 
 ### `Link`
