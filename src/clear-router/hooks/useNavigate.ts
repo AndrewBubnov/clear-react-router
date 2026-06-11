@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useRouterActions } from './useServiceContext.ts';
+import { useRouterActions } from './useServiceContext';
 import type { Location } from '../types/global.ts';
 
 export const useNavigate = () => {

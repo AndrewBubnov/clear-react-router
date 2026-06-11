@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { RouterProvider } from '../provider/RouterProvider.tsx';
-import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
-import { useLoader } from '../hooks/useLoader.ts';
-import { renderElement } from '../utils/renderElement.tsx';
-import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
+import { RouterProvider } from '../provider/RouterProvider';
+import { useHandleNavigation } from '../hooks/useHandleNavigation';
+import { useLoader } from '../hooks/useLoader';
+import { renderElement } from '../utils/renderElement';
+import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import type { Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {

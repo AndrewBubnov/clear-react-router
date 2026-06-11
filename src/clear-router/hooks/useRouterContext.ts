@@ -1,4 +1,4 @@
-import { useRouterActions, useRouterData } from './useServiceContext.ts';
+import { useRouterActions, useRouterData } from './useServiceContext';
 
 export const useRouterContext = () => {
 	const { context } = useRouterData();

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "types": ["vite/client", "node"],
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "target": "ES2023",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist"
+  },
+  "include": ["./*.ts", "./**/*.ts", "./**/*.tsx"],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "__tests__"
+  ]
+}

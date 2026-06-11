@@ -1,6 +1,6 @@
 import { type ReactElement, type MouseEvent, type CSSProperties } from 'react';
-import { useNavigate } from '../hooks/useNavigate.ts';
-import { useRouterActions } from '../hooks/useServiceContext.ts';
+import { useNavigate } from '../hooks/useNavigate';
+import { useRouterActions } from '../hooks/useServiceContext';
 
 type LinkProps = {
 	to: string;
