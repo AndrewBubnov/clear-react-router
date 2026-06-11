@@ -42,15 +42,6 @@ Main component that renders the application based on current URL.
 | `routeList` | `RouteItem[]` | Array of route configurations |
 | `context` | `object` | Optional initial context (user, theme, etc.) |
 
-### `redirect(url, search?)`
-
-Redirects from `beforeLoad`.
-```
-beforeLoad: context => {
-	if (!context.isAuthorized) return redirect('/');
-}
-```
-
 ### `Link`
 
 Component for client-side navigation with prefetch support.
@@ -60,6 +51,15 @@ Component for client-side navigation with prefetch support.
 | `to` | `string` | required |
 | `prefetch` | `boolean` | `true` |
 | `children` | `ReactElement` | required |
+
+### `redirect(url, search?)`
+
+Redirects from `beforeLoad`.
+```
+beforeLoad: context => {
+	if (!context.isAuthorized) return redirect('/');
+}
+```
 
 ## Hooks
 
