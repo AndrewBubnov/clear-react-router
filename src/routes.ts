@@ -10,7 +10,11 @@ export const routes = createRouter([
 	{
 		path: '/',
 		element: () => import('./components/Home.tsx'),
-		loader: () => new Promise((resolve, _) => setTimeout(() => resolve('hello'), 500)),
+		loader: () =>
+			new Promise((resolve, _) => {
+				console.log('fetching Home');
+				return setTimeout(() => resolve('hello'), 500);
+			}),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
 		staleTime: 10000,
@@ -19,11 +23,13 @@ export const routes = createRouter([
 		path: '/about',
 		element: () => import('./components/About.tsx'),
 		loader: () =>
-			new Promise((resolve, _) =>
-				setTimeout(() => {
+			new Promise((resolve, _) => {
+				console.log('fetching About');
+				return setTimeout(() => {
 					resolve('about');
-				}, 500)
-			),
+				}, 500);
+			}),
+		staleTime: 10000,
 		loaderFallback: Fallback,
 	},
 	{ path: '/test', element: Test },

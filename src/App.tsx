@@ -1,4 +1,3 @@
-import './App.css';
 import { Router } from './clear-router';
 import { routes } from './routes.ts';
 

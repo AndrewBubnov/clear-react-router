@@ -72,12 +72,12 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
 				history.replaceState(null, '', prevPathname.current);
 			} else {
-				setLocation(newLocation);
+				setNextLocationRef.current(newLocation);
 			}
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockedRoute.from, setLocation]);
+	}, [blockedRoute.from, setNextLocationRef]);
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
