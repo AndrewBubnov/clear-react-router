@@ -1,4 +1,4 @@
-export class Redirect {
+export class RedirectInstance {
 	url: string;
 	search?: string;
 	cause: 'redirect';
@@ -9,4 +9,4 @@ export class Redirect {
 	}
 }
 
-export const redirect = (url: string, search?: string) => Promise.reject(new Redirect(url, search));
+export const redirect = (url: string, search?: string) => Promise.reject(new RedirectInstance(url, search));

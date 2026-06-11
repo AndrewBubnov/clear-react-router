@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
 import { comparePaths, parseWindowLocation } from '../utils/utils';
-import { Redirect } from '../utils/redirect';
+import { RedirectInstance } from '../utils/redirect';
 import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 type BlockedRoute = { from: string; to: string };
@@ -31,7 +31,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				await revalidateCache(nextItem);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (redirect) {
-				if (!(redirect instanceof Redirect)) return redirect;
+				if (!(redirect instanceof RedirectInstance)) return redirect;
 				history.replaceState(null, '', `${redirect.url}${redirect.search || ''}`);
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
