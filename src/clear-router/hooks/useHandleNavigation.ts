@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLatest } from './useLatest';
 import { comparePaths, parseWindowLocation } from '../utils/utils';
-import { RedirectInstance } from '../utils/redirect';
-import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global';
+import { useLatest } from './useLatest';
+import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
 
 type BlockedRoute = { from: string; to: string };
+
+type Redirect = {
+	cause: 'redirect';
+	url: string;
+	search?: string;
+};
+
+const isRedirect = (error: unknown): error is Redirect =>
+	typeof error === 'object' && error !== null && (error as Error).cause === 'redirect';
 
 type UseHandleNavigation = {
 	routeList: RouteItem[];
@@ -30,9 +38,10 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				}
 				await revalidateCache(nextItem);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
-			} catch (redirect) {
-				if (!(redirect instanceof RedirectInstance)) return redirect;
-				history.replaceState(null, '', `${redirect.url}${redirect.search || ''}`);
+			} catch (error) {
+				const redirect = error as { cause: string; url: string; search?: string };
+				if (!isRedirect(redirect)) return redirect;
+				history.replaceState(null, '', redirect.url);
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
 		},
