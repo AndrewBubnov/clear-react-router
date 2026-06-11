@@ -122,7 +122,7 @@ Executes a callback when the page is about to be closed or reloaded. Perfect for
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `callback` | `() => void | undefined` | Function to execute before page unload (e.g., auto-save) |
+| `callback` | `() => void &#124; undefined` | Function to execute before page unload (e.g., auto-save) |
 
 **Note:** This hook does not show a browser confirmation dialog. It silently executes the callback, allowing you to save user data in the background before the page closes.
 
