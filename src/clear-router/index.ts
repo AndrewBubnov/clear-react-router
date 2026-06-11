@@ -9,3 +9,4 @@ export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
 export { createRouter } from './utils/utils';
 export { redirect } from './utils/redirect';
+export type { RouteItem, BlockerState } from './types/global';
