@@ -10,7 +10,18 @@
     "emitDeclarationOnly": true,
     "outDir": "./dist"
   },
-  "include": ["./*.ts", "./**/*.ts", "./**/*.tsx"],
+  "include": [
+    "index.ts",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
+    "provider/**/*.ts",
+    "provider/**/*.tsx",
+    "context/**/*.ts",
+    "utils/**/*.ts",
+    "types/**/*.ts"
+  ],
   "exclude": [
     "dist",
     "node_modules",
