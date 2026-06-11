@@ -32,4 +32,10 @@ export default defineConfig({
 	define: {
 		'process.env.NODE_ENV': '"production"',
 	},
+	optimizeDeps: {
+		exclude: ['react', 'react-dom'],
+	},
+	ssr: {
+		noExternal: ['react', 'react-dom'],
+	},
 });
