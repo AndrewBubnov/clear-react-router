@@ -1,6 +1,6 @@
 {
   "name": "clear-react-router",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "A lightweight, type-safe routing library for React applications",
   "author": "Andrew Bubnov",
   "main": "./dist/index.js",
@@ -34,8 +34,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     }
   },
   "devDependencies": {
