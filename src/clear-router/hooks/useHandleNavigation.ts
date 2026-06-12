@@ -10,7 +10,7 @@ type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
-	revalidateCache(routeItem?: RouteItem): Promise<void>;
+	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
 };
 
 export const useHandleNavigation = ({ setLocation, routeList, context, revalidateCache }: UseHandleNavigation) => {
@@ -28,7 +28,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 					history.pushState(null, '', nextLocation.pathname);
 					prevPathname.current = nextLocation.pathname;
 				}
-				await revalidateCache(nextItem);
+				await revalidateCache(nextItem, true);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (redirect) {
 				if (!(redirect instanceof Redirect)) return redirect;
