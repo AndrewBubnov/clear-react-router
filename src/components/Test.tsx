@@ -1,4 +1,4 @@
-import { Link } from '../clear-router';
+import { Link } from 'clear-react-router';
 
 export const Test = () => {
 	return (

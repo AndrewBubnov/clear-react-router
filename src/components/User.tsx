@@ -1,4 +1,4 @@
-import { Link, useParams } from '../clear-router';
+import { Link, useParams } from 'clear-react-router';
 
 export const User = () => {
 	const { userId } = useParams<{ userId: string }>();

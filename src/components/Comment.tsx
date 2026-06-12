@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from '../clear-router';
+import { Link, useLocation, useParams } from 'clear-react-router';
 
 const Comment = () => {
 	const { postId, commentId } = useParams<{ postId: string; commentId: string }>();

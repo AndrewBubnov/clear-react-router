@@ -1,4 +1,4 @@
-import { Link, useLoaderState } from '../clear-router';
+import { Link, useLoaderState } from 'clear-react-router';
 
 const Home = () => {
 	console.log(useLoaderState());

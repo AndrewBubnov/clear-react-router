@@ -13,6 +13,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "clear-react-router": "^1.1.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
