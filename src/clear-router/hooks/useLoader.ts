@@ -3,19 +3,12 @@ import { comparePaths } from '../utils/utils.ts';
 import type { RouteItem } from '../types/global.ts';
 
 export const useLoader = (routeList: RouteItem[]) => {
-	const [loaderCache, setLoaderCache] = useState<Record<string, unknown>>({});
+	const [loaderCache, setLoaderCache] = useState<unknown>();
 	const [loaderError, setLoaderError] = useState<boolean>(false);
-	const [isLoadingMap, setIsLoadingMap] = useState<Record<string, boolean>>({});
-	const cacheTimestampsRef = useRef<Record<string, number>>({});
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const updateCache = useCallback(
-		({ key, value }: { key: string; value: unknown }) =>
-			setLoaderCache(prevState => ({
-				...prevState,
-				[key]: value,
-			})),
-		[]
-	);
+	const cacheTimestampsRef = useRef<Record<string, number>>({});
+	const loaderCacheRef = useRef<Record<string, unknown>>({});
 
 	const isCacheItemFresh = useCallback((routeItem?: RouteItem) => {
 		if (!routeItem) return true;
@@ -24,27 +17,27 @@ export const useLoader = (routeList: RouteItem[]) => {
 	}, []);
 
 	const revalidateCache = useCallback(
-		async (routeItem?: RouteItem) => {
+		async (routeItem?: RouteItem, isCurrentRoute?: boolean) => {
 			if (!routeItem?.loader) return;
+			if (isCacheItemFresh(routeItem) && isCurrentRoute) setLoaderCache(loaderCacheRef.current[routeItem.path]);
 			if (isCacheItemFresh(routeItem)) return;
-			setIsLoadingMap(prev => ({ ...prev, [routeItem.path]: true }));
-			setLoaderCache(prevState =>
-				Object.keys(prevState)
-					.filter(el => el !== routeItem.path)
-					.reduce((acc, cur) => ({ ...acc, [cur]: prevState[cur] }), {})
-			);
+			if (isCurrentRoute) setIsLoading(true);
+			loaderCacheRef.current = Object.keys(loaderCacheRef.current)
+				.filter(el => el !== routeItem.path)
+				.reduce((acc, cur) => ({ ...acc, [cur]: loaderCacheRef.current[cur] }), {});
 			try {
-				setLoaderError(false);
+				if (isCurrentRoute) setLoaderError(false);
 				const result = await routeItem?.loader();
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [routeItem.path]: Date.now() };
-				updateCache({ key: routeItem.path, value: result });
+				loaderCacheRef.current = { ...loaderCacheRef.current, [routeItem.path]: result };
+				if (isCurrentRoute) setLoaderCache(result);
 			} catch {
-				setLoaderError(true);
+				if (isCurrentRoute) setLoaderError(true);
 			} finally {
-				setIsLoadingMap(prev => ({ ...prev, [routeItem.path]: false }));
+				if (isCurrentRoute) setIsLoading(false);
 			}
 		},
-		[isCacheItemFresh, updateCache]
+		[isCacheItemFresh]
 	);
 
 	const prefetchLoader = useCallback(
@@ -56,10 +49,10 @@ export const useLoader = (routeList: RouteItem[]) => {
 	);
 
 	return {
-		loaderCache: loaderCache[window.location.pathname],
+		loaderCache,
 		loaderError,
 		prefetchLoader,
 		revalidateCache,
-		isLoading: isLoadingMap[window.location.pathname],
+		isLoading,
 	};
 };
