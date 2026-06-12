@@ -1,8 +1,9 @@
-import { Link } from '../clear-router';
+import { Link, useLoaderState } from '../clear-router';
 
 const id = Math.ceil(Math.random() * 100 + 1);
 
 const About = () => {
+	console.log(useLoaderState());
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>About</h3>
