@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { comparePaths, parseWindowLocation } from '../utils/utils';
 import { useLatest } from './useLatest';
-import { Redirect } from '../utils/redirect';
 import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
 
 type BlockedRoute = { from: string; to: string };
+
+type Redirect = {
+	cause: 'redirect';
+	url: string;
+	search?: string;
+};
+
+const isRedirect = (error: unknown): error is Redirect =>
+	typeof error === 'object' && error !== null && (error as Error).cause === 'redirect';
 
 type UseHandleNavigation = {
 	routeList: RouteItem[];
@@ -24,15 +32,17 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
 				setLocation(nextLocation);
-				if (nextLocation.pathname !== window.location.pathname) {
+				prevPathname.current = nextLocation.pathname;
+
+				if (nextLocation.pathname !== window.location.pathname)
 					history.pushState(null, '', nextLocation.pathname);
-					prevPathname.current = nextLocation.pathname;
-				}
+
 				await revalidateCache(nextItem, true);
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
-			} catch (redirect) {
-				if (!(redirect instanceof Redirect)) return redirect;
-				history.replaceState(null, '', `${redirect.url}${redirect.search || ''}`);
+			} catch (error) {
+				const redirect = error as { cause: string; url: string; search?: string };
+				if (!isRedirect(redirect)) return redirect;
+				history.replaceState(null, '', redirect.url);
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
 		},
@@ -70,7 +80,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 			const newLocation = parseWindowLocation((event.target as Window).location);
 			if (prevPathname.current === blockedRoute.from) {
 				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
-				history.replaceState(null, '', prevPathname.current);
+				history.pushState(null, '', prevPathname.current);
 			} else {
 				setNextLocationRef.current(newLocation);
 			}
