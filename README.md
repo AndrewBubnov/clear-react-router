@@ -131,6 +131,14 @@ useEffect(() => {
 
 Executes a callback when the page is about to be closed or reloaded. Perfect for auto-saving data at the last moment.
 
+### `useRouterContext()`
+
+Handles router context.
+```
+const { setContext, context } = useRouterContext();
+const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
+```
+
 **Parameters:**
 
 | Parameter | Type | Description |
