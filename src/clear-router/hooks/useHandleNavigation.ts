@@ -34,10 +34,13 @@ export const useHandleNavigation = ({
 	const prevPathname = useRef<string>('');
 
 	const transitionedNavigation = useCallback(
-		(nextLocation: Location) => {
+		(nextLocation: Location, replace?: boolean) => {
 			setLocation(nextLocation);
 			prevPathname.current = nextLocation.pathname;
-			if (nextLocation.pathname !== window.location.pathname) {
+			if (nextLocation.pathname === window.location.pathname) return;
+			if (replace) {
+				history.replaceState(null, '', nextLocation.pathname);
+			} else {
 				history.pushState(null, '', nextLocation.pathname);
 			}
 		},
@@ -57,16 +60,19 @@ export const useHandleNavigation = ({
 				} else {
 					transitionedNavigation(nextLocation);
 				}
-
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (error) {
 				const redirect = error as { cause: string; url: string; search?: string };
 				if (!isRedirect(redirect)) return redirect;
-				history.replaceState(null, '', redirect.url);
-				setLocation({ pathname: redirect.url, search: redirect.search });
+				const navigateTo = { pathname: redirect.url, search: redirect.search || '' };
+				if (animated && 'startViewTransition' in document) {
+					document.startViewTransition(() => transitionedNavigation(navigateTo, true));
+				} else {
+					transitionedNavigation(navigateTo, true);
+				}
 			}
 		},
-		[animated, context, revalidateCache, routeList, setLocation, transitionedNavigation]
+		[animated, context, revalidateCache, routeList, transitionedNavigation]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);
