@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RouterProvider } from '../provider/RouterProvider.tsx';
 import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
@@ -11,14 +11,27 @@ type RouterProps = {
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
 	animated?: boolean;
+	animationOptions?: { duration: number };
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = ({ routeList, context: initialContext = {}, animated = false }: RouterProps) => {
+export const Router = ({
+	routeList,
+	context: initialContext = {},
+	animated = false,
+	animationOptions,
+}: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
+
+	useEffect(() => {
+		if (!animationOptions?.duration) return;
+		const style = document.createElement('style');
+		style.textContent = `::view-transition-group(root) { animation-duration: ${animationOptions.duration}ms; }`;
+		document.head.appendChild(style);
+	}, [animationOptions?.duration]);
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
