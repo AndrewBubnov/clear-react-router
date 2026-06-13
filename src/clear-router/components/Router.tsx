@@ -5,6 +5,7 @@ import { useLoader } from '../hooks/useLoader.ts';
 import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
 import { Location, RouteItem } from '../types/global.ts';
+import { Spinner } from './Spinner/Spinner.tsx';
 
 type RouterProps = {
 	routeList: RouteItem[];
@@ -57,5 +58,10 @@ export const Router = ({ routeList, context: initialContext = {}, animated = fal
 	if (loaderError)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;
 
-	return <RouterProvider {...providerProps}>{renderElement(routeItem?.element) || PAGE_NOT_FOUND}</RouterProvider>;
+	return (
+		<RouterProvider {...providerProps}>
+			{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
+			{animated && isLoading && <Spinner />}
+		</RouterProvider>
+	);
 };
