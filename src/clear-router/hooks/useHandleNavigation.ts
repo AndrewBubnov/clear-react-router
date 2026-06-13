@@ -48,14 +48,14 @@ export const useHandleNavigation = ({
 	);
 
 	const setNextLocation = useCallback(
-		async (nextLocation: Location) => {
+		async (nextLocation: Location, isFirstCall?: boolean) => {
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
 
 				await revalidateCache(nextItem, true);
 
-				if (isAnimated && 'startViewTransition' in document) {
+				if (isAnimated && 'startViewTransition' in document && !isFirstCall) {
 					document.startViewTransition(() => transitionedNavigation(nextLocation));
 				} else {
 					transitionedNavigation(nextLocation);
@@ -65,7 +65,7 @@ export const useHandleNavigation = ({
 				const redirect = error as { cause: string; url: string; search?: string };
 				if (!isRedirect(redirect)) return redirect;
 				const navigateTo = { pathname: redirect.url, search: redirect.search || '' };
-				if (isAnimated && 'startViewTransition' in document) {
+				if (isAnimated && 'startViewTransition' in document && !isFirstCall) {
 					document.startViewTransition(() => transitionedNavigation(navigateTo, true));
 				} else {
 					transitionedNavigation(navigateTo, true);
@@ -117,7 +117,7 @@ export const useHandleNavigation = ({
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
-		setNextLocationRef.current(currentLocation);
+		setNextLocationRef.current(currentLocation, true);
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 

@@ -1,17 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { RouterProvider } from '../provider/RouterProvider.tsx';
 import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
+import { Spinner } from './Spinner/Spinner.tsx';
 import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
-import { Location, RouteItem } from '../types/global.ts';
-import { Spinner } from './Spinner/Spinner.tsx';
+import { AnimationOptions, Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
 	isAnimated?: boolean;
-	animationOptions?: { duration: number };
+	animationOptions?: AnimationOptions;
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
@@ -21,17 +22,12 @@ export const Router = ({
 	routeList,
 	context: initialContext = {},
 	isAnimated = false,
-	animationOptions,
+	animationOptions = {},
 }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
-	useEffect(() => {
-		if (!animationOptions?.duration) return;
-		const style = document.createElement('style');
-		style.textContent = `::view-transition-group(root) { animation-duration: ${animationOptions.duration}ms; }`;
-		document.head.appendChild(style);
-	}, [animationOptions?.duration]);
+	useApplyCustomAnimation(animationOptions);
 
 	const routeItem = useMemo(
 		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
