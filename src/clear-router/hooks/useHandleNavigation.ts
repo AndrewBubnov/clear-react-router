@@ -19,25 +19,45 @@ type UseHandleNavigation = {
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
+	animated: boolean;
 };
 
-export const useHandleNavigation = ({ setLocation, routeList, context, revalidateCache }: UseHandleNavigation) => {
+export const useHandleNavigation = ({
+	setLocation,
+	routeList,
+	context,
+	revalidateCache,
+	animated,
+}: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
 	const prevPathname = useRef<string>('');
+
+	const transitionedNavigation = useCallback(
+		(nextLocation: Location) => {
+			setLocation(nextLocation);
+			prevPathname.current = nextLocation.pathname;
+			if (nextLocation.pathname !== window.location.pathname) {
+				history.pushState(null, '', nextLocation.pathname);
+			}
+		},
+		[setLocation]
+	);
 
 	const setNextLocation = useCallback(
 		async (nextLocation: Location) => {
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
-				setLocation(nextLocation);
-				prevPathname.current = nextLocation.pathname;
-
-				if (nextLocation.pathname !== window.location.pathname)
-					history.pushState(null, '', nextLocation.pathname);
 
 				await revalidateCache(nextItem, true);
+
+				if (animated && 'startViewTransition' in document) {
+					document.startViewTransition(() => transitionedNavigation(nextLocation));
+				} else {
+					transitionedNavigation(nextLocation);
+				}
+
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (error) {
 				const redirect = error as { cause: string; url: string; search?: string };
@@ -46,7 +66,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 				setLocation({ pathname: redirect.url, search: redirect.search });
 			}
 		},
-		[context, revalidateCache, routeList, setLocation]
+		[animated, context, revalidateCache, routeList, setLocation, transitionedNavigation]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);

@@ -4,17 +4,18 @@ import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
 import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
-import type { Location, RouteItem } from '../types/global.ts';
+import { Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
+	animated?: boolean;
 };
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = ({ routeList, context: initialContext = {} }: RouterProps) => {
+export const Router = ({ routeList, context: initialContext = {}, animated = false }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
@@ -30,6 +31,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		routeList,
 		context,
 		revalidateCache,
+		animated,
 	});
 
 	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
@@ -49,7 +51,7 @@ export const Router = ({ routeList, context: initialContext = {} }: RouterProps)
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
-	if (routeItem?.loader && !loaderError && isLoading)
+	if (!animated && routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
 	if (loaderError)

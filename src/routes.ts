@@ -13,7 +13,7 @@ export const routes = createRouter([
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching Home');
-				return setTimeout(() => resolve('hello'), 500);
+				return setTimeout(() => resolve(`hello, ${new Date().getSeconds()}`), 1000);
 			}),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
@@ -27,7 +27,7 @@ export const routes = createRouter([
 				console.log('fetching About');
 				return setTimeout(() => {
 					resolve('about');
-				}, 500);
+				}, 1000);
 			}),
 		staleTime: 10000,
 		loaderFallback: Fallback,
