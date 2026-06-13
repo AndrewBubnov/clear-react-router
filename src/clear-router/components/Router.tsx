@@ -10,7 +10,7 @@ import { Spinner } from './Spinner/Spinner.tsx';
 type RouterProps = {
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
-	animated?: boolean;
+	isAnimated?: boolean;
 	animationOptions?: { duration: number };
 };
 
@@ -20,7 +20,7 @@ const ALL_LOCATIONS = '*';
 export const Router = ({
 	routeList,
 	context: initialContext = {},
-	animated = false,
+	isAnimated = false,
 	animationOptions,
 }: RouterProps) => {
 	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
@@ -45,7 +45,7 @@ export const Router = ({
 		routeList,
 		context,
 		revalidateCache,
-		animated,
+		isAnimated,
 	});
 
 	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
@@ -65,7 +65,7 @@ export const Router = ({
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
-	if (!animated && routeItem?.loader && !loaderError && isLoading)
+	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
 	if (loaderError)
@@ -74,7 +74,7 @@ export const Router = ({
 	return (
 		<RouterProvider {...providerProps}>
 			{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
-			{animated && isLoading && <Spinner />}
+			{isAnimated && isLoading && <Spinner />}
 		</RouterProvider>
 	);
 };

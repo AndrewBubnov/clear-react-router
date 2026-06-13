@@ -19,7 +19,7 @@ type UseHandleNavigation = {
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
-	animated: boolean;
+	isAnimated: boolean;
 };
 
 export const useHandleNavigation = ({
@@ -27,7 +27,7 @@ export const useHandleNavigation = ({
 	routeList,
 	context,
 	revalidateCache,
-	animated,
+	isAnimated,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
@@ -55,7 +55,7 @@ export const useHandleNavigation = ({
 
 				await revalidateCache(nextItem, true);
 
-				if (animated && 'startViewTransition' in document) {
+				if (isAnimated && 'startViewTransition' in document) {
 					document.startViewTransition(() => transitionedNavigation(nextLocation));
 				} else {
 					transitionedNavigation(nextLocation);
@@ -65,14 +65,14 @@ export const useHandleNavigation = ({
 				const redirect = error as { cause: string; url: string; search?: string };
 				if (!isRedirect(redirect)) return redirect;
 				const navigateTo = { pathname: redirect.url, search: redirect.search || '' };
-				if (animated && 'startViewTransition' in document) {
+				if (isAnimated && 'startViewTransition' in document) {
 					document.startViewTransition(() => transitionedNavigation(navigateTo, true));
 				} else {
 					transitionedNavigation(navigateTo, true);
 				}
 			}
 		},
-		[animated, context, revalidateCache, routeList, transitionedNavigation]
+		[isAnimated, context, revalidateCache, routeList, transitionedNavigation]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);
