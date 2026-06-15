@@ -5,48 +5,85 @@ import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from 
 
 type BlockedRoute = { from: string; to: string };
 
-type Redirect = {
-	cause: 'redirect';
-	url: string;
-	search?: string;
-};
-
-const isRedirect = (error: unknown): error is Redirect =>
-	typeof error === 'object' && error !== null && (error as Error).cause === 'redirect';
-
 type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
+	isAnimated: boolean;
 };
 
-export const useHandleNavigation = ({ setLocation, routeList, context, revalidateCache }: UseHandleNavigation) => {
+type TransitionedNavigationArgs = {
+	nextLocation: Location;
+	isAnimated: boolean;
+	isFirstCall?: boolean;
+	replace?: boolean;
+};
+
+export const useHandleNavigation = ({
+	setLocation,
+	routeList,
+	context,
+	revalidateCache,
+	isAnimated,
+}: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
 	const prevPathname = useRef<string>('');
+	const navigationSeq = useRef<number>(0);
 
-	const setNextLocation = useCallback(
-		async (nextLocation: Location) => {
-			try {
-				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
-				setLocation(nextLocation);
-				prevPathname.current = nextLocation.pathname;
+	const navigation = useCallback(
+		(nextLocation: Location) => {
+			setLocation(nextLocation);
+			prevPathname.current = nextLocation.pathname;
+			if (nextLocation.pathname === window.location.pathname) return;
+			history.pushState(null, '', nextLocation.pathname);
+		},
+		[setLocation]
+	);
 
-				if (nextLocation.pathname !== window.location.pathname)
-					history.pushState(null, '', nextLocation.pathname);
-
-				await revalidateCache(nextItem, true);
-				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
-			} catch (error) {
-				const redirect = error as { cause: string; url: string; search?: string };
-				if (!isRedirect(redirect)) return redirect;
-				history.replaceState(null, '', redirect.url);
-				setLocation({ pathname: redirect.url, search: redirect.search });
+	const transitionedNavigation = useCallback(
+		({ nextLocation, isFirstCall, isAnimated }: TransitionedNavigationArgs) => {
+			if (isAnimated && !isFirstCall) {
+				try {
+					document.startViewTransition(() => navigation(nextLocation));
+				} catch {
+					navigation(nextLocation);
+				}
+			} else {
+				navigation(nextLocation);
 			}
 		},
-		[context, revalidateCache, routeList, setLocation]
+		[navigation]
+	);
+
+	const setNextLocation = useCallback(
+		async (nextLocation: Location, isFirstCall?: boolean) => {
+			navigationSeq.current = navigationSeq.current + 1;
+			const seq = navigationSeq.current;
+
+			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
+
+			// eslint-disable-next-line react-hooks/immutability
+			if (nextItem?.beforeLoad) await nextItem.beforeLoad({ context, redirect: setNextLocation });
+
+			if (seq !== navigationSeq.current) return;
+
+			await revalidateCache(nextItem, true);
+
+			if (seq !== navigationSeq.current) return;
+
+			transitionedNavigation({
+				nextLocation,
+				isAnimated,
+				isFirstCall,
+			});
+
+			if (nextItem?.afterLoad) {
+				await nextItem.afterLoad(context);
+			}
+		},
+		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);
@@ -91,7 +128,7 @@ export const useHandleNavigation = ({ setLocation, routeList, context, revalidat
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
-		setNextLocationRef.current(currentLocation);
+		setNextLocationRef.current(currentLocation, true);
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
