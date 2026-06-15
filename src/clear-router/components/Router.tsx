@@ -3,7 +3,7 @@ import { RouterProvider } from '../provider/RouterProvider.tsx';
 import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
-import { Spinner } from './Spinner/Spinner.tsx';
+import { Spinner } from './Spinner.tsx';
 import { renderElement } from '../utils/renderElement.tsx';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
 import { AnimationOptions, Location, RouteItem } from '../types/global.ts';
