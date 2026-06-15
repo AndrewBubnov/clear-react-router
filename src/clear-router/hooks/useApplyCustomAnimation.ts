@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AnimationOptions } from '../types/global.ts';
+import { AnimationOptions } from '../types/global';
 
 export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 	useEffect(() => {
