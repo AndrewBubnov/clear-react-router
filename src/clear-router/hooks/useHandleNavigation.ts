@@ -100,7 +100,6 @@ export const useHandleNavigation = ({
 
 				if (!isRedirect(redirect)) return;
 
-				// 🔥 redirect тоже должен уважать latest execution
 				if (seq !== navigationSeq.current) return;
 
 				const navigateTo = {
