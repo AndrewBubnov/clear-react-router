@@ -13,7 +13,7 @@ export const routes = createRouter([
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching Home');
-				return setTimeout(() => resolve('hello'), 500);
+				return setTimeout(() => resolve(`hello, ${new Date().getSeconds()}`), 1500);
 			}),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
@@ -27,7 +27,7 @@ export const routes = createRouter([
 				console.log('fetching About');
 				return setTimeout(() => {
 					resolve('about');
-				}, 500);
+				}, 1000);
 			}),
 		staleTime: 10000,
 		loaderFallback: Fallback,
@@ -42,8 +42,8 @@ export const routes = createRouter([
 			{
 				path: '/comment/:commentId',
 				element: () => import('./components/Comment.tsx'),
-				beforeLoad: context => {
-					if (!context.isAuthorized) return redirect('/');
+				beforeLoad: ({ context, redirect }) => {
+					if (!context.isAuthorized) return redirect({ pathname: '/' });
 				},
 			},
 		],

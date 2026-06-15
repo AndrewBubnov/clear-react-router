@@ -8,6 +8,9 @@ const Home = () => {
 			<Link to="/about">
 				<span>To about page</span>
 			</Link>
+			<Link to="/user/10">
+				<span>To user page</span>
+			</Link>
 		</div>
 	);
 };
