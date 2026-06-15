@@ -13,7 +13,7 @@ export const routes = createRouter([
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching Home');
-				return setTimeout(() => resolve(`hello, ${new Date().getSeconds()}`), 1000);
+				return setTimeout(() => resolve(`hello, ${new Date().getSeconds()}`), 1500);
 			}),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,

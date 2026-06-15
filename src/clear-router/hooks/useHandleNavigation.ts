@@ -39,6 +39,7 @@ export const useHandleNavigation = ({
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 
 	const prevPathname = useRef<string>('');
+	const navigationSeq = useRef<number>(0);
 
 	const navigation = useCallback(
 		(nextLocation: Location, replace?: boolean) => {
@@ -71,19 +72,48 @@ export const useHandleNavigation = ({
 
 	const setNextLocation = useCallback(
 		async (nextLocation: Location, isFirstCall?: boolean) => {
+			navigationSeq.current = navigationSeq.current + 1;
+			const seq = navigationSeq.current;
+
 			try {
 				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-				if (nextItem?.beforeLoad) await nextItem?.beforeLoad(context);
+
+				if (nextItem?.beforeLoad) await nextItem.beforeLoad(context);
+
+				if (seq !== navigationSeq.current) return;
 
 				await revalidateCache(nextItem, true);
 
-				transitionedNavigation({ nextLocation, isAnimated, isFirstCall });
-				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
+				if (seq !== navigationSeq.current) return;
+
+				transitionedNavigation({
+					nextLocation,
+					isAnimated,
+					isFirstCall,
+				});
+
+				if (nextItem?.afterLoad) {
+					await nextItem.afterLoad(context);
+				}
 			} catch (error) {
-				const redirect = error as { cause: string; url: string; search?: string };
-				if (!isRedirect(redirect)) return redirect;
-				const navigateTo = { pathname: redirect.url, search: redirect.search || '' };
-				transitionedNavigation({ nextLocation: navigateTo, isAnimated, isFirstCall, replace: true });
+				const redirect = error as Redirect;
+
+				if (!isRedirect(redirect)) return;
+
+				// 🔥 redirect тоже должен уважать latest execution
+				if (seq !== navigationSeq.current) return;
+
+				const navigateTo = {
+					pathname: redirect.url,
+					search: redirect.search || '',
+				};
+
+				transitionedNavigation({
+					nextLocation: navigateTo,
+					isAnimated,
+					isFirstCall,
+					replace: true,
+				});
 			}
 		},
 		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
