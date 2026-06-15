@@ -1,4 +1,4 @@
-import { createRouter, redirect } from './clear-router';
+import { createRouter } from './clear-router';
 import { Test } from './components/Test.tsx';
 import { User } from './components/User.tsx';
 import { NotFound } from './components/NotFound.tsx';
@@ -42,8 +42,8 @@ export const routes = createRouter([
 			{
 				path: '/comment/:commentId',
 				element: () => import('./components/Comment.tsx'),
-				beforeLoad: context => {
-					if (!context.isAuthorized) return redirect('/');
+				beforeLoad: ({ context, redirect }) => {
+					if (!context.isAuthorized) return redirect({ pathname: '/' });
 				},
 			},
 		],

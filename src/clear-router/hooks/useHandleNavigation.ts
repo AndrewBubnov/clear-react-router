@@ -5,15 +5,6 @@ import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from 
 
 type BlockedRoute = { from: string; to: string };
 
-type Redirect = {
-	cause: 'redirect';
-	url: string;
-	search?: string;
-};
-
-const isRedirect = (error: unknown): error is Redirect =>
-	typeof error === 'object' && error !== null && (error as Error).cause === 'redirect';
-
 type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
@@ -42,24 +33,20 @@ export const useHandleNavigation = ({
 	const navigationSeq = useRef<number>(0);
 
 	const navigation = useCallback(
-		(nextLocation: Location, replace?: boolean) => {
+		(nextLocation: Location) => {
 			setLocation(nextLocation);
 			prevPathname.current = nextLocation.pathname;
 			if (nextLocation.pathname === window.location.pathname) return;
-			if (replace) {
-				history.replaceState(null, '', nextLocation.pathname);
-			} else {
-				history.pushState(null, '', nextLocation.pathname);
-			}
+			history.pushState(null, '', nextLocation.pathname);
 		},
 		[setLocation]
 	);
 
 	const transitionedNavigation = useCallback(
-		({ nextLocation, replace, isFirstCall, isAnimated }: TransitionedNavigationArgs) => {
+		({ nextLocation, isFirstCall, isAnimated }: TransitionedNavigationArgs) => {
 			if (isAnimated && !isFirstCall) {
 				try {
-					document.startViewTransition(() => navigation(nextLocation, replace));
+					document.startViewTransition(() => navigation(nextLocation));
 				} catch {
 					navigation(nextLocation);
 				}
@@ -75,44 +62,25 @@ export const useHandleNavigation = ({
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 
-			try {
-				const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
+			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 
-				if (nextItem?.beforeLoad) await nextItem.beforeLoad(context);
+			// eslint-disable-next-line react-hooks/immutability
+			if (nextItem?.beforeLoad) await nextItem.beforeLoad({ context, redirect: setNextLocation });
 
-				if (seq !== navigationSeq.current) return;
+			if (seq !== navigationSeq.current) return;
 
-				await revalidateCache(nextItem, true);
+			await revalidateCache(nextItem, true);
 
-				if (seq !== navigationSeq.current) return;
+			if (seq !== navigationSeq.current) return;
 
-				transitionedNavigation({
-					nextLocation,
-					isAnimated,
-					isFirstCall,
-				});
+			transitionedNavigation({
+				nextLocation,
+				isAnimated,
+				isFirstCall,
+			});
 
-				if (nextItem?.afterLoad) {
-					await nextItem.afterLoad(context);
-				}
-			} catch (error) {
-				const redirect = error as Redirect;
-
-				if (!isRedirect(redirect)) return;
-
-				if (seq !== navigationSeq.current) return;
-
-				const navigateTo = {
-					pathname: redirect.url,
-					search: redirect.search || '',
-				};
-
-				transitionedNavigation({
-					nextLocation: navigateTo,
-					isAnimated,
-					isFirstCall,
-					replace: true,
-				});
+			if (nextItem?.afterLoad) {
+				await nextItem.afterLoad(context);
 			}
 		},
 		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
