@@ -8,4 +8,4 @@ export { useBlocker } from './hooks/useBlocker';
 export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
 export { createRouter } from './utils/utils';
-export type { RouteItem, BlockerState } from './types/global';
+export type { RouteItem, BlockerState, Location } from './types/global';
