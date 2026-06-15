@@ -3,7 +3,7 @@ import { RouterProvider } from '../provider/RouterProvider';
 import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
-import { Spinner } from './Spinner/Spinner';
+import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import { AnimationOptions, Location, RouteItem } from '../types/global';
