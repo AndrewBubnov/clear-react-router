@@ -22,7 +22,7 @@ type UseHandleNavigation = {
 	isAnimated: boolean;
 };
 
-type TransionedNavigationArgs = {
+type TransitionedNavigationArgs = {
 	nextLocation: Location;
 	isAnimated: boolean;
 	isFirstCall?: boolean;
@@ -55,7 +55,7 @@ export const useHandleNavigation = ({
 	);
 
 	const transitionedNavigation = useCallback(
-		({ nextLocation, replace, isFirstCall, isAnimated }: TransionedNavigationArgs) => {
+		({ nextLocation, replace, isFirstCall, isAnimated }: TransitionedNavigationArgs) => {
 			if (isAnimated && !isFirstCall) {
 				try {
 					document.startViewTransition(() => navigation(nextLocation, replace));
