@@ -22,6 +22,13 @@ type UseHandleNavigation = {
 	isAnimated: boolean;
 };
 
+type TransionedNavigationArgs = {
+	nextLocation: Location;
+	isAnimated: boolean;
+	isFirstCall?: boolean;
+	replace?: boolean;
+};
+
 export const useHandleNavigation = ({
 	setLocation,
 	routeList,
@@ -33,7 +40,7 @@ export const useHandleNavigation = ({
 
 	const prevPathname = useRef<string>('');
 
-	const transitionedNavigation = useCallback(
+	const navigation = useCallback(
 		(nextLocation: Location, replace?: boolean) => {
 			setLocation(nextLocation);
 			prevPathname.current = nextLocation.pathname;
@@ -47,6 +54,21 @@ export const useHandleNavigation = ({
 		[setLocation]
 	);
 
+	const transitionedNavigation = useCallback(
+		({ nextLocation, replace, isFirstCall, isAnimated }: TransionedNavigationArgs) => {
+			if (isAnimated && !isFirstCall) {
+				try {
+					document.startViewTransition(() => navigation(nextLocation, replace));
+				} catch {
+					navigation(nextLocation);
+				}
+			} else {
+				navigation(nextLocation);
+			}
+		},
+		[navigation]
+	);
+
 	const setNextLocation = useCallback(
 		async (nextLocation: Location, isFirstCall?: boolean) => {
 			try {
@@ -55,24 +77,16 @@ export const useHandleNavigation = ({
 
 				await revalidateCache(nextItem, true);
 
-				if (isAnimated && 'startViewTransition' in document && !isFirstCall) {
-					document.startViewTransition(() => transitionedNavigation(nextLocation));
-				} else {
-					transitionedNavigation(nextLocation);
-				}
+				transitionedNavigation({ nextLocation, isAnimated, isFirstCall });
 				if (nextItem?.afterLoad) await nextItem?.afterLoad(context);
 			} catch (error) {
 				const redirect = error as { cause: string; url: string; search?: string };
 				if (!isRedirect(redirect)) return redirect;
 				const navigateTo = { pathname: redirect.url, search: redirect.search || '' };
-				if (isAnimated && 'startViewTransition' in document && !isFirstCall) {
-					document.startViewTransition(() => transitionedNavigation(navigateTo, true));
-				} else {
-					transitionedNavigation(navigateTo, true);
-				}
+				transitionedNavigation({ nextLocation: navigateTo, isAnimated, isFirstCall, replace: true });
 			}
 		},
-		[isAnimated, context, revalidateCache, routeList, transitionedNavigation]
+		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);
