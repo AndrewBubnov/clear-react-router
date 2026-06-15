@@ -1,0 +1,48 @@
+{
+  "name": "clear-react-router",
+  "version": "1.2.0",
+  "description": "A lightweight, type-safe routing library for React applications",
+  "author": "Andrew Bubnov",
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly"
+  },
+  "keywords": [
+    "react",
+    "router",
+    "routing",
+    "typescript",
+    "spa",
+    "nested-routes"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndrewBubnov/clear-react-router"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@vitejs/plugin-react": "^6.0.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  }
+}

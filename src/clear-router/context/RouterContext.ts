@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { BlockerState, Location, UpdateBlockedRouteProps } from '../types/global.ts';
+import type { BlockerState, Location, UpdateBlockedRouteProps } from '../types/global';
 
 export type NavigationContextValue = {
 	location: Location;

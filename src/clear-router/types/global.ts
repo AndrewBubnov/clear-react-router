@@ -11,7 +11,10 @@ export type ClientRouteItem = {
 	fallback?: (() => ReactElement) | ReactElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
-	beforeLoad?: (context: Record<string, unknown>) => Promise<unknown> | undefined;
+	beforeLoad?: (arg: {
+		context: Record<string, unknown>;
+		redirect: (arg: Location) => Promise<void>;
+	}) => Promise<unknown> | undefined;
 	afterLoad?: (context: Record<string, unknown>) => Promise<unknown> | undefined;
 };
 
@@ -30,3 +33,8 @@ export type Location = {
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
 export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
+
+export type AnimationOptions = {
+	duration?: number;
+	name?: 'fade' | 'slide-left' | 'slide-right';
+};

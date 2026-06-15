@@ -1,4 +1,4 @@
-import { createLazyComponent } from './createLazyComponent.tsx';
+import { createLazyComponent } from './createLazyComponent';
 import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global.ts';
 import type { ReactElement } from 'react';
 

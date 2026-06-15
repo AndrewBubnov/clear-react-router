@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ActionsContext, DataContext, NavigationContext } from '../context/RouterContext.ts';
+import { ActionsContext, DataContext, NavigationContext } from '../context/RouterContext';
 
 export const useNavigationState = () => {
 	const context = useContext(NavigationContext);

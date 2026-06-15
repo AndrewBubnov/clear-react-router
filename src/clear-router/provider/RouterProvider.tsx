@@ -6,7 +6,7 @@ import {
 	type ActionsContextValue,
 	type DataContextValue,
 	type NavigationContextValue,
-} from '../context/RouterContext.ts';
+} from '../context/RouterContext';
 
 type RouterProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
 
