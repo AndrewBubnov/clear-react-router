@@ -26,7 +26,7 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `loader` | `() => Promise<unknown>` | Fetch data |
-| `beforeLoad` | `(context) => Promise<void>` | Auth checks, redirects |
+| `beforeLoad` | `({ context, redirect }) => Promise<void>` | Auth checks and redirects. `redirect` is provided by the router |
 | `afterLoad` | `(context) => Promise<void>` | Analytics, side effects |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
@@ -64,13 +64,26 @@ Component for client-side navigation with prefetch support.
 | `prefetch` | `boolean` | `true` |
 | `children` | `ReactElement` | required |
 
-### `redirect(url, search?)`
+### `redirect`
 
-Redirects from `beforeLoad`.
+Function provided to `beforeLoad` for programmatic redirection.
+
+**Type:** `(arg: Location) => Promise<void>`
+
 ```
-beforeLoad: context => {
-	if (!context.isAuthorized) return redirect('/');
-}
+import type { Location } from 'clear-react-router';
+
+const routes = createRouter([
+  {
+    path: '/dashboard',
+    element: <Dashboard />,
+    beforeLoad: ({ context, redirect }) => {
+      if (!context.isAuthorized) {
+        return redirect({ pathname: '/' });
+      }
+    },
+  },
+]);
 ```
 
 ## Hooks
@@ -231,5 +244,5 @@ For older browsers, the router gracefully falls back to regular navigation witho
 - React 16.6+ (for React.lazy and Suspense)
 - Use `default` export for your lazy-loaded components
 
- ## License
- MIT
+## License
+MIT
