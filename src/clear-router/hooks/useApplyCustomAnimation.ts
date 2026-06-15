@@ -8,6 +8,8 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 		style.id = 'dynamic-view-transition-duration-style';
 		style.textContent = `::view-transition-group(root) { animation-duration: ${animationOptions.duration}ms; }`;
 		document.head.appendChild(style);
+
+		return () => style.remove();
 	}, [animationOptions]);
 
 	useEffect(() => {
@@ -46,5 +48,7 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
       animation: ${animationOptions.name}-in ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
     }`;
 		document.head.appendChild(style);
+
+		return () => style.remove();
 	}, [animationOptions]);
 };
