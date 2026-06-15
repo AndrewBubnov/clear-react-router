@@ -7,6 +7,7 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🧩 **Nested Routes** - Organize your UI with nested layouts and routes
 - ⚡ **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
 - 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
+- ✨ **Smooth Animations** - Page transitions with fade and slide effects (customizable type and duration)
 - 🎯 **Type-safe Redirects** - Redirect from loaders and beforeLoad hooks
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
@@ -37,10 +38,21 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 
 Main component that renders the application based on current URL.
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `routeList` | `RouteItem[]` | Array of route configurations |
-| `context` | `object` | Optional initial context (user, theme, etc.) |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `routeList` | `RouteItem[]` | required | Array of route configurations |
+| `context` | `object` | `{}` | Optional initial context (user, theme, etc.) |
+| `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
+| `animationOptions` | `AnimationOptions` | `{ duration: 300, name: 'fade' }` | Animation settings (only when `isAnimated` is `true`) |
+
+**`AnimationOptions`:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `duration` | `number` | `300` | Animation duration in milliseconds |
+| `name` | `'fade' \| 'slide-left' \| 'slide-right'` | `'fade'` | Type of transition effect |
+
+> **Note:** When `isAnimated` is enabled, the `loaderFallback` is not displayed. Instead, a small spinner appears in the corner while data loads, ensuring smooth transitions without layout shifts.
 
 ### `Link`
 
@@ -131,14 +143,6 @@ useEffect(() => {
 
 Executes a callback when the page is about to be closed or reloaded. Perfect for auto-saving data at the last moment.
 
-### `useRouterContext()`
-
-Handles router context.
-```
-const { setContext, context } = useRouterContext();
-const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
-```
-
 **Parameters:**
 
 | Parameter | Type | Description |
@@ -157,6 +161,14 @@ const onSave = useCallback(() => {
 useBeforeUnload(text ? onSave : undefined);
 ```
 
+### `useRouterContext()`
+
+Handles router context.
+```
+const { setContext, context } = useRouterContext();
+const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
+```
+
 ## Lazy Loading
 
 Clear Router supports code-splitting out of the box. Simply pass a function that returns a dynamic import:
@@ -167,6 +179,53 @@ Clear Router supports code-splitting out of the box. Simply pass a function that
   fallback: () => <div>Loading...</div>,
 }
 ```
+## Animations
+
+Clear Router supports smooth page transitions using the native View Transitions API. When animations are enabled, the router waits for all data to load before starting the transition, ensuring a jank-free experience.
+
+### Quick Start
+
+```
+import { Router } from 'clear-react-router';
+
+// Enable default fade animation
+<Router routeList={routes} isAnimated />
+
+// Custom animation
+<Router 
+  routeList={routes} 
+  isAnimated 
+  animationOptions={{ 
+    duration: 500,        // milliseconds
+    name: 'slide-left'    // 'fade' | 'slide-left' | 'slide-right'
+  }} 
+/>
+```
+
+## How It Works
+
+- **Data loads first** — All `loader` and `beforeLoad` hooks complete before animation starts
+- **No `loaderFallback`** — The `loaderFallback` is not shown during animated transitions
+- **Subtle spinner** — A small spinner appears in the top-left corner while data is loading, so users know the app is responsive
+- **Native API** — Uses `document.startViewTransition` for smooth, hardware-accelerated animations
+
+## Animation Types
+
+| Name | Effect |
+|------|--------|
+| `fade` | Cross-fade between pages (default) |
+| `slide-left` | New page slides in from right, old page slides out to left |
+| `slide-right` | New page slides in from left, old page slides out to right |
+
+## Browser Support
+
+View Transitions API requires modern browsers:
+
+- Chrome/Edge 111+
+- Safari 18+
+- Firefox 144+
+
+For older browsers, the router gracefully falls back to regular navigation without animation.
 
 ## Requirements
 - React 16.6+ (for React.lazy and Suspense)
