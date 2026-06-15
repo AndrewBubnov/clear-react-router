@@ -15,23 +15,31 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 		const style = document.createElement('style');
 		style.id = 'dynamic-view-transition-duration-name';
 		style.textContent = `
-	@keyframes slide-out {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-    }
     @keyframes fade-out {
       from { opacity: 1; }
       to { opacity: 0; }
-    }
+    }    
     @keyframes fade-in {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    @keyframes slide-in {
+    @keyframes slide-left-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+    }
+    @keyframes slide-left-in {
       from { transform: translateX(100%); }
       to { transform: translateX(0); }
     }
-		::view-transition-old(root) {
+    @keyframes slide-right-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+    }
+    @keyframes slide-right-in {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+	::view-transition-old(root) {
       animation: ${animationOptions.name}-out ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
     }
     ::view-transition-new(root) {

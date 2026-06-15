@@ -33,5 +33,5 @@ export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | '
 
 export type AnimationOptions = {
 	duration?: number;
-	name?: 'slide' | 'fade';
+	name?: 'fade' | 'slide-left' | 'slide-right';
 };
