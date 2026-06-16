@@ -15,9 +15,8 @@ type UseHandleNavigation = {
 
 type TransitionedNavigationArgs = {
 	nextLocation: Location;
-	isAnimated: boolean;
+	isAnimated?: boolean;
 	isFirstCall?: boolean;
-	replace?: boolean;
 };
 
 export const useHandleNavigation = ({
@@ -28,6 +27,7 @@ export const useHandleNavigation = ({
 	isAnimated,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
+	const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -61,29 +61,29 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location, isFirstCall?: boolean) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
-
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 
-			// eslint-disable-next-line react-hooks/immutability
-			if (nextItem?.beforeLoad) await nextItem.beforeLoad({ context, redirect: setNextLocation });
+			if (nextItem?.beforeLoad) {
+				try {
+					// eslint-disable-next-line react-hooks/immutability
+					await nextItem.beforeLoad({ context, redirect: setNextLocation });
+				} catch {
+					setBeforeLoadError(true);
+					transitionedNavigation({ nextLocation, isAnimated: false });
+					return;
+				}
+			}
 
 			if (seq !== navigationSeq.current) return;
-
 			await revalidateCache(nextItem, true);
-
 			if (seq !== navigationSeq.current) return;
-
-			transitionedNavigation({
-				nextLocation,
-				isAnimated,
-				isFirstCall,
-			});
-
+			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
 			if (nextItem?.afterLoad) {
 				await nextItem.afterLoad(context);
 			}
+			setTimeout(() => setBeforeLoadError(false), 100);
 		},
-		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
+		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
 	);
 
 	const setNextLocationRef = useLatest(setNextLocation);
@@ -138,5 +138,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute };
+	return { blockerState, updateLocation, updateBlockedRoute, beforeLoadError };
 };

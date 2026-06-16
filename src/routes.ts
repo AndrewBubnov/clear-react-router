@@ -17,7 +17,7 @@ export const routes = createRouter([
 			}),
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
-		staleTime: 10000,
+		staleTime: 1000,
 	},
 	{
 		path: '/about',
@@ -29,8 +29,12 @@ export const routes = createRouter([
 					resolve('about');
 				}, 1000);
 			}),
+		beforeLoad: () => {
+			throw new Error('Error');
+		},
 		staleTime: 10000,
 		loaderFallback: Fallback,
+		errorElement: ErrorComponent,
 	},
 	{ path: '/test', element: Test },
 	{ path: '/user', element: UserList },

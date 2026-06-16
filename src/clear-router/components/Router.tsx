@@ -36,7 +36,7 @@ export const Router = ({
 
 	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader(routeList);
 
-	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
+	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
@@ -64,8 +64,14 @@ export const Router = ({
 	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
-	if (loaderError)
-		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;
+	if (loaderError || beforeLoadError) {
+		return (
+			<RouterProvider {...providerProps}>
+				{renderElement(routeItem?.errorElement)}
+				{isAnimated && isLoading && <Spinner />}
+			</RouterProvider>
+		);
+	}
 
 	return (
 		<RouterProvider {...providerProps}>
