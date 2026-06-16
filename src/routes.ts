@@ -23,10 +23,10 @@ export const routes = createRouter([
 		path: '/about',
 		element: () => import('./components/About.tsx'),
 		loader: () =>
-			new Promise((resolve, _) => {
+			new Promise((_, reject) => {
 				console.log('fetching About');
 				return setTimeout(() => {
-					resolve('about');
+					reject('about');
 				}, 1000);
 			}),
 		staleTime: 10000,
