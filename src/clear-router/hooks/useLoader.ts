@@ -36,9 +36,7 @@ export const useLoader = ({ routeList, context }: UseLoaderParams) => {
 				.reduce((acc, cur) => ({ ...acc, [cur]: loaderCacheRef.current[cur] }), {});
 			try {
 				if (isCurrentRoute) setLoaderError(false);
-				const params: Record<string, string> = routeItem?.params
-					? getParamsObject(routeItem.params, pathname)
-					: {};
+				const params: Record<string, string> = getParamsObject({ routeItem, pathname });
 				const result = await routeItem?.loader({ params, context });
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
 				loaderCacheRef.current = { ...loaderCacheRef.current, [pathname]: result };

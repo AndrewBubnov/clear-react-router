@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { comparePaths, parseWindowLocation } from '../utils/utils.ts';
+import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
 import { useLatest } from './useLatest.ts';
 import type {
 	BlockerState,
@@ -68,11 +68,15 @@ export const useHandleNavigation = ({
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
+			const params: Record<string, string> = getParamsObject({
+				routeItem: nextItem,
+				pathname: nextLocation.pathname,
+			});
 
 			if (nextItem?.beforeLoad) {
 				try {
 					// eslint-disable-next-line react-hooks/immutability
-					await nextItem.beforeLoad({ context, redirect: navigationHandler });
+					await nextItem.beforeLoad({ context, redirect: navigationHandler, params });
 				} catch {
 					setBeforeLoadError(true);
 					transitionedNavigation({ nextLocation, isAnimated: false });
@@ -84,7 +88,7 @@ export const useHandleNavigation = ({
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
 			setBeforeLoadError(false);
-			if (nextItem?.afterLoad) await nextItem.afterLoad({ context });
+			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params });
 		},
 		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
 	);

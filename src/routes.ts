@@ -44,6 +44,7 @@ export const routes = createRouter([
 				console.log('fetching Post');
 				return setTimeout(() => resolve(`Post, ${JSON.stringify(params)}`), 1500);
 			}),
+		afterLoad: ({ params }) => new Promise(() => console.log(`After load: params = ${JSON.stringify(params)}`)),
 		children: [
 			{
 				path: '/comment/:commentId',

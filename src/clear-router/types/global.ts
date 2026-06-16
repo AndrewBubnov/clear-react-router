@@ -14,8 +14,9 @@ export type ClientRouteItem = {
 	beforeLoad?: (arg: {
 		context: Record<string, unknown>;
 		redirect: (arg: Location) => Promise<void>;
+		params: Record<string, string>;
 	}) => Promise<unknown> | undefined;
-	afterLoad?: (arg: { context: Record<string, unknown> }) => Promise<unknown> | undefined;
+	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void>;
 };
 
 export type RouteItem = ClientRouteItem & {

@@ -35,7 +35,7 @@ export const Router = ({
 	);
 
 	const params: Record<string, string> = useMemo(
-		() => (routeItem?.params ? getParamsObject(routeItem.params, window.location.pathname) : {}),
+		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
 		[routeItem]
 	);
 
