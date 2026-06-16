@@ -62,7 +62,7 @@ export const useHandleNavigation = ({
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-
+			console.log({ nextLocation });
 			if (nextItem?.beforeLoad) {
 				try {
 					// eslint-disable-next-line react-hooks/immutability
@@ -78,10 +78,10 @@ export const useHandleNavigation = ({
 			await revalidateCache(nextItem, true);
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
+			setBeforeLoadError(false);
 			if (nextItem?.afterLoad) {
 				await nextItem.afterLoad(context);
 			}
-			setTimeout(() => setBeforeLoadError(false), 100);
 		},
 		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
 	);
