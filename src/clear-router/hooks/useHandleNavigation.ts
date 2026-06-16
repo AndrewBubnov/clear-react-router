@@ -62,7 +62,7 @@ export const useHandleNavigation = ({
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-			console.log({ nextLocation });
+
 			if (nextItem?.beforeLoad) {
 				try {
 					// eslint-disable-next-line react-hooks/immutability
