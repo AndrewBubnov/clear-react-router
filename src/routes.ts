@@ -23,10 +23,10 @@ export const routes = createRouter([
 		path: '/about',
 		element: () => import('./components/About.tsx'),
 		loader: () =>
-			new Promise((_, reject) => {
+			new Promise((resolve, _) => {
 				console.log('fetching About');
 				return setTimeout(() => {
-					reject('about');
+					resolve('about');
 				}, 1000);
 			}),
 		staleTime: 10000,
@@ -39,6 +39,11 @@ export const routes = createRouter([
 	{
 		path: '/post/:postId',
 		element: () => import('./components/Post.tsx'),
+		loader: ({ params }) =>
+			new Promise((resolve, _) => {
+				console.log('fetching Post');
+				return setTimeout(() => resolve(`Post, ${JSON.stringify(params)}`), 1500);
+			}),
 		children: [
 			{
 				path: '/comment/:commentId',
@@ -46,6 +51,14 @@ export const routes = createRouter([
 				beforeLoad: ({ context, redirect }) => {
 					if (!context.isAuthorized) return redirect({ pathname: '/' });
 				},
+				loader: ({ params }) =>
+					new Promise((resolve, _) => {
+						console.log('fetching comment');
+						return setTimeout(
+							() => resolve(`Comment, ${params.commentId} for post ${params.postId}`),
+							1500
+						);
+					}),
 			},
 		],
 	},

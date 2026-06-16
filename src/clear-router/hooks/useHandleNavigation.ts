@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { comparePaths, parseWindowLocation } from '../utils/utils.ts';
 import { useLatest } from './useLatest.ts';
-import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
+import type {
+	BlockerState,
+	Location,
+	RevalidateCacheArgs,
+	RouteItem,
+	UpdateBlockedRouteProps,
+} from '../types/global.ts';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -9,7 +15,7 @@ type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
-	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
+	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	isAnimated: boolean;
 };
 
@@ -74,13 +80,11 @@ export const useHandleNavigation = ({
 				}
 			}
 			if (seq !== navigationSeq.current) return;
-			await revalidateCache(nextItem, true);
+			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
 			setBeforeLoadError(false);
-			if (nextItem?.afterLoad) {
-				await nextItem.afterLoad(context);
-			}
+			if (nextItem?.afterLoad) await nextItem.afterLoad({ context });
 		},
 		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
 	);

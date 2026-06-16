@@ -34,7 +34,12 @@ export const Router = ({
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader(routeList);
+	const params: Record<string, string> = useMemo(
+		() => (routeItem?.params ? getParamsObject(routeItem.params, window.location.pathname) : {}),
+		[routeItem]
+	);
+
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({ routeList, context });
 
 	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
 		setLocation,
@@ -43,8 +48,6 @@ export const Router = ({
 		revalidateCache,
 		isAnimated,
 	});
-
-	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
 
 	const providerProps = useMemo(
 		() => ({

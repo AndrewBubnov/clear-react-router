@@ -1,10 +1,10 @@
-import { Link, useLocation, useNavigate, useParams } from '../clear-router';
+import { Link, useLoaderState, useLocation, useNavigate, useParams } from '../clear-router';
 
 const Comment = () => {
 	const { postId, commentId } = useParams<{ postId: string; commentId: string }>();
 	const { state } = useLocation();
 	const navigate = useNavigate();
-
+	console.log(useLoaderState());
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
 			<h3>{`Comment ${commentId} for post ${postId}`}</h3>
