@@ -29,9 +29,6 @@ export const routes = createRouter([
 					resolve('about');
 				}, 1000);
 			}),
-		beforeLoad: () => {
-			throw new Error('Error');
-		},
 		staleTime: 10000,
 		loaderFallback: Fallback,
 		errorElement: ErrorComponent,
