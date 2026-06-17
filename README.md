@@ -26,7 +26,7 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `loader` | `({ params, context }) => Promise<unknown>` | Fetch data using route params and context |
-| `beforeLoad` | `({ params, context, redirect }) => Promise<unknown> | undefined` | Auth checks and redirects. `redirect` is provided by the router |
+| `beforeLoad` | `({ params, context, redirect }) => Promise<unknown> \| undefined` | Auth checks and redirects. `redirect` is provided by the router |
 | `afterLoad` | `({ params, context }) => Promise<void>` | Analytics, side effects after data is loaded |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
