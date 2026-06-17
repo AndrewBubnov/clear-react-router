@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { comparePaths, parseWindowLocation } from '../utils/utils';
+import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import { useLatest } from './useLatest';
-import type { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
+import type { BlockerState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -9,15 +9,14 @@ type UseHandleNavigation = {
 	routeList: RouteItem[];
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
-	revalidateCache(routeItem?: RouteItem, isCurrentRoute?: boolean): Promise<void>;
+	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	isAnimated: boolean;
 };
 
 type TransitionedNavigationArgs = {
 	nextLocation: Location;
-	isAnimated: boolean;
+	isAnimated?: boolean;
 	isFirstCall?: boolean;
-	replace?: boolean;
 };
 
 export const useHandleNavigation = ({
@@ -28,6 +27,7 @@ export const useHandleNavigation = ({
 	isAnimated,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
+	const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -57,36 +57,37 @@ export const useHandleNavigation = ({
 		[navigation]
 	);
 
-	const setNextLocation = useCallback(
+	const navigationHandler = useCallback(
 		async (nextLocation: Location, isFirstCall?: boolean) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
-
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-
-			// eslint-disable-next-line react-hooks/immutability
-			if (nextItem?.beforeLoad) await nextItem.beforeLoad({ context, redirect: setNextLocation });
-
-			if (seq !== navigationSeq.current) return;
-
-			await revalidateCache(nextItem, true);
-
-			if (seq !== navigationSeq.current) return;
-
-			transitionedNavigation({
-				nextLocation,
-				isAnimated,
-				isFirstCall,
+			const params: Record<string, string> = getParamsObject({
+				routeItem: nextItem,
+				pathname: nextLocation.pathname,
 			});
 
-			if (nextItem?.afterLoad) {
-				await nextItem.afterLoad(context);
+			if (nextItem?.beforeLoad) {
+				try {
+					// eslint-disable-next-line react-hooks/immutability
+					await nextItem.beforeLoad({ context, redirect: navigationHandler, params });
+				} catch {
+					setBeforeLoadError(true);
+					transitionedNavigation({ nextLocation, isAnimated: false });
+					return;
+				}
 			}
+			if (seq !== navigationSeq.current) return;
+			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
+			if (seq !== navigationSeq.current) return;
+			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
+			setBeforeLoadError(false);
+			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params });
 		},
-		[context, isAnimated, revalidateCache, routeList, transitionedNavigation]
+		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
 	);
 
-	const setNextLocationRef = useLatest(setNextLocation);
+	const setNextLocationRef = useLatest(navigationHandler);
 
 	const updateBlockedRoute = useCallback(
 		({ type, payload = '' }: UpdateBlockedRouteProps) =>
@@ -138,5 +139,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute };
+	return { blockerState, updateLocation, updateBlockedRoute, beforeLoadError };
 };
