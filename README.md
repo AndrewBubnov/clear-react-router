@@ -25,9 +25,9 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `() => Promise<unknown>` | Fetch data |
-| `beforeLoad` | `({ context, redirect }) => Promise<void>` | Auth checks and redirects. `redirect` is provided by the router |
-| `afterLoad` | `(context) => Promise<void>` | Analytics, side effects |
+| `loader` | `({ params, context }) => Promise<unknown>` | Fetch data using route params and context |
+| `beforeLoad` | `({ params, context, redirect }) => Promise<void>` | Auth checks and redirects. `redirect` is provided by the router |
+| `afterLoad` | `({ params, context }) => Promise<void>` | Analytics, side effects after data is loaded |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
@@ -86,6 +86,38 @@ const routes = createRouter([
 ]);
 ```
 
+### Usage with Parameters
+
+The `loader`, `beforeLoad`, and `afterLoad` hooks receive `params` (extracted from the URL) and `context` as arguments. This allows you to handle route-specific logic directly in the route configuration, keeping your components focused on rendering.
+
+```
+const routes = createRouter([
+  {
+    path: '/user/:userId',
+    element: <UserProfile />,
+    loader: async ({ params, context }) => {
+      // params.userId is available from the URL
+      const user = await fetchUser(params.userId);
+      return { user };
+    },
+    beforeLoad: async ({ params, context, redirect }) => {
+      // Authentication check
+      if (!context.isAuthorized) {
+        return redirect({ pathname: '/login' });
+      }
+      // Validate parameter
+      if (!params.userId || !isValidUserId(params.userId)) {
+        return redirect({ pathname: '/users' });
+      }
+    },
+    afterLoad: ({ params, context }) => {
+      // Analytics or side effects
+      console.log(`User ${params.userId} loaded`);
+    },
+  },
+]);
+```
+
 ## Hooks
 
 ### `useNavigate()`
@@ -111,8 +143,10 @@ console.log(state); // { userId: 123 }
 
 Returns route parameters object.
 
+```
 const params = useParams<{ userId: string }>();
 // URL: /user/123 → params.userId === '123'
+```
 
 ### `useLocation()`
 
@@ -124,6 +158,9 @@ const { pathname, search, state } = useLocation();
 ### `useLoaderState()`
 
 Returns loaderState from current route's loader.
+```
+const state = useLoaderState();
+```
 
 ### `useBlocker(callback)`
 
@@ -173,6 +210,7 @@ const onSave = useCallback(() => {
 // Auto-save when user tries to close/reload the page
 useBeforeUnload(text ? onSave : undefined);
 ```
+> **Note:** Pass `undefined` to disable the handler (e.g., if there is no changes).
 
 ### `useRouterContext()`
 
