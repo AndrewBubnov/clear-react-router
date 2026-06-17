@@ -1,6 +1,6 @@
-import { createLazyComponent } from './createLazyComponent';
-import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global.ts';
 import type { ReactElement } from 'react';
+import { createLazyComponent } from './createLazyComponent';
+import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global';
 
 const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 
@@ -46,10 +46,10 @@ const parseClientRouteItem = (
 
 export const createRouter = (clientList: ClientRouteItem[]) => clientList.flatMap(el => parseClientRouteItem(el, []));
 
-export const getParamsObject = (params: RouteItem['params']) => {
-	const { pathname } = window.location;
+export const getParamsObject = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
+	if (!routeItem?.params) return {};
 	const split = pathname.split('/');
-	return (params || [])
+	return (routeItem.params || [])
 		.map(el => ({ index: split.findIndex(item => item === el.key), value: el.value }))
 		.reduce((acc, cur) => ({ ...acc, [cur.value]: split[cur.index + 1] }), {});
 };
