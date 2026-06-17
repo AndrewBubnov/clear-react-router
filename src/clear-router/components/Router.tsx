@@ -34,17 +34,20 @@ export const Router = ({
 		[location.pathname, routeList]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader(routeList);
+	const params: Record<string, string> = useMemo(
+		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
+		[routeItem]
+	);
 
-	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({ routeList, context });
+
+	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
 		revalidateCache,
 		isAnimated,
 	});
-
-	const params = useMemo(() => (routeItem?.params ? getParamsObject(routeItem.params) : {}), [routeItem]);
 
 	const providerProps = useMemo(
 		() => ({
@@ -64,8 +67,14 @@ export const Router = ({
 	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
 
-	if (loaderError)
-		return <RouterProvider {...providerProps}>{renderElement(routeItem?.errorElement)}</RouterProvider>;
+	if (loaderError || beforeLoadError) {
+		return (
+			<RouterProvider {...providerProps}>
+				{renderElement(routeItem?.errorElement)}
+				{isAnimated && isLoading && <Spinner />}
+			</RouterProvider>
+		);
+	}
 
 	return (
 		<RouterProvider {...providerProps}>

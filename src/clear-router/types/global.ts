@@ -5,7 +5,7 @@ export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 export type ClientRouteItem = {
 	path: string;
 	element: (() => ReactElement) | ReactElement | LazyComponent;
-	loader?(...args: unknown[]): Promise<unknown>;
+	loader?(arg: { params: Record<string, string>; context: Record<string, unknown> }): Promise<unknown>;
 	loaderFallback?: (() => ReactElement) | ReactElement;
 	errorElement?: (() => ReactElement) | ReactElement;
 	fallback?: (() => ReactElement) | ReactElement;
@@ -14,8 +14,9 @@ export type ClientRouteItem = {
 	beforeLoad?: (arg: {
 		context: Record<string, unknown>;
 		redirect: (arg: Location) => Promise<void>;
+		params: Record<string, string>;
 	}) => Promise<unknown> | undefined;
-	afterLoad?: (context: Record<string, unknown>) => Promise<unknown> | undefined;
+	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void>;
 };
 
 export type RouteItem = ClientRouteItem & {
@@ -37,4 +38,10 @@ export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | '
 export type AnimationOptions = {
 	duration?: number;
 	name?: 'fade' | 'slide-left' | 'slide-right';
+};
+
+export type RevalidateCacheArgs = {
+	pathname: string;
+	routeItem?: RouteItem;
+	isCurrentRoute?: boolean;
 };
