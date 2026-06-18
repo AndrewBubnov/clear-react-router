@@ -38,9 +38,11 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 	}
 
 	return (
-		<ViewProvider params={params}>
-			{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
-			{spinner && isAnimated && isLoading && <Spinner />}
-		</ViewProvider>
+		<div style={{ viewTransitionName: 'page' }}>
+			<ViewProvider params={params}>
+				{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
+				{spinner && isAnimated && isLoading && <Spinner />}
+			</ViewProvider>
+		</div>
 	);
 };

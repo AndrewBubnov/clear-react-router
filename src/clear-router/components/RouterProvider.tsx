@@ -3,14 +3,14 @@ import { Provider } from '../provider/Provider.tsx';
 import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
 import { useLoader } from '../hooks/useLoader.ts';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
-import { AnimationOptions, Location, RouteItem } from '../types/global.ts';
+import { Location, RouteItem } from '../types/global.ts';
 
 type RouteProviderProps = {
 	children: ReactNode;
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
 	isAnimated?: boolean;
-	animationOptions?: AnimationOptions;
+	animationDuration?: number;
 };
 
 export const RouterProvider = ({
@@ -18,12 +18,12 @@ export const RouterProvider = ({
 	routeList,
 	context: initialContext = {},
 	isAnimated = false,
-	animationOptions = {},
+	animationDuration,
 }: RouteProviderProps) => {
 	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
-	useApplyCustomAnimation(animationOptions);
+	useApplyCustomAnimation(animationDuration);
 
 	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({ routeList, context });
 

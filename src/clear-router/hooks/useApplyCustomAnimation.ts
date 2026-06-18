@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { AnimationOptions } from '../types/global.ts';
 
-export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
+export const useApplyCustomAnimation = (animationDuration?: number) => {
 	useEffect(() => {
 		const style = document.createElement('style');
 		style.id = 'spinner-style';
@@ -30,53 +29,12 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 	}, []);
 
 	useEffect(() => {
-		if (!animationOptions?.duration) return;
+		if (!animationDuration) return;
 		const style = document.createElement('style');
 		style.id = 'dynamic-view-transition-duration-style';
-		style.textContent = `::view-transition-group(page) { animation-duration: ${animationOptions.duration}ms; }`;
+		style.textContent = `::view-transition-group(page) { animation-duration: ${animationDuration}ms; }`;
 		document.head.appendChild(style);
 
 		return () => style.remove();
-	}, [animationOptions]);
-
-	useEffect(() => {
-		if (!animationOptions.name) return;
-		console.log(animationOptions.name);
-		const style = document.createElement('style');
-		style.id = 'dynamic-view-transition-duration-name';
-		style.textContent = `
-    @keyframes fade-out {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }    
-    @keyframes fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slide-left-out {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-    }
-    @keyframes slide-left-in {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
-    }
-    @keyframes slide-right-out {
-    from { transform: translateX(0); }
-    to { transform: translateX(100%); }
-    }
-    @keyframes slide-right-in {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(0); }
-    }
-	::view-transition-old(page) {
-      animation: ${animationOptions.name}-out ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    ::view-transition-new(page) {
-      animation: ${animationOptions.name}-in ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
-    }`;
-		document.head.appendChild(style);
-
-		return () => style.remove();
-	}, [animationOptions]);
+	}, [animationDuration]);
 };
