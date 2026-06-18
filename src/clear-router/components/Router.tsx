@@ -8,7 +8,7 @@ import { ViewProvider } from '../provider/ViewProvider.tsx';
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = () => {
+export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 	const { location, isLoading, shouldErrorElementShown, routeList, isAnimated } = useNavigationState();
 
 	const routeItem = useMemo(() => {
@@ -32,7 +32,7 @@ export const Router = () => {
 		return (
 			<ViewProvider params={params}>
 				{renderElement(routeItem?.errorElement)}
-				{isAnimated && isLoading && <Spinner />}
+				{spinner && isAnimated && isLoading && <Spinner />}
 			</ViewProvider>
 		);
 	}
@@ -40,7 +40,7 @@ export const Router = () => {
 	return (
 		<ViewProvider params={params}>
 			{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
-			{isAnimated && isLoading && <Spinner />}
+			{spinner && isAnimated && isLoading && <Spinner />}
 		</ViewProvider>
 	);
 };
