@@ -64,6 +64,8 @@ export const Router = ({
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
 
+	if (!routeItem && isLoading) return <Spinner />;
+
 	if (!routeItem) return null;
 
 	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
