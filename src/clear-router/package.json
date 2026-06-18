@@ -1,6 +1,6 @@
 {
   "name": "clear-react-router",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A lightweight, type-safe routing library for React applications",
   "author": "Andrew Bubnov",
   "scripts": {
