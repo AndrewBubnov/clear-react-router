@@ -5,7 +5,7 @@ import { useLoader } from '../hooks/useLoader.ts';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
 import { Spinner } from './Spinner.tsx';
 import { renderElement } from '../utils/renderElement.tsx';
-import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
+import { comparePaths, getParamsObject } from '../utils/utils.ts';
 import { AnimationOptions, Location, RouteItem } from '../types/global.ts';
 
 type RouterProps = {
@@ -24,15 +24,15 @@ export const Router = ({
 	isAnimated = false,
 	animationOptions = {},
 }: RouterProps) => {
-	const [location, setLocation] = useState<Location>(parseWindowLocation(window.location));
+	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
 	useApplyCustomAnimation(animationOptions);
 
-	const routeItem = useMemo(
-		() => routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname)),
-		[location.pathname, routeList]
-	);
+	const routeItem = useMemo(() => {
+		if (!location.pathname) return undefined;
+		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
+	}, [location.pathname, routeList]);
 
 	const params: Record<string, string> = useMemo(
 		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
@@ -63,6 +63,8 @@ export const Router = ({
 		}),
 		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
 	);
+
+	if (!routeItem) return null;
 
 	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
 		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
