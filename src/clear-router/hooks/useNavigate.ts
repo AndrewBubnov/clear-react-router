@@ -8,8 +8,8 @@ export const useNavigate = () => {
 	const location = useLocation();
 
 	return useCallback(
-		async (arg: Location | string | -1) => {
-			if (arg === -1) return history.go(-1);
+		async (arg: Location | string | number) => {
+			if (typeof arg === 'number') return history.go(arg);
 			if (typeof arg === 'string') {
 				if (arg !== location.pathname) await updateLocation({ pathname: arg });
 			} else if (JSON.stringify(arg) !== JSON.stringify(location)) {
