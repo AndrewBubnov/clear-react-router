@@ -1,10 +1,13 @@
 import { createContext } from 'react';
-import type { BlockerState, Location, UpdateBlockedRouteProps } from '../types/global';
+import { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
 
 export type NavigationContextValue = {
 	location: Location;
-	params: Record<string, string>;
 	blockerState: BlockerState;
+	routeList: RouteItem[];
+	isLoading: boolean;
+	shouldErrorElementShown: boolean;
+	isAnimated: boolean;
 };
 
 export type ActionsContextValue = {

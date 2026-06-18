@@ -1,33 +1,15 @@
-import { useMemo, useState } from 'react';
-import { RouterProvider } from '../provider/RouterProvider';
-import { useHandleNavigation } from '../hooks/useHandleNavigation';
-import { useLoader } from '../hooks/useLoader';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { useMemo } from 'react';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
-import { AnimationOptions, Location, RouteItem } from '../types/global';
-
-type RouterProps = {
-	routeList: RouteItem[];
-	context?: Record<string, unknown>;
-	isAnimated?: boolean;
-	animationOptions?: AnimationOptions;
-};
+import { useNavigationState } from '../hooks/useServiceContext';
+import { ViewProvider } from '../provider/ViewProvider';
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
-export const Router = ({
-	routeList,
-	context: initialContext = {},
-	isAnimated = false,
-	animationOptions = {},
-}: RouterProps) => {
-	const [location, setLocation] = useState<Location>({} as Location);
-	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
-
-	useApplyCustomAnimation(animationOptions);
+export const Router = ({ spinner = true }: { spinner?: boolean }) => {
+	const { location, isLoading, shouldErrorElementShown, routeList, isAnimated } = useNavigationState();
 
 	const routeItem = useMemo(() => {
 		if (!location.pathname) return undefined;
@@ -39,51 +21,28 @@ export const Router = ({
 		[routeItem]
 	);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({ routeList, context });
-
-	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
-		setLocation,
-		routeList,
-		context,
-		revalidateCache,
-		isAnimated,
-	});
-
-	const providerProps = useMemo(
-		() => ({
-			location,
-			updateLocation,
-			params,
-			loaderCache,
-			prefetchLoader,
-			updateBlockedRoute,
-			blockerState,
-			context,
-			setContext,
-		}),
-		[blockerState, loaderCache, location, params, prefetchLoader, context, updateBlockedRoute, updateLocation]
-	);
-
-	if (!routeItem && isLoading) return <Spinner />;
+	if (spinner && !routeItem && isLoading) return <Spinner />;
 
 	if (!routeItem) return null;
 
-	if (!isAnimated && routeItem?.loader && !loaderError && isLoading)
-		return <RouterProvider {...providerProps}>{renderElement(routeItem?.loaderFallback)}</RouterProvider>;
+	if (!isAnimated && routeItem?.loader && !shouldErrorElementShown && isLoading)
+		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
 
-	if (loaderError || beforeLoadError) {
+	if (shouldErrorElementShown) {
 		return (
-			<RouterProvider {...providerProps}>
+			<ViewProvider params={params}>
 				{renderElement(routeItem?.errorElement)}
-				{isAnimated && isLoading && <Spinner />}
-			</RouterProvider>
+				{spinner && isAnimated && isLoading && <Spinner />}
+			</ViewProvider>
 		);
 	}
 
 	return (
-		<RouterProvider {...providerProps}>
-			{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
-			{isAnimated && isLoading && <Spinner />}
-		</RouterProvider>
+		<div style={{ viewTransitionName: 'page' }}>
+			<ViewProvider params={params}>
+				{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
+				{spinner && isAnimated && isLoading && <Spinner />}
+			</ViewProvider>
+		</div>
 	);
 };

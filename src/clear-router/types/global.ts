@@ -35,11 +35,6 @@ export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
 export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
 
-export type AnimationOptions = {
-	duration?: number;
-	name?: 'fade' | 'slide-left' | 'slide-right';
-};
-
 export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;
