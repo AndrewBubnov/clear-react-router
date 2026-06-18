@@ -1,4 +1,4 @@
-import { createRouter } from './clear-router';
+import { createRouter } from 'clear-react-router';
 import { Test } from './components/Test.tsx';
 import { User } from './components/User.tsx';
 import { NotFound } from './components/NotFound.tsx';
