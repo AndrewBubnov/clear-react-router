@@ -6,22 +6,25 @@ import {
 	type ActionsContextValue,
 	type DataContextValue,
 	type NavigationContextValue,
-} from '../context/RouterContext.ts';
+} from '../context/RouterProviderContext.ts';
 
-type RouterProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
+type ProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
 
-export const RouterProvider = ({
+export const Provider = ({
 	children,
 	setContext,
 	context,
 	updateBlockedRoute,
 	updateLocation,
 	location,
-	params,
 	prefetchLoader,
 	loaderCache,
 	blockerState,
-}: RouterProviderProps) => {
+	routeList,
+	shouldErrorElementShown,
+	isLoading,
+	isAnimated,
+}: ProviderProps) => {
 	return (
 		<ActionsContext.Provider
 			value={{
@@ -32,7 +35,9 @@ export const RouterProvider = ({
 			}}
 		>
 			<DataContext.Provider value={{ context, loaderCache }}>
-				<NavigationContext.Provider value={{ blockerState, params, location }}>
+				<NavigationContext.Provider
+					value={{ blockerState, location, routeList, shouldErrorElementShown, isLoading, isAnimated }}
+				>
 					{children}
 				</NavigationContext.Provider>
 			</DataContext.Provider>
