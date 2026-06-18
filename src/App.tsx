@@ -1,6 +1,5 @@
-import { Router } from './clear-router';
+import { RouterProvider, Router } from './clear-router';
 import { routes } from './routes.ts';
-import { RouterProvider } from './clear-router/components/RouterProvider.tsx';
 import { Navbar } from './components/Navbar.tsx';
 
 function App() {

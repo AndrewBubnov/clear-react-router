@@ -1,3 +1,4 @@
+export { RouterProvider } from './components/RouterProvider';
 export { Router } from './components/Router';
 export { Link } from './components/Link';
 export { useNavigate } from './hooks/useNavigate';
