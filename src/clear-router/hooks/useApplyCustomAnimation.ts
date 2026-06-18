@@ -28,11 +28,12 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 
 		return () => style.remove();
 	}, []);
+
 	useEffect(() => {
 		if (!animationOptions?.duration) return;
 		const style = document.createElement('style');
 		style.id = 'dynamic-view-transition-duration-style';
-		style.textContent = `::view-transition-group(root) { animation-duration: ${animationOptions.duration}ms; }`;
+		style.textContent = `::view-transition-group(page) { animation-duration: ${animationOptions.duration}ms; }`;
 		document.head.appendChild(style);
 
 		return () => style.remove();
@@ -40,6 +41,7 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
 
 	useEffect(() => {
 		if (!animationOptions.name) return;
+		console.log(animationOptions.name);
 		const style = document.createElement('style');
 		style.id = 'dynamic-view-transition-duration-name';
 		style.textContent = `
@@ -67,10 +69,10 @@ export const useApplyCustomAnimation = (animationOptions: AnimationOptions) => {
       from { transform: translateX(-100%); }
       to { transform: translateX(0); }
     }
-	::view-transition-old(root) {
+	::view-transition-old(page) {
       animation: ${animationOptions.name}-out ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    ::view-transition-new(root) {
+    ::view-transition-new(page) {
       animation: ${animationOptions.name}-in ${animationOptions.duration ?? 800}ms cubic-bezier(0.4, 0, 0.2, 1);
     }`;
 		document.head.appendChild(style);

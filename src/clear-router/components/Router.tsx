@@ -21,7 +21,7 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		[routeItem]
 	);
 
-	if (!routeItem && isLoading) return <Spinner />;
+	if (spinner && !routeItem && isLoading) return <Spinner />;
 
 	if (!routeItem) return null;
 
