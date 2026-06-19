@@ -1,13 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils.ts';
-import { useLatest } from './useLatest.ts';
-import type {
-	BlockerState,
-	Location,
-	RevalidateCacheArgs,
-	RouteItem,
-	UpdateBlockedRouteProps,
-} from '../types/global.ts';
+import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
+import { useLatest } from './useLatest';
+import type { BlockerState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -75,8 +69,12 @@ export const useHandleNavigation = ({
 
 			if (nextItem?.beforeLoad) {
 				try {
-					// eslint-disable-next-line react-hooks/immutability
-					await nextItem.beforeLoad({ context, redirect: navigationHandler, params });
+					const redirect = async (location: Location | string) =>
+						typeof location === 'string'
+							? // eslint-disable-next-line react-hooks/immutability
+								await navigationHandler({ pathname: location })
+							: await navigationHandler(location);
+					await nextItem.beforeLoad({ context, redirect, params });
 				} catch {
 					setBeforeLoadError(true);
 					transitionedNavigation({ nextLocation, isAnimated: false });

@@ -1,13 +1,15 @@
 import { createContext } from 'react';
-import { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global.ts';
+import { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
+export type PropsContextValue = {
+	routeList: RouteItem[];
+	isAnimated: boolean;
+};
 export type NavigationContextValue = {
 	location: Location;
 	blockerState: BlockerState;
-	routeList: RouteItem[];
 	isLoading: boolean;
 	shouldErrorElementShown: boolean;
-	isAnimated: boolean;
 };
 
 export type ActionsContextValue = {
@@ -22,6 +24,7 @@ export type DataContextValue = {
 	context: Record<string, unknown>;
 };
 
+export const PropsContext = createContext({} as PropsContextValue);
 export const ActionsContext = createContext({} as ActionsContextValue);
 export const DataContext = createContext({} as DataContextValue);
 export const NavigationContext = createContext({} as NavigationContextValue);

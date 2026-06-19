@@ -1,6 +1,6 @@
-import { createLazyComponent } from './createLazyComponent.tsx';
-import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global.ts';
 import type { ReactElement } from 'react';
+import { createLazyComponent } from './createLazyComponent';
+import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global';
 
 const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 

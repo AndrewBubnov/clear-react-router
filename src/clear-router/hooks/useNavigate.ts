@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useRouterActions } from './useServiceContext.ts';
-import type { Location } from '../types/global.ts';
-import { useLocation } from './useLocation.ts';
+import { useRouterActions } from './useServiceContext';
+import { useLocation } from './useLocation';
+import type { Location } from '../types/global';
 
 export const useNavigate = () => {
 	const { updateLocation } = useRouterActions();

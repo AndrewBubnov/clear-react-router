@@ -1,9 +1,9 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { Provider } from '../provider/Provider.tsx';
-import { useHandleNavigation } from '../hooks/useHandleNavigation.ts';
-import { useLoader } from '../hooks/useLoader.ts';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
-import { Location, RouteItem } from '../types/global.ts';
+import { Provider } from '../provider/Provider';
+import { useHandleNavigation } from '../hooks/useHandleNavigation';
+import { useLoader } from '../hooks/useLoader';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { Location, RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;

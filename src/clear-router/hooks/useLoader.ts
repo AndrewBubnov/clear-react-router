@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
-import { comparePaths, getParamsObject } from '../utils/utils.ts';
-import type { RevalidateCacheArgs, RouteItem } from '../types/global.ts';
+import { comparePaths, getParamsObject } from '../utils/utils';
+import type { RevalidateCacheArgs, RouteItem } from '../types/global';
 
 type UseLoaderParams = {
 	routeList: RouteItem[];

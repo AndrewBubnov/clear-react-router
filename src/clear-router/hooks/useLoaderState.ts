@@ -1,4 +1,4 @@
-import { useRouterData } from './useServiceContext.ts';
+import { useRouterData } from './useServiceContext';
 
 export const useLoaderState = <T>() => {
 	const { loaderCache } = useRouterData();

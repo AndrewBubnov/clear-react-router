@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ActionsContext, DataContext, NavigationContext } from '../context/RouterProviderContext.ts';
+import { ActionsContext, DataContext, NavigationContext, PropsContext } from '../context/RouterProviderContext';
 
 export const useNavigationState = () => {
 	const context = useContext(NavigationContext);
@@ -19,6 +19,14 @@ export const useRouterActions = () => {
 
 export const useRouterData = () => {
 	const context = useContext(DataContext);
+
+	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
+
+	return context;
+};
+
+export const usePropsData = () => {
+	const context = useContext(PropsContext);
 
 	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
 

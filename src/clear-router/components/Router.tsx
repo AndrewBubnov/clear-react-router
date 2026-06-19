@@ -1,15 +1,16 @@
 import { useMemo } from 'react';
-import { Spinner } from './Spinner.tsx';
-import { renderElement } from '../utils/renderElement.tsx';
-import { comparePaths, getParamsObject } from '../utils/utils.ts';
-import { useNavigationState } from '../hooks/useServiceContext.ts';
-import { ViewProvider } from '../provider/ViewProvider.tsx';
+import { Spinner } from './Spinner';
+import { renderElement } from '../utils/renderElement';
+import { comparePaths, getParamsObject } from '../utils/utils';
+import { useNavigationState, usePropsData } from '../hooks/useServiceContext';
+import { ViewProvider } from '../provider/ViewProvider';
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ spinner = true }: { spinner?: boolean }) => {
-	const { location, isLoading, shouldErrorElementShown, routeList, isAnimated } = useNavigationState();
+	const { location, isLoading, shouldErrorElementShown } = useNavigationState();
+	const { routeList, isAnimated } = usePropsData();
 
 	const routeItem = useMemo(() => {
 		if (!location.pathname) return undefined;
