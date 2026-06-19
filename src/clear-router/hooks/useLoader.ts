@@ -18,7 +18,9 @@ export const useLoader = ({ routeList, context }: UseLoaderParams) => {
 	const isCacheItemFresh = useCallback(({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
 		const currentCacheTimestamp = cacheTimestampsRef.current[pathname];
-		return Boolean(currentCacheTimestamp && Date.now() - currentCacheTimestamp < (routeItem.staleTime || 0));
+		if (!currentCacheTimestamp) return false;
+		if (!routeItem.staleTime) return true;
+		return Date.now() - currentCacheTimestamp < routeItem.staleTime;
 	}, []);
 
 	const revalidateCache = useCallback(
