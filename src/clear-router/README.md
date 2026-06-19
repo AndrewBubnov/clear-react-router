@@ -272,6 +272,53 @@ const { setContext, context } = useRouterContext();
 const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
 ```
 
+### `useSearchParams()`
+
+Returns an object for working with URL query parameters. Supports reading and setting both single values and arrays.
+
+```
+import { useSearchParams } from 'clear-react-router';
+
+function ProductFilter() {
+  const { searchParams, getSearchParams, setSearchParams } = useSearchParams();
+
+  // Get a single value or array
+  const brand = getSearchParams('brand'); // 'nike' | ['nike', 'reebok'] | ''
+
+  // Set a single value
+  setSearchParams('brand', 'nike'); // ?brand=nike
+
+  // Set multiple values (array)
+  setSearchParams('brand', ['nike', 'reebok']); // ?brand=nike&brand=reebok
+
+  // Functional update (preserves other params)
+  setSearchParams((prev) => {
+    prev.set('page', '2');
+    prev.append('color', 'red');
+    return prev;
+  });
+
+  // Direct access to URLSearchParams
+  const allParams = searchParams.toString(); // "brand=nike&brand=reebok&page=2"
+}
+```
+**Returns:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `searchParams` | `URLSearchParams` | Raw `URLSearchParams` object for low-level access |
+| `getSearchParams` | `(key: string) => string \| string[]` | Returns a single value or an array if multiple values exist for the key |
+| `setSearchParams` | `(param: string, value: string \| string[]) => void` `or` `(updater: (prev: URLSearchParams) => URLSearchParams) => void` | Update query parameters. Supports single values, arrays, or functional updates |
+
+**Key features:**
+
+- ✅ **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
+- ✅ **Functional updates** — Update parameters based on previous state without losing other params
+- ✅ **Type-safe** — Proper TypeScript support with overloads
+- ✅ **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
+
+> **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
+
 ## Lazy Loading
 
 Clear Router supports code-splitting out of the box. Simply pass a function that returns a dynamic import:
