@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLocation } from './useLocation';
 import { useNavigate } from './useNavigate';
-import { useLatest } from './useLatest.ts';
+import { useLatest } from './useLatest';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;

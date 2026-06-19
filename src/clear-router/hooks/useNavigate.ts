@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useRouterActions } from './useServiceContext';
 import { useLocation } from './useLocation';
 import type { Location } from '../types/global';
-import { useLatest } from './useLatest.ts';
+import { useLatest } from './useLatest';
 
 export const useNavigate = () => {
 	const { updateLocation } = useRouterActions();
