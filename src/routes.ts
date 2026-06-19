@@ -1,10 +1,10 @@
-import { createRouter } from 'clear-react-router';
-import { Test } from './components/Test.tsx';
-import { User } from './components/User.tsx';
-import { NotFound } from './components/NotFound.tsx';
-import { Fallback } from './components/Fallback.tsx';
-import { ErrorComponent } from './components/ErrorComponent.tsx';
-import { UserList } from './components/UserList.tsx';
+import { createRouter } from './clear-router';
+import { Test } from './components/Test';
+import { User } from './components/User';
+import { NotFound } from './components/NotFound';
+import { Fallback } from './components/Fallback';
+import { ErrorComponent } from './components/ErrorComponent';
+import { UserList } from './components/UserList';
 
 export const routes = createRouter([
 	{
@@ -38,7 +38,7 @@ export const routes = createRouter([
 	{ path: '/user/:userId', element: User },
 	{
 		path: '/post/:postId',
-		element: () => import('./components/Post.tsx'),
+		element: () => import('./components/Post'),
 		loader: ({ params }) =>
 			new Promise((resolve, _) => {
 				console.log('fetching Post');
@@ -50,7 +50,7 @@ export const routes = createRouter([
 				path: '/comment/:commentId',
 				element: () => import('./components/Comment.tsx'),
 				beforeLoad: ({ context, redirect }) => {
-					if (!context.isAuthorized) return redirect({ pathname: '/' });
+					if (!context.isAuthorized) return redirect( '/');
 				},
 				loader: ({ params }) =>
 					new Promise((resolve, _) => {
