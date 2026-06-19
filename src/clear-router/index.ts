@@ -8,5 +8,6 @@ export { useLoaderState } from './hooks/useLoaderState';
 export { useBlocker } from './hooks/useBlocker';
 export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
+export { useSearchParams } from './hooks/useSearchParams';
 export { createRouter } from './utils/utils';
 export type { RouteItem, BlockerState, Location } from './types/global';

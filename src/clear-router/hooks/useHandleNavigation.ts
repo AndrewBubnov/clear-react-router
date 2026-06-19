@@ -36,8 +36,11 @@ export const useHandleNavigation = ({
 		(nextLocation: Location) => {
 			setLocation(nextLocation);
 			prevPathname.current = nextLocation.pathname;
-			if (nextLocation.pathname === window.location.pathname) return;
-			history.pushState(null, '', nextLocation.pathname);
+			const fullPath = nextLocation.search
+				? `${nextLocation.pathname}${nextLocation.search}`
+				: nextLocation.pathname;
+			if (fullPath === window.location.pathname + window.location.search) return;
+			history.pushState(null, '', fullPath);
 		},
 		[setLocation]
 	);

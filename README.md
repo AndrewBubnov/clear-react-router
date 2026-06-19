@@ -7,7 +7,8 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🧩 **Nested Routes** - Organize your UI with nested layouts and routes
 - ⚡ **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
 - 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
-- ✨ **Smooth Animations** - Page transitions with fade and slide effects (customizable type and duration)
+- ✨ **Smooth Animations** - Page transitions with fade effect (customizable duration)
+- 🏗️ **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
 - 🎯 **Type-safe Redirects** - Redirect from loaders and beforeLoad hooks
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
@@ -31,28 +32,51 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
-| `staleTime` | `number` | Cache duration in ms for loader data |
+| `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
 | `children` | `RouteItem[]` | Nested routes |
 
-### `Router`
+### `RouterProvider`
 
-Main component that renders the application based on current URL.
+The root component that provides routing context to the application. Place static UI elements (like navbar or footer) outside `<Router />` to prevent unnecessary re-renders.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `routeList` | `RouteItem[]` | required | Array of route configurations |
-| `context` | `object` | `{}` | Optional initial context (user, theme, etc.) |
+| `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
-| `animationOptions` | `AnimationOptions` | `{ duration: 300, name: 'fade' }` | Animation settings (only when `isAnimated` is `true`) |
+| `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
-**`AnimationOptions`:**
+```
+function App() {
+  return (
+    <RouterProvider routeList={routes} isAnimated animationDuration={800}>
+      <Navbar />           {/* Static — won't re-render on route change */}
+      <main>
+        <Router />         {/* Dynamic — renders current page */}
+      </main>
+      <Footer />           {/* Static — won't re-render on route change */}
+    </RouterProvider>
+  );
+}
+```
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `duration` | `number` | `300` | Animation duration in milliseconds |
-| `name` | `'fade' \| 'slide-left' \| 'slide-right'` | `'fade'` | Type of transition effect |
+### `Router`
 
-> **Note:** When `isAnimated` is enabled, the `loaderFallback` is not displayed. Instead, a small spinner appears in the corner while data loads, ensuring smooth transitions without layout shifts.
+Renders the current route's component. Must be placed inside `<RouterProvider>`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `spinner` | `boolean /| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
+
+```
+<RouterProvider routeList={routes} isAnimated>
+  <Navbar />
+  <Router spinner={false} />  {/* disable the spinner */}
+</RouterProvider>
+```
+
+> **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`).
 
 ### `Link`
 
@@ -68,7 +92,7 @@ Component for client-side navigation with prefetch support.
 
 Function provided to `beforeLoad` for programmatic redirection.
 
-**Type:** `(arg: Location) => Promise<void>`
+**Type:** `(arg: Location | string) => Promise<void>`
 
 ```
 import type { Location } from 'clear-react-router';
@@ -78,12 +102,23 @@ const routes = createRouter([
     path: '/dashboard',
     element: <Dashboard />,
     beforeLoad: ({ context, redirect }) => {
-      if (!context.isAuthorized) {
-        return redirect({ pathname: '/' });
-      }
+      if (!context.isAuthorized) return redirect('/');
     },
   },
 ]);
+
+or
+
+const routes = createRouter([
+  {
+    path: '/dashboard',
+    element: <Dashboard />,
+    beforeLoad: ({ context, redirect }) => {
+      if (!context.isAuthorized) return redirect({ pathname: '/login', state: { from: '/dashboard' } });
+    },
+  },
+]);
+ 
 ```
 
 ### Usage with Parameters
@@ -103,11 +138,11 @@ const routes = createRouter([
     beforeLoad: async ({ params, context, redirect }) => {
       // Authentication check
       if (!context.isAuthorized) {
-        return redirect({ pathname: '/login' });
+        return redirect('/login');
       }
       // Validate parameter
       if (!params.userId || !isValidUserId(params.userId)) {
-        return redirect({ pathname: '/users' });
+        return redirect('/users');
       }
     },
     afterLoad: ({ params, context }) => {
@@ -122,11 +157,15 @@ const routes = createRouter([
 
 ### `useNavigate()`
 
-Returns function to navigate programmatically:
+Returns function to navigate programmatically. Accepts a string (pathname), an object with `pathname`, `search`, and `state`, or `-1` to go back.
 
-- `navigate({ pathname: '/about' })` - navigate to path
-- `navigate({ pathname: '/user/123', state: { fromDashboard: true } })` - navigate with state
-- `navigate(-1)` - go back
+```
+const navigate = useNavigate();
+
+navigate('/about');                                           // string
+navigate({ pathname: '/user/123', state: { from: 'home' } }); // object
+navigate(-1);                                                 // go back
+```
 
 **Note:** Navigation state can be accessed via `useLocation()`:
 
@@ -157,9 +196,22 @@ const { pathname, search, state } = useLocation();
 
 ### `useLoaderState()`
 
-Returns loaderState from current route's loader.
+Returns the cached data loaded by the current route's `loader`. Data is automatically cached and reused when navigating back to the same route.
 ```
-const state = useLoaderState();
+const UserProfile = () => {
+  const user = useLoaderState();
+  return <div>{user.name}</div>;
+}
+```
+### Caching behavior:
+- The loader result is cached and reused when navigating back to the same route (e.g., from /user/123 back to /user/456 it will be a new request because different params, but from /user/456 to /user/456 — cache hit).
+- Use staleTime in route config to control how long cache is considered fresh:
+```
+{
+  path: '/user/:userId',
+  loader: async ({ params }) => fetchUser(params.userId),
+  staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
+}
 ```
 
 ### `useBlocker(callback)`
@@ -214,7 +266,7 @@ useBeforeUnload(text ? onSave : undefined);
 
 ### `useRouterContext()`
 
-Handles router context.
+Returns the router context object and a function to update it. Useful for accessing or modifying global state (like user authentication, theme, etc.) from anywhere in your app.
 ```
 const { setContext, context } = useRouterContext();
 const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
@@ -239,34 +291,23 @@ Clear Router supports smooth page transitions using the native View Transitions 
 ```
 import { Router } from 'clear-react-router';
 
-// Enable default fade animation
-<Router routeList={routes} isAnimated />
+// Enable fade animation
+<RouterProvider routeList={routes} isAnimated>
+  <Router />
+</RouterProvider>  
 
-// Custom animation
-<Router 
-  routeList={routes} 
-  isAnimated 
-  animationOptions={{ 
-    duration: 500,        // milliseconds
-    name: 'slide-left'    // 'fade' | 'slide-left' | 'slide-right'
-  }} 
-/>
+// Custom animation duration
+<RouterProvider routeList={routes} isAnimated animationDuration={800}>
+  <Router />
+</RouterProvider>
 ```
 
 ## How It Works
 
 - **Data loads first** — All `loader` and `beforeLoad` hooks complete before animation starts
 - **No `loaderFallback`** — The `loaderFallback` is not shown during animated transitions
-- **Subtle spinner** — A small spinner appears in the top-left corner while data is loading, so users know the app is responsive
+- **Subtle spinner** — A small spinner appears in the top-left corner while data is loading and `spinner` prop of `Router` component is on, so users know the app is responsive
 - **Native API** — Uses `document.startViewTransition` for smooth, hardware-accelerated animations
-
-## Animation Types
-
-| Name | Effect |
-|------|--------|
-| `fade` | Cross-fade between pages (default) |
-| `slide-left` | New page slides in from right, old page slides out to left |
-| `slide-right` | New page slides in from left, old page slides out to right |
 
 ## Browser Support
 
