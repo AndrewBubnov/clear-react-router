@@ -13,7 +13,7 @@ export type ClientRouteItem = {
 	staleTime?: number;
 	beforeLoad?: (arg: {
 		context: Record<string, unknown>;
-		redirect: (arg: Location) => Promise<void>;
+		redirect: (arg: Location | string) => Promise<void>;
 		params: Record<string, string>;
 	}) => Promise<unknown> | undefined;
 	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void>;
