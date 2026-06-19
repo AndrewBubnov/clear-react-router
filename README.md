@@ -302,7 +302,7 @@ function ProductFilter() {
   const allParams = searchParams.toString(); // "brand=nike&brand=reebok&page=2"
 }
 ```
-### Returns
+**Returns:**
 
 | Property | Type | Description |
 |----------|------|-------------|
