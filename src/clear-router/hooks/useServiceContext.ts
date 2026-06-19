@@ -1,34 +1,18 @@
-import { useContext } from 'react';
+import { Context, useContext } from 'react';
 import { ActionsContext, DataContext, NavigationContext, PropsContext } from '../context/RouterProviderContext';
 
-export const useNavigationState = () => {
-	const context = useContext(NavigationContext);
+const useServiceState = <T extends object>(reactContext: Context<T>) => {
+	const context = useContext(reactContext);
 
 	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
 
 	return context;
 };
 
-export const useRouterActions = () => {
-	const context = useContext(ActionsContext);
+export const useNavigationState = () => useServiceState(NavigationContext);
 
-	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
+export const useRouterActions = () => useServiceState(ActionsContext);
 
-	return context;
-};
+export const useRouterData = () => useServiceState(DataContext);
 
-export const useRouterData = () => {
-	const context = useContext(DataContext);
-
-	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
-
-	return context;
-};
-
-export const usePropsData = () => {
-	const context = useContext(PropsContext);
-
-	if (!Object.keys(context).length) throw new Error('hooks and Router component must be used within RouterProvider');
-
-	return context;
-};
+export const usePropsData = () => useServiceState(PropsContext);
