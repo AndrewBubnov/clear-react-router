@@ -6,9 +6,14 @@ import {
 	type ActionsContextValue,
 	type DataContextValue,
 	type NavigationContextValue,
-} from '../context/RouterProviderContext.ts';
+	PropsContext,
+	PropsContextValue,
+} from '../context/RouterProviderContext';
 
-type ProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
+type ProviderProps = PropsContextValue &
+	NavigationContextValue &
+	ActionsContextValue &
+	DataContextValue & { children: ReactNode };
 
 export const Provider = ({
 	children,
@@ -26,21 +31,21 @@ export const Provider = ({
 	isAnimated,
 }: ProviderProps) => {
 	return (
-		<ActionsContext.Provider
-			value={{
-				updateLocation,
-				updateBlockedRoute,
-				prefetchLoader,
-				setContext,
-			}}
-		>
-			<DataContext.Provider value={{ context, loaderCache }}>
-				<NavigationContext.Provider
-					value={{ blockerState, location, routeList, shouldErrorElementShown, isLoading, isAnimated }}
-				>
-					{children}
-				</NavigationContext.Provider>
-			</DataContext.Provider>
-		</ActionsContext.Provider>
+		<PropsContext.Provider value={{ routeList, isAnimated }}>
+			<ActionsContext.Provider
+				value={{
+					updateLocation,
+					updateBlockedRoute,
+					prefetchLoader,
+					setContext,
+				}}
+			>
+				<DataContext.Provider value={{ context, loaderCache }}>
+					<NavigationContext.Provider value={{ blockerState, location, shouldErrorElementShown, isLoading }}>
+						{children}
+					</NavigationContext.Provider>
+				</DataContext.Provider>
+			</ActionsContext.Provider>
+		</PropsContext.Provider>
 	);
 };
