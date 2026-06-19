@@ -13,7 +13,7 @@ export type ClientRouteItem = {
 	staleTime?: number;
 	beforeLoad?: (arg: {
 		context: Record<string, unknown>;
-		redirect: (arg: Location) => Promise<void>;
+		redirect: (arg: Location | string) => Promise<void>;
 		params: Record<string, string>;
 	}) => Promise<unknown> | undefined;
 	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void>;
@@ -34,11 +34,6 @@ export type Location = {
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
 export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
-
-export type AnimationOptions = {
-	duration?: number;
-	name?: 'fade' | 'slide-left' | 'slide-right';
-};
 
 export type RevalidateCacheArgs = {
 	pathname: string;

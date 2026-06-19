@@ -69,8 +69,12 @@ export const useHandleNavigation = ({
 
 			if (nextItem?.beforeLoad) {
 				try {
-					// eslint-disable-next-line react-hooks/immutability
-					await nextItem.beforeLoad({ context, redirect: navigationHandler, params });
+					const redirect = async (location: Location | string) =>
+						typeof location === 'string'
+							? // eslint-disable-next-line react-hooks/immutability
+								await navigationHandler({ pathname: location })
+							: await navigationHandler(location);
+					await nextItem.beforeLoad({ context, redirect, params });
 				} catch {
 					setBeforeLoadError(true);
 					transitionedNavigation({ nextLocation, isAnimated: false });
