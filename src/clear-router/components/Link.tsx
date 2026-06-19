@@ -14,7 +14,7 @@ export const Link = ({ children, to, prefetch = true }: LinkProps) => {
 	return (
 		<a
 			style={{ cursor: 'pointer' }}
-			onClick={() => navigate({ pathname: to })}
+			onClick={() => navigate(to)}
 			onMouseOver={() => prefetch && prefetchLoader(to)}
 		>
 			{children}
