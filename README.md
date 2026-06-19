@@ -276,7 +276,7 @@ const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
 
 Returns an object for working with URL query parameters. Supports reading and setting both single values and arrays.
 
-```tsx
+```
 import { useSearchParams } from 'clear-react-router';
 
 function ProductFilter() {
