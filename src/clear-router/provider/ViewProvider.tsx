@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { RouterViewContext } from '../context/RouterViewContext.ts';
+import { RouterViewContext } from '../context/RouterViewContext';
 
 type ViewProviderProps = { params: Record<string, string>; children: ReactNode };
 
