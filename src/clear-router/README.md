@@ -9,7 +9,7 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - ✨ **Smooth Animations** - Page transitions with fade effect (customizable duration)
 - 🏗️ **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
-- 🎯 **Type-safe Redirects** - Redirect from loaders and beforeLoad hooks
+- 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - 🎨 **Flexible API** - Use components or hooks as you prefer
