@@ -2,6 +2,7 @@ import { ReactNode, useMemo, useState } from 'react';
 import { Provider } from '../provider/Provider';
 import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
+import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { Location, RouteItem } from '../types/global';
 
@@ -11,6 +12,7 @@ type RouteProviderProps = {
 	context?: Record<string, unknown>;
 	isAnimated?: boolean;
 	animationDuration?: number;
+	preserveScroll?: boolean;
 };
 
 export const RouterProvider = ({
@@ -19,11 +21,14 @@ export const RouterProvider = ({
 	context: initialContext = {},
 	isAnimated = false,
 	animationDuration,
+	preserveScroll = true,
 }: RouteProviderProps) => {
 	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
 	useApplyCustomAnimation(animationDuration);
+
+	const setScrollMap = usePreserveScroll({ pathname: location.pathname, preserveScroll });
 
 	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({
 		routeList,
@@ -38,6 +43,7 @@ export const RouterProvider = ({
 		setContext,
 		revalidateCache,
 		isAnimated,
+		setScrollMap,
 	});
 
 	const providerProps = useMemo(

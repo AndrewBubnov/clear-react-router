@@ -12,6 +12,7 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	isAnimated: boolean;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	setScrollMap: Dispatch<SetStateAction<Record<string, number>>>;
 };
 
 type TransitionedNavigationArgs = {
@@ -27,12 +28,23 @@ export const useHandleNavigation = ({
 	revalidateCache,
 	isAnimated,
 	setContext,
+	setScrollMap,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
+
+	const updateScrollMap = useCallback(
+		() =>
+			setScrollMap(prevState => {
+				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
+				return { ...prevState, [prevPathname.current]: scrollPosition };
+			}),
+		[setScrollMap]
+	);
 
 	const navigation = useCallback(
 		(nextLocation: Location) => {
@@ -66,6 +78,7 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location, isFirstCall?: boolean) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
+			updateScrollMap();
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
 			const params: Record<string, string> = getParamsObject({
 				routeItem: nextItem,
@@ -98,7 +111,7 @@ export const useHandleNavigation = ({
 			setBeforeLoadError(false);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, isAnimated, setContext]
+		[context, revalidateCache, routeList, transitionedNavigation, isAnimated, setContext, updateScrollMap]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
