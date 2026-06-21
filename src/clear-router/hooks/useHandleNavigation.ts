@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
+import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import type { BlockerState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 type BlockedRoute = { from: string; to: string };
@@ -11,6 +11,7 @@ type UseHandleNavigation = {
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	isAnimated: boolean;
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 };
 
 type TransitionedNavigationArgs = {
@@ -25,6 +26,7 @@ export const useHandleNavigation = ({
 	context,
 	revalidateCache,
 	isAnimated,
+	setContext,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
@@ -77,7 +79,12 @@ export const useHandleNavigation = ({
 							? // eslint-disable-next-line react-hooks/immutability
 								await navigationHandler({ pathname: location })
 							: await navigationHandler(location);
-					await nextItem.beforeLoad({ context, redirect, params });
+					await nextItem.beforeLoad({
+						context,
+						redirect,
+						params,
+						setContext,
+					});
 				} catch {
 					setBeforeLoadError(true);
 					transitionedNavigation({ nextLocation, isAnimated: false });
@@ -89,9 +96,9 @@ export const useHandleNavigation = ({
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
 			setBeforeLoadError(false);
-			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params });
+			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, isAnimated]
+		[context, revalidateCache, routeList, transitionedNavigation, isAnimated, setContext]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);

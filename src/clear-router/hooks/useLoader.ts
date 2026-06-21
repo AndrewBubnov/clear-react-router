@@ -1,13 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useRef, useState } from 'react';
 import { comparePaths, getParamsObject } from '../utils/utils';
 import type { RevalidateCacheArgs, RouteItem } from '../types/global';
 
 type UseLoaderParams = {
 	routeList: RouteItem[];
 	context: Record<string, unknown>;
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 };
 
-export const useLoader = ({ routeList, context }: UseLoaderParams) => {
+export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
 	const [loaderCache, setLoaderCache] = useState<unknown>();
 	const [loaderError, setLoaderError] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,7 +40,11 @@ export const useLoader = ({ routeList, context }: UseLoaderParams) => {
 			try {
 				if (isCurrentRoute) setLoaderError(false);
 				const params: Record<string, string> = getParamsObject({ routeItem, pathname });
-				const result = await routeItem?.loader({ params, context });
+				const result = await routeItem?.loader({
+					params,
+					context,
+					setContext,
+				});
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
 				loaderCacheRef.current = { ...loaderCacheRef.current, [pathname]: result };
 				if (isCurrentRoute) setLoaderCache(result);
@@ -49,7 +54,7 @@ export const useLoader = ({ routeList, context }: UseLoaderParams) => {
 				if (isCurrentRoute) setIsLoading(false);
 			}
 		},
-		[context, isCacheItemFresh]
+		[context, isCacheItemFresh, setContext]
 	);
 
 	const prefetchLoader = useCallback(

@@ -1,11 +1,15 @@
-import type { ComponentType, ReactElement } from 'react';
+import type { ComponentType, Dispatch, ReactElement, SetStateAction } from 'react';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
 export type ClientRouteItem = {
 	path: string;
 	element: (() => ReactElement) | ReactElement | LazyComponent;
-	loader?(arg: { params: Record<string, string>; context: Record<string, unknown> }): Promise<unknown>;
+	loader?(arg: {
+		params: Record<string, string>;
+		context: Record<string, unknown>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	}): Promise<unknown>;
 	loaderFallback?: (() => ReactElement) | ReactElement;
 	errorElement?: (() => ReactElement) | ReactElement;
 	fallback?: (() => ReactElement) | ReactElement;
@@ -15,8 +19,13 @@ export type ClientRouteItem = {
 		context: Record<string, unknown>;
 		redirect: (arg: Location | string) => Promise<void>;
 		params: Record<string, string>;
-	}) => Promise<unknown> | undefined;
-	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	}) => Promise<unknown> | undefined | void;
+	afterLoad?: (arg: {
+		context: Record<string, unknown>;
+		params: Record<string, string>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	}) => Promise<void>;
 };
 
 export type RouteItem = ClientRouteItem & {
