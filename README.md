@@ -26,9 +26,9 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `({ params, context }) => Promise<unknown>` | Fetch data using route params and context |
-| `beforeLoad` | `({ params, context, redirect }) => Promise<unknown> \| undefined` | Auth checks and redirects. `redirect` is provided by the router |
-| `afterLoad` | `({ params, context }) => Promise<void>` | Analytics, side effects after data is loaded |
+| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
+| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
@@ -95,7 +95,7 @@ Function provided to `beforeLoad` for programmatic redirection.
 **Type:** `(arg: Location | string) => Promise<void>`
 
 ```
-import type { Location } from 'clear-react-router';
+import type { createRouter } from 'clear-react-router';
 
 const routes = createRouter([
   {
@@ -117,6 +117,23 @@ const routes = createRouter([
       if (!context.isAuthorized) return redirect({ pathname: '/login', state: { from: '/dashboard' } });
     },
   },
+]);
+
+const routes = createRouter([
+  {
+    path: '/user/:userId',
+    loader: async ({ params, context, setContext }) => {
+      const user = await fetchUser(params.userId);
+      setContext({ ...context, currentUser: user });
+      return { user };
+    },
+    beforeLoad: async ({ context, setContext, redirect }) => {
+      if (!context.token) {
+        return redirect('/login');
+      }
+      setContext({ ...context, lastVisit: Date.now() });
+    },
+  }
 ]);
  
 ```
