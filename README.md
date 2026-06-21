@@ -12,6 +12,7 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
+- 📍 **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - 🎨 **Flexible API** - Use components or hooks as you prefer
 - 📱 **Browser History** - Full support for browser back/forward buttons
 - 🧠 **Context-aware** - Pass and update context through routes
@@ -45,6 +46,7 @@ The root component that provides routing context to the application. Place stati
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```
