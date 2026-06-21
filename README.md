@@ -107,8 +107,6 @@ const routes = createRouter([
   },
 ]);
 
-or
-
 const routes = createRouter([
   {
     path: '/dashboard',
