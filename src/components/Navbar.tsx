@@ -3,7 +3,7 @@ import { Link, useNavigate } from '../clear-router';
 export const Navbar = () => {
 	const navigate = useNavigate();
 	return (
-		<nav style={{ display: 'flex', gap: 100, position: 'fixed', top: 16, right: 16 }}>
+		<nav style={{ display: 'flex', gap: 100, position: 'fixed', top: 16, right: 16, zIndex: 999 }}>
 			<Link to="/">
 				<span>Home</span>
 			</Link>

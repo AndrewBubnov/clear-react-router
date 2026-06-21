@@ -1,4 +1,5 @@
 import { Link, useLoaderState } from '../clear-router';
+import { loremIpsum } from 'lorem-ipsum';
 
 const Home = () => {
 	console.log(useLoaderState());
@@ -11,6 +12,7 @@ const Home = () => {
 			<Link to="/user/10">
 				<span>To user page</span>
 			</Link>
+			<main>{loremIpsum({ count: 52, units: 'paragraph' })}</main>
 		</div>
 	);
 };
