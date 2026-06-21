@@ -25,12 +25,17 @@ export const RouterProvider = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({ routeList, context });
+	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({
+		routeList,
+		context,
+		setContext,
+	});
 
 	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
+		setContext,
 		revalidateCache,
 		isAnimated,
 	});
