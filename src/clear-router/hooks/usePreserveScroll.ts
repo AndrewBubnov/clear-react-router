@@ -10,7 +10,7 @@ export const usePreserveScroll = ({ pathname, preserveScroll }: UsePreserveScrol
 
 	useEffect(() => {
 		if (!preserveScroll || !pathname || !scrollMap[pathname]) return;
-		document.scrollingElement?.scrollTo({ top: scrollMap[pathname] });
+		document.scrollingElement?.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' });
 	}, [pathname, scrollMap, preserveScroll]);
 
 	return setScrollMap;
