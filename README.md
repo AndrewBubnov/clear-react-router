@@ -9,7 +9,7 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - ✨ **Smooth Animations** - Page transitions with fade effect (customizable duration)
 - 🏗️ **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
-- 🎯 **Type-safe Redirects** - Redirect from loaders and beforeLoad hooks
+- 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - 🎨 **Flexible API** - Use components or hooks as you prefer
@@ -26,9 +26,9 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `({ params, context }) => Promise<unknown>` | Fetch data using route params and context |
-| `beforeLoad` | `({ params, context, redirect }) => Promise<unknown> \| undefined` | Auth checks and redirects. `redirect` is provided by the router |
-| `afterLoad` | `({ params, context }) => Promise<void>` | Analytics, side effects after data is loaded |
+| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
+| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
@@ -95,7 +95,7 @@ Function provided to `beforeLoad` for programmatic redirection.
 **Type:** `(arg: Location | string) => Promise<void>`
 
 ```
-import type { Location } from 'clear-react-router';
+import type { createRouter } from 'clear-react-router';
 
 const routes = createRouter([
   {
@@ -107,8 +107,6 @@ const routes = createRouter([
   },
 ]);
 
-or
-
 const routes = createRouter([
   {
     path: '/dashboard',
@@ -117,6 +115,21 @@ const routes = createRouter([
       if (!context.isAuthorized) return redirect({ pathname: '/login', state: { from: '/dashboard' } });
     },
   },
+]);
+
+const routes = createRouter([
+  {
+    path: '/user/:userId',
+    loader: async ({ params, context, setContext }) => {
+      const user = await fetchUser(params.userId);
+      setContext({ ...context, currentUser: user });
+      return { user };
+    },
+    beforeLoad: async ({ context, setContext, redirect }) => {
+      if (!context.token) return redirect('/login');
+      setContext({ ...context, lastVisit: Date.now() });
+    },
+  }
 ]);
  
 ```
