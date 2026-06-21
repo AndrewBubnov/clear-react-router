@@ -126,9 +126,7 @@ const routes = createRouter([
       return { user };
     },
     beforeLoad: async ({ context, setContext, redirect }) => {
-      if (!context.token) {
-        return redirect('/login');
-      }
+      if (!context.token) return redirect('/login');
       setContext({ ...context, lastVisit: Date.now() });
     },
   }
