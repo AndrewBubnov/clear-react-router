@@ -12,7 +12,16 @@
     "routing",
     "typescript",
     "spa",
-    "nested-routes"
+    "nested-routes",
+    "data-loading",
+    "navigation-blocker",
+    "scroll-restoration",
+    "breadcrumbs",
+    "search-params",
+    "lazy-loading",
+    "prefetching",
+    "view-transitions",
+    "animations"
   ],
   "repository": {
     "type": "git",
