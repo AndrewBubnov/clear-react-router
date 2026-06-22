@@ -2,11 +2,12 @@ import { Link } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
 import { useEffect } from 'react';
+import { integerParser } from '../clear-router/utils/parsers.ts';
 
 const Home = () => {
-	const [_, setQuery] = useTypedQuery('amount', { type: 'integer-array', defaultValue: [0] });
+	const [_, setQuery] = useTypedQuery('amount', integerParser);
 	useEffect(() => {
-		setQuery([100]);
+		setQuery(100);
 	}, [setQuery]);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
