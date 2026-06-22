@@ -1,5 +1,5 @@
 import { useSearchParams } from './useSearchParams.ts';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type UseQueryOptions =
 	| { type: 'string'; defaultValue?: string }
@@ -61,24 +61,11 @@ const parserMap: ParserMap = {
 	'boolean-array': booleanArrayParser,
 };
 
-export function useTypedQuery(field: string, options?: { type?: 'string'; defaultValue?: string }): [string];
-export function useTypedQuery(field: string, options?: { type?: 'string-array'; defaultValue?: string[] }): [string[]];
-export function useTypedQuery(field: string, options?: { type?: 'integer' | 'float'; defaultValue?: number }): [number];
-export function useTypedQuery(
-	field: string,
-	options?: { type?: 'integer-array' | 'float-array'; defaultValue?: number[] }
-): [number[]];
-export function useTypedQuery(field: string, options?: { type?: 'boolean'; defaultValue?: boolean }): [boolean];
-export function useTypedQuery(
-	field: string,
-	options?: { type?: 'boolean-array'; defaultValue?: boolean[] }
-): [boolean[]];
-
 export function useTypedQuery<T extends UseQueryOptions['type']>(
 	field: string,
 	options?: { type?: T; defaultValue?: ParserReturnType<T> }
-): [ParserReturnType<T>] {
-	const { searchParams } = useSearchParams();
+): [ParserReturnType<T>, (arg: ParserReturnType<T>) => void] {
+	const { searchParams, setSearchParams } = useSearchParams();
 	const { type = 'string' as T, defaultValue } = options || {};
 
 	const value = useMemo(() => {
@@ -92,5 +79,10 @@ export function useTypedQuery<T extends UseQueryOptions['type']>(
 		return result;
 	}, [defaultValue, field, searchParams, type]);
 
-	return [value];
+	const setValue = useCallback(
+		(value: ParserReturnType<T>) => setSearchParams(field, value.toString()),
+		[setSearchParams, field]
+	);
+
+	return [value, setValue];
 }

@@ -1,10 +1,13 @@
 import { Link } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
+import { useEffect } from 'react';
 
 const Home = () => {
-	const [query] = useTypedQuery('amount', { type: 'integer' });
-	console.log(query);
+	const [_, setQuery] = useTypedQuery('amount', { type: 'integer-array', defaultValue: [0] });
+	useEffect(() => {
+		setQuery([100]);
+	}, [setQuery]);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>Home</h3>
