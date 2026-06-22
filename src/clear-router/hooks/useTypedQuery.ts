@@ -1,4 +1,4 @@
-import { useSearchParams } from './useSearchParams.ts';
+import { useMemo } from 'react';
 
 type UseQueryOptions =
 	| { type: 'string'; defaultValue?: string }
@@ -74,7 +74,15 @@ export function useTypedQuery<T extends UseQueryOptions['type']>(
 	field: string,
 	options?: { type?: T; defaultValue?: ParserReturnType<T> }
 ): ParserReturnType<T> {
-	const { searchParams } = useSearchParams();
+	const { pathname, search } = window.location;
+
+	const searchString = useMemo(
+		() => (search ? search.replace('?', '') : (pathname.split('?')?.[1] ?? '')),
+		[pathname, search]
+	);
+
+	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+
 	const { type = 'string' as T, defaultValue } = options || {};
 	const params = searchParams.getAll(field);
 
