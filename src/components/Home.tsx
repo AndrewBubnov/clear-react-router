@@ -1,8 +1,10 @@
-import { Link, useLoaderState } from '../clear-router';
+import { Link } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
+import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
 
 const Home = () => {
-	console.log(useLoaderState());
+	const query = useTypedQuery('amount', { type: 'float', defaultValue: 3 });
+	console.log(query);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>Home</h3>
