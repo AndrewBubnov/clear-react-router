@@ -12,6 +12,7 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
+- 📍 **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - 🎨 **Flexible API** - Use components or hooks as you prefer
 - 📱 **Browser History** - Full support for browser back/forward buttons
 - 🧠 **Context-aware** - Pass and update context through routes
@@ -45,6 +46,7 @@ The root component that provides routing context to the application. Place stati
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```
@@ -325,12 +327,24 @@ function ProductFilter() {
 
 **Key features:**
 
-- ✅ **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
-- ✅ **Functional updates** — Update parameters based on previous state without losing other params
-- ✅ **Type-safe** — Proper TypeScript support with overloads
-- ✅ **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
+- **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
+- **Functional updates** — Update parameters based on previous state without losing other params
+- **Type-safe** — Proper TypeScript support with overloads
+- **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
+
+### `useHistoricalTrail()`
+
+Returns an array of pathnames representing the user's actual navigation history. Perfect for **history-based breadcrumbs** in dashboards, admin panels, multi-step forms, or any app where users navigate non-linearly.
+
+**Returns:** Array of pathnames in chronological visit order (e.g., `['/dashboard', '/users', '/settings']`)
+
+**Key features:**
+- **Chronological order** — Paths are stored in the order the user visited them
+- **Unique entries** — Revisiting a page trims the trail to that point
+- **Respects navigation blocking** — Only successful navigations are added
+- **Redirect-safe** — Redirected pages are not added to the trail
 
 ## Lazy Loading
 
