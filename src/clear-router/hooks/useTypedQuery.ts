@@ -1,3 +1,4 @@
+import { useSearchParams } from './useSearchParams.ts';
 import { useMemo } from 'react';
 
 type UseQueryOptions =
@@ -60,36 +61,36 @@ const parserMap: ParserMap = {
 	'boolean-array': booleanArrayParser,
 };
 
-export function useTypedQuery(field: string, options?: { type?: 'string'; defaultValue?: string }): string;
-export function useTypedQuery(field: string, options?: { type?: 'string-array'; defaultValue?: string[] }): string[];
-export function useTypedQuery(field: string, options?: { type?: 'integer' | 'float'; defaultValue?: number }): number;
+export function useTypedQuery(field: string, options?: { type?: 'string'; defaultValue?: string }): [string];
+export function useTypedQuery(field: string, options?: { type?: 'string-array'; defaultValue?: string[] }): [string[]];
+export function useTypedQuery(field: string, options?: { type?: 'integer' | 'float'; defaultValue?: number }): [number];
 export function useTypedQuery(
 	field: string,
 	options?: { type?: 'integer-array' | 'float-array'; defaultValue?: number[] }
-): number[];
-export function useTypedQuery(field: string, options?: { type?: 'boolean'; defaultValue?: boolean }): boolean;
-export function useTypedQuery(field: string, options?: { type?: 'boolean-array'; defaultValue?: boolean[] }): boolean[];
+): [number[]];
+export function useTypedQuery(field: string, options?: { type?: 'boolean'; defaultValue?: boolean }): [boolean];
+export function useTypedQuery(
+	field: string,
+	options?: { type?: 'boolean-array'; defaultValue?: boolean[] }
+): [boolean[]];
 
 export function useTypedQuery<T extends UseQueryOptions['type']>(
 	field: string,
 	options?: { type?: T; defaultValue?: ParserReturnType<T> }
-): ParserReturnType<T> {
-	const { pathname, search } = window.location;
-
-	const searchString = useMemo(
-		() => (search ? search.replace('?', '') : (pathname.split('?')?.[1] ?? '')),
-		[pathname, search]
-	);
-
-	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
-
+): [ParserReturnType<T>] {
+	const { searchParams } = useSearchParams();
 	const { type = 'string' as T, defaultValue } = options || {};
-	const params = searchParams.getAll(field);
 
-	const parser = parserMap[type];
-	const result = parser(params);
+	const value = useMemo(() => {
+		const params = searchParams.getAll(field);
 
-	if (result !== undefined && result !== null && result !== '') return result;
-	if (defaultValue !== undefined) return defaultValue;
-	return result;
+		const parser = parserMap[type];
+		const result = parser(params);
+
+		if (result !== undefined && result !== null && result !== '') return result;
+		if (defaultValue !== undefined) return defaultValue;
+		return result;
+	}, [defaultValue, field, searchParams, type]);
+
+	return [value];
 }

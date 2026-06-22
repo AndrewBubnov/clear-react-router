@@ -3,7 +3,7 @@ import { loremIpsum } from 'lorem-ipsum';
 import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
 
 const Home = () => {
-	const query = useTypedQuery('amount');
+	const [query] = useTypedQuery('amount', { type: 'integer' });
 	console.log(query);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
