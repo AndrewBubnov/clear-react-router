@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from './useSearchParams.ts';
 
-export function useTypedQuery<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void] {
+export function useQueryParam<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void] {
 	const { searchParams, setSearchParams } = useSearchParams();
 
 	const value = useMemo(() => {

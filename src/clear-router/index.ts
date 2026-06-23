@@ -8,6 +8,7 @@ export { useLoaderState } from './hooks/useLoaderState';
 export { useBlocker } from './hooks/useBlocker';
 export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
+export { useQueryParam } from './hooks/useQueryParam';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useHistoricalTrail } from './hooks/useHistoricalTrail';
 export { parser } from './utils/parser';
