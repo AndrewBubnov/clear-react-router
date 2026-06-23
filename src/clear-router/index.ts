@@ -10,5 +10,6 @@ export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useHistoricalTrail } from './hooks/useHistoricalTrail';
+export { parser } from './utils/parser';
 export { createRouter } from './utils/utils';
 export type { RouteItem, BlockerState, Location } from './types/global';

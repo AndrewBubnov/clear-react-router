@@ -2,7 +2,7 @@ import { Link } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
 import { useEffect } from 'react';
-import { zodSchemaParser } from '../clear-router/utils/parsers.ts';
+import { parser } from '../clear-router/utils/parser.ts';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -11,7 +11,7 @@ const schema = z.object({
 });
 
 const Home = () => {
-	const [_, setQuery] = useTypedQuery('amount', zodSchemaParser(schema));
+	const [_, setQuery] = useTypedQuery('amount', parser.zodSchema(schema));
 	useEffect(() => {
 		setQuery({ name: 'df', age: 12 });
 	}, [setQuery]);
