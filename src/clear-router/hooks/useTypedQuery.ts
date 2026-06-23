@@ -1,13 +1,7 @@
 import { useSearchParams } from './useSearchParams.ts';
 import { useCallback, useMemo } from 'react';
 
-type ParsedTypes = string | number | boolean | string[] | number[] | boolean[];
-
-export function useTypedQuery<T extends ParsedTypes>(
-	field: string,
-	parser: (arg: string[]) => T,
-	defaultValue?: T
-): [T, (arg: T) => void] {
+export function useTypedQuery<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void] {
 	const { searchParams, setSearchParams } = useSearchParams();
 
 	const value = useMemo(() => {
@@ -18,7 +12,7 @@ export function useTypedQuery<T extends ParsedTypes>(
 		return result;
 	}, [field, parser, searchParams, defaultValue]);
 
-	const setValue = useCallback((value: T) => setSearchParams(field, value.toString()), [setSearchParams, field]);
+	const setValue = useCallback((value: T) => setSearchParams(field, JSON.stringify(value)), [setSearchParams, field]);
 
 	return [value, setValue];
 }

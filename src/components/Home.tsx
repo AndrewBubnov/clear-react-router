@@ -2,12 +2,18 @@ import { Link } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 import { useTypedQuery } from '../clear-router/hooks/useTypedQuery.ts';
 import { useEffect } from 'react';
-import { integerParser } from '../clear-router/utils/parsers.ts';
+import { zodSchemaParser } from '../clear-router/utils/parsers.ts';
+import { z } from 'zod';
+
+const schema = z.object({
+	name: z.string(),
+	age: z.number(),
+});
 
 const Home = () => {
-	const [_, setQuery] = useTypedQuery('amount', integerParser);
+	const [_, setQuery] = useTypedQuery('amount', zodSchemaParser(schema));
 	useEffect(() => {
-		setQuery(100);
+		setQuery({ name: 'df', age: 12 });
 	}, [setQuery]);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
