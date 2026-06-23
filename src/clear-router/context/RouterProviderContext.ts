@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, Dispatch, SetStateAction } from 'react';
 import { BlockerState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 export type PropsContextValue = {
@@ -13,6 +13,7 @@ export type NavigationContextValue = {
 };
 
 export type ActionsContextValue = {
+	setLocation: Dispatch<SetStateAction<Location>>;
 	updateLocation(route: Location): Promise<void>;
 	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	prefetchLoader(arg: string): Promise<void>;
