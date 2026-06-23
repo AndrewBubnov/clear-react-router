@@ -49,6 +49,7 @@ export const RouterProvider = ({
 	const providerProps = useMemo(
 		() => ({
 			location,
+			setLocation,
 			updateLocation,
 			loaderCache,
 			prefetchLoader,

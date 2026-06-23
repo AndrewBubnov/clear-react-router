@@ -12,6 +12,8 @@ A lightweight, type-safe routing library for React applications with nested rout
 - 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
 - 📦 **Prefetching** - Preload data on hover for instant navigation
 - 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
+- 📍 **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
+- 🔍 **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
 - 🎨 **Flexible API** - Use components or hooks as you prefer
 - 📱 **Browser History** - Full support for browser back/forward buttons
 - 🧠 **Context-aware** - Pass and update context through routes
@@ -45,6 +47,7 @@ The root component that provides routing context to the application. Place stati
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```
@@ -277,6 +280,114 @@ useBeforeUnload(text ? onSave : undefined);
 ```
 > **Note:** Pass `undefined` to disable the handler (e.g., if there is no changes).
 
+### `useQueryParam()`
+
+A flexible hook for working with typed query parameters. You provide a parser function, and it returns the parsed value and a setter.
+
+```
+import { useQueryParam, parser } from 'clear-react-router';
+
+const ProductPage = () => {
+  // String parameter
+  const [brand, setBrand] = useQueryParam('brand', parser.string, 'nike');
+
+  // Number parameter
+  const [page, setPage] = useQueryParam('page', parser.integer, 1);
+
+  // Boolean parameter
+  const [isActive, setIsActive] = useQueryParam('active', parser.boolean, false);
+
+  // Array of strings
+  const [colors, setColors] = useQueryParam('colors', parser.stringArray);
+
+  // Array of numbers
+  const [prices, setPrices] = useQueryParam('prices', parser.floatArray);
+
+  return (
+    <div>
+      <p>Brand: {brand}</p>
+      <p>Page: {page}</p>
+      <button onClick={() => setPage(page + 1)}>Next</button>
+    </div>
+  );
+}
+```
+**Signature:** `useQueryParam<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void]`
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `field` | `string` | The query parameter key (e.g., `'page'`, `'brand'`) |
+| `parser` | `(arg: string[]) => T` | Function that transforms the raw string array into the desired type |
+| `defaultValue` | `T` (optional) | Default value returned when the parameter is missing or empty |
+
+**Returns:**
+
+| Element | Type | Description |
+|---------|------|-------------|
+| `value` | `T` | The parsed value from the query parameter |
+| `setValue` | `(arg: T) => void` | Function to update the query parameter |
+
+### Built-in Parsers
+
+| Parser | Input | Output | Description |
+|--------|-------|--------|-------------|
+| `parser.string` | `string[]` | `string` | First value or empty string |
+| `parser.stringArray` | `string[]` | `string[]` | All values as array |
+| `parser.integer` | `string[]` | `number` | First value parsed as integer (default: `0`) |
+| `parser.integerArray` | `string[]` | `number[]` | All values parsed as integers |
+| `parser.float` | `string[]` | `number` | First value parsed as float (default: `0`) |
+| `parser.floatArray` | `string[]` | `number[]` | All values parsed as floats |
+| `parser.boolean` | `string[]` | `boolean` | First value parsed as boolean (`'true'` → `true`) |
+| `parser.booleanArray` | `string[]` | `boolean[]` | All values parsed as booleans |
+
+### Using Zod Schemas
+`useQueryParam` works seamlessly with Zod for complex validation:
+
+```
+import { z } from 'zod';
+import { useQueryParam, parser } from 'clear-react-router';
+
+const filterSchema = z.object({
+  name: z.string(),
+  age: z.number().min(0),
+  active: z.boolean().optional(),
+});
+
+function ProductFilter() {
+  const [filter, setFilter] = useQueryParam(
+    'filter',
+    parser.zodSchema(filterSchema),
+    { name: '', age: 0 }
+  );
+
+  return (
+    <div>
+      <p>Name: {filter.name}</p>
+      <p>Age: {filter.age}</p>
+      <button onClick={() => setFilter({ ...filter, age: filter.age + 1 })}>
+        Increment Age
+      </button>
+    </div>
+  );
+}
+```
+
+### Custom Parsers
+You can write your own parser for any format:
+
+```
+// Custom parser for comma-separated values
+const csvParser = (params: string[]): string[] => {
+  const value = params[0] || '';
+  return value ? value.split(',').map(v => v.trim()) : [];
+};
+
+const TagsFilter() {
+  const [tags, setTags] = useQueryParam('tags', csvParser, []);
+  // tags: string[]
+}
+```
+
 ### `useRouterContext()`
 
 Returns the router context object and a function to update it. Useful for accessing or modifying global state (like user authentication, theme, etc.) from anywhere in your app.
@@ -325,12 +436,24 @@ function ProductFilter() {
 
 **Key features:**
 
-- ✅ **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
-- ✅ **Functional updates** — Update parameters based on previous state without losing other params
-- ✅ **Type-safe** — Proper TypeScript support with overloads
-- ✅ **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
+- **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
+- **Functional updates** — Update parameters based on previous state without losing other params
+- **Type-safe** — Proper TypeScript support with overloads
+- **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
+
+### `useHistoricalTrail()`
+
+Returns an array of pathnames representing the user's actual navigation history. Perfect for **history-based breadcrumbs** in dashboards, admin panels, multi-step forms, or any app where users navigate non-linearly.
+
+**Returns:** Array of pathnames in chronological visit order (e.g., `['/dashboard', '/users', '/settings']`)
+
+**Key features:**
+- **Chronological order** — Paths are stored in the order the user visited them
+- **Unique entries** — Revisiting a page trims the trail to that point
+- **Respects navigation blocking** — Only successful navigations are added
+- **Redirect-safe** — Redirected pages are not added to the trail
 
 ## Lazy Loading
 

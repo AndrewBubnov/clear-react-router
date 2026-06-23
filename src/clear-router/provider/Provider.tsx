@@ -22,6 +22,7 @@ export const Provider = ({
 	updateBlockedRoute,
 	updateLocation,
 	location,
+	setLocation,
 	prefetchLoader,
 	loaderCache,
 	blockerState,
@@ -34,6 +35,7 @@ export const Provider = ({
 		<PropsContext.Provider value={{ routeList, isAnimated }}>
 			<ActionsContext.Provider
 				value={{
+					setLocation,
 					updateLocation,
 					updateBlockedRoute,
 					prefetchLoader,

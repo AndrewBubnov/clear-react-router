@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLocation } from './useLocation';
-import { useNavigate } from './useNavigate';
-import { useLatest } from './useLatest';
+import { useLatest } from './useLatest.ts';
+import { useRouterActions } from './useServiceContext.ts';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
@@ -14,7 +14,7 @@ type UseSearchParamsReturn = {
 
 export const useSearchParams = (): UseSearchParamsReturn => {
 	const location = useLocation();
-	const navigate = useNavigate();
+	const { setLocation } = useRouterActions();
 
 	const locationRef = useLatest(location);
 
@@ -36,12 +36,12 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 	const navigateWithSearchParams = useCallback(
 		(params: URLSearchParams) => {
 			const newSearch = params.toString();
-			navigate({
-				pathname: locationRef.current.pathname,
-				search: newSearch ? `?${newSearch}` : '',
-			});
+			const { pathname } = locationRef.current;
+			const search = newSearch ? `?${newSearch}` : '';
+			setLocation(prevState => ({ ...prevState, search }));
+			history.replaceState(null, '', pathname + search);
 		},
-		[locationRef, navigate]
+		[locationRef, setLocation]
 	);
 
 	const setSearchParams = useCallback(
