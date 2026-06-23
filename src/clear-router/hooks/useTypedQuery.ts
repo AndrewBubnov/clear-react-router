@@ -12,7 +12,13 @@ export function useTypedQuery<T>(field: string, parser: (arg: string[]) => T, de
 		return result;
 	}, [field, parser, searchParams, defaultValue]);
 
-	const setValue = useCallback((value: T) => setSearchParams(field, JSON.stringify(value)), [setSearchParams, field]);
+	const setValue = useCallback(
+		(value: T) => {
+			const serializer = typeof value === 'object' ? JSON.stringify : String;
+			setSearchParams(field, serializer(value));
+		},
+		[setSearchParams, field]
+	);
 
 	return [value, setValue];
 }
