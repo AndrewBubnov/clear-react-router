@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
+import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
+import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
-import { useNavigationState, usePropsData } from '../hooks/useServiceContext';
-import { ViewProvider } from '../provider/ViewProvider';
 
 const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ spinner = true }: { spinner?: boolean }) => {
-	const { location, isLoading, shouldErrorElementShown } = useNavigationState();
+	const { location, isLoading } = useNavigationState();
 	const { routeList, isAnimated } = usePropsData();
+	const { loaderState } = useRouterData();
 
 	const routeItem = useMemo(() => {
 		if (!location.pathname) return undefined;
@@ -20,6 +21,11 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 	const params: Record<string, string> = useMemo(
 		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
 		[routeItem]
+	);
+
+	const shouldErrorElementShown = useMemo(
+		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
+		[loaderState, location.pathname]
 	);
 
 	if (spinner && !routeItem && isLoading) return <Spinner />;

@@ -49,3 +49,5 @@ export type RevalidateCacheArgs = {
 	routeItem?: RouteItem;
 	isCurrentRoute?: boolean;
 };
+
+export type LoaderState = Record<string, { data: unknown; loaderError: Error | null; beforeLoadError: Error | null }>;
