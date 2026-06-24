@@ -103,6 +103,8 @@ export const useHandleNavigation = ({
 					transitionedNavigation({ nextLocation, isAnimated: false });
 					return;
 				}
+			} else {
+				setBeforeLoadError(false);
 			}
 			if (seq !== navigationSeq.current) return;
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
