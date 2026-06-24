@@ -4,7 +4,7 @@ import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
-import { Location, RouteItem } from '../types/global';
+import { LoaderState, Location, RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;
@@ -25,18 +25,20 @@ export const RouterProvider = ({
 }: RouteProviderProps) => {
 	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
+	const [loaderState, setLoaderState] = useState<LoaderState>({});
 
 	useApplyCustomAnimation(animationDuration);
 
 	const setScrollMap = usePreserveScroll({ pathname: location.pathname, preserveScroll });
 
-	const { loaderError, loaderCache, prefetchLoader, revalidateCache, isLoading } = useLoader({
+	const { prefetchLoader, revalidateCache, isLoading } = useLoader({
 		routeList,
 		context,
 		setContext,
+		setLoaderState,
 	});
 
-	const { blockerState, updateLocation, updateBlockedRoute, beforeLoadError } = useHandleNavigation({
+	const { blockerState, updateLocation, updateBlockedRoute } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
@@ -44,6 +46,7 @@ export const RouterProvider = ({
 		revalidateCache,
 		isAnimated,
 		setScrollMap,
+		setLoaderState,
 	});
 
 	const providerProps = useMemo(
@@ -51,7 +54,7 @@ export const RouterProvider = ({
 			location,
 			setLocation,
 			updateLocation,
-			loaderCache,
+			loaderState,
 			prefetchLoader,
 			updateBlockedRoute,
 			blockerState,
@@ -59,16 +62,13 @@ export const RouterProvider = ({
 			setContext,
 			routeList,
 			isLoading,
-			shouldErrorElementShown: loaderError || beforeLoadError,
 			isAnimated,
 		}),
 		[
-			beforeLoadError,
 			blockerState,
 			context,
 			isLoading,
-			loaderCache,
-			loaderError,
+			loaderState,
 			location,
 			prefetchLoader,
 			routeList,

@@ -1,7 +1,14 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
-import type { BlockerState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
+import type {
+	BlockerState,
+	LoaderState,
+	Location,
+	RevalidateCacheArgs,
+	RouteItem,
+	UpdateBlockedRouteProps,
+} from '../types/global';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -13,6 +20,7 @@ type UseHandleNavigation = {
 	isAnimated: boolean;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	setScrollMap: Dispatch<SetStateAction<Record<string, number>>>;
+	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
 };
 
 type TransitionedNavigationArgs = {
@@ -29,9 +37,9 @@ export const useHandleNavigation = ({
 	isAnimated,
 	setContext,
 	setScrollMap,
+	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [beforeLoadError, setBeforeLoadError] = useState<boolean>(false);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -89,8 +97,7 @@ export const useHandleNavigation = ({
 				try {
 					const redirect = async (location: Location | string) =>
 						typeof location === 'string'
-							? // eslint-disable-next-line react-hooks/immutability
-								await navigationHandler({ pathname: location })
+							? await navigationHandler({ pathname: location })
 							: await navigationHandler(location);
 					await nextItem.beforeLoad({
 						context,
@@ -98,22 +105,38 @@ export const useHandleNavigation = ({
 						params,
 						setContext,
 					});
-				} catch {
-					setBeforeLoadError(true);
+					setLoaderState(prevState => ({
+						...prevState,
+						[nextLocation.pathname]: { ...prevState[nextLocation.pathname], beforeLoadError: null },
+					}));
+				} catch (error) {
+					setLoaderState(prevState => ({
+						...prevState,
+						[nextLocation.pathname]: {
+							...prevState[nextLocation.pathname],
+							beforeLoadError: error as Error,
+						},
+					}));
 					transitionedNavigation({ nextLocation, isAnimated: false });
 					return;
 				}
-			} else {
-				setBeforeLoadError(false);
 			}
 			if (seq !== navigationSeq.current) return;
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
-			setBeforeLoadError(false);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, isAnimated, setContext, updateScrollMap]
+		[
+			context,
+			revalidateCache,
+			routeList,
+			transitionedNavigation,
+			isAnimated,
+			setContext,
+			updateScrollMap,
+			setLoaderState,
+		]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
@@ -168,5 +191,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, beforeLoadError };
+	return { blockerState, updateLocation, updateBlockedRoute };
 };
