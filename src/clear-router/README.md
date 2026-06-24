@@ -224,13 +224,21 @@ const { pathname, search, state } = useLocation();
 
 ### `useLoaderState()`
 
-Returns the cached data loaded by the current route's `loader`. Data is automatically cached and reused when navigating back to the same route.
+Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is automatically cached and reused when navigating back to the same route.
+
+**Returns:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `data` | `unknown` | The data returned from the route's `loader` |
+| `loaderError` | `Error \| null` | Error from the `loader` (if any) |
+| `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
+
 ```
-const UserProfile = () => {
-  const user = useLoaderState();
-  return <div>{user.name}</div>;
-}
+function UserProfile() {
+  const { data, loaderError, beforeLoadError } = useLoaderState();
 ```
+
 ### Caching behavior:
 - The loader result is cached and reused when navigating back to the same route (e.g., from /user/123 back to /user/456 it will be a new request because different params, but from /user/456 to /user/456 — cache hit).
 - Use staleTime in route config to control how long cache is considered fresh:
