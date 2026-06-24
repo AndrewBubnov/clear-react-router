@@ -88,8 +88,20 @@ Component for client-side navigation with prefetch support.
 | Prop | Type | Default |
 |------|------|---------|
 | `to` | `string` | required |
-| `prefetch` | `boolean` | `true` |
+| `prefetch` | `boolean` optional | `true` |
+| `prefetchDelay` | `number` optional | `150` | Delay in ms before prefetch starts (prevents unnecessary requests on quick mouse passes) |
 | `children` | `ReactElement` | required |
+
+```
+// Default — prefetch after 150ms hover
+<Link to="/dashboard">Dashboard</Link>
+
+// Custom prefetch delay (300ms)
+<Link to="/heavy-page" prefetchDelay={300}>Heavy Page</Link>
+
+// Disable prefetch
+<Link to="/about" prefetch={false}>About</Link>
+```
 
 ### `redirect`
 
