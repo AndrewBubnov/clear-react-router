@@ -24,10 +24,9 @@ export const Provider = ({
 	location,
 	setLocation,
 	prefetchLoader,
-	loaderCache,
+	loaderState,
 	blockerState,
 	routeList,
-	shouldErrorElementShown,
 	isLoading,
 	isAnimated,
 }: ProviderProps) => {
@@ -42,8 +41,8 @@ export const Provider = ({
 					setContext,
 				}}
 			>
-				<DataContext.Provider value={{ context, loaderCache }}>
-					<NavigationContext.Provider value={{ blockerState, location, shouldErrorElementShown, isLoading }}>
+				<DataContext.Provider value={{ context, loaderState }}>
+					<NavigationContext.Provider value={{ blockerState, location, isLoading }}>
 						{children}
 					</NavigationContext.Provider>
 				</DataContext.Provider>
