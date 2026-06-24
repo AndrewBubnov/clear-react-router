@@ -26,10 +26,14 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 
 	const revalidateCache = useCallback(
 		async ({ routeItem, isCurrentRoute, pathname }: RevalidateCacheArgs) => {
-			if (!routeItem?.loader) return;
+			if (!routeItem?.loader) {
+				setLoaderError(false);
+				return;
+			}
 
 			if (isCacheItemFresh({ routeItem, pathname }) && isCurrentRoute) {
 				setLoaderCache(loaderCacheRef.current[pathname]);
+				setLoaderError(false);
 			}
 			if (isCacheItemFresh({ routeItem, pathname })) return;
 
