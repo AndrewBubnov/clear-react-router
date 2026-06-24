@@ -18,13 +18,13 @@ export const Link = ({ children, to, prefetch = true, prefetchDelay = STANDARD_D
 
 	const onMouseEnter = useCallback(() => {
 		if (!prefetch || !prefetchDelay) return;
-		clearTimeout(timeout.current);
+		if (timeout.current) clearTimeout(timeout.current);
 		timeout.current = window.setTimeout(() => prefetchLoader(to), prefetchDelay);
 	}, [prefetch, prefetchDelay, prefetchLoader, to]);
 
 	const onMouseLeave = useCallback(() => {
 		if (!prefetch || !prefetchDelay) return;
-		clearTimeout(timeout.current);
+		if (timeout.current) clearTimeout(timeout.current);
 	}, [prefetch, prefetchDelay]);
 
 	return (
