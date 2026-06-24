@@ -1,5 +1,5 @@
-import { useLocation } from './useLocation.ts';
 import { useEffect, useState } from 'react';
+import { useLocation } from './useLocation';
 
 export const useHistoricalTrail = () => {
 	const { pathname } = useLocation();
