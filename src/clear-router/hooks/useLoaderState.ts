@@ -1,5 +1,5 @@
 import { useRouterData } from './useServiceContext';
-import { useLocation } from './useLocation.ts';
+import { useLocation } from './useLocation';
 
 export const useLoaderState = <T>() => {
 	const { pathname } = useLocation();
