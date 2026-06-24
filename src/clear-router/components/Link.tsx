@@ -24,7 +24,10 @@ export const Link = ({ children, to, prefetch = true, prefetchDelay = STANDARD_D
 
 	const onMouseLeave = useCallback(() => {
 		if (!prefetch || !prefetchDelay) return;
-		if (timeout.current) clearTimeout(timeout.current);
+		if (timeout.current) {
+			clearTimeout(timeout.current);
+			timeout.current = 0;
+		}
 	}, [prefetch, prefetchDelay]);
 
 	return (
