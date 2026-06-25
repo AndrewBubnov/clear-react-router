@@ -1,8 +1,8 @@
-import { Link, useQueryParam, parser } from '../clear-router';
+import { Link, useQueryParam, adapter } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 
 const Home = () => {
-	const [value, setValue] = useQueryParam('filter', parser.string, '');
+	const [value, setValue] = useQueryParam('filter', adapter.string, '');
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>Home</h3>
