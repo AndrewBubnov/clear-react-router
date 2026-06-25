@@ -1,23 +1,26 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from './useSearchParams.ts';
+import { Adapter } from '../types/global.ts';
 
-export function useQueryParam<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void] {
+export function useQueryParam<T>(field: string, adapter: Adapter<T>, defaultValue?: T): [T, (arg: T | null) => void] {
 	const { searchParams, setSearchParams } = useSearchParams();
 
 	const value = useMemo(() => {
 		const params = searchParams.getAll(field);
-		const result = parser(params);
-		if (result !== undefined && result !== null && result !== '') return result;
+		const result = adapter.parse(params);
+		const isValid = !(result instanceof Date) || (result instanceof Date && !isNaN(result.getTime()));
+		if (result !== undefined && result !== null && result !== '' && isValid) return result;
 		if (defaultValue !== undefined) return defaultValue;
 		return result;
-	}, [field, parser, searchParams, defaultValue]);
+	}, [field, adapter, searchParams, defaultValue]);
 
 	const setValue = useCallback(
-		(value: T) => {
-			const serializer = typeof value === 'object' ? JSON.stringify : String;
-			setSearchParams(field, serializer(value));
+		(value: T | null) => {
+			if (!value) return setSearchParams(field, []);
+			const serialize = adapter.serialize || String;
+			setSearchParams(field, serialize(value));
 		},
-		[setSearchParams, field]
+		[field, adapter.serialize, setSearchParams]
 	);
 
 	return [value, setValue];

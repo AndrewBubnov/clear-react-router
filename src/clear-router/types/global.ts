@@ -51,3 +51,8 @@ export type RevalidateCacheArgs = {
 };
 
 export type LoaderState = Record<string, { data: unknown; loaderError: Error | null; beforeLoadError: Error | null }>;
+
+export type Adapter<T> = {
+	parse: (params: string[]) => T;
+	serialize?: (params: T) => string | string[];
+};
