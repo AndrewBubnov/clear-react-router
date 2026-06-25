@@ -302,7 +302,7 @@ useBeforeUnload(text ? onSave : undefined);
 
 ### `useQueryParam()`
 
-A flexible hook for working with typed query parameters. You provide a parser function, and it returns the parsed value and a setter.
+A flexible hook for working with typed query parameters. You provide an adapter object with `parse` and `serialize` functions, and it returns the parsed value and a setter.
 
 ```
 import { useQueryParam, adapter } from 'clear-react-router';
