@@ -11,6 +11,6 @@ export { useRouterContext } from './hooks/useRouterContext';
 export { useQueryParam } from './hooks/useQueryParam';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useHistoricalTrail } from './hooks/useHistoricalTrail';
-export { adapter } from './utils/adapter.ts';
+export { adapter } from './utils/adapter';
 export { createRouter } from './utils/utils';
 export type { RouteItem, BlockerState, Location, Adapter } from './types/global';
