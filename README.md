@@ -305,23 +305,20 @@ useBeforeUnload(text ? onSave : undefined);
 A flexible hook for working with typed query parameters. You provide a parser function, and it returns the parsed value and a setter.
 
 ```
-import { useQueryParam, parser } from 'clear-react-router';
+import { useQueryParam, adapter } from 'clear-react-router';
 
 const ProductPage = () => {
   // String parameter
-  const [brand, setBrand] = useQueryParam('brand', parser.string, 'nike');
+  const [brand, setBrand] = useQueryParam('brand', adapter.string, 'nike');
 
   // Number parameter
-  const [page, setPage] = useQueryParam('page', parser.integer, 1);
+  const [page, setPage] = useQueryParam('page', adapter.integer, 1);
 
-  // Boolean parameter
-  const [isActive, setIsActive] = useQueryParam('active', parser.boolean, false);
-
-  // Array of strings
-  const [colors, setColors] = useQueryParam('colors', parser.stringArray);
+  // Date parameter
+  const [date, setDate] = useQueryParam('date', adapter.date, new Date());
 
   // Array of numbers
-  const [prices, setPrices] = useQueryParam('prices', parser.floatArray);
+  const [prices, setPrices] = useQueryParam('prices', adapter.floatArray);
 
   return (
     <div>
@@ -332,12 +329,17 @@ const ProductPage = () => {
   );
 }
 ```
-**Signature:** `useQueryParam<T>(field: string, parser: (arg: string[]) => T, defaultValue?: T): [T, (arg: T) => void]`
+type Adapter<T> = {
+	parse: (params: string[]) => T;
+	serialize?: (params: T) => string | string[];
+}
+
+**Signature:** `useQueryParam<T>(field: string, adapter: Adapter<T>, defaultValue?: T): [T, (arg: T | null) => void]`
 
 | Argument | Type | Description |
 |----------|------|-------------|
 | `field` | `string` | The query parameter key (e.g., `'page'`, `'brand'`) |
-| `parser` | `(arg: string[]) => T` | Function that transforms the raw string array into the desired type |
+| `adapter` | `Adapter<T>` | Parser and optional serializer for params (serializer String is used in case of serializer not passed) |
 | `defaultValue` | `T` (optional) | Default value returned when the parameter is missing or empty |
 
 **Returns:**
@@ -345,27 +347,30 @@ const ProductPage = () => {
 | Element | Type | Description |
 |---------|------|-------------|
 | `value` | `T` | The parsed value from the query parameter |
-| `setValue` | `(arg: T) => void` | Function to update the query parameter |
+| `setValue` | `(arg: T | null) => void` | Function to update the query parameter. Null is passed to remove the parameter. |
 
-### Built-in Parsers
+### Built-in Adapters
 
-| Parser | Input | Output | Description |
-|--------|-------|--------|-------------|
-| `parser.string` | `string[]` | `string` | First value or empty string |
-| `parser.stringArray` | `string[]` | `string[]` | All values as array |
-| `parser.integer` | `string[]` | `number` | First value parsed as integer (default: `0`) |
-| `parser.integerArray` | `string[]` | `number[]` | All values parsed as integers |
-| `parser.float` | `string[]` | `number` | First value parsed as float (default: `0`) |
-| `parser.floatArray` | `string[]` | `number[]` | All values parsed as floats |
-| `parser.boolean` | `string[]` | `boolean` | First value parsed as boolean (`'true'` → `true`) |
-| `parser.booleanArray` | `string[]` | `boolean[]` | All values parsed as booleans |
+| Adapter | Input | Output | Description |
+|---------|-------|--------|-------------|
+| `adapter.string` | `string[]` | `string` | First value or empty string |
+| `adapter.stringArray` | `string[]` | `string[]` | All values as array |
+| `adapter.integer` | `string[]` | `number` | First value parsed as integer (default: `0`) |
+| `adapter.integerArray` | `string[]` | `number[]` | All values parsed as integers |
+| `adapter.float` | `string[]` | `number` | First value parsed as float (default: `0`) |
+| `adapter.floatArray` | `string[]` | `number[]` | All values parsed as floats |
+| `adapter.boolean` | `string[]` | `boolean` | First value parsed as boolean (`'true'` → `true`) |
+| `adapter.booleanArray` | `string[]` | `boolean[]` | All values parsed as booleans |
+| `adapter.date` | `string[]` | `Date` | First value parsed as Date from timestamp |
+| `adapter.dateArray` | `string[]` | `Date[]` | All values parsed as Dates from timestamps |
+| `adapter.zodSchema` | `string[]` | `T` | Validates JSON string against Zod schema |
 
 ### Using Zod Schemas
 `useQueryParam` works seamlessly with Zod for complex validation:
 
 ```
 import { z } from 'zod';
-import { useQueryParam, parser } from 'clear-react-router';
+import { useQueryParam, adapter } from 'clear-react-router';
 
 const filterSchema = z.object({
   name: z.string(),
@@ -376,7 +381,7 @@ const filterSchema = z.object({
 function ProductFilter() {
   const [filter, setFilter] = useQueryParam(
     'filter',
-    parser.zodSchema(filterSchema),
+    adapter.zodSchema(filterSchema),
     { name: '', age: 0 }
   );
 
@@ -392,18 +397,21 @@ function ProductFilter() {
 }
 ```
 
-### Custom Parsers
-You can write your own parser for any format:
+### Custom Adapters
+You can write your own adapter for any format:
 
 ```
-// Custom parser for comma-separated values
-const csvParser = (params: string[]): string[] => {
-  const value = params[0] || '';
-  return value ? value.split(',').map(v => v.trim()) : [];
-};
+// Custom adapter for comma-separated values
+const csvAdapter = {
+  parse: (params: string[]): string[] => {
+    const value = params[0] || '';
+    return value ? value.split(',').map(v => v.trim()) : [];
+  },
+  serialize: (value: string[]): string[] => value
+}
 
 const TagsFilter() {
-  const [tags, setTags] = useQueryParam('tags', csvParser, []);
+  const [tags, setTags] = useQueryParam('tags', csvAdapter, []);
   // tags: string[]
 }
 ```
