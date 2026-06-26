@@ -1,16 +1,25 @@
 import { useMemo } from 'react';
 import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
 import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
 
+type RouterProps = {
+	isAnimated?: boolean;
+	animationDuration?: number;
+	spinner?: boolean;
+};
+
 const ALL_LOCATIONS = '*';
 
-export const Router = ({ spinner = true }: { spinner?: boolean }) => {
-	const { location, isLoading } = useNavigationState();
-	const { routeList, isAnimated } = usePropsData();
+export const Router = ({ isAnimated, animationDuration, spinner = true }: RouterProps) => {
+	const { location, isLoading, nextRouteItem } = useNavigationState();
+	const { routeList } = usePropsData();
 	const { loaderState } = useRouterData();
+
+	useApplyCustomAnimation(animationDuration);
 
 	const routeItem = useMemo(() => {
 		if (!location.pathname) return undefined;
@@ -38,7 +47,7 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		return <ViewProvider params={params}>{renderElement(pendingRoute?.loaderFallback)}</ViewProvider>;
 
 	if (!isAnimated && !shouldErrorElementShown && isLoading)
-		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
+		return <ViewProvider params={params}>{renderElement(nextRouteItem?.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {
 		return (
