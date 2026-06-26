@@ -70,7 +70,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 |------|------|---------|-------------|
 | `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
-| `spinner` | `boolean /| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
+| `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 
 ```
 <RouterProvider routeList={routes} isAnimated>
