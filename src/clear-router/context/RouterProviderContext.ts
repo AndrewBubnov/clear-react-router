@@ -1,5 +1,5 @@
 import { createContext, Dispatch, SetStateAction } from 'react';
-import { BlockerState, LoaderState, Location, RouteItem, UpdateBlockedRouteProps } from '../types/global';
+import { BlockerState, LoaderState, Location, NextItemData, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 export type PropsContextValue = {
 	routeList: RouteItem[];
@@ -8,7 +8,7 @@ export type NavigationContextValue = {
 	location: Location;
 	blockerState: BlockerState;
 	isLoading: boolean;
-	nextItem: RouteItem | undefined;
+	nextItemData: NextItemData;
 };
 
 export type ActionsContextValue = {

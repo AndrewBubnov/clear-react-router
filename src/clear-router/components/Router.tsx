@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
+import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
-import { usePreserveScroll } from '../hooks/usePreserveScroll.ts';
 
 type RouterProps = {
 	isAnimated?: boolean;
@@ -17,11 +17,11 @@ type RouterProps = {
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ isAnimated, animationDuration, spinner = true, preserveScroll = true }: RouterProps) => {
-	const { location, isLoading, nextItem } = useNavigationState();
+	const { location, isLoading, nextItemData } = useNavigationState();
 	const { routeList } = usePropsData();
 	const { loaderState } = useRouterData();
 
-	usePreserveScroll({ nextPathname: nextItem?.path, pathname: location.pathname, preserveScroll });
+	usePreserveScroll({ nextPathname: nextItemData.pathname, pathname: location.pathname, preserveScroll });
 
 	useApplyCustomAnimation(animationDuration);
 
@@ -31,22 +31,22 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 	}, [location.pathname, routeList]);
 
 	const params: Record<string, string> = useMemo(() => {
-		const item = routeItem || nextItem;
-		return getParamsObject({ routeItem: item, pathname: location.pathname || window.location.pathname });
-	}, [location.pathname, routeItem, nextItem]);
+		const params = nextItemData.params;
+		return getParamsObject({ params, pathname: nextItemData.pathname || location.pathname });
+	}, [location.pathname, nextItemData.params, nextItemData.pathname]);
 
 	const shouldErrorElementShown = useMemo(
 		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
 		[loaderState, location.pathname]
 	);
 
-	if (!routeItem && !nextItem) return null;
+	if (!routeItem && !nextItemData.loaderFallback) return null;
 
-	if (!routeItem && nextItem)
-		return <ViewProvider params={params}>{renderElement(nextItem?.loaderFallback)}</ViewProvider>;
+	if (!routeItem && nextItemData.loaderFallback)
+		return <ViewProvider params={params}>{renderElement(nextItemData.loaderFallback)}</ViewProvider>;
 
-	if (!isAnimated && !shouldErrorElementShown && isLoading)
-		return <ViewProvider params={params}>{renderElement(nextItem?.loaderFallback)}</ViewProvider>;
+	if (!isAnimated && !shouldErrorElementShown && isLoading && nextItemData.loaderFallback)
+		return <ViewProvider params={params}>{renderElement(nextItemData.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {
 		return (
