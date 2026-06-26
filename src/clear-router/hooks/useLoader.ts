@@ -30,7 +30,7 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 
 			if (isCurrentRoute) setIsLoading(true);
 			try {
-				const params: Record<string, string> = getParamsObject({ routeItem, pathname });
+				const params: Record<string, string> = getParamsObject({ params: routeItem.params, pathname });
 				const result = await routeItem?.loader({
 					params,
 					context,

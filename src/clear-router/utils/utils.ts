@@ -46,10 +46,10 @@ const parseClientRouteItem = (
 
 export const createRouter = (clientList: ClientRouteItem[]) => clientList.flatMap(el => parseClientRouteItem(el, []));
 
-export const getParamsObject = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
-	if (!routeItem?.params) return {};
+export const getParamsObject = ({ params, pathname }: { params?: RouteItem['params']; pathname: string }) => {
+	if (!params) return {};
 	const split = pathname.split('/');
-	return (routeItem.params || [])
+	return (params || [])
 		.map(el => ({ index: split.findIndex(item => item === el.key), value: el.value }))
 		.reduce((acc, cur) => ({ ...acc, [cur.value]: split[cur.index + 1] }), {});
 };
