@@ -79,7 +79,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 </RouterProvider>
 ```
 
-> **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`).
+> **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`). On the initial page load, however, the route's loaderFallback is rendered if available.
 
 ### `Link`
 
