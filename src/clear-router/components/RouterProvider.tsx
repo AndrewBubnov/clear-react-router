@@ -2,27 +2,18 @@ import { ReactNode, useMemo, useState } from 'react';
 import { Provider } from '../provider/Provider';
 import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
-import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { LoaderState, Location, RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
-	preserveScroll?: boolean;
 };
 
-export const RouterProvider = ({
-	children,
-	routeList,
-	context: initialContext = {},
-	preserveScroll = true,
-}: RouteProviderProps) => {
+export const RouterProvider = ({ children, routeList, context: initialContext = {} }: RouteProviderProps) => {
 	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 	const [loaderState, setLoaderState] = useState<LoaderState>({});
-
-	const setScrollMap = usePreserveScroll({ pathname: location.pathname, preserveScroll });
 
 	const { prefetchLoader, revalidateCache, isLoading } = useLoader({
 		routeList,
@@ -31,13 +22,12 @@ export const RouterProvider = ({
 		setLoaderState,
 	});
 
-	const { blockerState, updateLocation, updateBlockedRoute, nextRouteItem } = useHandleNavigation({
+	const { blockerState, updateLocation, updateBlockedRoute, nextItem } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
 		setContext,
 		revalidateCache,
-		setScrollMap,
 		setLoaderState,
 	});
 
@@ -53,7 +43,7 @@ export const RouterProvider = ({
 			context,
 			setContext,
 			routeList,
-			nextRouteItem,
+			nextItem,
 			isLoading,
 		}),
 		[
@@ -66,7 +56,7 @@ export const RouterProvider = ({
 			routeList,
 			updateBlockedRoute,
 			updateLocation,
-			nextRouteItem,
+			nextItem,
 		]
 	);
 
