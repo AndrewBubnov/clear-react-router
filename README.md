@@ -45,20 +45,18 @@ The root component that provides routing context to the application. Place stati
 |------|------|---------|-------------|
 | `routeList` | `RouteItem[]` | required | Array of route configurations |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
-| `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
-| `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```
 function App() {
   return (
-    <RouterProvider routeList={routes} isAnimated animationDuration={800}>
-      <Navbar />           {/* Static — won't re-render on route change */}
+    <RouterProvider routeList={routes}>
+      <Navbar />          							   {/* Static */}
       <main>
-        <Router />         {/* Dynamic — renders current page */}
+        <Router isAnimated animationDuration={800} />  {/* Dynamic — renders current page */}
       </main>
-      <Footer />           {/* Static — won't re-render on route change */}
+      <Footer />         							   {/* Static */}
     </RouterProvider>
   );
 }
@@ -70,7 +68,9 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `spinner` | `boolean /| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
+| `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
+| `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 
 ```
 <RouterProvider routeList={routes} isAnimated>
