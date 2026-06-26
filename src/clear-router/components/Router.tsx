@@ -5,7 +5,6 @@ import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
 
-const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ spinner = true }: { spinner?: boolean }) => {
@@ -18,21 +17,27 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
 	}, [location.pathname, routeList]);
 
-	const params: Record<string, string> = useMemo(
-		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
-		[routeItem]
-	);
+	const pendingRoute = useMemo(() => {
+		if (location.pathname) return undefined;
+		return routeList.find(el => comparePaths(el, window.location.pathname));
+	}, [location.pathname, routeList]);
+
+	const params: Record<string, string> = useMemo(() => {
+		const item = routeItem || pendingRoute;
+		return getParamsObject({ routeItem: item, pathname: location.pathname || window.location.pathname });
+	}, [location.pathname, routeItem, pendingRoute]);
 
 	const shouldErrorElementShown = useMemo(
 		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
 		[loaderState, location.pathname]
 	);
 
-	if (spinner && !routeItem && isLoading) return <Spinner />;
+	if (!routeItem && !pendingRoute) return null;
 
-	if (!routeItem) return null;
+	if (!routeItem && pendingRoute)
+		return <ViewProvider params={params}>{renderElement(pendingRoute?.loaderFallback)}</ViewProvider>;
 
-	if (!isAnimated && routeItem?.loader && !shouldErrorElementShown && isLoading)
+	if (!isAnimated && !shouldErrorElementShown && isLoading)
 		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {
@@ -47,7 +52,7 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			<ViewProvider params={params}>
-				{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
+				{renderElement(routeItem?.element) || null}
 				{spinner && isAnimated && isLoading && <Spinner />}
 			</ViewProvider>
 		</div>
