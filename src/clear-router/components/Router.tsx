@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
-import { usePreserveScroll } from '../hooks/usePreserveScroll.ts';
 
 type RouterProps = {
 	isAnimated?: boolean;
