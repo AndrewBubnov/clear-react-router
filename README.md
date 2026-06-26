@@ -52,11 +52,11 @@ The root component that provides routing context to the application. Place stati
 function App() {
   return (
     <RouterProvider routeList={routes}>
-      <Navbar />          							   {/* Static — won't re-render on route change */}
+      <Navbar />          							   {/* Static */}
       <main>
         <Router isAnimated animationDuration={800} />  {/* Dynamic — renders current page */}
       </main>
-      <Footer />         							   {/* Static — won't re-render on route change */}
+      <Footer />         							   {/* Static */}
     </RouterProvider>
   );
 }
