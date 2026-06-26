@@ -30,10 +30,10 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
 	}, [location.pathname, routeList]);
 
-	const params: Record<string, string> = useMemo(() => {
-		const params = nextItemData.params;
-		return getParamsObject({ params, pathname: nextItemData.pathname || location.pathname });
-	}, [location.pathname, nextItemData.params, nextItemData.pathname]);
+	const params: Record<string, string> = useMemo(
+		() => getParamsObject({ params: nextItemData.params, pathname: nextItemData.pathname || location.pathname }),
+		[location.pathname, nextItemData.params, nextItemData.pathname]
+	);
 
 	const shouldErrorElementShown = useMemo(
 		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
