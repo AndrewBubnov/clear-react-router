@@ -4,10 +4,10 @@ import { Navbar } from './components/Navbar.tsx';
 
 function App() {
 	return (
-		<RouterProvider routeList={routes} isAnimated animationDuration={1200}>
+		<RouterProvider routeList={routes}>
 			<Navbar />
 			<div style={{ marginTop: 100 }}>
-				<Router />
+				<Router isAnimated animationDuration={1200} />
 			</div>
 		</RouterProvider>
 	);
