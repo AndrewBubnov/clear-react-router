@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
