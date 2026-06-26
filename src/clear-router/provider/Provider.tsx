@@ -28,10 +28,9 @@ export const Provider = ({
 	blockerState,
 	routeList,
 	isLoading,
-	isAnimated,
 }: ProviderProps) => {
 	return (
-		<PropsContext.Provider value={{ routeList, isAnimated }}>
+		<PropsContext.Provider value={{ routeList }}>
 			<ActionsContext.Provider
 				value={{
 					setLocation,

@@ -3,15 +3,12 @@ import { Provider } from '../provider/Provider';
 import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { LoaderState, Location, RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;
 	routeList: RouteItem[];
 	context?: Record<string, unknown>;
-	isAnimated?: boolean;
-	animationDuration?: number;
 	preserveScroll?: boolean;
 };
 
@@ -19,15 +16,11 @@ export const RouterProvider = ({
 	children,
 	routeList,
 	context: initialContext = {},
-	isAnimated = false,
-	animationDuration,
 	preserveScroll = true,
 }: RouteProviderProps) => {
 	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 	const [loaderState, setLoaderState] = useState<LoaderState>({});
-
-	useApplyCustomAnimation(animationDuration);
 
 	const setScrollMap = usePreserveScroll({ pathname: location.pathname, preserveScroll });
 
@@ -44,7 +37,6 @@ export const RouterProvider = ({
 		context,
 		setContext,
 		revalidateCache,
-		isAnimated,
 		setScrollMap,
 		setLoaderState,
 	});
@@ -62,7 +54,6 @@ export const RouterProvider = ({
 			setContext,
 			routeList,
 			isLoading,
-			isAnimated,
 		}),
 		[
 			blockerState,
@@ -74,7 +65,6 @@ export const RouterProvider = ({
 			routeList,
 			updateBlockedRoute,
 			updateLocation,
-			isAnimated,
 		]
 	);
 

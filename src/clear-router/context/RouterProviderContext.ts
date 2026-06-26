@@ -3,7 +3,6 @@ import { BlockerState, LoaderState, Location, RouteItem, UpdateBlockedRouteProps
 
 export type PropsContextValue = {
 	routeList: RouteItem[];
-	isAnimated: boolean;
 };
 export type NavigationContextValue = {
 	location: Location;

@@ -17,16 +17,9 @@ type UseHandleNavigation = {
 	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
-	isAnimated: boolean;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	setScrollMap: Dispatch<SetStateAction<Record<string, number>>>;
 	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
-};
-
-type TransitionedNavigationArgs = {
-	nextLocation: Location;
-	isAnimated?: boolean;
-	isFirstCall?: boolean;
 };
 
 export const useHandleNavigation = ({
@@ -34,7 +27,6 @@ export const useHandleNavigation = ({
 	routeList,
 	context,
 	revalidateCache,
-	isAnimated,
 	setContext,
 	setScrollMap,
 	setLoaderState,
@@ -68,14 +60,10 @@ export const useHandleNavigation = ({
 	);
 
 	const transitionedNavigation = useCallback(
-		({ nextLocation, isFirstCall, isAnimated }: TransitionedNavigationArgs) => {
-			if (isAnimated && !isFirstCall) {
-				try {
-					document.startViewTransition(() => navigation(nextLocation));
-				} catch {
-					navigation(nextLocation);
-				}
-			} else {
+		(nextLocation: Location) => {
+			try {
+				document.startViewTransition(() => navigation(nextLocation));
+			} catch {
 				navigation(nextLocation);
 			}
 		},
@@ -83,7 +71,7 @@ export const useHandleNavigation = ({
 	);
 
 	const navigationHandler = useCallback(
-		async (nextLocation: Location, isFirstCall?: boolean) => {
+		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 			updateScrollMap();
@@ -117,26 +105,17 @@ export const useHandleNavigation = ({
 							beforeLoadError: error as Error,
 						},
 					}));
-					transitionedNavigation({ nextLocation, isAnimated: false });
+					transitionedNavigation(nextLocation);
 					return;
 				}
 			}
 			if (seq !== navigationSeq.current) return;
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
-			transitionedNavigation({ nextLocation, isFirstCall, isAnimated });
+			transitionedNavigation(nextLocation);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[
-			context,
-			revalidateCache,
-			routeList,
-			transitionedNavigation,
-			isAnimated,
-			setContext,
-			updateScrollMap,
-			setLoaderState,
-		]
+		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState, updateScrollMap]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
@@ -181,7 +160,7 @@ export const useHandleNavigation = ({
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
-		setNextLocationRef.current(currentLocation, true);
+		setNextLocationRef.current(currentLocation);
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
