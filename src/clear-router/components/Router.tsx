@@ -5,7 +5,6 @@ import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { comparePaths, getParamsObject } from '../utils/utils';
 
-const PAGE_NOT_FOUND = 'error 404. Page not found';
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ spinner = true }: { spinner?: boolean }) => {
@@ -18,9 +17,14 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
 	}, [location.pathname, routeList]);
 
+	const stab = useMemo(() => {
+		if (location.pathname) return null;
+		return routeList.find(el => comparePaths(el, window.location.pathname))?.loaderFallback ?? null;
+	}, [location.pathname, routeList]);
+
 	const params: Record<string, string> = useMemo(
-		() => getParamsObject({ routeItem, pathname: window.location.pathname }),
-		[routeItem]
+		() => getParamsObject({ routeItem, pathname: location.pathname }),
+		[location.pathname, routeItem]
 	);
 
 	const shouldErrorElementShown = useMemo(
@@ -28,11 +32,11 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		[loaderState, location.pathname]
 	);
 
-	if (spinner && !routeItem && isLoading) return <Spinner />;
+	if (!routeItem && !stab) return null;
 
-	if (!routeItem) return null;
+	if (!routeItem && stab) return renderElement(stab);
 
-	if (!isAnimated && routeItem?.loader && !shouldErrorElementShown && isLoading)
+	if (!isAnimated && !shouldErrorElementShown && isLoading)
 		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {
@@ -47,7 +51,7 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			<ViewProvider params={params}>
-				{renderElement(routeItem?.element) || PAGE_NOT_FOUND}
+				{renderElement(routeItem?.element) || null}
 				{spinner && isAnimated && isLoading && <Spinner />}
 			</ViewProvider>
 		</div>
