@@ -15,7 +15,7 @@ type RouterProps = {
 const ALL_LOCATIONS = '*';
 
 export const Router = ({ isAnimated, animationDuration, spinner = true }: RouterProps) => {
-	const { location, isLoading } = useNavigationState();
+	const { location, isLoading, nextRouteItem } = useNavigationState();
 	const { routeList } = usePropsData();
 	const { loaderState } = useRouterData();
 
@@ -47,7 +47,7 @@ export const Router = ({ isAnimated, animationDuration, spinner = true }: Router
 		return <ViewProvider params={params}>{renderElement(pendingRoute?.loaderFallback)}</ViewProvider>;
 
 	if (!isAnimated && !shouldErrorElementShown && isLoading)
-		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
+		return <ViewProvider params={params}>{renderElement(nextRouteItem?.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {
 		return (

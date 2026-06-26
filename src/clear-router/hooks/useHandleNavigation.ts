@@ -32,6 +32,7 @@ export const useHandleNavigation = ({
 	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
+	const [nextRouteItem, setNextRouteItem] = useState<RouteItem | undefined>();
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -76,6 +77,7 @@ export const useHandleNavigation = ({
 			const seq = navigationSeq.current;
 			updateScrollMap();
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
+			setNextRouteItem(nextItem);
 			const params: Record<string, string> = getParamsObject({
 				routeItem: nextItem,
 				pathname: nextLocation.pathname,
@@ -170,5 +172,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute };
+	return { blockerState, updateLocation, updateBlockedRoute, nextRouteItem };
 };

@@ -51,10 +51,10 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 					}));
 				}
 			} finally {
-				if (isCurrentRoute) setIsLoading(false);
+				setTimeout(() => setIsLoading(false), 10);
 			}
 		},
-		[context, isCacheItemFresh, setContext]
+		[context, isCacheItemFresh, setContext, setLoaderState]
 	);
 
 	const prefetchLoader = useCallback(
