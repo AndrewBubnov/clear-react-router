@@ -28,7 +28,7 @@ export const Provider = ({
 	blockerState,
 	routeList,
 	isLoading,
-	nextItem,
+	nextItemData,
 }: ProviderProps) => {
 	return (
 		<PropsContext.Provider value={{ routeList }}>
@@ -42,7 +42,7 @@ export const Provider = ({
 				}}
 			>
 				<DataContext.Provider value={{ context, loaderState }}>
-					<NavigationContext.Provider value={{ blockerState, location, isLoading, nextItem }}>
+					<NavigationContext.Provider value={{ blockerState, location, isLoading, nextItemData }}>
 						{children}
 					</NavigationContext.Provider>
 				</DataContext.Provider>

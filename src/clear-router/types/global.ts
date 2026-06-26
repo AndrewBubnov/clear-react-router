@@ -56,3 +56,9 @@ export type Adapter<T> = {
 	parse: (params: string[]) => T;
 	serialize?: (params: T) => string | string[];
 };
+
+export type NextItemData = {
+	loaderFallback: RouteItem['loaderFallback'];
+	params: RouteItem['params'];
+	pathname: string;
+};

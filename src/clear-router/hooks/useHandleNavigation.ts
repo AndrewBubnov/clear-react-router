@@ -1,10 +1,11 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
-import type {
+import {
 	BlockerState,
 	LoaderState,
 	Location,
+	NextItemData,
 	RevalidateCacheArgs,
 	RouteItem,
 	UpdateBlockedRouteProps,
@@ -30,7 +31,7 @@ export const useHandleNavigation = ({
 	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [nextItem, setNextItem] = useState<RouteItem | undefined>();
+	const [nextItemData, setNextItemData] = useState<NextItemData>({} as NextItemData);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -65,10 +66,14 @@ export const useHandleNavigation = ({
 			const seq = navigationSeq.current;
 
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-			setNextItem(nextItem);
+			setNextItemData({
+				loaderFallback: nextItem?.loaderFallback,
+				params: nextItem?.params,
+				pathname: nextLocation.pathname,
+			});
 
 			const params: Record<string, string> = getParamsObject({
-				routeItem: nextItem,
+				params: nextItem?.params,
 				pathname: nextLocation.pathname,
 			});
 
@@ -161,5 +166,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, nextItem };
+	return { blockerState, updateLocation, updateBlockedRoute, nextItemData };
 };
