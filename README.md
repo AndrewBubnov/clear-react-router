@@ -68,7 +68,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `isAnimated` | `boolean` | `false` | Enable smooth page transitions |
+| `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 
