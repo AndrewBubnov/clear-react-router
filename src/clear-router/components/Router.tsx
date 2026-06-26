@@ -17,24 +17,25 @@ export const Router = ({ spinner = true }: { spinner?: boolean }) => {
 		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
 	}, [location.pathname, routeList]);
 
-	const stab = useMemo(() => {
-		if (location.pathname) return null;
-		return routeList.find(el => comparePaths(el, window.location.pathname))?.loaderFallback ?? null;
+	const pendingRoute = useMemo(() => {
+		if (location.pathname) return undefined;
+		return routeList.find(el => comparePaths(el, window.location.pathname));
 	}, [location.pathname, routeList]);
 
-	const params: Record<string, string> = useMemo(
-		() => getParamsObject({ routeItem, pathname: location.pathname }),
-		[location.pathname, routeItem]
-	);
+	const params: Record<string, string> = useMemo(() => {
+		const item = routeItem || pendingRoute;
+		return getParamsObject({ routeItem: item, pathname: location.pathname || window.location.pathname });
+	}, [location.pathname, routeItem, pendingRoute]);
 
 	const shouldErrorElementShown = useMemo(
 		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
 		[loaderState, location.pathname]
 	);
 
-	if (!routeItem && !stab) return null;
+	if (!routeItem && !pendingRoute) return null;
 
-	if (!routeItem && stab) return renderElement(stab);
+	if (!routeItem && pendingRoute)
+		return <ViewProvider params={params}>{renderElement(pendingRoute?.loaderFallback)}</ViewProvider>;
 
 	if (!isAnimated && !shouldErrorElementShown && isLoading)
 		return <ViewProvider params={params}>{renderElement(routeItem?.loaderFallback)}</ViewProvider>;
