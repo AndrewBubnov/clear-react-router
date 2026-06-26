@@ -8,7 +8,7 @@ export type NavigationContextValue = {
 	location: Location;
 	blockerState: BlockerState;
 	isLoading: boolean;
-	nextRouteItem: RouteItem | undefined;
+	nextItem: RouteItem | undefined;
 };
 
 export type ActionsContextValue = {

@@ -18,7 +18,6 @@ type UseHandleNavigation = {
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	setScrollMap: Dispatch<SetStateAction<Record<string, number>>>;
 	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
 };
 
@@ -28,24 +27,13 @@ export const useHandleNavigation = ({
 	context,
 	revalidateCache,
 	setContext,
-	setScrollMap,
 	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [nextRouteItem, setNextRouteItem] = useState<RouteItem | undefined>();
+	const [nextItem, setNextItem] = useState<RouteItem | undefined>();
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
-
-	const updateScrollMap = useCallback(
-		() =>
-			setScrollMap(prevState => {
-				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
-				return { ...prevState, [prevPathname.current]: scrollPosition };
-			}),
-		[setScrollMap]
-	);
 
 	const navigation = useCallback(
 		(nextLocation: Location) => {
@@ -75,9 +63,10 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
-			updateScrollMap();
+
 			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-			setNextRouteItem(nextItem);
+			setNextItem(nextItem);
+
 			const params: Record<string, string> = getParamsObject({
 				routeItem: nextItem,
 				pathname: nextLocation.pathname,
@@ -117,7 +106,7 @@ export const useHandleNavigation = ({
 			transitionedNavigation(nextLocation);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState, updateScrollMap]
+		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
@@ -172,5 +161,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, nextRouteItem };
+	return { blockerState, updateLocation, updateBlockedRoute, nextItem };
 };
