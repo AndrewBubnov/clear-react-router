@@ -22,7 +22,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 		setLoaderState,
 	});
 
-	const { blockerState, updateLocation, updateBlockedRoute, nextItemData } = useHandleNavigation({
+	const { blockerState, updateLocation, updateBlockedRoute, routeItemData } = useHandleNavigation({
 		setLocation,
 		routeList,
 		context,
@@ -43,7 +43,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 			context,
 			setContext,
 			routeList,
-			nextItemData,
+			routeItemData,
 			isLoading,
 		}),
 		[
@@ -56,7 +56,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 			routeList,
 			updateBlockedRoute,
 			updateLocation,
-			nextItemData,
+			routeItemData,
 		]
 	);
 
