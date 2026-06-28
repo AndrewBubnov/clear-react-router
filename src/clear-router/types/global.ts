@@ -57,8 +57,7 @@ export type Adapter<T> = {
 	serialize?: (params: T) => string | string[];
 };
 
-export type NextItemData = {
-	loaderFallback: RouteItem['loaderFallback'];
-	params: RouteItem['params'];
+export type RouteItemData = {
 	pathname: string;
+	routeItem: RouteItem | undefined;
 };

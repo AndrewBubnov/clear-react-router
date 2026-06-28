@@ -5,9 +5,9 @@ import {
 	BlockerState,
 	LoaderState,
 	Location,
-	NextItemData,
 	RevalidateCacheArgs,
 	RouteItem,
+	RouteItemData,
 	UpdateBlockedRouteProps,
 } from '../types/global';
 
@@ -22,6 +22,8 @@ type UseHandleNavigation = {
 	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
 };
 
+const ALL_LOCATIONS = '*';
+
 export const useHandleNavigation = ({
 	setLocation,
 	routeList,
@@ -31,7 +33,7 @@ export const useHandleNavigation = ({
 	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [nextItemData, setNextItemData] = useState<NextItemData>({} as NextItemData);
+	const [routeItemData, setRouteItemData] = useState<RouteItemData>({} as RouteItemData);
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -65,12 +67,7 @@ export const useHandleNavigation = ({
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
 
-			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-			setNextItemData({
-				loaderFallback: nextItem?.loaderFallback,
-				params: nextItem?.params,
-				pathname: nextLocation.pathname,
-			});
+			const nextItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
 
 			const params: Record<string, string> = getParamsObject({
 				params: nextItem?.params,
@@ -106,6 +103,10 @@ export const useHandleNavigation = ({
 				}
 			}
 			if (seq !== navigationSeq.current) return;
+			setRouteItemData({
+				routeItem: nextItem,
+				pathname: nextLocation.pathname,
+			});
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation(nextLocation);
@@ -166,5 +167,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, nextItemData };
+	return { blockerState, updateLocation, updateBlockedRoute, routeItemData };
 };
