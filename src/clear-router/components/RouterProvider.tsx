@@ -12,7 +12,7 @@ type RouteProviderProps = {
 
 export const RouterProvider = ({ children, routeList, context: initialContext = {} }: RouteProviderProps) => {
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
-	const [loaderState, setLoaderState] = useState<LoaderState>({});
+	const [loaderState, setLoaderState] = useState<LoaderState>({} as LoaderState);
 
 	const { prefetchLoader, revalidateCache, isLoading } = useLoader({
 		routeList,
