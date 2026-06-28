@@ -45,10 +45,8 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			<>
-				{renderElement(routeItem.element) || null}
-				{spinner && isAnimated && isLoading && <Spinner />}
-			</>
+			{renderElement(routeItem.element) || null}
+			{spinner && isAnimated && isLoading && <Spinner />}
 		</div>
 	);
 };
