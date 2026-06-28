@@ -106,18 +106,9 @@ export const useHandleNavigation = ({
 						params,
 						setContext,
 					});
-					setLoaderState(prevState => ({
-						...prevState,
-						[nextLocation.pathname]: { ...prevState[nextLocation.pathname], beforeLoadError: null },
-					}));
+					setLoaderState(prevState => ({ ...prevState, beforeLoadError: null }));
 				} catch (error) {
-					setLoaderState(prevState => ({
-						...prevState,
-						[nextLocation.pathname]: {
-							...prevState[nextLocation.pathname],
-							beforeLoadError: error as Error,
-						},
-					}));
+					setLoaderState(prevState => ({ ...prevState, beforeLoadError: error as Error }));
 					return transitionedNavigation(nextLocation, nextItem);
 				}
 			}

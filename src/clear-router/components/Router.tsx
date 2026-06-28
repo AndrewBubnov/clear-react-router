@@ -15,7 +15,7 @@ type RouterProps = {
 export const Router = ({ isAnimated, animationDuration, spinner = true, preserveScroll = true }: RouterProps) => {
 	const {
 		isLoading,
-		routeItemData: { routeItem, location },
+		routeItemData: { routeItem },
 	} = useNavigationState();
 	const { loaderState } = useRouterData();
 
@@ -24,8 +24,8 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 	useApplyCustomAnimation(animationDuration);
 
 	const shouldErrorElementShown = useMemo(
-		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
-		[loaderState, location.pathname]
+		() => Boolean(loaderState.loaderError || loaderState.beforeLoadError),
+		[loaderState]
 	);
 
 	if (!routeItem && isLoading) return <Spinner />;

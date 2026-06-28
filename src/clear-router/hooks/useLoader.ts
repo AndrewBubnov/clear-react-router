@@ -24,7 +24,10 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 
 	const revalidateCache = useCallback(
 		async ({ routeItem, isCurrentRoute, pathname }: RevalidateCacheArgs) => {
-			if (!routeItem?.loader) return;
+			if (!routeItem?.loader) {
+				setLoaderState({} as LoaderState);
+				return;
+			}
 
 			if (isCacheItemFresh({ routeItem, pathname })) return;
 
@@ -38,17 +41,11 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 				});
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
 				if (isCurrentRoute) {
-					setLoaderState(prevState => ({
-						...prevState,
-						[pathname]: { ...prevState[pathname], data: result, loaderError: null },
-					}));
+					setLoaderState(prevState => ({ ...prevState, data: result, loaderError: null }));
 				}
 			} catch (error) {
 				if (isCurrentRoute) {
-					setLoaderState(prevState => ({
-						...prevState,
-						[pathname]: { ...prevState[pathname], data: null, loaderError: error as Error },
-					}));
+					setLoaderState(prevState => ({ ...prevState, data: null, loaderError: error as Error }));
 				}
 			} finally {
 				setTimeout(() => setIsLoading(false), 10);
