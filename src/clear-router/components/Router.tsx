@@ -16,13 +16,12 @@ type RouterProps = {
 
 export const Router = ({ isAnimated, animationDuration, spinner = true, preserveScroll = true }: RouterProps) => {
 	const {
-		location,
 		isLoading,
-		routeItemData: { routeItem, pathname },
+		routeItemData: { routeItem, location },
 	} = useNavigationState();
 	const { loaderState } = useRouterData();
 
-	usePreserveScroll({ nextPathname: pathname, pathname: location.pathname, preserveScroll });
+	usePreserveScroll(preserveScroll, location.pathname);
 
 	useApplyCustomAnimation(animationDuration);
 
@@ -30,9 +29,9 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 		() =>
 			getParamsObject({
 				params: routeItem?.params,
-				pathname: pathname || location.pathname,
+				pathname: location.pathname,
 			}),
-		[location.pathname, routeItem?.params, pathname]
+		[location.pathname, routeItem?.params]
 	);
 
 	const shouldErrorElementShown = useMemo(
@@ -42,7 +41,7 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 
 	if (!routeItem) return null;
 
-	if (!shouldErrorElementShown && isLoading)
+	if (!isAnimated && !shouldErrorElementShown && isLoading)
 		return <ViewProvider params={params}>{renderElement(routeItem.loaderFallback)}</ViewProvider>;
 
 	if (shouldErrorElementShown) {

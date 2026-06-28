@@ -9,9 +9,11 @@ type UseBlockerReturnValue = {
 };
 
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
+	const { blockerState } = useNavigationState();
 	const {
-		location: { pathname },
-		blockerState,
+		routeItemData: {
+			location: { pathname },
+		},
 	} = useNavigationState();
 
 	const { updateBlockedRoute } = useRouterActions();
