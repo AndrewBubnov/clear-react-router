@@ -1,19 +1,19 @@
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext } from 'react';
 import { BlockerState, LoaderState, Location, RouteItemData, UpdateBlockedRouteProps } from '../types/global';
 
 export type NavigationContextValue = {
-	location: Location;
 	blockerState: BlockerState;
 	isLoading: boolean;
 	routeItemData: RouteItemData;
 };
 
 export type ActionsContextValue = {
-	setLocation: Dispatch<SetStateAction<Location>>;
+	setSearch(arg: string): void;
 	updateLocation(route: Location): Promise<void>;
 	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	prefetchLoader(arg: string): Promise<void>;
 	setContext(arg: object): void;
+	restoreScroll(): void;
 };
 
 export type DataContextValue = {

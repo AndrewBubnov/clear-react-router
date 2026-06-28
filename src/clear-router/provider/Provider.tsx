@@ -16,26 +16,27 @@ export const Provider = ({
 	context,
 	updateBlockedRoute,
 	updateLocation,
-	location,
-	setLocation,
+	setSearch,
 	prefetchLoader,
 	loaderState,
 	blockerState,
 	isLoading,
 	routeItemData,
+	restoreScroll,
 }: ProviderProps) => {
 	return (
 		<ActionsContext.Provider
 			value={{
-				setLocation,
+				setSearch,
 				updateLocation,
 				updateBlockedRoute,
 				prefetchLoader,
 				setContext,
+				restoreScroll,
 			}}
 		>
 			<DataContext.Provider value={{ context, loaderState }}>
-				<NavigationContext.Provider value={{ blockerState, location, isLoading, routeItemData }}>
+				<NavigationContext.Provider value={{ blockerState, isLoading, routeItemData }}>
 					{children}
 				</NavigationContext.Provider>
 			</DataContext.Provider>
