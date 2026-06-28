@@ -15,7 +15,6 @@ type BlockedRoute = { from: string; to: string };
 
 type UseHandleNavigation = {
 	routeList: RouteItem[];
-	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
@@ -25,7 +24,6 @@ type UseHandleNavigation = {
 const ALL_LOCATIONS = '*';
 
 export const useHandleNavigation = ({
-	setLocation,
 	routeList,
 	context,
 	revalidateCache,
@@ -33,30 +31,52 @@ export const useHandleNavigation = ({
 	setLoaderState,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [routeItemData, setRouteItemData] = useState<RouteItemData>({} as RouteItemData);
+	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
+		location: {} as Location,
+		routeItem: undefined,
+	});
+	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
-	const navigation = useCallback(
-		(nextLocation: Location) => {
-			setLocation(nextLocation);
-			prevPathname.current = nextLocation.pathname;
-			const fullPath = nextLocation.search
-				? `${nextLocation.pathname}${nextLocation.search}`
-				: nextLocation.pathname;
-			if (fullPath === window.location.pathname + window.location.search) return;
-			history.pushState(null, '', fullPath);
-		},
-		[setLocation]
+	const scrollMapRef = useLatest(scrollMap);
+
+	const setSearch = useCallback(
+		(search: string) =>
+			setRouteItemData(prevState => ({ ...prevState, location: { ...prevState.location, search } })),
+		[]
 	);
 
+	const restoreScroll = useCallback(() => {
+		if (!prevPathname.current || !scrollMapRef.current[prevPathname.current]) return;
+		requestAnimationFrame(() => {
+			window.scrollTo({ top: scrollMapRef.current[prevPathname.current], behavior: 'smooth' });
+		});
+	}, [scrollMapRef]);
+
+	const navigation = useCallback((nextLocation: Location, routeItem: RouteItem | undefined) => {
+		setRouteItemData({
+			location: nextLocation,
+			routeItem,
+		});
+		prevPathname.current = nextLocation.pathname;
+		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
+		if (fullPath === window.location.pathname + window.location.search) return;
+		history.pushState(null, '', fullPath);
+	}, []);
+
 	const transitionedNavigation = useCallback(
-		(nextLocation: Location) => {
+		(nextLocation: Location, routeItem: RouteItem | undefined) => {
+			setScrollMap(prevState => {
+				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
+				return { ...prevState, [prevPathname.current]: scrollPosition };
+			});
 			try {
-				document.startViewTransition(() => navigation(nextLocation));
+				document.startViewTransition(() => navigation(nextLocation, routeItem));
 			} catch {
-				navigation(nextLocation);
+				navigation(nextLocation, routeItem);
 			}
 		},
 		[navigation]
@@ -98,18 +118,13 @@ export const useHandleNavigation = ({
 							beforeLoadError: error as Error,
 						},
 					}));
-					transitionedNavigation(nextLocation);
-					return;
+					return transitionedNavigation(nextLocation, nextItem);
 				}
 			}
 			if (seq !== navigationSeq.current) return;
-			setRouteItemData({
-				routeItem: nextItem,
-				pathname: nextLocation.pathname,
-			});
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
-			transitionedNavigation(nextLocation);
+			transitionedNavigation(nextLocation, nextItem);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
 		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState]
@@ -167,5 +182,5 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, routeItemData };
+	return { blockerState, updateLocation, updateBlockedRoute, routeItemData, setSearch, restoreScroll };
 };

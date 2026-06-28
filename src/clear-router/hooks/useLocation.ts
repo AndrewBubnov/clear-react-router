@@ -1,7 +1,9 @@
 import { useNavigationState } from './useServiceContext';
 
 export const useLocation = () => {
-	const context = useNavigationState();
+	const {
+		routeItemData: { location },
+	} = useNavigationState();
 
-	return context.location;
+	return location;
 };

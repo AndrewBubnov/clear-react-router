@@ -58,6 +58,6 @@ export type Adapter<T> = {
 };
 
 export type RouteItemData = {
-	pathname: string;
+	location: Location;
 	routeItem: RouteItem | undefined;
 };
