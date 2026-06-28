@@ -1,8 +1,13 @@
 import { useEffect } from 'react';
-import { useRouterActions } from './useServiceContext.ts';
+import { useNavigationState, useRouterActions } from './useServiceContext.ts';
 
-export const usePreserveScroll = (preserveScroll: boolean, pathname: string) => {
+export const usePreserveScroll = (preserveScroll: boolean) => {
 	const { restoreScroll } = useRouterActions();
+	const {
+		routeItemData: {
+			location: { pathname },
+		},
+	} = useNavigationState();
 
 	useEffect(() => {
 		if (preserveScroll) restoreScroll();
