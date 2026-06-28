@@ -5,5 +5,5 @@ export const useLoaderState = <T>() => {
 	const { pathname } = useLocation();
 	const { loaderState } = useRouterData();
 
-	return loaderState[pathname].data as T;
+	return loaderState[pathname] as T;
 };
