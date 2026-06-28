@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'clear-react-router';
+import { Link, useNavigate } from '../clear-router';
 
 export const Navbar = () => {
 	const navigate = useNavigate();

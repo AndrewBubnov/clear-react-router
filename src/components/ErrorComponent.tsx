@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'clear-react-router';
+import { Link, useLocation } from '../clear-router';
 
 export const ErrorComponent = () => {
 	console.log(useLocation());

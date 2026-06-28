@@ -1,4 +1,4 @@
-import { Link } from 'clear-react-router';
+import { Link } from '../clear-router';
 
 export const NotFound = () => {
 	return (

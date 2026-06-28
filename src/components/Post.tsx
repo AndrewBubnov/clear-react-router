@@ -7,7 +7,7 @@ import {
 	useLocation,
 	useBlocker,
 	useParams,
-} from 'clear-react-router';
+} from '../clear-router';
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
 

@@ -1,4 +1,4 @@
-import { Link, useLoaderState } from 'clear-react-router';
+import { Link, useLoaderState } from '../clear-router';
 
 const id = Math.ceil(Math.random() * 100 + 1);
 
