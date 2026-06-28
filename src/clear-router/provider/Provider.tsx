@@ -6,14 +6,9 @@ import {
 	type ActionsContextValue,
 	type DataContextValue,
 	type NavigationContextValue,
-	PropsContext,
-	PropsContextValue,
 } from '../context/RouterProviderContext';
 
-type ProviderProps = PropsContextValue &
-	NavigationContextValue &
-	ActionsContextValue &
-	DataContextValue & { children: ReactNode };
+type ProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
 
 export const Provider = ({
 	children,
@@ -26,27 +21,24 @@ export const Provider = ({
 	prefetchLoader,
 	loaderState,
 	blockerState,
-	routeList,
 	isLoading,
-	nextItemData,
+	routeItemData,
 }: ProviderProps) => {
 	return (
-		<PropsContext.Provider value={{ routeList }}>
-			<ActionsContext.Provider
-				value={{
-					setLocation,
-					updateLocation,
-					updateBlockedRoute,
-					prefetchLoader,
-					setContext,
-				}}
-			>
-				<DataContext.Provider value={{ context, loaderState }}>
-					<NavigationContext.Provider value={{ blockerState, location, isLoading, nextItemData }}>
-						{children}
-					</NavigationContext.Provider>
-				</DataContext.Provider>
-			</ActionsContext.Provider>
-		</PropsContext.Provider>
+		<ActionsContext.Provider
+			value={{
+				setLocation,
+				updateLocation,
+				updateBlockedRoute,
+				prefetchLoader,
+				setContext,
+			}}
+		>
+			<DataContext.Provider value={{ context, loaderState }}>
+				<NavigationContext.Provider value={{ blockerState, location, isLoading, routeItemData }}>
+					{children}
+				</NavigationContext.Provider>
+			</DataContext.Provider>
+		</ActionsContext.Provider>
 	);
 };
