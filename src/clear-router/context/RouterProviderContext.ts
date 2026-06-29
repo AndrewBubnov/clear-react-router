@@ -1,12 +1,5 @@
 import { createContext } from 'react';
-import {
-	BlockerState,
-	LoaderState,
-	Location,
-	RouteItem,
-	RouteItemData,
-	UpdateBlockedRouteProps,
-} from '../types/global';
+import { BlockerState, Location, RouteItem, RouteItemData, UpdateBlockedRouteProps } from '../types/global';
 
 export type NavigationContextValue = {
 	blockerState: BlockerState;
@@ -25,7 +18,6 @@ export type ActionsContextValue = {
 };
 
 export type DataContextValue = {
-	loaderState: LoaderState;
 	context: Record<string, unknown>;
 };
 

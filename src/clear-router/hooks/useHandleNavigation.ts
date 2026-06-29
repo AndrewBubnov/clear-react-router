@@ -18,7 +18,7 @@ type UseHandleNavigation = {
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
+	setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 const ALL_LOCATIONS = '*';
@@ -28,16 +28,18 @@ export const useHandleNavigation = ({
 	context,
 	revalidateCache,
 	setContext,
-	setLoaderState,
+	setIsLoading,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
 		location: {} as Location,
 		routeItem: undefined,
+		loaderState: {} as LoaderState,
 	});
 	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
 	const [currentLoaderFallback, setCurrentLoaderFallback] = useState<RouteItem['loaderFallback']>();
 
+	const loaderState = useRef<LoaderState>({} as LoaderState);
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
@@ -56,16 +58,23 @@ export const useHandleNavigation = ({
 		});
 	}, [scrollMapRef]);
 
-	const navigation = useCallback((nextLocation: Location, routeItem: RouteItem | undefined) => {
-		setRouteItemData({
-			location: nextLocation,
-			routeItem,
-		});
-		prevPathname.current = nextLocation.pathname;
-		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
-		if (fullPath === window.location.pathname + window.location.search) return;
-		history.pushState(null, '', fullPath);
-	}, []);
+	const navigation = useCallback(
+		(nextLocation: Location, routeItem: RouteItem | undefined) => {
+			setRouteItemData({
+				location: nextLocation,
+				routeItem,
+				loaderState: loaderState.current,
+			});
+			setIsLoading(false);
+			prevPathname.current = nextLocation.pathname;
+			const fullPath = nextLocation.search
+				? `${nextLocation.pathname}${nextLocation.search}`
+				: nextLocation.pathname;
+			if (fullPath === window.location.pathname + window.location.search) return;
+			history.pushState(null, '', fullPath);
+		},
+		[setIsLoading]
+	);
 
 	const transitionedNavigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
@@ -87,6 +96,7 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
+			loaderState.current = {} as LoaderState;
 
 			const nextItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
 
@@ -98,29 +108,28 @@ export const useHandleNavigation = ({
 			if (nextItem?.beforeLoad) {
 				try {
 					const redirect = async (location: Location | string) =>
-						typeof location === 'string'
-							? await navigationHandler({ pathname: location })
-							: await navigationHandler(location);
+						// eslint-disable-next-line react-hooks/immutability
+						await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 					await nextItem.beforeLoad({
 						context,
 						redirect,
 						params,
 						setContext,
 					});
-					setLoaderState(prevState => ({ ...prevState, beforeLoadError: null }));
+					loaderState.current = { ...loaderState.current, beforeLoadError: null };
 				} catch (error) {
-					setLoaderState(prevState => ({ ...prevState, beforeLoadError: error as Error }));
+					loaderState.current = { ...loaderState.current, beforeLoadError: error as Error };
 					return transitionedNavigation(nextLocation, nextItem);
 				}
 			}
 			if (seq !== navigationSeq.current) return;
 			setCurrentLoaderFallback(nextItem?.loaderFallback);
-			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
+			await revalidateCache({ routeItem: nextItem, loaderState, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation(nextLocation, nextItem);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState]
+		[context, revalidateCache, routeList, transitionedNavigation, setContext]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
