@@ -12,6 +12,7 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const cacheTimestampsRef = useRef<Record<string, number>>({});
+	const loaderCacheRef = useRef<Record<string, LoaderState>>({});
 
 	const isCacheItemFresh = useCallback(({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
@@ -28,7 +29,10 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 				return;
 			}
 
-			if (isCacheItemFresh({ routeItem, pathname })) return;
+			if (isCacheItemFresh({ routeItem, pathname })) {
+				if (loaderState) loaderState.current = loaderCacheRef.current[pathname];
+				return;
+			}
 
 			if (loaderState) setIsLoading(true);
 
@@ -40,6 +44,7 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 					setContext,
 				});
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
+				loaderCacheRef.current[pathname] = { data: result, loaderError: null, beforeLoadError: null };
 				if (loaderState) {
 					loaderState.current = { ...loaderState?.current, data: result, loaderError: null };
 				}
