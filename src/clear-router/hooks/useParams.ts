@@ -1,5 +1,5 @@
-import { useNavigationState } from './useServiceContext.ts';
-import { getParamsObject } from '../utils/utils.ts';
+import { useNavigationState } from './useServiceContext';
+import { getParamsObject } from '../utils/utils';
 
 export const useParams = <T>() => {
 	const {

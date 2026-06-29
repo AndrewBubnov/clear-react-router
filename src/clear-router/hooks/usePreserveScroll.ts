@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigationState, useRouterActions } from './useServiceContext.ts';
+import { useNavigationState, useRouterActions } from './useServiceContext';
 
 export const usePreserveScroll = (preserveScroll: boolean) => {
 	const { restoreScroll } = useRouterActions();

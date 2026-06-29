@@ -45,7 +45,6 @@ The root component that provides routing context to the application. Place stati
 |------|------|---------|-------------|
 | `routeList` | `RouteItem[]` | required | Array of route configurations |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
-| `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```
@@ -71,6 +70,8 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
+| `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
+| `showFallbackIfAnimated` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 
 ```
 <RouterProvider routeList={routes} isAnimated>
