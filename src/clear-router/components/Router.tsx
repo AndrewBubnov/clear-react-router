@@ -16,6 +16,7 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 	const {
 		isLoading,
 		routeItemData: { routeItem },
+		currentLoaderFallback,
 	} = useNavigationState();
 	const { loaderState } = useRouterData();
 
@@ -32,7 +33,7 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 
 	if (!routeItem) return null;
 
-	if (!isAnimated && !shouldErrorElementShown && isLoading) return renderElement(routeItem.loaderFallback);
+	if (!isAnimated && !shouldErrorElementShown && isLoading) return renderElement(currentLoaderFallback);
 
 	if (shouldErrorElementShown) {
 		return (
