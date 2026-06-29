@@ -71,6 +71,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean` | `true` | Save and restore scroll position when navigating between pages |
+| `showFallbackIfAnimated` | `boolean` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 
 ```
 <RouterProvider routeList={routes} isAnimated>
