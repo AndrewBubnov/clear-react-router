@@ -10,9 +10,16 @@ type RouterProps = {
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
+	showFallbackIfAnimated?: boolean;
 };
 
-export const Router = ({ isAnimated, animationDuration, spinner = true, preserveScroll = true }: RouterProps) => {
+export const Router = ({
+	isAnimated,
+	animationDuration,
+	spinner = true,
+	preserveScroll = true,
+	showFallbackIfAnimated = false,
+}: RouterProps) => {
 	const {
 		isLoading,
 		routeItemData: { routeItem, loaderState },
@@ -23,20 +30,27 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 
 	useApplyCustomAnimation(animationDuration);
 
-	const shouldErrorElementShown = useMemo(
+	const showErrorElement = useMemo(
 		() => Boolean(loaderState.loaderError || loaderState.beforeLoadError),
 		[loaderState]
 	);
 
-	if (!isAnimated && !shouldErrorElementShown && isLoading) return renderElement(currentLoaderFallback);
+	const showSpinner = spinner && isAnimated && isLoading;
+	const loadingContent = !showErrorElement && isLoading;
+
+	if ((showFallbackIfAnimated || !isAnimated) && loadingContent) {
+		return renderElement(currentLoaderFallback);
+	}
+
+	if (!showFallbackIfAnimated && isAnimated && loadingContent) return <Spinner />;
 
 	if (!routeItem) return null;
 
-	if (shouldErrorElementShown) {
+	if (showErrorElement) {
 		return (
 			<>
-				{renderElement(routeItem?.errorElement)}
-				{spinner && isAnimated && isLoading && <Spinner />}
+				{renderElement(routeItem.errorElement)}
+				{showSpinner && <Spinner />}
 			</>
 		);
 	}
@@ -44,7 +58,7 @@ export const Router = ({ isAnimated, animationDuration, spinner = true, preserve
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			{renderElement(routeItem.element) || null}
-			{spinner && isAnimated && isLoading && <Spinner />}
+			{showSpinner && <Spinner />}
 		</div>
 	);
 };
