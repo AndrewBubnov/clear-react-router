@@ -1,7 +1,9 @@
-import { useRouterData } from './useServiceContext';
+import { useNavigationState } from './useServiceContext';
 
 export const useLoaderState = <T>() => {
-	const { loaderState } = useRouterData();
+	const {
+		routeItemData: { loaderState },
+	} = useNavigationState();
 
 	return loaderState as T;
 };

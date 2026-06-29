@@ -6,10 +6,9 @@ type UseLoaderParams = {
 	routeList: RouteItem[];
 	context: Record<string, unknown>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
 };
 
-export const useLoader = ({ routeList, context, setContext, setLoaderState }: UseLoaderParams) => {
+export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const cacheTimestampsRef = useRef<Record<string, number>>({});
@@ -23,15 +22,16 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 	}, []);
 
 	const revalidateCache = useCallback(
-		async ({ routeItem, isCurrentRoute, pathname }: RevalidateCacheArgs) => {
+		async ({ routeItem, loaderState, pathname }: RevalidateCacheArgs) => {
 			if (!routeItem?.loader) {
-				setLoaderState({} as LoaderState);
+				if (loaderState) loaderState.current = {} as LoaderState;
 				return;
 			}
 
 			if (isCacheItemFresh({ routeItem, pathname })) return;
 
-			if (isCurrentRoute) setIsLoading(true);
+			if (loaderState) setIsLoading(true);
+
 			try {
 				const params: Record<string, string> = getParamsObject({ params: routeItem.params, pathname });
 				const result = await routeItem?.loader({
@@ -40,18 +40,16 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 					setContext,
 				});
 				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
-				if (isCurrentRoute) {
-					setLoaderState(prevState => ({ ...prevState, data: result, loaderError: null }));
+				if (loaderState) {
+					loaderState.current = { ...loaderState?.current, data: result, loaderError: null };
 				}
 			} catch (error) {
-				if (isCurrentRoute) {
-					setLoaderState(prevState => ({ ...prevState, data: null, loaderError: error as Error }));
+				if (loaderState) {
+					loaderState.current = { ...loaderState?.current, data: null, loaderError: error as Error };
 				}
-			} finally {
-				setTimeout(() => setIsLoading(false), 10);
 			}
 		},
-		[context, isCacheItemFresh, setContext, setLoaderState]
+		[context, isCacheItemFresh, setContext]
 	);
 
 	const prefetchLoader = useCallback(
@@ -66,5 +64,6 @@ export const useLoader = ({ routeList, context, setContext, setLoaderState }: Us
 		prefetchLoader,
 		revalidateCache,
 		isLoading,
+		setIsLoading,
 	};
 };
