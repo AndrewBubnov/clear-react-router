@@ -36,6 +36,7 @@ export const useHandleNavigation = ({
 		routeItem: undefined,
 	});
 	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
+	const [currentLoaderFallback, setCurrentLoaderFallback] = useState<RouteItem['loaderFallback']>();
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -113,6 +114,7 @@ export const useHandleNavigation = ({
 				}
 			}
 			if (seq !== navigationSeq.current) return;
+			setCurrentLoaderFallback(nextItem?.loaderFallback);
 			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation(nextLocation, nextItem);
@@ -173,5 +175,13 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, routeItemData, setSearch, restoreScroll };
+	return {
+		blockerState,
+		updateLocation,
+		updateBlockedRoute,
+		routeItemData,
+		setSearch,
+		restoreScroll,
+		currentLoaderFallback,
+	};
 };
