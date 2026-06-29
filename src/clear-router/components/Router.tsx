@@ -1,68 +1,64 @@
 import { useMemo } from 'react';
-import { useNavigationState, usePropsData, useRouterData } from '../hooks/useServiceContext';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { useNavigationState } from '../hooks/useServiceContext';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
-import { ViewProvider } from '../provider/ViewProvider';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
-import { comparePaths, getParamsObject } from '../utils/utils';
 
 type RouterProps = {
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
+	showFallbackIfAnimated?: boolean;
 };
 
-const ALL_LOCATIONS = '*';
+export const Router = ({
+	isAnimated,
+	animationDuration,
+	spinner = true,
+	preserveScroll = true,
+	showFallbackIfAnimated = false,
+}: RouterProps) => {
+	const {
+		isLoading,
+		routeItemData: { routeItem, loaderState },
+		currentLoaderFallback,
+	} = useNavigationState();
 
-export const Router = ({ isAnimated, animationDuration, spinner = true, preserveScroll = true }: RouterProps) => {
-	const { location, isLoading, nextItemData } = useNavigationState();
-	const { routeList } = usePropsData();
-	const { loaderState } = useRouterData();
-
-	usePreserveScroll({ nextPathname: nextItemData.pathname, pathname: location.pathname, preserveScroll });
+	usePreserveScroll(preserveScroll);
 
 	useApplyCustomAnimation(animationDuration);
 
-	const routeItem = useMemo(() => {
-		if (!location.pathname) return undefined;
-		return routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, location.pathname));
-	}, [location.pathname, routeList]);
-
-	const params: Record<string, string> = useMemo(
-		() => getParamsObject({ params: nextItemData.params, pathname: nextItemData.pathname || location.pathname }),
-		[location.pathname, nextItemData.params, nextItemData.pathname]
+	const showErrorElement = useMemo(
+		() => Boolean(loaderState.loaderError || loaderState.beforeLoadError),
+		[loaderState]
 	);
 
-	const shouldErrorElementShown = useMemo(
-		() => Boolean(loaderState[location.pathname]?.loaderError || loaderState[location.pathname]?.beforeLoadError),
-		[loaderState, location.pathname]
-	);
+	const showSpinner = spinner && isAnimated && isLoading;
+	const loadingContent = !showErrorElement && isLoading;
 
-	if (!routeItem && !nextItemData.loaderFallback) return null;
+	if ((showFallbackIfAnimated || !isAnimated) && loadingContent) {
+		return renderElement(currentLoaderFallback);
+	}
 
-	if (!routeItem && nextItemData.loaderFallback)
-		return <ViewProvider params={params}>{renderElement(nextItemData.loaderFallback)}</ViewProvider>;
+	if (!showFallbackIfAnimated && isAnimated && loadingContent) return <Spinner />;
 
-	if (!isAnimated && !shouldErrorElementShown && isLoading && nextItemData.loaderFallback)
-		return <ViewProvider params={params}>{renderElement(nextItemData.loaderFallback)}</ViewProvider>;
+	if (!routeItem) return null;
 
-	if (shouldErrorElementShown) {
+	if (showErrorElement) {
 		return (
-			<ViewProvider params={params}>
-				{renderElement(routeItem?.errorElement)}
-				{spinner && isAnimated && isLoading && <Spinner />}
-			</ViewProvider>
+			<>
+				{renderElement(routeItem.errorElement)}
+				{showSpinner && <Spinner />}
+			</>
 		);
 	}
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			<ViewProvider params={params}>
-				{renderElement(routeItem?.element) || null}
-				{spinner && isAnimated && isLoading && <Spinner />}
-			</ViewProvider>
+			{renderElement(routeItem.element) || null}
+			{showSpinner && <Spinner />}
 		</div>
 	);
 };

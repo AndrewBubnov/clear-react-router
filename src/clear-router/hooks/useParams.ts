@@ -1,8 +1,15 @@
-import { useContext } from 'react';
-import { RouterViewContext } from '../context/RouterViewContext';
+import { useNavigationState } from './useServiceContext.ts';
+import { getParamsObject } from '../utils/utils.ts';
 
 export const useParams = <T>() => {
-	const params = useContext(RouterViewContext);
+	const {
+		routeItemData: { routeItem },
+	} = useNavigationState();
 
-	return params as T;
+	if (!routeItem) return undefined as T;
+
+	return getParamsObject({
+		params: routeItem?.params,
+		pathname: location.pathname,
+	}) as T;
 };

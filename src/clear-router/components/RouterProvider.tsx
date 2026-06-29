@@ -2,7 +2,7 @@ import { ReactNode, useMemo, useState } from 'react';
 import { Provider } from '../provider/Provider';
 import { useHandleNavigation } from '../hooks/useHandleNavigation';
 import { useLoader } from '../hooks/useLoader';
-import { LoaderState, Location, RouteItem } from '../types/global';
+import { RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;
@@ -11,52 +11,57 @@ type RouteProviderProps = {
 };
 
 export const RouterProvider = ({ children, routeList, context: initialContext = {} }: RouteProviderProps) => {
-	const [location, setLocation] = useState<Location>({} as Location);
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
-	const [loaderState, setLoaderState] = useState<LoaderState>({});
 
-	const { prefetchLoader, revalidateCache, isLoading } = useLoader({
+	const { prefetchLoader, revalidateCache, isLoading, setIsLoading } = useLoader({
 		routeList,
 		context,
 		setContext,
-		setLoaderState,
 	});
 
-	const { blockerState, updateLocation, updateBlockedRoute, nextItemData } = useHandleNavigation({
-		setLocation,
+	const {
+		blockerState,
+		updateLocation,
+		updateBlockedRoute,
+		routeItemData,
+		setSearch,
+		restoreScroll,
+		currentLoaderFallback,
+	} = useHandleNavigation({
 		routeList,
 		context,
 		setContext,
 		revalidateCache,
-		setLoaderState,
+		setIsLoading,
 	});
 
 	const providerProps = useMemo(
 		() => ({
-			location,
-			setLocation,
+			setSearch,
 			updateLocation,
-			loaderState,
 			prefetchLoader,
 			updateBlockedRoute,
 			blockerState,
 			context,
 			setContext,
 			routeList,
-			nextItemData,
+			routeItemData,
+			restoreScroll,
+			currentLoaderFallback,
 			isLoading,
 		}),
 		[
 			blockerState,
 			context,
 			isLoading,
-			loaderState,
-			location,
 			prefetchLoader,
+			routeItemData,
 			routeList,
+			setSearch,
 			updateBlockedRoute,
 			updateLocation,
-			nextItemData,
+			currentLoaderFallback,
+			restoreScroll,
 		]
 	);
 

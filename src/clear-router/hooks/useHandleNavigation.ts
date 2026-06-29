@@ -5,9 +5,9 @@ import {
 	BlockerState,
 	LoaderState,
 	Location,
-	NextItemData,
 	RevalidateCacheArgs,
 	RouteItem,
+	RouteItemData,
 	UpdateBlockedRouteProps,
 } from '../types/global';
 
@@ -15,30 +15,57 @@ type BlockedRoute = { from: string; to: string };
 
 type UseHandleNavigation = {
 	routeList: RouteItem[];
-	setLocation: (arg: Location) => void;
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	setLoaderState: Dispatch<SetStateAction<LoaderState>>;
+	setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
+const ALL_LOCATIONS = '*';
+
 export const useHandleNavigation = ({
-	setLocation,
 	routeList,
 	context,
 	revalidateCache,
 	setContext,
-	setLoaderState,
+	setIsLoading,
 }: UseHandleNavigation) => {
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [nextItemData, setNextItemData] = useState<NextItemData>({} as NextItemData);
+	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
+		location: {} as Location,
+		routeItem: undefined,
+		loaderState: {} as LoaderState,
+	});
+	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
+	const [currentLoaderFallback, setCurrentLoaderFallback] = useState<RouteItem['loaderFallback']>();
 
+	const loaderState = useRef<LoaderState>({} as LoaderState);
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
+	const scrollMapRef = useLatest(scrollMap);
+
+	const setSearch = useCallback(
+		(search: string) =>
+			setRouteItemData(prevState => ({ ...prevState, location: { ...prevState.location, search } })),
+		[]
+	);
+
+	const restoreScroll = useCallback(() => {
+		if (!prevPathname.current || !scrollMapRef.current[prevPathname.current]) return;
+		requestAnimationFrame(() => {
+			window.scrollTo({ top: scrollMapRef.current[prevPathname.current], behavior: 'smooth' });
+		});
+	}, [scrollMapRef]);
+
 	const navigation = useCallback(
-		(nextLocation: Location) => {
-			setLocation(nextLocation);
+		(nextLocation: Location, routeItem: RouteItem | undefined) => {
+			setRouteItemData({
+				location: nextLocation,
+				routeItem,
+				loaderState: loaderState.current,
+			});
+			setIsLoading(false);
 			prevPathname.current = nextLocation.pathname;
 			const fullPath = nextLocation.search
 				? `${nextLocation.pathname}${nextLocation.search}`
@@ -46,15 +73,20 @@ export const useHandleNavigation = ({
 			if (fullPath === window.location.pathname + window.location.search) return;
 			history.pushState(null, '', fullPath);
 		},
-		[setLocation]
+		[setIsLoading]
 	);
 
 	const transitionedNavigation = useCallback(
-		(nextLocation: Location) => {
+		(nextLocation: Location, routeItem: RouteItem | undefined) => {
+			setScrollMap(prevState => {
+				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
+				return { ...prevState, [prevPathname.current]: scrollPosition };
+			});
 			try {
-				document.startViewTransition(() => navigation(nextLocation));
+				document.startViewTransition(() => navigation(nextLocation, routeItem));
 			} catch {
-				navigation(nextLocation);
+				navigation(nextLocation, routeItem);
 			}
 		},
 		[navigation]
@@ -64,13 +96,9 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
+			loaderState.current = {} as LoaderState;
 
-			const nextItem = routeList.find(el => comparePaths(el, nextLocation.pathname));
-			setNextItemData({
-				loaderFallback: nextItem?.loaderFallback,
-				params: nextItem?.params,
-				pathname: nextLocation.pathname,
-			});
+			const nextItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
 
 			const params: Record<string, string> = getParamsObject({
 				params: nextItem?.params,
@@ -80,38 +108,28 @@ export const useHandleNavigation = ({
 			if (nextItem?.beforeLoad) {
 				try {
 					const redirect = async (location: Location | string) =>
-						typeof location === 'string'
-							? await navigationHandler({ pathname: location })
-							: await navigationHandler(location);
+						// eslint-disable-next-line react-hooks/immutability
+						await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 					await nextItem.beforeLoad({
 						context,
 						redirect,
 						params,
 						setContext,
 					});
-					setLoaderState(prevState => ({
-						...prevState,
-						[nextLocation.pathname]: { ...prevState[nextLocation.pathname], beforeLoadError: null },
-					}));
+					loaderState.current = { ...loaderState.current, beforeLoadError: null };
 				} catch (error) {
-					setLoaderState(prevState => ({
-						...prevState,
-						[nextLocation.pathname]: {
-							...prevState[nextLocation.pathname],
-							beforeLoadError: error as Error,
-						},
-					}));
-					transitionedNavigation(nextLocation);
-					return;
+					loaderState.current = { ...loaderState.current, beforeLoadError: error as Error };
+					return transitionedNavigation(nextLocation, nextItem);
 				}
 			}
 			if (seq !== navigationSeq.current) return;
-			await revalidateCache({ routeItem: nextItem, isCurrentRoute: true, pathname: nextLocation.pathname });
+			setCurrentLoaderFallback(nextItem?.loaderFallback);
+			await revalidateCache({ routeItem: nextItem, loaderState, pathname: nextLocation.pathname });
 			if (seq !== navigationSeq.current) return;
-			transitionedNavigation(nextLocation);
+			transitionedNavigation(nextLocation, nextItem);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, setContext, setLoaderState]
+		[context, revalidateCache, routeList, transitionedNavigation, setContext]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
@@ -166,5 +184,13 @@ export const useHandleNavigation = ({
 		return 'unblocked';
 	}, [blockedRoute]);
 
-	return { blockerState, updateLocation, updateBlockedRoute, nextItemData };
+	return {
+		blockerState,
+		updateLocation,
+		updateBlockedRoute,
+		routeItemData,
+		setSearch,
+		restoreScroll,
+		currentLoaderFallback,
+	};
 };

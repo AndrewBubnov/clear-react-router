@@ -1,28 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
+import { useNavigationState, useRouterActions } from './useServiceContext.ts';
 
-type UsePreserveScrollParams = {
-	pathname: string;
-	preserveScroll: boolean;
-	nextPathname?: string;
-};
-
-export const usePreserveScroll = ({ pathname, preserveScroll, nextPathname }: UsePreserveScrollParams) => {
-	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
-	const prevPathname = useRef<string>('');
-
-	useEffect(() => {
-		setScrollMap(prevState => {
-			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-			if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
-			return { ...prevState, [prevPathname.current]: scrollPosition };
-		});
-		prevPathname.current = pathname;
-	}, [pathname, nextPathname]);
+export const usePreserveScroll = (preserveScroll: boolean) => {
+	const { restoreScroll } = useRouterActions();
+	const {
+		routeItemData: {
+			location: { pathname },
+		},
+	} = useNavigationState();
 
 	useEffect(() => {
-		if (!preserveScroll || !pathname || !scrollMap[pathname]) return;
-		requestAnimationFrame(() => {
-			window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' });
-		});
-	}, [pathname, scrollMap, preserveScroll]);
+		if (preserveScroll) restoreScroll();
+	}, [preserveScroll, restoreScroll, pathname]);
 };
