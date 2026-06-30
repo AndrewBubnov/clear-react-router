@@ -1,4 +1,4 @@
-import { Adapter } from '../types/global.ts';
+import { Adapter } from '../types/global';
 
 type ZodInterface<T> = {
 	safeParse(input: unknown): { success: true; data: T } | { success: false; error: unknown };
