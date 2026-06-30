@@ -1,4 +1,4 @@
-import { Adapter } from '../types/global';
+import { AdapterType } from '../types/global';
 
 type ZodInterface<T> = {
 	safeParse(input: unknown): { success: true; data: T } | { success: false; error: unknown };
@@ -51,7 +51,7 @@ export const adapter = {
 		parse: (params: string[]): Date[] => params.map(param => new Date(Number(param))),
 		serialize: (args: Date[]): string[] => args.map(arg => String(arg.getTime())),
 	},
-	zodSchema: <T>(schema: ZodInterface<T>): Adapter<T> => ({
+	zodSchema: <T>(schema: ZodInterface<T>): AdapterType<T> => ({
 		parse: (params: string[]): T => {
 			let parsed: unknown;
 			try {

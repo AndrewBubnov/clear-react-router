@@ -1,8 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from './useSearchParams';
-import { Adapter } from '../types/global';
+import { AdapterType } from '../types/global';
 
-export function useQueryParam<T>(field: string, adapter: Adapter<T>, defaultValue?: T): [T, (arg: T | null) => void] {
+export function useQueryParam<T>(
+	field: string,
+	adapter: AdapterType<T>,
+	defaultValue?: T
+): [T, (arg: T | null) => void] {
 	const { searchParams, setSearchParams } = useSearchParams();
 
 	const value = useMemo(() => {
