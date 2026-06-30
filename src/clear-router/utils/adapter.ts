@@ -1,3 +1,5 @@
+import { Adapter } from '../types/global.ts';
+
 type ZodInterface<T> = {
 	safeParse(input: unknown): { success: true; data: T } | { success: false; error: unknown };
 };
@@ -49,20 +51,19 @@ export const adapter = {
 		parse: (params: string[]): Date[] => params.map(param => new Date(Number(param))),
 		serialize: (args: Date[]): string[] => args.map(arg => String(arg.getTime())),
 	},
-	zodSchema: {
-		parse:
-			<T>(schema: ZodInterface<T>) =>
-			(params: string[]): T => {
-				let parsed: unknown;
-				try {
-					parsed = JSON.parse(params[0] ?? '{}');
-				} catch {
-					throw new Error('Invalid JSON');
-				}
-				const result = schema.safeParse(parsed);
-				if (!result.success) throw new Error('Invalid schema');
-				return result.data;
-			},
+	zodSchema: <T>(schema: ZodInterface<T>): Adapter<T> => ({
+		parse: (params: string[]): T => {
+			let parsed: unknown;
+			try {
+				parsed = params[0] ? JSON.parse(params[0]) : undefined;
+			} catch {
+				throw new Error('Invalid JSON');
+			}
+			if (parsed === undefined) return undefined as T;
+			const result = schema.safeParse(parsed);
+			if (!result.success) throw new Error('Invalid schema');
+			return result.data;
+		},
 		serialize: JSON.stringify,
-	},
+	}),
 };
