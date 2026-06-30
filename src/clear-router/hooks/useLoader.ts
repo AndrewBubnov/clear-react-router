@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useCallback, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
 import { comparePaths, getParamsObject } from '../utils/utils';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
 
@@ -9,8 +9,6 @@ type UseLoaderParams = {
 };
 
 export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-
 	const cacheTimestampsRef = useRef<Record<string, number>>({});
 	const loaderCacheRef = useRef<Record<string, LoaderState>>({});
 
@@ -25,7 +23,8 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 	const revalidateCache = useCallback(
 		async ({ routeItem, loaderState, pathname }: RevalidateCacheArgs) => {
 			if (!routeItem?.loader) {
-				if (loaderState) loaderState.current = {} as LoaderState;
+				if (!loaderState) return;
+				if (!routeItem?.beforeLoad) loaderState.current = {} as LoaderState;
 				return;
 			}
 
@@ -33,8 +32,6 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 				if (loaderState) loaderState.current = loaderCacheRef.current[pathname];
 				return;
 			}
-
-			if (loaderState) setIsLoading(true);
 
 			try {
 				const params: Record<string, string> = getParamsObject({ params: routeItem.params, pathname });
@@ -65,10 +62,5 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 		[revalidateCache, routeList]
 	);
 
-	return {
-		prefetchLoader,
-		revalidateCache,
-		isLoading,
-		setIsLoading,
-	};
+	return { prefetchLoader, revalidateCache, isCacheItemFresh };
 };

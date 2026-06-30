@@ -3,7 +3,6 @@ import { BlockerState, Location, RouteItem, RouteItemData, UpdateBlockedRoutePro
 
 export type NavigationContextValue = {
 	blockerState: BlockerState;
-	isLoading: boolean;
 	routeItemData: RouteItemData;
 	currentLoaderFallback: RouteItem['loaderFallback'];
 };
