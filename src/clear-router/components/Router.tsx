@@ -28,9 +28,9 @@ export const Router = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	const showErrorElement = Boolean(loaderState.loaderError || loaderState.beforeLoadError);
-
 	const isLoading = Boolean(currentLoaderFallback);
+
+	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
