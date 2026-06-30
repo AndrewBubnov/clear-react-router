@@ -19,7 +19,6 @@ export const Provider = ({
 	setSearch,
 	prefetchLoader,
 	blockerState,
-	isLoading,
 	routeItemData,
 	restoreScroll,
 	currentLoaderFallback,
@@ -36,7 +35,7 @@ export const Provider = ({
 			}}
 		>
 			<DataContext.Provider value={{ context }}>
-				<NavigationContext.Provider value={{ blockerState, isLoading, routeItemData, currentLoaderFallback }}>
+				<NavigationContext.Provider value={{ blockerState, routeItemData, currentLoaderFallback }}>
 					{children}
 				</NavigationContext.Provider>
 			</DataContext.Provider>

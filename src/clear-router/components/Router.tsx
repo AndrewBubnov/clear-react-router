@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useNavigationState } from '../hooks/useServiceContext';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
@@ -21,7 +20,6 @@ export const Router = ({
 	showFallbackIfAnimated = false,
 }: RouterProps) => {
 	const {
-		isLoading,
 		routeItemData: { routeItem, loaderState },
 		currentLoaderFallback,
 	} = useNavigationState();
@@ -30,10 +28,9 @@ export const Router = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	const showErrorElement = useMemo(
-		() => Boolean(loaderState.loaderError || loaderState.beforeLoadError),
-		[loaderState]
-	);
+	const showErrorElement = Boolean(loaderState.loaderError || loaderState.beforeLoadError);
+
+	const isLoading = Boolean(currentLoaderFallback);
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
