@@ -1,5 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
+import { isAnimatedStore } from '../store/isAnimatedStore';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import {
 	BlockerState,
@@ -30,6 +31,8 @@ export const useHandleNavigation = ({
 	setContext,
 	isCacheItemFresh,
 }: UseHandleNavigation) => {
+	const isAnimated = isAnimatedStore.use(state => state.isAnimated);
+
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
 		location: {} as Location,
@@ -78,13 +81,17 @@ export const useHandleNavigation = ({
 				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
 				return { ...prevState, [prevPathname.current]: scrollPosition };
 			});
+			if (!isAnimated) {
+				navigation(nextLocation, routeItem);
+				return;
+			}
 			try {
 				document.startViewTransition(() => navigation(nextLocation, routeItem));
 			} catch {
 				navigation(nextLocation, routeItem);
 			}
 		},
-		[navigation]
+		[navigation, isAnimated]
 	);
 
 	const navigationHandler = useCallback(
