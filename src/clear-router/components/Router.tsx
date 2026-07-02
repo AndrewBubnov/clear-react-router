@@ -3,7 +3,7 @@ import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
-import { useSetIsAnimated } from '../hooks/useSetIsAnimated.ts';
+import { useSetIsAnimated } from '../hooks/useSetIsAnimated';
 
 type RouterProps = {
 	isAnimated?: boolean;
