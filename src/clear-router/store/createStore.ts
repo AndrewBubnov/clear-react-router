@@ -25,7 +25,6 @@ export const createStore = <T>(storeCreator: StoreCreator<T>): Store<T> => {
 			const prevState = store;
 			store =
 				typeof nextState !== 'object' || nextState === null ? nextState : Object.assign({}, store, nextState);
-			console.log({ store });
 			subscribers.forEach(listener => listener(store, prevState));
 		}
 	};
