@@ -1,4 +1,4 @@
-import { isAnimatedStore } from '../store/isAnimatedStore.ts';
+import { isAnimatedStore } from '../store/isAnimatedStore';
 import { useEffect } from 'react';
 
 export const useSetIsAnimated = (isAnimated?: boolean) => {

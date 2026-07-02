@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
-import { isAnimatedStore } from '../store/isAnimatedStore.ts';
+import { isAnimatedStore } from '../store/isAnimatedStore';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import {
 	BlockerState,

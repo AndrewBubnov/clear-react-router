@@ -1,4 +1,4 @@
-import { createStore } from './createStore.ts';
+import { createStore } from './createStore';
 
 type IsAnimatedStore = { isAnimated: boolean; setIsAnimated(arg: boolean): void };
 
