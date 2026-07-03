@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useLatest } from './useLatest';
-import { useNavigationState, useRouterActions } from './useServiceContext';
+import { useSearch } from './useSearch.ts';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
@@ -12,17 +11,9 @@ type UseSearchParamsReturn = {
 };
 
 export const useSearchParams = (): UseSearchParamsReturn => {
-	const {
-		routeItemData: { location },
-	} = useNavigationState();
-	const { setSearch } = useRouterActions();
+	const search = useSearch();
 
-	const locationRef = useLatest(location);
-
-	const searchString = useMemo(
-		() => (location.search ? location.search.replace('?', '') : (location.pathname.split('?')?.[1] ?? '')),
-		[location.pathname, location.search]
-	);
+	const searchString = search ? search.replace('?', '') : (window.location.pathname.split('?')?.[1] ?? '');
 
 	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
 
@@ -34,20 +25,15 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		[searchParams]
 	);
 
-	const navigateWithSearchParams = useCallback(
-		(params: URLSearchParams) => {
-			const newSearch = params.toString();
-			const { pathname } = locationRef.current;
-			const search = newSearch ? `?${newSearch}` : '';
-			setSearch(search);
-			history.replaceState(null, '', pathname + search);
-		},
-		[locationRef, setSearch]
-	);
+	const navigateWithSearchParams = useCallback((params: URLSearchParams) => {
+		const newSearch = params.toString();
+		const { pathname } = window.location;
+		const search = newSearch ? `?${newSearch}` : '';
+		history.replaceState(null, '', pathname + search);
+	}, []);
 
 	const setSearchParams = useCallback(
 		(param: string | ((prevState: URLSearchParams) => URLSearchParams), value?: string | string[]) => {
-			const search = locationRef.current.search || '';
 			const currentParams = new URLSearchParams(search);
 
 			if (typeof param === 'string' && value !== undefined) {
@@ -62,7 +48,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 				throw new Error('useSearchParams first argument must be either function or string');
 			}
 		},
-		[locationRef, navigateWithSearchParams]
+		[search, navigateWithSearchParams]
 	);
 
 	return { searchParams, getSearchParams, setSearchParams };

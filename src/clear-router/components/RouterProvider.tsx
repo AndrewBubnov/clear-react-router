@@ -19,26 +19,18 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 		setContext,
 	});
 
-	const {
-		blockerState,
-		updateLocation,
-		updateBlockedRoute,
-		routeItemData,
-		setSearch,
-		restoreScroll,
-		currentLoaderFallback,
-	} = useHandleNavigation({
-		routeList,
-		context,
-		setContext,
-		revalidateCache,
-		isCacheItemFresh,
-		setIsLoading,
-	});
+	const { blockerState, updateLocation, updateBlockedRoute, routeItemData, restoreScroll, currentLoaderFallback } =
+		useHandleNavigation({
+			routeList,
+			context,
+			setContext,
+			revalidateCache,
+			isCacheItemFresh,
+			setIsLoading,
+		});
 
 	const providerProps = useMemo(
 		() => ({
-			setSearch,
 			updateLocation,
 			prefetchLoader,
 			updateBlockedRoute,
@@ -55,7 +47,6 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 			context,
 			prefetchLoader,
 			routeItemData,
-			setSearch,
 			updateBlockedRoute,
 			updateLocation,
 			currentLoaderFallback,
