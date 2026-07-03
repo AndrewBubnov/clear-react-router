@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { useSearch } from './useSearch.ts';
-import { useLatest } from './useLatest.ts';
+import { useSearch } from './useSearch';
+import { useLatest } from './useLatest';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
