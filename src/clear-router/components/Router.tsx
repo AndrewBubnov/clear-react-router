@@ -1,8 +1,9 @@
 import { useNavigationState } from '../hooks/useServiceContext';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
+import { useSetIsAnimated } from '../hooks/useSetIsAnimated.ts';
 
 type RouterProps = {
 	isAnimated?: boolean;
@@ -22,13 +23,14 @@ export const Router = ({
 	const {
 		routeItemData: { routeItem, loaderState },
 		currentLoaderFallback,
+		isLoading,
 	} = useNavigationState();
 
 	usePreserveScroll(preserveScroll);
 
 	useApplyCustomAnimation(animationDuration);
 
-	const isLoading = Boolean(currentLoaderFallback);
+	useSetIsAnimated(isAnimated, showFallbackIfAnimated);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
