@@ -16,7 +16,6 @@ export const Provider = ({
 	context,
 	updateBlockedRoute,
 	updateLocation,
-	setSearch,
 	prefetchLoader,
 	blockerState,
 	routeItemData,
@@ -27,7 +26,6 @@ export const Provider = ({
 	return (
 		<ActionsContext.Provider
 			value={{
-				setSearch,
 				updateLocation,
 				updateBlockedRoute,
 				prefetchLoader,

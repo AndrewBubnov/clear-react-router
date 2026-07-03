@@ -50,12 +50,6 @@ export const useHandleNavigation = ({
 
 	const scrollMapRef = useLatest(scrollMap);
 
-	const setSearch = useCallback(
-		(search: string) =>
-			setRouteItemData(prevState => ({ ...prevState, location: { ...prevState.location, search } })),
-		[]
-	);
-
 	const restoreScroll = useCallback(() => {
 		if (!prevPathname.current || !scrollMapRef.current[prevPathname.current]) return;
 		requestAnimationFrame(() => {
@@ -208,7 +202,6 @@ export const useHandleNavigation = ({
 		updateLocation,
 		updateBlockedRoute,
 		routeItemData,
-		setSearch,
 		restoreScroll,
 		currentLoaderFallback,
 	};
