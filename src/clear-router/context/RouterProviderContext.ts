@@ -5,6 +5,7 @@ export type NavigationContextValue = {
 	blockerState: BlockerState;
 	routeItemData: RouteItemData;
 	currentLoaderFallback: RouteItem['loaderFallback'];
+	isLoading: boolean;
 };
 
 export type ActionsContextValue = {

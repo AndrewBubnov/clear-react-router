@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
-import { isAnimatedStore } from '../store/isAnimatedStore';
+import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import {
 	BlockerState,
@@ -20,6 +20,7 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
+	setIsLoading(arg: boolean): void;
 };
 
 const ALL_LOCATIONS = '*';
@@ -30,8 +31,9 @@ export const useHandleNavigation = ({
 	revalidateCache,
 	setContext,
 	isCacheItemFresh,
+	setIsLoading,
 }: UseHandleNavigation) => {
-	const isAnimated = isAnimatedStore.use(state => state.isAnimated);
+	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
 
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
@@ -67,6 +69,7 @@ export const useHandleNavigation = ({
 			routeItem,
 			loaderState: loaderState.current,
 		});
+		setIsLoading(false);
 		setCurrentLoaderFallback(undefined);
 		prevPathname.current = nextLocation.pathname;
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
@@ -126,7 +129,8 @@ export const useHandleNavigation = ({
 			}
 			if (seq !== navigationSeq.current) return;
 			setCurrentLoaderFallback(
-				isCacheItemFresh({ routeItem: nextItem, pathname: nextLocation.pathname })
+				isCacheItemFresh({ routeItem: nextItem, pathname: nextLocation.pathname }) ||
+					(isAnimated && !showFallback)
 					? undefined
 					: nextItem?.loaderFallback
 			);
@@ -135,7 +139,16 @@ export const useHandleNavigation = ({
 			transitionedNavigation(nextLocation, nextItem);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
 		},
-		[context, revalidateCache, routeList, transitionedNavigation, setContext, isCacheItemFresh]
+		[
+			context,
+			revalidateCache,
+			routeList,
+			transitionedNavigation,
+			setContext,
+			isCacheItemFresh,
+			isAnimated,
+			showFallback,
+		]
 	);
 
 	const setNextLocationRef = useLatest(navigationHandler);
