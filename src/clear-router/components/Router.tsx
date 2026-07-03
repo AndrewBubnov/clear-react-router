@@ -1,9 +1,9 @@
 import { useNavigationState } from '../hooks/useServiceContext';
-import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation.ts';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
+import { useSetIsAnimated } from '../hooks/useSetIsAnimated';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
-import { useSetIsAnimated } from '../hooks/useSetIsAnimated.ts';
 
 type RouterProps = {
 	isAnimated?: boolean;
