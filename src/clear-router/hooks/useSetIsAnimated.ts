@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
-import { isAnimatedStore } from '../store/isAnimatedStore';
+import { routerConfig } from '../config/routerConfig.ts';
 
-export const useSetIsAnimated = (isAnimated?: boolean) => {
-	const setIsAnimated = isAnimatedStore.use(state => state.setIsAnimated);
-
-	useEffect(() => setIsAnimated(!!isAnimated), [isAnimated]);
+export const useSetIsAnimated = (isAnimated = false, showFallbackIfAnimated: boolean) => {
+	useEffect(() => routerConfig.configure({ isAnimated, showFallbackIfAnimated }), [isAnimated]);
 };

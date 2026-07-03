@@ -29,7 +29,7 @@ export const Router = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	useSetIsAnimated(isAnimated);
+	useSetIsAnimated(isAnimated, showFallbackIfAnimated);
 
 	const isLoading = Boolean(currentLoaderFallback);
 
