@@ -4,7 +4,7 @@ const notify = () => {
 	window.dispatchEvent(new Event('locationChange'));
 };
 
-export const patchHistory = () => {
+const patchHistory = () => {
 	const push = history.pushState;
 	const replace = history.replaceState;
 
