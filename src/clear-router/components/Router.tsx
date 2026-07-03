@@ -23,6 +23,7 @@ export const Router = ({
 	const {
 		routeItemData: { routeItem, loaderState },
 		currentLoaderFallback,
+		isLoading,
 	} = useNavigationState();
 
 	usePreserveScroll(preserveScroll);
@@ -30,8 +31,6 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 
 	useSetIsAnimated(isAnimated, showFallbackIfAnimated);
-
-	const isLoading = Boolean(currentLoaderFallback);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 

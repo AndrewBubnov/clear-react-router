@@ -1,5 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatest } from './useLatest';
+import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import {
 	BlockerState,
@@ -10,7 +11,6 @@ import {
 	RouteItemData,
 	UpdateBlockedRouteProps,
 } from '../types/global';
-import { routerConfig } from '../config/routerConfig.ts';
 
 type BlockedRoute = { from: string; to: string };
 
@@ -20,6 +20,7 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
+	setIsLoading(arg: boolean): void;
 };
 
 const ALL_LOCATIONS = '*';
@@ -30,6 +31,7 @@ export const useHandleNavigation = ({
 	revalidateCache,
 	setContext,
 	isCacheItemFresh,
+	setIsLoading,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
 
@@ -67,6 +69,7 @@ export const useHandleNavigation = ({
 			routeItem,
 			loaderState: loaderState.current,
 		});
+		setIsLoading(false);
 		setCurrentLoaderFallback(undefined);
 		prevPathname.current = nextLocation.pathname;
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
