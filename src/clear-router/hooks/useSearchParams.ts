@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSearch } from './useSearch.ts';
+import { useLatest } from './useLatest.ts';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
@@ -12,6 +13,7 @@ type UseSearchParamsReturn = {
 
 export const useSearchParams = (): UseSearchParamsReturn => {
 	const search = useSearch();
+	const searchRef = useLatest(search);
 
 	const searchString = search ? search.replace('?', '') : (window.location.pathname.split('?')?.[1] ?? '');
 
@@ -34,7 +36,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 
 	const setSearchParams = useCallback(
 		(param: string | ((prevState: URLSearchParams) => URLSearchParams), value?: string | string[]) => {
-			const currentParams = new URLSearchParams(search);
+			const currentParams = new URLSearchParams(searchRef.current);
 
 			if (typeof param === 'string' && value !== undefined) {
 				currentParams.delete(param);
@@ -48,7 +50,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 				throw new Error('useSearchParams first argument must be either function or string');
 			}
 		},
-		[search, navigateWithSearchParams]
+		[navigateWithSearchParams, searchRef]
 	);
 
 	return { searchParams, getSearchParams, setSearchParams };
