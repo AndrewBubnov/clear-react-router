@@ -9,7 +9,6 @@ export type NavigationContextValue = {
 };
 
 export type ActionsContextValue = {
-	setSearch(arg: string): void;
 	updateLocation(route: Location): Promise<void>;
 	updateBlockedRoute(arg: UpdateBlockedRouteProps): void;
 	prefetchLoader(arg: string): Promise<void>;
