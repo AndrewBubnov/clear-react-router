@@ -79,11 +79,6 @@ export const useHandleNavigation = ({
 
 	const transitionedNavigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
-			setScrollMap(prevState => {
-				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
-				return { ...prevState, [prevPathname.current]: scrollPosition };
-			});
 			if (!isAnimated) {
 				navigation(nextLocation, routeItem);
 				return;
@@ -128,6 +123,11 @@ export const useHandleNavigation = ({
 				}
 			}
 			if (seq !== navigationSeq.current) return;
+			setScrollMap(prevState => {
+				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+				if (!scrollPosition || prevState[prevPathname.current] === scrollPosition) return prevState;
+				return { ...prevState, [prevPathname.current]: scrollPosition };
+			});
 			setCurrentLoaderFallback(
 				isCacheItemFresh({ routeItem: nextItem, pathname: nextLocation.pathname }) ||
 					(isAnimated && !showFallback)
