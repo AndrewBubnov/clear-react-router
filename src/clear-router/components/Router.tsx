@@ -21,7 +21,8 @@ export const Router = ({
 	showFallbackIfAnimated = false,
 }: RouterProps) => {
 	const {
-		routeItemData: { routeItem, loaderState },
+		routeItemData: { routeItem },
+		loaderState,
 		currentLoaderFallback,
 		isLoading,
 	} = useNavigationState();
