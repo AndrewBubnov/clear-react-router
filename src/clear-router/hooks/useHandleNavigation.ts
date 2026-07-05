@@ -20,10 +20,11 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
-	setIsLoading(arg: boolean): void;
 };
 
 const ALL_LOCATIONS = '*';
+
+const emptyLoaderState: LoaderState = {} as LoaderState;
 
 export const useHandleNavigation = ({
 	routeList,
@@ -31,20 +32,20 @@ export const useHandleNavigation = ({
 	revalidateCache,
 	setContext,
 	isCacheItemFresh,
-	setIsLoading,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
+	const [isLoading, setIsLoading] = useState(false);
 
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
 	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
-		location: {} as Location,
 		routeItem: undefined,
-		loaderState: {} as LoaderState,
+		location: {} as Location,
 	});
 	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
 	const [currentLoaderFallback, setCurrentLoaderFallback] = useState<RouteItem['loaderFallback']>();
+	const [loaderState, setLoaderState] = useState<LoaderState>(emptyLoaderState);
 
-	const loaderState = useRef<LoaderState>({} as LoaderState);
+	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
@@ -58,11 +59,8 @@ export const useHandleNavigation = ({
 	}, [scrollMapRef]);
 
 	const navigation = useCallback((nextLocation: Location, routeItem: RouteItem | undefined) => {
-		setRouteItemData({
-			location: nextLocation,
-			routeItem,
-			loaderState: loaderState.current,
-		});
+		setRouteItemData({ routeItem, location: nextLocation });
+		setLoaderState(loaderStateRef.current);
 		setIsLoading(false);
 		setCurrentLoaderFallback(undefined);
 		prevPathname.current = nextLocation.pathname;
@@ -90,7 +88,7 @@ export const useHandleNavigation = ({
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
 			const seq = navigationSeq.current;
-			loaderState.current = {} as LoaderState;
+			loaderStateRef.current = emptyLoaderState;
 
 			const nextItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
 
@@ -110,9 +108,9 @@ export const useHandleNavigation = ({
 						params,
 						setContext,
 					});
-					loaderState.current = { ...loaderState.current, beforeLoadError: null };
+					loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
 				} catch (error) {
-					loaderState.current = { ...loaderState.current, beforeLoadError: error as Error };
+					loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
 					return transitionedNavigation(nextLocation, nextItem);
 				}
 			}
@@ -128,7 +126,14 @@ export const useHandleNavigation = ({
 					? undefined
 					: nextItem?.loaderFallback
 			);
-			await revalidateCache({ routeItem: nextItem, loaderState, pathname: nextLocation.pathname });
+			if (nextItem?.loader) {
+				setIsLoading(true);
+				await revalidateCache({
+					routeItem: nextItem,
+					loaderState: loaderStateRef,
+					pathname: nextLocation.pathname,
+				});
+			}
 			if (seq !== navigationSeq.current) return;
 			transitionedNavigation(nextLocation, nextItem);
 			if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
@@ -204,5 +209,7 @@ export const useHandleNavigation = ({
 		routeItemData,
 		restoreScroll,
 		currentLoaderFallback,
+		isLoading,
+		loaderState,
 	};
 };

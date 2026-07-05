@@ -60,5 +60,4 @@ export type Adapter<T> = {
 export type RouteItemData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
-	loaderState: LoaderState;
 };
