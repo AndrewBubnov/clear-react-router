@@ -1,5 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
 import { comparePaths, getParamsObject } from '../utils/utils';
+import { emptyLoaderState } from '../constants';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
 
 type UseLoaderParams = {
@@ -9,23 +10,24 @@ type UseLoaderParams = {
 };
 
 export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
-	const cacheTimestampsRef = useRef<Record<string, number>>({});
-	const loaderCacheRef = useRef<Record<string, LoaderState>>({});
+	const timestampMapRef = useRef<Record<string, number>>({});
+	const loaderMapRef = useRef<Record<string, LoaderState>>({});
+	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
 
 	const isCacheItemFresh = useCallback(({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
-		const currentCacheTimestamp = cacheTimestampsRef.current[pathname];
+		const currentCacheTimestamp = timestampMapRef.current[pathname];
 		if (!currentCacheTimestamp) return false;
 		if (!routeItem.staleTime) return true;
 		return Date.now() - currentCacheTimestamp < routeItem.staleTime;
 	}, []);
 
 	const revalidateCache = useCallback(
-		async ({ routeItem, loaderState, pathname }: RevalidateCacheArgs) => {
+		async ({ routeItem, pathname }: RevalidateCacheArgs) => {
 			if (!routeItem?.loader) return;
 
 			if (isCacheItemFresh({ routeItem, pathname })) {
-				if (loaderState) loaderState.current = loaderCacheRef.current[pathname];
+				loaderStateRef.current = loaderMapRef.current[pathname];
 				return;
 			}
 
@@ -36,15 +38,11 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 					context,
 					setContext,
 				});
-				cacheTimestampsRef.current = { ...cacheTimestampsRef.current, [pathname]: Date.now() };
-				loaderCacheRef.current[pathname] = { data: result, loaderError: null, beforeLoadError: null };
-				if (loaderState) {
-					loaderState.current = { ...loaderState?.current, data: result, loaderError: null };
-				}
+				timestampMapRef.current = { ...timestampMapRef.current, [pathname]: Date.now() };
+				loaderMapRef.current[pathname] = { data: result, loaderError: null, beforeLoadError: null };
+				loaderStateRef.current = { ...loaderStateRef?.current, data: result, loaderError: null };
 			} catch (error) {
-				if (loaderState) {
-					loaderState.current = { ...loaderState?.current, data: null, loaderError: error as Error };
-				}
+				loaderStateRef.current = { ...loaderStateRef?.current, data: null, loaderError: error as Error };
 			}
 		},
 		[context, isCacheItemFresh, setContext]
@@ -58,5 +56,5 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 		[revalidateCache, routeList]
 	);
 
-	return { prefetchLoader, revalidateCache, isCacheItemFresh };
+	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef };
 };

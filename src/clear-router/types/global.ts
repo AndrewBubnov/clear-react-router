@@ -1,4 +1,4 @@
-import type { ComponentType, Dispatch, ReactElement, RefObject, SetStateAction } from 'react';
+import type { ComponentType, Dispatch, ReactElement, SetStateAction } from 'react';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -47,7 +47,6 @@ export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | '
 export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;
-	loaderState?: RefObject<LoaderState>;
 };
 
 export type LoaderState = { data: unknown; loaderError: Error | null; beforeLoadError: Error | null };
