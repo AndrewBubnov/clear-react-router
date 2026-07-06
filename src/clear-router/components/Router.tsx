@@ -4,14 +4,8 @@ import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { useSetIsAnimated } from '../hooks/useSetIsAnimated.ts';
-
-type RouterProps = {
-	isAnimated?: boolean;
-	animationDuration?: number;
-	spinner?: boolean;
-	preserveScroll?: boolean;
-	showFallbackIfAnimated?: boolean;
-};
+import { RouterProps } from '../types/global.ts';
+import { STANDARD_PREFETCH_DELAY } from '../constants.ts';
 
 export const Router = ({
 	isAnimated,
@@ -19,6 +13,8 @@ export const Router = ({
 	spinner = true,
 	preserveScroll = true,
 	showFallbackIfAnimated = false,
+	prefetch = 'hover',
+	prefetchDelay = STANDARD_PREFETCH_DELAY,
 }: RouterProps) => {
 	const {
 		routeItemData: { routeItem },
@@ -31,7 +27,7 @@ export const Router = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	useSetIsAnimated(isAnimated, showFallbackIfAnimated);
+	useSetIsAnimated({ isAnimated, showFallbackIfAnimated, prefetch, prefetchDelay });
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 

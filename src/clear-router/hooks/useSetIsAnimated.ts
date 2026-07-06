@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { routerConfig } from '../config/routerConfig';
+import { RouterProps } from '../types/global';
 
-export const useSetIsAnimated = (isAnimated = false, showFallbackIfAnimated: boolean) => {
-	useEffect(() => routerConfig.configure({ isAnimated, showFallbackIfAnimated }), [isAnimated]);
+export const useSetIsAnimated = (routerProps: RouterProps) => {
+	useEffect(() => routerConfig.configure(routerProps), [routerProps]);
 };
