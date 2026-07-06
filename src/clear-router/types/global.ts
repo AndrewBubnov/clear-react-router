@@ -68,5 +68,5 @@ export type RouterProps = {
 	preserveScroll?: boolean;
 	showFallbackIfAnimated?: boolean;
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
-	prefetchDelay?: number;
+	hoverPrefetchDelay?: number;
 };
