@@ -27,7 +27,7 @@ type BlockedRoute = { from: string; to: string };
 type UseHandleNavigation = {
 	routeList: RouteItem[];
 	context: Record<string, unknown>;
-	revalidateCache(arg: RevalidateCacheArgs): Promise<void>;
+	revalidateCache(arg: RevalidateCacheArgs): Promise<unknown>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
