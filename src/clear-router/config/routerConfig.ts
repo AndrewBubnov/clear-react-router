@@ -1,6 +1,11 @@
+import { STANDARD_PREFETCH_DELAY } from '../constants';
+import { RouterProps } from '../types/global';
+
 class RouterConfig {
 	isAnimated = false;
 	showFallbackIfAnimated = false;
+	prefetch: RouterProps['prefetch'] = 'hover';
+	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);
 	}

@@ -1,17 +1,11 @@
 import { useNavigationState } from '../hooks/useServiceContext';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
-import { useSetIsAnimated } from '../hooks/useSetIsAnimated';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
-
-type RouterProps = {
-	isAnimated?: boolean;
-	animationDuration?: number;
-	spinner?: boolean;
-	preserveScroll?: boolean;
-	showFallbackIfAnimated?: boolean;
-};
+import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
+import { STANDARD_PREFETCH_DELAY } from '../constants';
+import { RouterProps } from '../types/global';
 
 export const Router = ({
 	isAnimated,
@@ -19,9 +13,12 @@ export const Router = ({
 	spinner = true,
 	preserveScroll = true,
 	showFallbackIfAnimated = false,
+	prefetch = 'hover',
+	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 }: RouterProps) => {
 	const {
-		routeItemData: { routeItem, loaderState },
+		routeItemData: { routeItem },
+		loaderState,
 		currentLoaderFallback,
 		isLoading,
 	} = useNavigationState();
@@ -30,7 +27,7 @@ export const Router = ({
 
 	useApplyCustomAnimation(animationDuration);
 
-	useSetIsAnimated(isAnimated, showFallbackIfAnimated);
+	useSetRouterConfig({ isAnimated, showFallbackIfAnimated, prefetch, hoverPrefetchDelay });
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
