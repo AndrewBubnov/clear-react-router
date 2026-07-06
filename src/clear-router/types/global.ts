@@ -60,3 +60,13 @@ export type RouteItemData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
 };
+
+export type RouterProps = {
+	isAnimated?: boolean;
+	animationDuration?: number;
+	spinner?: boolean;
+	preserveScroll?: boolean;
+	showFallbackIfAnimated?: boolean;
+	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
+	prefetchDelay?: number;
+};
