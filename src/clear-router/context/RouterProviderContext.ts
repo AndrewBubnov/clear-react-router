@@ -1,11 +1,19 @@
 import { createContext } from 'react';
-import { BlockerState, Location, RouteItem, RouteItemData, UpdateBlockedRouteProps } from '../types/global';
+import {
+	BlockerState,
+	LoaderState,
+	Location,
+	RouteItem,
+	RouteItemData,
+	UpdateBlockedRouteProps,
+} from '../types/global';
 
 export type NavigationContextValue = {
 	blockerState: BlockerState;
 	routeItemData: RouteItemData;
 	currentLoaderFallback: RouteItem['loaderFallback'];
 	isLoading: boolean;
+	loaderState: LoaderState;
 };
 
 export type ActionsContextValue = {

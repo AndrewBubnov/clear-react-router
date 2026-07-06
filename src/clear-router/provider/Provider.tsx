@@ -22,6 +22,7 @@ export const Provider = ({
 	restoreScroll,
 	currentLoaderFallback,
 	isLoading,
+	loaderState,
 }: ProviderProps) => {
 	return (
 		<ActionsContext.Provider
@@ -34,7 +35,9 @@ export const Provider = ({
 			}}
 		>
 			<DataContext.Provider value={{ context }}>
-				<NavigationContext.Provider value={{ blockerState, routeItemData, currentLoaderFallback, isLoading }}>
+				<NavigationContext.Provider
+					value={{ blockerState, routeItemData, currentLoaderFallback, isLoading, loaderState }}
+				>
 					{children}
 				</NavigationContext.Provider>
 			</DataContext.Provider>
