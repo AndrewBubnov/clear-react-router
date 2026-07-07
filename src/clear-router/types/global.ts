@@ -49,7 +49,7 @@ export type RevalidateCacheArgs = {
 	routeItem?: RouteItem;
 };
 
-export type LoaderState = { data: unknown; loaderError: Error | null; beforeLoadError: Error | null };
+export type LoaderState<T = unknown> = { data: T; loaderError: Error | null; beforeLoadError: Error | null };
 
 export type Adapter<T> = {
 	parse: (params: string[]) => T;
