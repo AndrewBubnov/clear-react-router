@@ -520,22 +520,6 @@ Clear Router supports code-splitting out of the box. Simply pass a function that
 
 Clear Router supports smooth page transitions using the native View Transitions API. When animations are enabled, the router waits for all data to load before starting the transition, ensuring a jank-free experience.
 
-### Quick Start
-
-```
-import { Router } from 'clear-react-router';
-
-// Enable fade animation
-<RouterProvider routeList={routes} isAnimated>
-  <Router />
-</RouterProvider>  
-
-// Custom animation duration
-<RouterProvider routeList={routes} isAnimated animationDuration={800}>
-  <Router />
-</RouterProvider>
-```
-
 ## How It Works
 
 - **Data loads first** — All `loader` and `beforeLoad` hooks complete before animation starts
