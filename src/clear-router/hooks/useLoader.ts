@@ -44,8 +44,8 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 						setContext,
 					});
 					timestampMapRef.current.set(pathname, Date.now());
-					loaderMapRef.current[pathname] = { data: result, loaderError: null, beforeLoadError: null };
 					loaderStateRef.current = { ...loaderStateRef?.current, data: result, loaderError: null };
+					loaderMapRef.current[pathname] = loaderStateRef.current;
 				} catch (error) {
 					loaderStateRef.current = { ...loaderStateRef?.current, data: null, loaderError: error as Error };
 				} finally {
