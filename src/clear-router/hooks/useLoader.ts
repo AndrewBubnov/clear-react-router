@@ -10,14 +10,14 @@ type UseLoaderParams = {
 };
 
 export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
-	const timestampMapRef = useRef<Record<string, number>>({});
+	const timestampMapRef = useRef<Map<string, number>>(new Map());
 	const loaderMapRef = useRef<Record<string, LoaderState>>({});
 	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
 	const loadingPromises = useRef<Map<string, Promise<unknown>>>(new Map());
 
 	const isCacheItemFresh = useCallback(({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
-		const currentCacheTimestamp = timestampMapRef.current[pathname];
+		const currentCacheTimestamp = timestampMapRef.current.get(pathname);
 		if (!currentCacheTimestamp) return false;
 		if (!routeItem.staleTime) return true;
 		return Date.now() - currentCacheTimestamp < routeItem.staleTime;
@@ -43,7 +43,7 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 						context,
 						setContext,
 					});
-					timestampMapRef.current = { ...timestampMapRef.current, [pathname]: Date.now() };
+					timestampMapRef.current.set(pathname, Date.now());
 					loaderMapRef.current[pathname] = { data: result, loaderError: null, beforeLoadError: null };
 					loaderStateRef.current = { ...loaderStateRef?.current, data: result, loaderError: null };
 				} catch (error) {
@@ -67,5 +67,9 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 		[revalidateCache, routeList]
 	);
 
-	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef };
+	const clearTimestamp = useCallback((pathname: string) => {
+		timestampMapRef.current.delete(pathname);
+	}, []);
+
+	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, clearTimestamp };
 };
