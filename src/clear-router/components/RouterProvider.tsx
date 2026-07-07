@@ -13,7 +13,7 @@ type RouteProviderProps = {
 export const RouterProvider = ({ children, routeList, context: initialContext = {} }: RouteProviderProps) => {
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
-	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef } = useLoader({
+	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, clearTimestamp } = useLoader({
 		routeList,
 		context,
 		setContext,
@@ -35,6 +35,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 		revalidateCache,
 		isCacheItemFresh,
 		loaderStateRef,
+		clearTimestamp,
 	});
 
 	const providerProps = useMemo(
