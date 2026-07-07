@@ -102,6 +102,7 @@ export const useHandleNavigation = ({
 
 	const invalidate = useCallback(
 		async (pathname = routeItemData.location.pathname) => {
+			if (typeof pathname !== 'string') return;
 			const routeItem = routeList.find(el => comparePaths(el, pathname));
 			const resultParams = getParamsObject({
 				params: routeItem?.params,
