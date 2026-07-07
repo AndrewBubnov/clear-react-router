@@ -76,9 +76,9 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 
 ```
-<RouterProvider routeList={routes} isAnimated>
+<RouterProvider routeList={routes}>
   <Navbar />
-  <Router spinner={false} />  {/* disable the spinner */}
+  <Router spinner={false} isAnimated />  {/* disable the spinner */}
 </RouterProvider>
 ```
 
