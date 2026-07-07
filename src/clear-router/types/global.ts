@@ -53,7 +53,7 @@ export type LoaderState<T = unknown> = {
 	data: T;
 	loaderError: Error | null;
 	beforeLoadError: Error | null;
-	invalidate: () => Promise<void>;
+	invalidate: (pathname?: unknown) => Promise<void>;
 };
 
 export type Adapter<T> = {
