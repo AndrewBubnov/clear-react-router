@@ -100,30 +100,41 @@ export const useHandleNavigation = ({
 		[navigation, isAnimated]
 	);
 
-	const createInvalidate =
-		(pathname: string, redirect: (location: Location | string) => Promise<void>) => async (path?: unknown) => {
-			const pathAbsent = !path || typeof path !== 'string';
-			const resultPathname = pathAbsent ? pathname : path;
-			const routeItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, resultPathname));
+	const invalidate = useCallback(
+		async (pathname = routeItemData.location.pathname) => {
+			const routeItem = routeList.find(el => comparePaths(el, pathname));
 			const resultParams = getParamsObject({
 				params: routeItem?.params,
-				pathname: resultPathname,
+				pathname,
 			});
-			clearTimestamp(resultPathname);
+			clearTimestamp(pathname);
 			try {
 				if (routeItem?.beforeLoad) {
-					await routeItem.beforeLoad({ context, redirect, params: resultParams, setContext });
+					await routeItem.beforeLoad({
+						context,
+						redirect: () => Promise.resolve(),
+						params: resultParams,
+						setContext,
+					});
 				}
 				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
 			} catch (error) {
 				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
 			}
 
-			await revalidateCache({ routeItem, pathname: resultPathname });
-			if (pathAbsent) setLoaderState(loaderStateRef.current);
-		};
-
-	const createInvalidateLatest = useLatest(createInvalidate);
+			await revalidateCache({ routeItem, pathname: pathname });
+			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
+		},
+		[
+			clearTimestamp,
+			context,
+			loaderStateRef,
+			revalidateCache,
+			routeItemData.location.pathname,
+			routeList,
+			setContext,
+		]
+	);
 
 	const navigationHandler = useCallback(
 		async (nextLocation: Location) => {
@@ -138,15 +149,10 @@ export const useHandleNavigation = ({
 				pathname: nextLocation.pathname,
 			});
 
-			const redirect = async (location: Location | string) =>
-				// eslint-disable-next-line react-hooks/immutability
-				await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
-
-			const invalidate = createInvalidateLatest.current(nextLocation.pathname, redirect);
-
-			loaderStateRef.current = { ...loaderStateRef.current, invalidate };
-
 			if (nextItem?.beforeLoad) {
+				const redirect = async (location: Location | string) =>
+					// eslint-disable-next-line react-hooks/immutability
+					await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 				try {
 					await nextItem.beforeLoad({
 						context,
@@ -190,7 +196,6 @@ export const useHandleNavigation = ({
 			isAnimated,
 			showFallback,
 			loaderStateRef,
-			createInvalidateLatest,
 		]
 	);
 
@@ -255,5 +260,6 @@ export const useHandleNavigation = ({
 		currentLoaderFallback,
 		isLoading,
 		loaderState,
+		invalidate,
 	};
 };
