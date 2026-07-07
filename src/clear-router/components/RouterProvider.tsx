@@ -28,6 +28,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 		currentLoaderFallback,
 		isLoading,
 		loaderState,
+		invalidate,
 	} = useHandleNavigation({
 		routeList,
 		context,
@@ -51,6 +52,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 			currentLoaderFallback,
 			isLoading,
 			loaderState,
+			invalidate,
 		}),
 		[
 			blockerState,
@@ -63,6 +65,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 			restoreScroll,
 			isLoading,
 			loaderState,
+			invalidate,
 		]
 	);
 

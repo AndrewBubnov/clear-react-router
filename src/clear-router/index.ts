@@ -5,6 +5,7 @@ export { useNavigate } from './hooks/useNavigate';
 export { useParams } from './hooks/useParams';
 export { useLocation } from './hooks/useLocation';
 export { useLoaderState } from './hooks/useLoaderState';
+export { useInvalidate } from './hooks/useInvalidate';
 export { useBlocker } from './hooks/useBlocker';
 export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';

@@ -22,6 +22,7 @@ export type ActionsContextValue = {
 	prefetchLoader(arg: string): Promise<void>;
 	setContext(arg: object): void;
 	restoreScroll(): void;
+	invalidate(path?: string): void;
 };
 
 export type DataContextValue = {
