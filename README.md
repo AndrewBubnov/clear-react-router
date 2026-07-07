@@ -72,6 +72,8 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
 | `showFallbackIfAnimated` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
+| `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
+| `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 
 ```
 <RouterProvider routeList={routes} isAnimated>
@@ -89,20 +91,40 @@ Component for client-side navigation with prefetch support.
 | Prop | Type | Default |
 |------|------|---------|
 | `to` | `string` | required |
-| `prefetch` | `boolean` optional | `true` |
-| `prefetchDelay` | `number` optional | `150` | Delay in ms before prefetch starts (prevents unnecessary requests on quick mouse passes) |
-| `children` | `ReactElement` | required |
+| `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
+| `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
+| `children` | `ReactElement` | required | Content to render inside the link |
+
+### Prefetch Strategies
+
+| Strategy | Behavior |
+|----------|----------|
+| `'hover'` | Prefetches when the user hovers over the link (with configurable delay) |
+| `'render'` | Prefetches immediately when the link is rendered |
+| `'viewport'` | Prefetches when the link enters the viewport (using Intersection Observer) |
+| `'none'` | No prefetching |
+
+**Example:**
 
 ```
-// Default — prefetch after 150ms hover
-<Link to="/dashboard">Dashboard</Link>
+import { RouterProvider, Router, Link } from 'clear-react-router';
 
-// Custom prefetch delay (300ms)
-<Link to="/heavy-page" prefetchDelay={300}>Heavy Page</Link>
+// Global prefetch: hover with 100ms delay
+<RouterProvider routeList={routes} prefetch="hover" hoverPrefetchDelay={100}>
+  <Router />
+</RouterProvider>
 
-// Disable prefetch
-<Link to="/about" prefetch={false}>About</Link>
+// Override for a specific link
+<Link to="/heavy-page" prefetch="viewport">
+  Heavy Page
+</Link>
+
+// Disable prefetch for a specific link
+<Link to="/admin" prefetch="none">
+  Admin Panel
+</Link>
 ```
+**Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
 
 ### `redirect`
 
