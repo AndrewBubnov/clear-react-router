@@ -76,9 +76,9 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 
 ```
-<RouterProvider routeList={routes} isAnimated>
+<RouterProvider routeList={routes}>
   <Navbar />
-  <Router spinner={false} />  {/* disable the spinner */}
+  <Router spinner={false} isAnimated />  {/* disable the spinner */}
 </RouterProvider>
 ```
 
@@ -519,22 +519,6 @@ Clear Router supports code-splitting out of the box. Simply pass a function that
 ## Animations
 
 Clear Router supports smooth page transitions using the native View Transitions API. When animations are enabled, the router waits for all data to load before starting the transition, ensuring a jank-free experience.
-
-### Quick Start
-
-```
-import { Router } from 'clear-react-router';
-
-// Enable fade animation
-<RouterProvider routeList={routes} isAnimated>
-  <Router />
-</RouterProvider>  
-
-// Custom animation duration
-<RouterProvider routeList={routes} isAnimated animationDuration={800}>
-  <Router />
-</RouterProvider>
-```
 
 ## How It Works
 
