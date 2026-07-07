@@ -101,27 +101,26 @@ export const useHandleNavigation = ({
 	);
 
 	const createInvalidate =
-		({
-			routeItem,
-			pathname,
-			params,
-			redirect,
-		}: {
-			routeItem: RouteItem | undefined;
-			pathname: string;
-			redirect: (location: Location | string) => Promise<void>;
-			params: Record<string, string>;
-		}) =>
-		async () => {
-			clearTimestamp(pathname);
+		(pathname: string, redirect: (location: Location | string) => Promise<void>) => async (path?: unknown) => {
+			const pathAbsent = !path || typeof path !== 'string';
+			const resultPathname = pathAbsent ? pathname : path;
+			const routeItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, resultPathname));
+			const resultParams = getParamsObject({
+				params: routeItem?.params,
+				pathname: resultPathname,
+			});
+			clearTimestamp(resultPathname);
 			try {
-				if (routeItem?.beforeLoad) await routeItem.beforeLoad({ context, redirect, params, setContext });
+				if (routeItem?.beforeLoad) {
+					await routeItem.beforeLoad({ context, redirect, params: resultParams, setContext });
+				}
 				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
 			} catch (error) {
 				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
 			}
-			await revalidateCache({ routeItem, pathname });
-			setLoaderState(loaderStateRef.current);
+
+			await revalidateCache({ routeItem, pathname: resultPathname });
+			if (pathAbsent) setLoaderState(loaderStateRef.current);
 		};
 
 	const createInvalidateLatest = useLatest(createInvalidate);
@@ -143,12 +142,7 @@ export const useHandleNavigation = ({
 				// eslint-disable-next-line react-hooks/immutability
 				await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 
-			const invalidate = createInvalidateLatest.current({
-				routeItem: nextItem,
-				pathname: nextLocation.pathname,
-				params,
-				redirect,
-			});
+			const invalidate = createInvalidateLatest.current(nextLocation.pathname, redirect);
 
 			loaderStateRef.current = { ...loaderStateRef.current, invalidate };
 
