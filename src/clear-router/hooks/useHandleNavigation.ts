@@ -31,6 +31,7 @@ type UseHandleNavigation = {
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
+	clearTimestamp(path: string): void;
 };
 
 const ALL_LOCATIONS = '*';
@@ -42,6 +43,7 @@ export const useHandleNavigation = ({
 	setContext,
 	isCacheItemFresh,
 	loaderStateRef,
+	clearTimestamp,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
 	const [isLoading, setIsLoading] = useState(false);
@@ -58,14 +60,14 @@ export const useHandleNavigation = ({
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
-	const scrollMapRef = useLatest(scrollMap);
+	const scrollMapLatest = useLatest(scrollMap);
 
 	const restoreScroll = useCallback(() => {
-		if (!prevPathname.current || !scrollMapRef.current[prevPathname.current]) return;
+		if (!prevPathname.current || !scrollMapLatest.current[prevPathname.current]) return;
 		requestAnimationFrame(() => {
-			window.scrollTo({ top: scrollMapRef.current[prevPathname.current], behavior: 'smooth' });
+			window.scrollTo({ top: scrollMapLatest.current[prevPathname.current], behavior: 'smooth' });
 		});
-	}, [scrollMapRef]);
+	}, [scrollMapLatest]);
 
 	const navigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
@@ -98,6 +100,32 @@ export const useHandleNavigation = ({
 		[navigation, isAnimated]
 	);
 
+	const createInvalidate =
+		({
+			routeItem,
+			pathname,
+			params,
+			redirect,
+		}: {
+			routeItem: RouteItem | undefined;
+			pathname: string;
+			redirect: (location: Location | string) => Promise<void>;
+			params: Record<string, string>;
+		}) =>
+		async () => {
+			clearTimestamp(pathname);
+			try {
+				if (routeItem?.beforeLoad) await routeItem.beforeLoad({ context, redirect, params, setContext });
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
+			} catch (error) {
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
+			}
+			await revalidateCache({ routeItem, pathname });
+			setLoaderState(loaderStateRef.current);
+		};
+
+	const createInvalidateLatest = useLatest(createInvalidate);
+
 	const navigationHandler = useCallback(
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
@@ -111,11 +139,21 @@ export const useHandleNavigation = ({
 				pathname: nextLocation.pathname,
 			});
 
+			const redirect = async (location: Location | string) =>
+				// eslint-disable-next-line react-hooks/immutability
+				await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
+
+			const invalidate = createInvalidateLatest.current({
+				routeItem: nextItem,
+				pathname: nextLocation.pathname,
+				params,
+				redirect,
+			});
+
+			loaderStateRef.current = { ...loaderStateRef.current, invalidate };
+
 			if (nextItem?.beforeLoad) {
 				try {
-					const redirect = async (location: Location | string) =>
-						// eslint-disable-next-line react-hooks/immutability
-						await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 					await nextItem.beforeLoad({
 						context,
 						redirect,
@@ -158,6 +196,7 @@ export const useHandleNavigation = ({
 			isAnimated,
 			showFallback,
 			loaderStateRef,
+			createInvalidateLatest,
 		]
 	);
 
