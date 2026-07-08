@@ -285,7 +285,7 @@ const UserProfile = () => {
 }
 ```
 
-### `useInvalidate`
+### `useInvalidate()`
 
 Returns a function that marks route data as stale and re-runs the route lifecycle.
 
