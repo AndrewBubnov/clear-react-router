@@ -258,8 +258,8 @@ Returns the cached data loaded by the current route's `loader`, along with any e
 | `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
 
 ```
-function UserProfile<User>() {
-  const { data, loaderError, beforeLoadError } = useLoaderState();
+const UserProfile = () => {
+  const { data, loaderError, beforeLoadError } = useLoaderState<User>();
 ```
 
 ### Caching behavior:
