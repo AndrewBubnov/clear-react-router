@@ -4,12 +4,12 @@ import { emptyLoaderState } from '../constants';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
 
 type UseLoaderParams = {
-	routeList: RouteItem[];
+	routes: RouteItem[];
 	context: Record<string, unknown>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 };
 
-export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) => {
+export const useLoader = ({ routes, context, setContext }: UseLoaderParams) => {
 	const timestampMapRef = useRef<Map<string, number>>(new Map());
 	const loaderMapRef = useRef<Record<string, LoaderState>>({});
 	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
@@ -61,10 +61,10 @@ export const useLoader = ({ routeList, context, setContext }: UseLoaderParams) =
 
 	const prefetchLoader = useCallback(
 		async (pathname: string) => {
-			const item = routeList.find(el => comparePaths(el, pathname));
+			const item = routes.find(el => comparePaths(el, pathname));
 			if (item) await revalidateCache({ routeItem: item, pathname });
 		},
-		[revalidateCache, routeList]
+		[revalidateCache, routes]
 	);
 
 	const clearTimestamp = useCallback((pathname: string) => {
