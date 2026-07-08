@@ -23,6 +23,7 @@ export const Provider = ({
 	currentLoaderFallback,
 	isLoading,
 	loaderState,
+	invalidate,
 }: ProviderProps) => {
 	return (
 		<ActionsContext.Provider
@@ -32,6 +33,7 @@ export const Provider = ({
 				prefetchLoader,
 				setContext,
 				restoreScroll,
+				invalidate,
 			}}
 		>
 			<DataContext.Provider value={{ context }}>
