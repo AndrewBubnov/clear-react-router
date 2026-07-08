@@ -31,6 +31,7 @@ type UseHandleNavigation = {
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
+	clearTimestamp(path: string): void;
 };
 
 const ALL_LOCATIONS = '*';
@@ -42,6 +43,7 @@ export const useHandleNavigation = ({
 	setContext,
 	isCacheItemFresh,
 	loaderStateRef,
+	clearTimestamp,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
 	const [isLoading, setIsLoading] = useState(false);
@@ -58,14 +60,14 @@ export const useHandleNavigation = ({
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
 
-	const scrollMapRef = useLatest(scrollMap);
+	const scrollMapLatest = useLatest(scrollMap);
 
 	const restoreScroll = useCallback(() => {
-		if (!prevPathname.current || !scrollMapRef.current[prevPathname.current]) return;
+		if (!prevPathname.current || !scrollMapLatest.current[prevPathname.current]) return;
 		requestAnimationFrame(() => {
-			window.scrollTo({ top: scrollMapRef.current[prevPathname.current], behavior: 'smooth' });
+			window.scrollTo({ top: scrollMapLatest.current[prevPathname.current], behavior: 'smooth' });
 		});
-	}, [scrollMapRef]);
+	}, [scrollMapLatest]);
 
 	const navigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
@@ -98,6 +100,43 @@ export const useHandleNavigation = ({
 		[navigation, isAnimated]
 	);
 
+	const invalidate = useCallback(
+		async (pathname = routeItemData.location.pathname) => {
+			if (typeof pathname !== 'string') return;
+			const routeItem = routeList.find(el => comparePaths(el, pathname));
+			const resultParams = getParamsObject({
+				params: routeItem?.params,
+				pathname,
+			});
+			clearTimestamp(pathname);
+			try {
+				if (routeItem?.beforeLoad) {
+					await routeItem.beforeLoad({
+						context,
+						redirect: () => Promise.resolve(),
+						params: resultParams,
+						setContext,
+					});
+				}
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
+			} catch (error) {
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
+			}
+
+			await revalidateCache({ routeItem, pathname: pathname });
+			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
+		},
+		[
+			clearTimestamp,
+			context,
+			loaderStateRef,
+			revalidateCache,
+			routeItemData.location.pathname,
+			routeList,
+			setContext,
+		]
+	);
+
 	const navigationHandler = useCallback(
 		async (nextLocation: Location) => {
 			navigationSeq.current = navigationSeq.current + 1;
@@ -112,10 +151,10 @@ export const useHandleNavigation = ({
 			});
 
 			if (nextItem?.beforeLoad) {
+				const redirect = async (location: Location | string) =>
+					// eslint-disable-next-line react-hooks/immutability
+					await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 				try {
-					const redirect = async (location: Location | string) =>
-						// eslint-disable-next-line react-hooks/immutability
-						await navigationHandler(typeof location === 'string' ? { pathname: location } : location);
 					await nextItem.beforeLoad({
 						context,
 						redirect,
@@ -222,5 +261,6 @@ export const useHandleNavigation = ({
 		currentLoaderFallback,
 		isLoading,
 		loaderState,
+		invalidate,
 	};
 };
