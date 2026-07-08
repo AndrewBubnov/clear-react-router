@@ -1,18 +1,20 @@
-import type { ComponentType, Dispatch, ReactElement, SetStateAction } from 'react';
+import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
+type Element = (() => ReactElement) | ReactElement;
+
 export type ClientRouteItem = {
 	path: string;
-	element: (() => ReactElement) | ReactElement | LazyComponent;
+	element: Element | LazyComponent;
 	loader?(arg: {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}): Promise<unknown>;
-	loaderFallback?: (() => ReactElement) | ReactElement;
-	errorElement?: (() => ReactElement) | ReactElement;
-	fallback?: (() => ReactElement) | ReactElement;
+	loaderFallback?: Element;
+	errorElement?: Element;
+	fallback?: Element;
 	children?: ClientRouteItem[];
 	staleTime?: number;
 	beforeLoad?: (arg: {
@@ -29,7 +31,7 @@ export type ClientRouteItem = {
 };
 
 export type RouteItem = ClientRouteItem & {
-	element: (() => ReactElement) | ReactElement;
+	element: Element;
 	params?: { key: string; value: string }[];
 	cacheTimestamp?: number;
 };
@@ -73,4 +75,5 @@ export type RouterProps = {
 	showFallbackIfAnimated?: boolean;
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;
+	errorBoundary?: ComponentType<{ children: ReactNode }>;
 };
