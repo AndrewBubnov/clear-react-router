@@ -2,21 +2,33 @@
 
 A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, and prefetching.
 
+## Why Clear Router?
+
+Most React routers focus on flexibility and ecosystem integrations.
+Clear Router focuses on predictable navigation with a small, explicit API.
+
+It provides first-class support for:
+
+- Predictable routing
+- Built-in data loading
+- Small API
+
 ## Features
 
-- 🧩 **Nested Routes** - Organize your UI with nested layouts and routes
-- ⚡ **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
-- 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
-- ✨ **Smooth Animations** - Page transitions with fade effect (customizable duration)
-- 🏗️ **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
-- 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
-- 📦 **Prefetching** - Preload data on hover for instant navigation
-- 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
-- 📍 **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
-- 🔍 **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
-- 🎨 **Flexible API** - Use components or hooks as you prefer
-- 📱 **Browser History** - Full support for browser back/forward buttons
-- 🧠 **Context-aware** - Pass and update context through routes
+- **Nested Routes** - Organize your UI with nested layouts and routes
+- **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
+- **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
+- **Smooth Animations** - Page transitions with fade effect (customizable duration)
+- **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
+- **Type-safe Redirects** - Redirect from beforeLoad hook
+- **Cache invalidation** - Manual route invalidation
+- **Prefetching** - Preload data on hover for instant navigation
+- **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
+- **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
+- **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
+- **Flexible API** - Use components or hooks as you prefer
+- **Browser History** - Full support for browser back/forward buttons
+- **Context-aware** - Pass and update context through routes
 
 ## API
 
@@ -28,8 +40,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
@@ -245,21 +257,21 @@ Returns current location `{ pathname, search, state }`.
 const { pathname, search, state } = useLocation();
 ```
 
-### `useLoaderState()`
+### `useLoaderState<T>()`
 
 Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is automatically cached and reused when navigating back to the same route.
 
 **Returns:**
 
 | Property | Type | Description |
-|----------|------|-------------|
-| `data` | `unknown` | The data returned from the route's `loader` |
+|----------|:----:|-------------|
+| `data` | `T` | The data returned from the route's `loader` |
 | `loaderError` | `Error \| null` | Error from the `loader` (if any) |
 | `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
 
 ```
-function UserProfile() {
-  const { data, loaderError, beforeLoadError } = useLoaderState();
+const UserProfile = () => {
+  const { data, loaderError, beforeLoadError } = useLoaderState<User>();
 ```
 
 ### Caching behavior:
@@ -272,6 +284,71 @@ function UserProfile() {
   staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
 }
 ```
+
+### `useInvalidate`
+
+Returns a function that marks route data as stale and re-runs the route lifecycle.
+
+Calling `invalidate()` clears the cached loader result for a route and executes both `beforeLoad` and `loader` again. This is useful after mutations or any operation that changes data used by the route.
+
+#### Current route
+
+Invalidate the currently active route:
+
+```tsx
+const invalidate = useInvalidate();
+
+await invalidate();
+```
+
+#### Specific route
+
+You can also invalidate any registered route by passing its pathname:
+
+```tsx
+const invalidate = useInvalidate();
+
+await invalidate('/posts');
+```
+
+The route does not need to be currently active. Its cache will be marked as stale, and the next time it is visited, `beforeLoad` and `loader` will run again.
+
+#### Why use it?
+
+A common use case is refreshing route data after a mutation.
+
+For example, after deleting a post while viewing `/posts/42`, you may want the posts list to be reloaded the next time the user navigates to `/posts`:
+
+```tsx
+const invalidate = useInvalidate();
+
+await deletePost(id);
+await invalidate('/posts');
+```
+
+Likewise, after updating the current page, you can immediately refresh its data:
+
+```tsx
+const invalidate = useInvalidate();
+
+await updateProfile(data);
+await invalidate();
+```
+
+#### Notes
+
+* `invalidate()` re-executes both `beforeLoad` and `loader` for the invalidated route.
+* Cached data is discarded before the new loader starts.
+* When used as an event handler, wrap the call in an arrow function:
+
+```tsx
+<button onClick={() => invalidate()}>
+	Refresh
+</button>
+```
+
+Passing `invalidate` directly (`onClick={invalidate}`) is not supported because React passes a `MouseEvent` object to event handlers.
+
 
 ### `useBlocker(callback)`
 
@@ -370,7 +447,7 @@ type Adapter<T> = {
 | Element | Type | Description |
 |---------|------|-------------|
 | `value` | `T` | The parsed value from the query parameter |
-| `setValue` | `(arg: T | null) => void` | Function to update the query parameter. Null is passed to remove the parameter. |
+| `setValue` | `(arg: T \| null) => void` | Function to update the query parameter. Null is passed to remove the parameter. |
 
 ### Built-in Adapters
 
