@@ -55,7 +55,7 @@ The root component that provides routing context to the application. Place stati
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `routeList` | `RouteItem[]` | required | Array of route configurations |
+| `routes` | `RouteItem[]` | required | Array of route configurations |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
@@ -83,13 +83,13 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
-| `showFallbackIfAnimated` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
+| `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
 ```
-<RouterProvider routeList={routes}>
+<RouterProvider routes={routes}>
   <Navbar />
   <Router spinner={false} isAnimated />  {/* disable the spinner */}
 </RouterProvider>
@@ -123,7 +123,7 @@ Component for client-side navigation with prefetch support.
 import { RouterProvider, Router, Link } from 'clear-react-router';
 
 // Global prefetch: hover with 100ms delay
-<RouterProvider routeList={routes} prefetch="hover" hoverPrefetchDelay={100}>
+<RouterProvider routes={routes} prefetch="hover" hoverPrefetchDelay={100}>
   <Router />
 </RouterProvider>
 
@@ -227,7 +227,7 @@ import { routes } from './routes';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const App = () => (
-    <RouterProvider routeList={routes}>
+    <RouterProvider routes={routes}>
       <Router errorBoundary={ErrorBoundary} />
     </RouterProvider>
   );
