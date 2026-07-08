@@ -4,7 +4,7 @@ import { Navbar } from './components/Navbar.tsx';
 
 function App() {
 	return (
-		<RouterProvider routeList={routes}>
+		<RouterProvider routes={routes}>
 			<Navbar />
 			<div style={{ marginTop: 100 }}>
 				<Router isAnimated animationDuration={1200} />
