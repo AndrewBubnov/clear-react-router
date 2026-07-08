@@ -14,4 +14,4 @@ export { useSearchParams } from './hooks/useSearchParams';
 export { useHistoricalTrail } from './hooks/useHistoricalTrail';
 export { adapter } from './utils/adapter.ts';
 export { createRouter } from './utils/utils';
-export type { RouteItem, BlockerState, Location, Adapter } from './types/global';
+export type { RouteItem, BlockerState, Location, Adapter, RouterProps } from './types/global';
