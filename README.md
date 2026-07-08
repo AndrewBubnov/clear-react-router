@@ -245,7 +245,7 @@ Returns current location `{ pathname, search, state }`.
 const { pathname, search, state } = useLocation();
 ```
 
-### `useLoaderState()`
+### `useLoaderState<T>()`
 
 Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is automatically cached and reused when navigating back to the same route.
 
@@ -253,12 +253,12 @@ Returns the cached data loaded by the current route's `loader`, along with any e
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `data` | `unknown` | The data returned from the route's `loader` |
+| `data` | Generic `T` | The data returned from the route's `loader` |
 | `loaderError` | `Error \| null` | Error from the `loader` (if any) |
 | `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
 
 ```
-function UserProfile() {
+function UserProfile<User>() {
   const { data, loaderError, beforeLoadError } = useLoaderState();
 ```
 
@@ -370,7 +370,7 @@ type Adapter<T> = {
 | Element | Type | Description |
 |---------|------|-------------|
 | `value` | `T` | The parsed value from the query parameter |
-| `setValue` | `(arg: T | null) => void` | Function to update the query parameter. Null is passed to remove the parameter. |
+| `setValue` | `(arg: T \| null) => void` | Function to update the query parameter. Null is passed to remove the parameter. |
 
 ### Built-in Adapters
 
