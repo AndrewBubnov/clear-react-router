@@ -2,21 +2,33 @@
 
 A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, and prefetching.
 
+## Why Clear Router?
+
+Most React routers focus on flexibility and ecosystem integrations.
+Clear Router focuses on predictable navigation with a small, explicit API.
+
+It provides first-class support for:
+
+- Predictable routing
+- Built-in data loading
+- Small API
+
 ## Features
 
-- 🧩 **Nested Routes** - Organize your UI with nested layouts and routes
-- ⚡ **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
-- 🔒 **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
-- ✨ **Smooth Animations** - Page transitions with fade effect (customizable duration)
-- 🏗️ **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
-- 🎯 **Type-safe Redirects** - Redirect from beforeLoad hook
-- 📦 **Prefetching** - Preload data on hover for instant navigation
-- 🚀 **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
-- 📍 **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
-- 🔍 **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
-- 🎨 **Flexible API** - Use components or hooks as you prefer
-- 📱 **Browser History** - Full support for browser back/forward buttons
-- 🧠 **Context-aware** - Pass and update context through routes
+- **Nested Routes** - Organize your UI with nested layouts and routes
+- **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
+- **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
+- **Smooth Animations** - Page transitions with fade effect (customizable duration)
+- **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
+- **Type-safe Redirects** - Redirect from beforeLoad hook
+- **Cache invalidation** - Manual route invalidation
+- **Prefetching** - Preload data on hover for instant navigation
+- **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
+- **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
+- **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
+- **Flexible API** - Use components or hooks as you prefer
+- **Browser History** - Full support for browser back/forward buttons
+- **Context-aware** - Pass and update context through routes
 
 ## API
 
@@ -28,8 +40,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
