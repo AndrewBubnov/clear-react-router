@@ -25,7 +25,7 @@ import {
 type BlockedRoute = { from: string; to: string };
 
 type UseHandleNavigation = {
-	routeList: RouteItem[];
+	routes: RouteItem[];
 	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<unknown>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
@@ -37,7 +37,7 @@ type UseHandleNavigation = {
 const ALL_LOCATIONS = '*';
 
 export const useHandleNavigation = ({
-	routeList,
+	routes,
 	context,
 	revalidateCache,
 	setContext,
@@ -45,7 +45,7 @@ export const useHandleNavigation = ({
 	loaderStateRef,
 	clearTimestamp,
 }: UseHandleNavigation) => {
-	const { isAnimated, showFallbackIfAnimated: showFallback } = routerConfig;
+	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
@@ -103,7 +103,7 @@ export const useHandleNavigation = ({
 	const invalidate = useCallback(
 		async (pathname = routeItemData.location.pathname) => {
 			if (typeof pathname !== 'string') return;
-			const routeItem = routeList.find(el => comparePaths(el, pathname));
+			const routeItem = routes.find(el => comparePaths(el, pathname));
 			const resultParams = getParamsObject({
 				params: routeItem?.params,
 				pathname,
@@ -126,15 +126,7 @@ export const useHandleNavigation = ({
 			await revalidateCache({ routeItem, pathname: pathname });
 			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
 		},
-		[
-			clearTimestamp,
-			context,
-			loaderStateRef,
-			revalidateCache,
-			routeItemData.location.pathname,
-			routeList,
-			setContext,
-		]
+		[clearTimestamp, context, loaderStateRef, revalidateCache, routeItemData.location.pathname, routes, setContext]
 	);
 
 	const navigationHandler = useCallback(
@@ -143,7 +135,7 @@ export const useHandleNavigation = ({
 			const seq = navigationSeq.current;
 			loaderStateRef.current = emptyLoaderState;
 
-			const nextItem = routeList.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
+			const nextItem = routes.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
 
 			const params: Record<string, string> = getParamsObject({
 				params: nextItem?.params,
@@ -190,7 +182,7 @@ export const useHandleNavigation = ({
 		[
 			context,
 			revalidateCache,
-			routeList,
+			routes,
 			transitionedNavigation,
 			setContext,
 			isCacheItemFresh,
