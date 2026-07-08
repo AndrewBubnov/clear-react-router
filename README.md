@@ -88,7 +88,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
-```
+```tsx
 <RouterProvider routes={routes}>
   <Navbar />
   <Router spinner={false} isAnimated />  {/* disable the spinner */}
@@ -242,7 +242,7 @@ const App = () => (
 
 Returns function to navigate programmatically. Accepts a string (pathname), an object with `pathname`, `search`, and `state`, or `-1` to go back.
 
-```
+```tsx
 const navigate = useNavigate();
 
 navigate('/about');                                           // string
