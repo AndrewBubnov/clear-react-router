@@ -273,6 +273,71 @@ const UserProfile = () => {
 }
 ```
 
+### `useInvalidate`
+
+Returns a function that marks route data as stale and re-runs the route lifecycle.
+
+Calling `invalidate()` clears the cached loader result for a route and executes both `beforeLoad` and `loader` again. This is useful after mutations or any operation that changes data used by the route.
+
+#### Current route
+
+Invalidate the currently active route:
+
+```tsx
+const invalidate = useInvalidate();
+
+await invalidate();
+```
+
+#### Specific route
+
+You can also invalidate any registered route by passing its pathname:
+
+```tsx
+const invalidate = useInvalidate();
+
+await invalidate('/posts');
+```
+
+The route does not need to be currently active. Its cache will be marked as stale, and the next time it is visited, `beforeLoad` and `loader` will run again.
+
+#### Why use it?
+
+A common use case is refreshing route data after a mutation.
+
+For example, after deleting a post while viewing `/posts/42`, you may want the posts list to be reloaded the next time the user navigates to `/posts`:
+
+```tsx
+const invalidate = useInvalidate();
+
+await deletePost(id);
+await invalidate('/posts');
+```
+
+Likewise, after updating the current page, you can immediately refresh its data:
+
+```tsx
+const invalidate = useInvalidate();
+
+await updateProfile(data);
+await invalidate();
+```
+
+#### Notes
+
+* `invalidate()` re-executes both `beforeLoad` and `loader` for the invalidated route.
+* Cached data is discarded before the new loader starts.
+* When used as an event handler, wrap the call in an arrow function:
+
+```tsx
+<button onClick={() => invalidate()}>
+	Refresh
+</button>
+```
+
+Passing `invalidate` directly (`onClick={invalidate}`) is not supported because React passes a `MouseEvent` object to event handlers.
+
+
 ### `useBlocker(callback)`
 
 Blocks navigation when callback returns `true`.
