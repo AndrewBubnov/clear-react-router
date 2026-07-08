@@ -20,7 +20,7 @@ It provides first-class support for:
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
 - **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
-- **Type-safe Redirects** - Redirect from beforeLoad hook
+- **Programmatic Redirects** - Redirect from beforeLoad hook
 - **Cache invalidation** - Manual route invalidation
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
@@ -566,7 +566,6 @@ function ProductFilter() {
 
 - **Array support** — `getSearchParams` returns `string[]` when multiple values exist for the same key
 - **Functional updates** — Update parameters based on previous state without losing other params
-- **Type-safe** — Proper TypeScript support with overloads
 - **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
