@@ -86,6 +86,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `showFallbackIfAnimated` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
 ```
 <RouterProvider routeList={routes}>
@@ -215,6 +216,23 @@ const routes = createRouter([
   },
 ]);
 ```
+
+### Error Boundaries
+
+You can provide a custom error boundary to catch rendering errors in route components. This is useful for preventing the entire app from crashing when a specific route fails to render.
+
+```tsx
+import { RouterProvider, Router } from 'clear-react-router';
+import { routes } from './routes';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+const App = () => (
+    <RouterProvider routeList={routes}>
+      <Router errorBoundary={ErrorBoundary} />
+    </RouterProvider>
+  );
+```
+**Note:** The `errorBoundary` prop only catches render-time errors in route components. It does not catch errors in `loader` or `beforeLoad` — those are handled by the router's `errorElement` mechanism.
 
 ## Hooks
 
