@@ -72,7 +72,7 @@ export type RouterProps = {
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
-	showFallbackIfAnimated?: boolean;
+	showFallbackOnAnimation?: boolean;
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;

@@ -6,15 +6,15 @@ import { RouteItem } from '../types/global';
 
 type RouteProviderProps = {
 	children: ReactNode;
-	routeList: RouteItem[];
+	routes: RouteItem[];
 	context?: Record<string, unknown>;
 };
 
-export const RouterProvider = ({ children, routeList, context: initialContext = {} }: RouteProviderProps) => {
+export const RouterProvider = ({ children, routes, context: initialContext = {} }: RouteProviderProps) => {
 	const [context, setContext] = useState<Record<string, unknown>>(initialContext);
 
 	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, clearTimestamp } = useLoader({
-		routeList,
+		routes,
 		context,
 		setContext,
 	});
@@ -30,7 +30,7 @@ export const RouterProvider = ({ children, routeList, context: initialContext = 
 		loaderState,
 		invalidate,
 	} = useHandleNavigation({
-		routeList,
+		routes,
 		context,
 		setContext,
 		revalidateCache,

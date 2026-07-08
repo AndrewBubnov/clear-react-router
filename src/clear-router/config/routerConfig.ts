@@ -3,7 +3,7 @@ import { RouterProps } from '../types/global';
 
 class RouterConfig {
 	isAnimated = false;
-	showFallbackIfAnimated = false;
+	showFallbackOnAnimation = false;
 	prefetch: RouterProps['prefetch'] = 'hover';
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	configure(config: Partial<RouterConfig>) {
