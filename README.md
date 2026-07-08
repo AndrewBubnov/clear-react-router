@@ -252,7 +252,7 @@ Returns the cached data loaded by the current route's `loader`, along with any e
 **Returns:**
 
 | Property | Type | Description |
-|----------|------|-------------|
+|----------|:----:|-------------|
 | `data` | `T` | The data returned from the route's `loader` |
 | `loaderError` | `Error \| null` | Error from the `loader` (if any) |
 | `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
