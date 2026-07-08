@@ -1,11 +1,14 @@
+import { PropsWithChildren } from 'react';
 import { useNavigationState } from '../hooks/useServiceContext';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
+import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
-import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types/global';
+
+const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
 	isAnimated,
@@ -15,9 +18,10 @@ export const Router = ({
 	showFallbackIfAnimated = false,
 	prefetch = 'hover',
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
+	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
 	const {
-		routeItemData: { routeItem },
+		routeItemData: { routeItem, location },
 		loaderState,
 		currentLoaderFallback,
 		isLoading,
@@ -53,7 +57,7 @@ export const Router = ({
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			{renderElement(routeItem.element) || null}
+			<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
 			{showSpinner && <Spinner />}
 		</div>
 	);
