@@ -29,15 +29,14 @@ export const useHandleNavigation = ({
 	isCacheItemFresh,
 	loaderStateRef,
 }: UseHandleNavigation) => {
-	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
-	const [context, setContext] = useContextState();
 	const [, setIsLoading] = useIsLoading();
-	const [, setCurrentLoaderFallback] = useLoaderFallback();
-	const [, setLoaderState] = useCurrentLoaderState();
 	const [, setScrollMap] = useScrollMap();
-
-	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
 	const [, setRouteItemData] = useRouteItemData();
+	const [, setLoaderState] = useCurrentLoaderState();
+	const [, setCurrentLoaderFallback] = useLoaderFallback();
+	const [context, setContext] = useContextState();
+	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
