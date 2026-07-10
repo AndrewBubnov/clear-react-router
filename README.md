@@ -56,7 +56,6 @@ The root component that provides routing context to the application. Place stati
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `routes` | `RouteItem[]` | required | Array of route configurations |
-| `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
 ```tsx
@@ -86,6 +85,7 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
 ```tsx
@@ -240,14 +240,14 @@ const App = () => (
 
 ### `useNavigate()`
 
-Returns function to navigate programmatically. Accepts a string (pathname), an object with `pathname`, `search`, and `state`, or `-1` to go back.
+Returns function to navigate programmatically. Accepts a string (pathname), an object with `pathname`, `search`, and `state`.
+type Location = { pathname: string;	search?: string; state?: unknown }
 
 ```tsx
 const navigate = useNavigate();
 
 navigate('/about');                                           // string
-navigate({ pathname: '/user/123', state: { from: 'home' } }); // object
-navigate(-1);                                                 // go back
+navigate({ pathname: '/user/123', state: { from: 'home' } }); // Location
 ```
 
 **Note:** Navigation state can be accessed via `useLocation()`:
