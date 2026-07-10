@@ -241,9 +241,10 @@ const App = () => (
 ### `useNavigate()`
 
 Returns function to navigate programmatically. Accepts a string (pathname), an object of type Location, or `-1` to go back.
-type Location = { pathname: string;	search?: string; state?: unknown }
 
 ```tsx
+type Location = { pathname: string;	search?: string; state?: unknown }
+
 const navigate = useNavigate();
 
 navigate('/about');                                           // string
