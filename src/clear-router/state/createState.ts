@@ -15,10 +15,11 @@ const create = <T>(initialState: T): Store<T> => {
 
 	const getState = () => state;
 	const setState = (action: SetStateAction<T>) => {
+		const prevState = state;
 		const nextState = typeof action === 'function' ? (action as (prev: T) => T)(state) : action;
 		if (!Object.is(state, nextState)) {
 			state = nextState;
-			subscribers.forEach(listener => listener(state, state));
+			subscribers.forEach(listener => listener(state, prevState));
 		}
 	};
 
