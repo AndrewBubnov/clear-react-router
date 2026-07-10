@@ -55,11 +55,11 @@ The root component that provides routing context to the application. Place stati
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `routeList` | `RouteItem[]` | required | Array of route configurations |
+| `routes` | `RouteItem[]` | required | Array of route configurations |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `children` | `ReactNode` | required | App content (must include `<Router />`) |
 
-```
+```tsx
 function App() {
   return (
     <RouterProvider routeList={routes}>
@@ -83,12 +83,13 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
-| `showFallbackIfAnimated` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
+| `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
-```
-<RouterProvider routeList={routes}>
+```tsx
+<RouterProvider routes={routes}>
   <Navbar />
   <Router spinner={false} isAnimated />  {/* disable the spinner */}
 </RouterProvider>
@@ -118,11 +119,11 @@ Component for client-side navigation with prefetch support.
 
 **Example:**
 
-```
+```tsx
 import { RouterProvider, Router, Link } from 'clear-react-router';
 
 // Global prefetch: hover with 100ms delay
-<RouterProvider routeList={routes} prefetch="hover" hoverPrefetchDelay={100}>
+<RouterProvider routes={routes} prefetch="hover" hoverPrefetchDelay={100}>
   <Router />
 </RouterProvider>
 
@@ -144,7 +145,7 @@ Function provided to `beforeLoad` for programmatic redirection.
 
 **Type:** `(arg: Location | string) => Promise<void>`
 
-```
+```tsx
 import type { createRouter } from 'clear-react-router';
 
 const routes = createRouter([
@@ -188,7 +189,9 @@ const routes = createRouter([
 
 The `loader`, `beforeLoad`, and `afterLoad` hooks receive `params` (extracted from the URL) and `context` as arguments. This allows you to handle route-specific logic directly in the route configuration, keeping your components focused on rendering.
 
-```
+```tsx
+import type { createRouter } from 'clear-react-router';
+
 const routes = createRouter([
   {
     path: '/user/:userId',
@@ -216,13 +219,30 @@ const routes = createRouter([
 ]);
 ```
 
+### Error Boundaries
+
+You can provide a custom error boundary to catch rendering errors in route components. This is useful for preventing the entire app from crashing when a specific route fails to render.
+
+```tsx
+import { RouterProvider, Router } from 'clear-react-router';
+import { routes } from './routes';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+const App = () => (
+    <RouterProvider routes={routes}>
+      <Router errorBoundary={ErrorBoundary} />
+    </RouterProvider>
+  );
+```
+**Note:** The `errorBoundary` prop only catches render-time errors in route components. It does not catch errors in `loader` or `beforeLoad` — those are handled by the router's `errorElement` mechanism.
+
 ## Hooks
 
 ### `useNavigate()`
 
 Returns function to navigate programmatically. Accepts a string (pathname), an object with `pathname`, `search`, and `state`, or `-1` to go back.
 
-```
+```tsx
 const navigate = useNavigate();
 
 navigate('/about');                                           // string
@@ -232,7 +252,7 @@ navigate(-1);                                                 // go back
 
 **Note:** Navigation state can be accessed via `useLocation()`:
 
-```
+```tsx
 const navigate = useNavigate();
 navigate({ pathname: '/profile', state: { userId: 123 } });
 
@@ -245,7 +265,7 @@ console.log(state); // { userId: 123 }
 
 Returns route parameters object.
 
-```
+```tsx
 const params = useParams<{ userId: string }>();
 // URL: /user/123 → params.userId === '123'
 ```
@@ -253,7 +273,7 @@ const params = useParams<{ userId: string }>();
 ### `useLocation()`
 
 Returns current location `{ pathname, search, state }`.
-```
+```tsx
 const { pathname, search, state } = useLocation();
 ```
 
@@ -269,7 +289,7 @@ Returns the cached data loaded by the current route's `loader`, along with any e
 | `loaderError` | `Error \| null` | Error from the `loader` (if any) |
 | `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
 
-```
+```tsx
 const UserProfile = () => {
   const { data, loaderError, beforeLoadError } = useLoaderState<User>();
 ```
@@ -362,7 +382,7 @@ Blocks navigation when callback returns `true`.
 | `process()` | `() => void` | Confirm navigation and proceed |
 | `reset()` | `() => void` | Cancel navigation |
 
-```
+```tsx
 const { state, process, reset } = useBlocker(() => hasUnsavedChanges);
 
 useEffect(() => {
@@ -389,7 +409,7 @@ Executes a callback when the page is about to be closed or reloaded. Perfect for
 
 **Note:** This hook does not show a browser confirmation dialog. It silently executes the callback, allowing you to save user data in the background before the page closes.
 
-```
+```tsx
 const [text, setText] = useState('');
 const onSave = useCallback(() => {
   localStorage.setItem('draft', text);
@@ -404,7 +424,7 @@ useBeforeUnload(text ? onSave : undefined);
 
 A flexible hook for working with typed query parameters. You provide an adapter object with `parse` and `serialize` functions, and it returns the parsed value and a setter.
 
-```
+```tsx
 import { useQueryParam, adapter } from 'clear-react-router';
 
 const ProductPage = () => {
@@ -468,7 +488,7 @@ type Adapter<T> = {
 ### Using Zod Schemas
 `useQueryParam` works seamlessly with Zod for complex validation:
 
-```
+```tsx
 import { z } from 'zod';
 import { useQueryParam, adapter } from 'clear-react-router';
 
@@ -500,7 +520,7 @@ function ProductFilter() {
 ### Custom Adapters
 You can write your own adapter for any format:
 
-```
+```tsx
 // Custom adapter for comma-separated values
 const csvAdapter = {
   parse: (params: string[]): string[] => {
@@ -519,7 +539,7 @@ const TagsFilter() {
 ### `useRouterContext()`
 
 Returns the router context object and a function to update it. Useful for accessing or modifying global state (like user authentication, theme, etc.) from anywhere in your app.
-```
+```tsx
 const { setContext, context } = useRouterContext();
 const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
 ```
@@ -528,7 +548,7 @@ const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
 
 Returns an object for working with URL query parameters. Supports reading and setting both single values and arrays.
 
-```
+```tsx
 import { useSearchParams } from 'clear-react-router';
 
 function ProductFilter() {
@@ -585,7 +605,7 @@ Returns an array of pathnames representing the user's actual navigation history.
 ## Lazy Loading
 
 Clear Router supports code-splitting out of the box. Simply pass a function that returns a dynamic import:
-```
+```tsx
 {
   path: '/heavy-page',
   element: () => import('./pages/HeavyComponent'),

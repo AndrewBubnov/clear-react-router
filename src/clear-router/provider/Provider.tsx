@@ -1,14 +1,12 @@
 import { type ReactNode } from 'react';
 import {
-	NavigationContext,
 	ActionsContext,
 	DataContext,
 	type ActionsContextValue,
 	type DataContextValue,
-	type NavigationContextValue,
 } from '../context/RouterProviderContext';
 
-type ProviderProps = NavigationContextValue & ActionsContextValue & DataContextValue & { children: ReactNode };
+type ProviderProps = ActionsContextValue & DataContextValue & { children: ReactNode };
 
 export const Provider = ({
 	children,
@@ -17,12 +15,6 @@ export const Provider = ({
 	updateBlockedRoute,
 	updateLocation,
 	prefetchLoader,
-	blockerState,
-	routeItemData,
-	restoreScroll,
-	currentLoaderFallback,
-	isLoading,
-	loaderState,
 	invalidate,
 }: ProviderProps) => {
 	return (
@@ -32,17 +24,10 @@ export const Provider = ({
 				updateBlockedRoute,
 				prefetchLoader,
 				setContext,
-				restoreScroll,
 				invalidate,
 			}}
 		>
-			<DataContext.Provider value={{ context }}>
-				<NavigationContext.Provider
-					value={{ blockerState, routeItemData, currentLoaderFallback, isLoading, loaderState }}
-				>
-					{children}
-				</NavigationContext.Provider>
-			</DataContext.Provider>
+			<DataContext.Provider value={{ context }}>{children}</DataContext.Provider>
 		</ActionsContext.Provider>
 	);
 };

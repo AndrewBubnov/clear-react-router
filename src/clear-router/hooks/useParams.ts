@@ -1,13 +1,12 @@
-import { useNavigationState } from './useServiceContext';
+import { useRouteItemData } from '../state/state';
 import { getParamsObject } from '../utils/utils';
 
 export const useParams = <T>() => {
+	const [routeItemData] = useRouteItemData();
 	const {
-		routeItemData: {
-			routeItem,
-			location: { pathname },
-		},
-	} = useNavigationState();
+		routeItem,
+		location: { pathname },
+	} = routeItemData;
 
 	if (!routeItem) return undefined as T;
 

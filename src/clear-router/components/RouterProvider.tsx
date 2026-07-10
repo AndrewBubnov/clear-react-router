@@ -19,17 +19,7 @@ export const RouterProvider = ({ children, routes, context: initialContext = {} 
 		setContext,
 	});
 
-	const {
-		blockerState,
-		updateLocation,
-		updateBlockedRoute,
-		routeItemData,
-		restoreScroll,
-		currentLoaderFallback,
-		isLoading,
-		loaderState,
-		invalidate,
-	} = useHandleNavigation({
+	const { updateLocation, updateBlockedRoute, invalidate } = useHandleNavigation({
 		routes,
 		context,
 		setContext,
@@ -44,29 +34,11 @@ export const RouterProvider = ({ children, routes, context: initialContext = {} 
 			updateLocation,
 			prefetchLoader,
 			updateBlockedRoute,
-			blockerState,
 			context,
 			setContext,
-			routeItemData,
-			restoreScroll,
-			currentLoaderFallback,
-			isLoading,
-			loaderState,
 			invalidate,
 		}),
-		[
-			blockerState,
-			context,
-			prefetchLoader,
-			routeItemData,
-			updateBlockedRoute,
-			updateLocation,
-			currentLoaderFallback,
-			restoreScroll,
-			isLoading,
-			loaderState,
-			invalidate,
-		]
+		[context, prefetchLoader, updateBlockedRoute, updateLocation, invalidate]
 	);
 
 	return <Provider {...providerProps}>{children}</Provider>;
