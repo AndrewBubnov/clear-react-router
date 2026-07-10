@@ -12,7 +12,7 @@ type RouteProviderProps = {
 export const RouterProvider = ({ children, routes }: RouteProviderProps) => {
 	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
 
-	const { updateLocation, updateBlockedRoute } = useHandleNavigation({
+	const updateLocation = useHandleNavigation({
 		routes,
 		revalidateCache,
 		isCacheItemFresh,
@@ -23,10 +23,9 @@ export const RouterProvider = ({ children, routes }: RouteProviderProps) => {
 		() => ({
 			updateLocation,
 			prefetchLoader,
-			updateBlockedRoute,
 			invalidate,
 		}),
-		[prefetchLoader, updateBlockedRoute, updateLocation, invalidate]
+		[prefetchLoader, updateLocation, invalidate]
 	);
 
 	return <Provider {...providerProps}>{children}</Provider>;

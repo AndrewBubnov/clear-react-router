@@ -12,7 +12,7 @@ import {
 import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
+import { LoaderState, Location, RevalidateCacheArgs, RouteItem } from '../types/global';
 
 type UseHandleNavigation = {
 	routes: RouteItem[];
@@ -140,28 +140,9 @@ export const useHandleNavigation = ({
 
 	const setNextLocationRef = useLatest(navigationHandler);
 
-	const updateBlockedRoute = useCallback(
-		({ type, payload = '' }: UpdateBlockedRouteProps) =>
-			setBlockedRoute(prevState => {
-				if (prevState.from === payload && type === 'charge') return prevState;
-				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
-				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') setNextLocationRef.current({ pathname: prevState.to });
-				if (!prevState.from && !prevState.to) return prevState;
-				return { from: '', to: '' };
-			}),
-		[setBlockedRoute, setNextLocationRef]
-	);
-
 	const updateLocation = useCallback(
-		async (nextLocation: Location) => {
-			if (blockedRoute.from) {
-				setBlockedRoute(prevState => ({ ...prevState, to: nextLocation.pathname }));
-			} else {
-				await setNextLocationRef.current(nextLocation);
-			}
-		},
-		[blockedRoute.from, setBlockedRoute, setNextLocationRef]
+		async (nextLocation: Location) => await setNextLocationRef.current(nextLocation),
+		[setNextLocationRef]
 	);
 
 	useEffect(() => {
@@ -184,5 +165,5 @@ export const useHandleNavigation = ({
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
-	return { updateLocation, updateBlockedRoute };
+	return updateLocation;
 };

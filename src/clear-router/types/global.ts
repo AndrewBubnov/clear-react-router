@@ -44,8 +44,6 @@ export type Location = {
 
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
-export type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
-
 export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;

@@ -3,18 +3,11 @@ import { ActionsContext, type ActionsContextValue } from '../context/RouterProvi
 
 type ProviderProps = ActionsContextValue & { children: ReactNode };
 
-export const Provider = ({
-	children,
-	updateBlockedRoute,
-	updateLocation,
-	prefetchLoader,
-	invalidate,
-}: ProviderProps) => {
+export const Provider = ({ children, updateLocation, prefetchLoader, invalidate }: ProviderProps) => {
 	return (
 		<ActionsContext.Provider
 			value={{
 				updateLocation,
-				updateBlockedRoute,
 				prefetchLoader,
 				invalidate,
 			}}

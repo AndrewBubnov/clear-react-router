@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
 import { useRouterActions } from './useServiceContext';
-import type { BlockerState } from '../types/global';
+import { BlockerState } from '../types/global';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
@@ -9,15 +9,29 @@ type UseBlockerReturnValue = {
 	reset(): void;
 };
 
+type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
+
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
-	const [blockedRoute] = useBlockedRoute();
+	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const { updateLocation } = useRouterActions();
 
 	const [routeItemData] = useRouteItemData();
 	const {
 		location: { pathname },
 	} = routeItemData;
 
-	const { updateBlockedRoute } = useRouterActions();
+	const updateBlockedRoute = useCallback(
+		({ type, payload = '' }: UpdateBlockedRouteProps) =>
+			setBlockedRoute(prevState => {
+				if (prevState.from === payload && type === 'charge') return prevState;
+				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
+				if (type === 'reset') return { ...prevState, to: '' };
+				if (type === 'process') updateLocation({ pathname: prevState.to });
+				if (!prevState.from && !prevState.to) return prevState;
+				return { from: '', to: '' };
+			}),
+		[setBlockedRoute, updateLocation]
+	);
 
 	const blockerState: BlockerState = useMemo(() => {
 		if (blockedRoute.from && blockedRoute.to) return 'blocked';
