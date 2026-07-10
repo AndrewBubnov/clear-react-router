@@ -25,21 +25,17 @@ export const Router = ({
 	const [isLoading] = useIsLoading();
 	const [currentLoaderFallback] = useLoaderFallback();
 	const [routeItemData] = useRouteItemData();
-
 	const [loaderState] = useCurrentLoaderState();
 
 	usePreserveScroll(preserveScroll);
-
 	useApplyCustomAnimation(animationDuration);
-
 	useSetRouterConfig({ isAnimated, showFallbackOnAnimation, prefetch, hoverPrefetchDelay });
-
 	useSetInitialContext(initialContext);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
-
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
+
 	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
