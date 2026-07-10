@@ -1,6 +1,6 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode } from 'react';
 import { Provider } from '../provider/Provider';
-import { useHandleNavigation } from '../hooks/useHandleNavigation';
+import { useNavigation } from '../hooks/useNavigation.ts';
 import { useLoader } from '../hooks/useLoader';
 import { RouteItem } from '../types/global';
 
@@ -12,21 +12,16 @@ type RouteProviderProps = {
 export const RouterProvider = ({ children, routes }: RouteProviderProps) => {
 	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
 
-	const updateLocation = useHandleNavigation({
+	const updateLocation = useNavigation({
 		routes,
 		revalidateCache,
 		isCacheItemFresh,
 		loaderStateRef,
 	});
 
-	const providerProps = useMemo(
-		() => ({
-			updateLocation,
-			prefetchLoader,
-			invalidate,
-		}),
-		[prefetchLoader, updateLocation, invalidate]
+	return (
+		<Provider updateLocation={updateLocation} invalidate={invalidate} prefetchLoader={prefetchLoader}>
+			{children}
+		</Provider>
 	);
-
-	return <Provider {...providerProps}>{children}</Provider>;
 };

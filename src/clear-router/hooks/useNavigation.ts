@@ -23,12 +23,7 @@ type UseHandleNavigation = {
 
 const ALL_LOCATIONS = '*';
 
-export const useHandleNavigation = ({
-	routes,
-	revalidateCache,
-	isCacheItemFresh,
-	loaderStateRef,
-}: UseHandleNavigation) => {
+export const useNavigation = ({ routes, revalidateCache, isCacheItemFresh, loaderStateRef }: UseHandleNavigation) => {
 	const [, setIsLoading] = useIsLoading();
 	const [, setScrollMap] = useScrollMap();
 	const [, setRouteItemData] = useRouteItemData();
