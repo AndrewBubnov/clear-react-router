@@ -1,4 +1,4 @@
-import { type Dispatch, RefObject, type SetStateAction, useCallback, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
 import {
 	useBlockedRoute,
@@ -7,6 +7,7 @@ import {
 	useCurrentLoaderState,
 	useRouteItemData,
 	useScrollMap,
+	useContextState,
 } from '../state/state';
 import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
@@ -15,9 +16,7 @@ import { LoaderState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRou
 
 type UseHandleNavigation = {
 	routes: RouteItem[];
-	context: Record<string, unknown>;
 	revalidateCache(arg: RevalidateCacheArgs): Promise<unknown>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
 	clearTimestamp(path: string): void;
@@ -27,14 +26,13 @@ const ALL_LOCATIONS = '*';
 
 export const useHandleNavigation = ({
 	routes,
-	context,
 	revalidateCache,
-	setContext,
 	isCacheItemFresh,
 	loaderStateRef,
 	clearTimestamp,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
+	const [context, setContext] = useContextState();
 	const setIsLoading = useIsLoading()[1];
 	const setCurrentLoaderFallback = useLoaderFallback()[1];
 	const setLoaderState = useCurrentLoaderState()[1];

@@ -3,6 +3,7 @@ import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemDat
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
+import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
@@ -19,6 +20,7 @@ export const Router = ({
 	prefetch = 'hover',
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
+	context: initialContext,
 }: RouterProps) => {
 	const [isLoading] = useIsLoading();
 	const [currentLoaderFallback] = useLoaderFallback();
@@ -31,6 +33,8 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 
 	useSetRouterConfig({ isAnimated, showFallbackOnAnimation, prefetch, hoverPrefetchDelay });
+
+	useSetInitialContext(initialContext);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 

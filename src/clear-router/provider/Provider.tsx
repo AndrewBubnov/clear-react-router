@@ -1,17 +1,10 @@
 import { type ReactNode } from 'react';
-import {
-	ActionsContext,
-	DataContext,
-	type ActionsContextValue,
-	type DataContextValue,
-} from '../context/RouterProviderContext';
+import { ActionsContext, type ActionsContextValue } from '../context/RouterProviderContext';
 
-type ProviderProps = ActionsContextValue & DataContextValue & { children: ReactNode };
+type ProviderProps = ActionsContextValue & { children: ReactNode };
 
 export const Provider = ({
 	children,
-	setContext,
-	context,
 	updateBlockedRoute,
 	updateLocation,
 	prefetchLoader,
@@ -23,11 +16,10 @@ export const Provider = ({
 				updateLocation,
 				updateBlockedRoute,
 				prefetchLoader,
-				setContext,
 				invalidate,
 			}}
 		>
-			<DataContext.Provider value={{ context }}>{children}</DataContext.Provider>
+			{children}
 		</ActionsContext.Provider>
 	);
 };

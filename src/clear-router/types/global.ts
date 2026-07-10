@@ -76,4 +76,5 @@ export type RouterProps = {
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
+	context?: Record<string, unknown>;
 };
