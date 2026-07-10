@@ -1,15 +1,11 @@
-import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useContextState } from '../state/state';
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
 
-type UseLoaderParams = {
-	routes: RouteItem[];
-	context: Record<string, unknown>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-};
-
-export const useLoader = ({ routes, context, setContext }: UseLoaderParams) => {
+export const useLoader = (routes: RouteItem[]) => {
+	const [context, setContext] = useContextState();
 	const timestampMapRef = useRef<Map<string, number>>(new Map());
 	const loaderMapRef = useRef<Record<string, LoaderState>>({});
 	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);

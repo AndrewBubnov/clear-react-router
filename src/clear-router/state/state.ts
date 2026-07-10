@@ -11,3 +11,4 @@ export const useRouteItemData = createState<RouteItemData>({
 });
 export const useCurrentLoaderState = createState<LoaderState>(emptyLoaderState);
 export const useScrollMap = createState<Record<string, number>>({});
+export const useContextState = createState<Record<string, unknown>>({});
