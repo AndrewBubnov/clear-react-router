@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useContextState } from '../state/state';
 
 export const useSetInitialContext = (initialContext?: Record<string, unknown>) => {
-	const setContext = useContextState()[1];
+	const [, setContext] = useContextState();
 	useEffect(() => {
 		if (initialContext) setContext(initialContext);
 	}, [initialContext, setContext]);

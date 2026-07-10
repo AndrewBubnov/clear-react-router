@@ -19,7 +19,6 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<unknown>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
-	clearTimestamp(path: string): void;
 };
 
 const ALL_LOCATIONS = '*';
@@ -29,17 +28,16 @@ export const useHandleNavigation = ({
 	revalidateCache,
 	isCacheItemFresh,
 	loaderStateRef,
-	clearTimestamp,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 	const [context, setContext] = useContextState();
-	const setIsLoading = useIsLoading()[1];
-	const setCurrentLoaderFallback = useLoaderFallback()[1];
-	const setLoaderState = useCurrentLoaderState()[1];
-	const setScrollMap = useScrollMap()[1];
+	const [, setIsLoading] = useIsLoading();
+	const [, setCurrentLoaderFallback] = useLoaderFallback();
+	const [, setLoaderState] = useCurrentLoaderState();
+	const [, setScrollMap] = useScrollMap();
 
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
-	const [routeItemData, setRouteItemData] = useRouteItemData();
+	const [, setRouteItemData] = useRouteItemData();
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -73,44 +71,6 @@ export const useHandleNavigation = ({
 			}
 		},
 		[navigation, isAnimated]
-	);
-
-	const invalidate = useCallback(
-		async (pathname = routeItemData.location.pathname) => {
-			if (typeof pathname !== 'string') return;
-			const routeItem = routes.find(el => comparePaths(el, pathname));
-			const resultParams = getParamsObject({
-				params: routeItem?.params,
-				pathname,
-			});
-			clearTimestamp(pathname);
-			try {
-				if (routeItem?.beforeLoad) {
-					await routeItem.beforeLoad({
-						context,
-						redirect: () => Promise.resolve(),
-						params: resultParams,
-						setContext,
-					});
-				}
-				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
-			} catch (error) {
-				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
-			}
-
-			await revalidateCache({ routeItem, pathname: pathname });
-			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
-		},
-		[
-			clearTimestamp,
-			context,
-			loaderStateRef,
-			revalidateCache,
-			routeItemData.location.pathname,
-			routes,
-			setContext,
-			setLoaderState,
-		]
 	);
 
 	const navigationHandler = useCallback(
@@ -225,9 +185,5 @@ export const useHandleNavigation = ({
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
-	return {
-		updateLocation,
-		updateBlockedRoute,
-		invalidate,
-	};
+	return { updateLocation, updateBlockedRoute };
 };

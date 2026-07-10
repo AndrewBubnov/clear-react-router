@@ -10,14 +10,13 @@ type RouteProviderProps = {
 };
 
 export const RouterProvider = ({ children, routes }: RouteProviderProps) => {
-	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, clearTimestamp } = useLoader(routes);
+	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
 
-	const { updateLocation, updateBlockedRoute, invalidate } = useHandleNavigation({
+	const { updateLocation, updateBlockedRoute } = useHandleNavigation({
 		routes,
 		revalidateCache,
 		isCacheItemFresh,
 		loaderStateRef,
-		clearTimestamp,
 	});
 
 	const providerProps = useMemo(

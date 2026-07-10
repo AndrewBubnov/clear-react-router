@@ -1,11 +1,13 @@
 import { useCallback, useRef } from 'react';
-import { useContextState } from '../state/state';
+import { useContextState, useCurrentLoaderState, useRouteItemData } from '../state/state';
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
 
 export const useLoader = (routes: RouteItem[]) => {
+	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();
+	const [, setLoaderState] = useCurrentLoaderState();
 	const timestampMapRef = useRef<Map<string, number>>(new Map());
 	const loaderMapRef = useRef<Record<string, LoaderState>>({});
 	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
@@ -63,9 +65,34 @@ export const useLoader = (routes: RouteItem[]) => {
 		[revalidateCache, routes]
 	);
 
-	const clearTimestamp = useCallback((pathname: string) => {
-		timestampMapRef.current.delete(pathname);
-	}, []);
+	const invalidate = useCallback(
+		async (pathname = routeItemData.location.pathname) => {
+			if (typeof pathname !== 'string') return;
+			const routeItem = routes.find(el => comparePaths(el, pathname));
+			const resultParams = getParamsObject({
+				params: routeItem?.params,
+				pathname,
+			});
+			timestampMapRef.current.delete(pathname);
+			try {
+				if (routeItem?.beforeLoad) {
+					await routeItem.beforeLoad({
+						context,
+						redirect: () => Promise.resolve(),
+						params: resultParams,
+						setContext,
+					});
+				}
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
+			} catch (error) {
+				loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
+			}
 
-	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, clearTimestamp };
+			await revalidateCache({ routeItem, pathname: pathname });
+			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
+		},
+		[context, loaderStateRef, revalidateCache, routeItemData.location.pathname, routes, setContext, setLoaderState]
+	);
+
+	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate };
 };
