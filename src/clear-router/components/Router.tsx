@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { useNavigationState } from '../hooks/useServiceContext';
+import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
@@ -20,12 +20,11 @@ export const Router = ({
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const {
-		routeItemData: { routeItem, location },
-		loaderState,
-		currentLoaderFallback,
-		isLoading,
-	} = useNavigationState();
+	const [isLoading] = useIsLoading();
+	const [currentLoaderFallback] = useLoaderFallback();
+	const [routeItemData] = useRouteItemData();
+
+	const [loaderState] = useCurrentLoaderState();
 
 	usePreserveScroll(preserveScroll);
 
@@ -37,6 +36,7 @@ export const Router = ({
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
+	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
 		return renderElement(currentLoaderFallback);

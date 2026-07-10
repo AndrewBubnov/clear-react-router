@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigationState, useRouterActions } from './useServiceContext';
-import type { BlockerState } from '../types/global.ts';
+import { useEffect, useMemo } from 'react';
+import { useBlockedRoute, useRouteItemData } from '../state/state';
+import { useRouterActions } from './useServiceContext';
+import type { BlockerState } from '../types/global';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
@@ -9,14 +10,20 @@ type UseBlockerReturnValue = {
 };
 
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
-	const { blockerState } = useNavigationState();
+	const [blockedRoute] = useBlockedRoute();
+
+	const [routeItemData] = useRouteItemData();
 	const {
-		routeItemData: {
-			location: { pathname },
-		},
-	} = useNavigationState();
+		location: { pathname },
+	} = routeItemData;
 
 	const { updateBlockedRoute } = useRouterActions();
+
+	const blockerState: BlockerState = useMemo(() => {
+		if (blockedRoute.from && blockedRoute.to) return 'blocked';
+		if (blockedRoute.from) return 'charged';
+		return 'unblocked';
+	}, [blockedRoute]);
 
 	const shouldBlock = blockerFn();
 

@@ -1,5 +1,5 @@
 import { Context, useContext } from 'react';
-import { ActionsContext, DataContext, NavigationContext } from '../context/RouterProviderContext';
+import { ActionsContext, DataContext } from '../context/RouterProviderContext';
 
 const useServiceState = <T extends object>(reactContext: Context<T>) => {
 	const context = useContext(reactContext);
@@ -8,8 +8,6 @@ const useServiceState = <T extends object>(reactContext: Context<T>) => {
 
 	return context;
 };
-
-export const useNavigationState = () => useServiceState(NavigationContext);
 
 export const useRouterActions = () => useServiceState(ActionsContext);
 

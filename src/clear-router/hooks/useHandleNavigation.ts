@@ -1,28 +1,17 @@
-import {
-	type Dispatch,
-	RefObject,
-	type SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { type Dispatch, RefObject, type SetStateAction, useCallback, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
+import {
+	useBlockedRoute,
+	useIsLoading,
+	useLoaderFallback,
+	useCurrentLoaderState,
+	useRouteItemData,
+	useScrollMap,
+} from '../state/state';
 import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
-import {
-	BlockerState,
-	LoaderState,
-	Location,
-	RevalidateCacheArgs,
-	RouteItem,
-	RouteItemData,
-	UpdateBlockedRouteProps,
-} from '../types/global';
-
-type BlockedRoute = { from: string; to: string };
+import { LoaderState, Location, RevalidateCacheArgs, RouteItem, UpdateBlockedRouteProps } from '../types/global';
 
 type UseHandleNavigation = {
 	routes: RouteItem[];
@@ -46,28 +35,16 @@ export const useHandleNavigation = ({
 	clearTimestamp,
 }: UseHandleNavigation) => {
 	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
-	const [isLoading, setIsLoading] = useState(false);
+	const setIsLoading = useIsLoading()[1];
+	const setCurrentLoaderFallback = useLoaderFallback()[1];
+	const setLoaderState = useCurrentLoaderState()[1];
+	const setScrollMap = useScrollMap()[1];
 
-	const [blockedRoute, setBlockedRoute] = useState<BlockedRoute>({ from: '', to: '' });
-	const [routeItemData, setRouteItemData] = useState<RouteItemData>({
-		routeItem: undefined,
-		location: {} as Location,
-	});
-	const [scrollMap, setScrollMap] = useState<Record<string, number>>({});
-	const [currentLoaderFallback, setCurrentLoaderFallback] = useState<RouteItem['loaderFallback']>();
-	const [loaderState, setLoaderState] = useState<LoaderState>(emptyLoaderState);
+	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const [routeItemData, setRouteItemData] = useRouteItemData();
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
-
-	const scrollMapLatest = useLatest(scrollMap);
-
-	const restoreScroll = useCallback(() => {
-		if (!prevPathname.current || !scrollMapLatest.current[prevPathname.current]) return;
-		requestAnimationFrame(() => {
-			window.scrollTo({ top: scrollMapLatest.current[prevPathname.current], behavior: 'smooth' });
-		});
-	}, [scrollMapLatest]);
 
 	const navigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
@@ -82,7 +59,7 @@ export const useHandleNavigation = ({
 			if (fullPath === window.location.pathname + window.location.search) return;
 			history.pushState(null, '', fullPath);
 		},
-		[loaderStateRef]
+		[loaderStateRef, setCurrentLoaderFallback, setIsLoading, setLoaderState, setRouteItemData]
 	);
 
 	const transitionedNavigation = useCallback(
@@ -126,7 +103,16 @@ export const useHandleNavigation = ({
 			await revalidateCache({ routeItem, pathname: pathname });
 			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
 		},
-		[clearTimestamp, context, loaderStateRef, revalidateCache, routeItemData.location.pathname, routes, setContext]
+		[
+			clearTimestamp,
+			context,
+			loaderStateRef,
+			revalidateCache,
+			routeItemData.location.pathname,
+			routes,
+			setContext,
+			setLoaderState,
+		]
 	);
 
 	const navigationHandler = useCallback(
@@ -181,14 +167,17 @@ export const useHandleNavigation = ({
 		},
 		[
 			context,
+			isAnimated,
+			isCacheItemFresh,
+			loaderStateRef,
 			revalidateCache,
 			routes,
-			transitionedNavigation,
 			setContext,
-			isCacheItemFresh,
-			isAnimated,
+			setCurrentLoaderFallback,
+			setIsLoading,
+			setScrollMap,
 			showFallback,
-			loaderStateRef,
+			transitionedNavigation,
 		]
 	);
 
@@ -204,7 +193,7 @@ export const useHandleNavigation = ({
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
-		[setNextLocationRef]
+		[setBlockedRoute, setNextLocationRef]
 	);
 
 	const updateLocation = useCallback(
@@ -215,7 +204,7 @@ export const useHandleNavigation = ({
 				await setNextLocationRef.current(nextLocation);
 			}
 		},
-		[blockedRoute.from, setNextLocationRef]
+		[blockedRoute.from, setBlockedRoute, setNextLocationRef]
 	);
 
 	useEffect(() => {
@@ -230,7 +219,7 @@ export const useHandleNavigation = ({
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockedRoute.from, setNextLocationRef]);
+	}, [blockedRoute.from, setBlockedRoute, setNextLocationRef]);
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
@@ -238,21 +227,9 @@ export const useHandleNavigation = ({
 		prevPathname.current = currentLocation.pathname;
 	}, [setNextLocationRef]);
 
-	const blockerState: BlockerState = useMemo(() => {
-		if (blockedRoute.from && blockedRoute.to) return 'blocked';
-		if (blockedRoute.from) return 'charged';
-		return 'unblocked';
-	}, [blockedRoute]);
-
 	return {
-		blockerState,
 		updateLocation,
 		updateBlockedRoute,
-		routeItemData,
-		restoreScroll,
-		currentLoaderFallback,
-		isLoading,
-		loaderState,
 		invalidate,
 	};
 };
