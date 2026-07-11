@@ -3,14 +3,16 @@ import { useContextState, useCurrentLoaderState, useRouteItemData } from '../sta
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import type { LoaderState, RevalidateCacheArgs, RouteItem } from '../types/global';
+import { useLatest } from './useLatest.ts';
 
 export const useLoader = (routes: RouteItem[]) => {
+	const [, setLoaderState] = useCurrentLoaderState();
 	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();
-	const [, setLoaderState] = useCurrentLoaderState();
+	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
+	const latestPathname = useLatest(routeItemData.location.pathname);
 	const timestampMapRef = useRef<Map<string, number>>(new Map());
 	const loaderMapRef = useRef<Record<string, LoaderState>>({});
-	const loaderStateRef = useRef<LoaderState>(emptyLoaderState);
 	const loadingPromises = useRef<Map<string, Promise<unknown>>>(new Map());
 
 	const isCacheItemFresh = useCallback(({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
@@ -66,7 +68,7 @@ export const useLoader = (routes: RouteItem[]) => {
 	);
 
 	const invalidate = useCallback(
-		async (pathname = routeItemData.location.pathname) => {
+		async (pathname = latestPathname.current) => {
 			if (typeof pathname !== 'string') return;
 			const routeItem = routes.find(el => comparePaths(el, pathname));
 			const resultParams = getParamsObject({
@@ -89,9 +91,9 @@ export const useLoader = (routes: RouteItem[]) => {
 			}
 
 			await revalidateCache({ routeItem, pathname: pathname });
-			if (pathname === routeItemData.location.pathname) setLoaderState(loaderStateRef.current);
+			if (pathname === latestPathname.current) setLoaderState(loaderStateRef.current);
 		},
-		[context, loaderStateRef, revalidateCache, routeItemData.location.pathname, routes, setContext, setLoaderState]
+		[context, loaderStateRef, revalidateCache, latestPathname, routes, setContext, setLoaderState]
 	);
 
 	return { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate };
