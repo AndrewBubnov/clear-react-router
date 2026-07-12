@@ -6,12 +6,12 @@ import { useParams } from '../hooks/useParams.ts';
 import { useNavigate } from '../hooks/useNavigate.ts';
 
 type FormProps = {
-	actionKey: string;
+	action: string;
 	onSuccess?(arg: unknown): void;
 	onError?(arg: unknown): void;
 };
 
-export const Form = ({ children, actionKey, onSuccess, onError }: PropsWithChildren<FormProps>) => {
+export const Form = ({ children, action: actionKey, onSuccess, onError }: PropsWithChildren<FormProps>) => {
 	const invalidate = useInvalidate();
 	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();
