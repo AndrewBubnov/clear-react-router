@@ -28,7 +28,7 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
-	actionCreator?: (arg: {
+	actions?: (arg: {
 		context: Record<string, unknown>;
 		redirect: (arg: Location | string) => Promise<void>;
 		params: Record<string, string>;
