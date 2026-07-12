@@ -1,7 +1,9 @@
 import { PropsWithChildren, SubmitEvent, useState } from 'react';
 import { useInvalidate } from '../hooks/useInvalidate';
-import { useRouteItemData } from '../state/state';
+import { useContextState, useRouteItemData } from '../state/state';
 import { FormProvider } from '../provider/FormProvider';
+import { useParams } from '../hooks/useParams.ts';
+import { useNavigate } from '../hooks/useNavigate.ts';
 
 type FormProps = {
 	actionKey: string;
@@ -12,18 +14,21 @@ type FormProps = {
 export const Form = ({ children, actionKey, onSuccess, onError }: PropsWithChildren<FormProps>) => {
 	const invalidate = useInvalidate();
 	const [routeItemData] = useRouteItemData();
+	const [context, setContext] = useContextState();
+	const redirect = useNavigate();
+	const params = useParams<Record<string, string>>();
 	const { routeItem } = routeItemData;
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const onSubmit = async (evt: SubmitEvent<HTMLFormElement>) => {
 		evt.preventDefault();
-		const formData = new FormData(evt.target);
-		if (!routeItem) throw new Error('RouteItem not found');
-		const action = routeItem.actions?.[actionKey];
+		if (!routeItem) throw new Error('routeItem not found');
+		if (!routeItem.actionCreator) throw new Error('routeItem actionCreator not found');
+		const action = routeItem.actionCreator({ context, setContext, params, redirect })[actionKey];
 		if (!action) throw new Error('action not found');
 		try {
 			setIsSubmitting(true);
-			const result = await action(formData);
+			const result = await action(new FormData(evt.target));
 			await invalidate();
 			evt.target.reset();
 			onSuccess?.(result);
