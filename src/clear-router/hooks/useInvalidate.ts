@@ -1,4 +1,4 @@
-import { useRouterActions } from './useServiceContext.ts';
+import { useRouterActions } from './useServiceContext';
 
 export const useInvalidate = () => {
 	const { invalidate } = useRouterActions();
