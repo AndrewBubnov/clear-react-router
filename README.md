@@ -47,7 +47,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
 | `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
-| `children` | `RouteItem[]` | Nested routes |
+| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
+
 
 ### `RouterProvider`
 
@@ -218,6 +219,118 @@ const routes = createRouter([
   },
 ]);
 ```
+
+## Route Actions
+
+Defines route-specific actions for handling data mutations such as creating, updating, or deleting resources.
+
+Actions are available through the `Form` component and the `useAction` hook. After a successful action, the current route is automatically invalidated, causing both `beforeLoad` and `loader` to run again in the background.
+
+```tsx
+actions?: ({ context, params, invalidate, setContext }) => ({
+  save: async (formData) => {
+    await api.updatePost(params.id, formData);
+  },
+
+  remove: async () => {
+    await api.deletePost(params.id);
+  },
+})
+```
+
+#### Arguments
+
+| Property     | Type                                                | Description                                                                                  |
+| ------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `context`    | `Record<string, unknown>`                           | Current router context.                                                                      |
+| `params`     | `Record<string, string>`                            | Route parameters.                                                                            |
+| `invalidate` | `(path?: string) => Promise<void>`                  | Invalidates the current route or a specific route, re-running its `beforeLoad` and `loader`. |
+| `setContext` | `Dispatch<SetStateAction<Record<string, unknown>>>` | Updates the router context.                                                                  |
+
+#### Returns
+
+A record where each key is an action name and each value is a function accepting a `FormData` instance.
+
+These action names are referenced by both `Form` and `useAction`.
+
+```tsx
+<Form action="save" />
+
+const save = useAction('save');
+```
+
+
+Actions can be executed declaratively with `<Form />` or imperatively with `useAction()`.
+
+---
+
+## Form
+
+`Form` automatically creates a `FormData` object, executes the specified route action, invalidates the current route, and optionally resets the form.
+
+`isSubmitting` value available inside the `Form` component from the `useFormContext` hook
+
+```tsx
+import { Form, useFormContext } from '../clear-router';
+
+const SubmitButton = () => {
+	const {isSubmitting} = useFormContext()
+	return <button disabled={isSubmitting} type='submit'>Save</button>
+}
+
+<Form action="save" onSuccess={() => console.log('Saved')} onError={console.error}>
+  <input name="title" />
+  <SubmitButton />
+</Form>
+
+```
+
+### Props
+
+| Prop        | Type                        | Description                                                                      |
+| ----------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `action`    | `string`                    | Name of the route action to execute.                                             |
+| `onSuccess` | `(result: unknown) => void` | Called when the action completes successfully. Receives the action return value. |
+| `onError`   | `(error: unknown) => void`  | Called when the action throws.                                                   |
+| `autoReset` | `boolean`                   | Automatically resets the form after a successful submission. Default: `true`.    |
+
+During submission, `Form` exposes the current submission state through `useFormContext()`.
+
+After a successful action:
+
+* the current route is invalidated;
+* `beforeLoad` is executed again;
+* `loader` is executed again;
+* fresh loader data becomes available.
+
+---
+
+## useAction
+
+`useAction` provides direct access to a route action without rendering a `<Form />`.
+
+```tsx
+const save = useAction('save');
+
+const handleClick = async () => {
+  const data = new FormData();
+
+  data.append('title', 'Hello');
+
+  await save(data);
+};
+```
+
+```tsx
+<button onClick={handleClick}>
+  Save
+</button>
+```
+
+`useAction` automatically invalidates the current route after a successful action, causing both `beforeLoad` and `loader` to run again in the background.
+
+This hook is useful when the mutation is triggered programmatically, such as from dialogs, context menus, drag-and-drop interactions, keyboard shortcuts, or custom UI components.
+
 
 ### Error Boundaries
 
