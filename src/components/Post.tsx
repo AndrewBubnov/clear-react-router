@@ -7,9 +7,21 @@ import {
 	useLocation,
 	useBlocker,
 	useParams,
+	useFormContext,
+	useLoaderState,
+	Form,
 } from '../clear-router';
 
 const randomId = Math.ceil(Math.random() * 100 + 1);
+
+const SubmitButton = () => {
+	const { isSubmitting } = useFormContext();
+	return (
+		<button disabled={isSubmitting} type="submit">
+			Save
+		</button>
+	);
+};
 
 const Post = () => {
 	const [text, setText] = useState('');
@@ -19,6 +31,8 @@ const Post = () => {
 	const { pathname } = useLocation();
 	const { state, process, reset } = useBlocker(() => Boolean(text.length));
 
+	const { data: posts } = useLoaderState<string[]>();
+	console.log(posts);
 	const onSave = useCallback(() => {
 		setPost(text);
 		setText('');
@@ -48,15 +62,19 @@ const Post = () => {
 			) : (
 				<>
 					<h3>{`Post ${postId}`}</h3>
-					<input type="text" value={text} onChange={e => setText(e.target.value)} />
+					<Form action="addPost">
+						<input type="text" name="text" />
+						<SubmitButton />
+					</Form>
+					<ul>
+						{posts.map(post => (
+							<li key={post}>{post}</li>
+						))}
+					</ul>
 					<button onClick={onSave} style={{ width: 'fit-content' }}>
 						Save post
 					</button>
-					<button
-						onClick={() =>
-							setContext((prevState: { isAuthorized: boolean }) => ({ ...prevState, isAuthorized: true }))
-						}
-					>
+					<button onClick={() => setContext(prevState => ({ ...prevState, isAuthorized: true }))}>
 						Authorize
 					</button>
 					{post}
