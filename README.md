@@ -305,6 +305,13 @@ After a successful action:
 
 `useAction` provides direct access to a route action without rendering a `<Form />`.
 
+### Arguments
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `action` | `string` | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
+| `options` | `{ onSuccess?, onError? }` | Optional callbacks invoked after the action succeeds or fails. |
+
 ```tsx
 const save = useAction('save');
 
@@ -508,29 +515,6 @@ useEffect(() => {
 }, [state, process, reset]);
 ```
 
-### `useBeforeUnload(callback?)`
-
-Executes a callback when the page is about to be closed or reloaded. Perfect for auto-saving data at the last moment.
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `callback` | `() => void \| undefined` | Function to execute before page unload (e.g., auto-save) |
-
-**Note:** This hook does not show a browser confirmation dialog. It silently executes the callback, allowing you to save user data in the background before the page closes.
-
-```tsx
-const [text, setText] = useState('');
-const onSave = useCallback(() => {
-  localStorage.setItem('draft', text);
-}, [text]);
-
-// Auto-save when user tries to close/reload the page
-useBeforeUnload(text ? onSave : undefined);
-```
-> **Note:** Pass `undefined` to disable the handler (e.g., if there is no changes).
-
 ### `useQueryParam()`
 
 A flexible hook for working with typed query parameters. You provide an adapter object with `parse` and `serialize` functions, and it returns the parsed value and a setter.
@@ -700,18 +684,6 @@ function ProductFilter() {
 - **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
-
-### `useHistoricalTrail()`
-
-Returns an array of pathnames representing the user's actual navigation history. Perfect for **history-based breadcrumbs** in dashboards, admin panels, multi-step forms, or any app where users navigate non-linearly.
-
-**Returns:** Array of pathnames in chronological visit order (e.g., `['/dashboard', '/users', '/settings']`)
-
-**Key features:**
-- **Chronological order** — Paths are stored in the order the user visited them
-- **Unique entries** — Revisiting a page trims the trail to that point
-- **Respects navigation blocking** — Only successful navigations are added
-- **Redirect-safe** — Redirected pages are not added to the trail
 
 ## Lazy Loading
 
