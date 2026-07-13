@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { useInvalidate } from './useInvalidate';
 import { useContextState, useRouteItemData } from '../state/state';
-import { useNavigate } from './useNavigate';
+import { useInvalidate } from './useInvalidate';
 import { useParams } from './useParams';
 import { useLatest } from './useLatest';
 
@@ -9,7 +8,6 @@ export const useAction = (actionKey: string, onError?: (args: unknown) => void) 
 	const invalidate = useInvalidate();
 	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();
-	const redirect = useNavigate();
 	const params = useParams<Record<string, string>>();
 	const { routeItem } = routeItemData;
 	const latestContext = useLatest(context);
@@ -18,7 +16,7 @@ export const useAction = (actionKey: string, onError?: (args: unknown) => void) 
 		async (formData: FormData) => {
 			if (!routeItem) throw new Error('route not found');
 			if (!routeItem.actions) throw new Error('route action creator not found');
-			const action = routeItem.actions({ context: latestContext.current, setContext, params, redirect })[
+			const action = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[
 				actionKey
 			];
 			if (!action) throw new Error('action not found');
@@ -29,6 +27,6 @@ export const useAction = (actionKey: string, onError?: (args: unknown) => void) 
 				onError?.(error);
 			}
 		},
-		[actionKey, latestContext, invalidate, onError, params, redirect, routeItem, setContext]
+		[actionKey, latestContext, invalidate, onError, params, routeItem, setContext]
 	);
 };

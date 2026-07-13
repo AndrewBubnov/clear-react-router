@@ -30,8 +30,8 @@ export type ClientRouteItem = {
 	}) => Promise<void>;
 	actions?: (arg: {
 		context: Record<string, unknown>;
-		redirect: (arg: Location | string) => Promise<void>;
 		params: Record<string, string>;
+		invalidate: (path?: string) => Promise<void>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
