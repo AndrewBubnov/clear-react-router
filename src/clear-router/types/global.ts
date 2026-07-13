@@ -28,6 +28,12 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
+	actions?: (arg: {
+		context: Record<string, unknown>;
+		params: Record<string, string>;
+		invalidate: (path?: string) => Promise<void>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 
 export type RouteItem = ClientRouteItem & {
