@@ -303,8 +303,6 @@ After a successful action:
 * `loader` is executed again;
 * fresh loader data becomes available.
 
----
-
 ## useAction
 
 `useAction` provides direct access to a route action without rendering a `<Form />`.
