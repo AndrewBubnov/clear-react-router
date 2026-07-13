@@ -1,32 +1,35 @@
 import { useCallback } from 'react';
-import { useContextState, useRouteItemData } from '../state/state';
-import { useInvalidate } from './useInvalidate';
-import { useParams } from './useParams';
+import { useActionParams } from './useActionParams';
 import { useLatest } from './useLatest';
 
-export const useAction = (actionKey: string, onError?: (args: unknown) => void) => {
-	const invalidate = useInvalidate();
-	const [routeItemData] = useRouteItemData();
-	const [context, setContext] = useContextState();
-	const params = useParams<Record<string, string>>();
-	const { routeItem } = routeItemData;
-	const latestContext = useLatest(context);
+type Options =
+	| Partial<{
+			onSuccess: (args: unknown) => void;
+			onError: (args: unknown) => void;
+	  }>
+	| undefined;
+
+export const useAction = (action: string, options: Options = {}) => {
+	const { invalidate, routeItem, latestContext, params, setContext } = useActionParams();
+	const latestOnSuccess = useLatest(options?.onSuccess);
+	const latestOnError = useLatest(options?.onError);
 
 	return useCallback(
 		async (formData: FormData) => {
 			if (!routeItem) throw new Error('Route not found');
 			if (!routeItem.actions) throw new Error('Route action creator not found');
-			const action = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[
-				actionKey
+			const currentAction = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[
+				action
 			];
-			if (!action) throw new Error(`Action "${actionKey}" not found`);
+			if (!currentAction) throw new Error(`Action "${action}" not found`);
 			try {
-				await action(formData);
+				const result = await currentAction(formData);
 				await invalidate();
+				latestOnSuccess.current?.(result);
 			} catch (error) {
-				onError?.(error);
+				latestOnError.current?.(error);
 			}
 		},
-		[actionKey, latestContext, invalidate, onError, params, routeItem, setContext]
+		[action, invalidate, latestContext, latestOnError, latestOnSuccess, params, routeItem, setContext]
 	);
 };

@@ -1,5 +1,6 @@
 import { useRouteItemData } from '../state/state';
 import { getParamsObject } from '../utils/utils';
+import { useMemo } from 'react';
 
 export const useParams = <T>() => {
 	const [routeItemData] = useRouteItemData();
@@ -8,10 +9,14 @@ export const useParams = <T>() => {
 		location: { pathname },
 	} = routeItemData;
 
-	if (!routeItem) return undefined as T;
-
-	return getParamsObject({
-		params: routeItem?.params,
-		pathname,
-	}) as T;
+	return useMemo(
+		() =>
+			routeItem
+				? getParamsObject({
+						params: routeItem?.params,
+						pathname,
+					})
+				: undefined,
+		[pathname, routeItem]
+	) as T;
 };
