@@ -14,12 +14,12 @@ export const useAction = (actionKey: string, onError?: (args: unknown) => void) 
 
 	return useCallback(
 		async (formData: FormData) => {
-			if (!routeItem) throw new Error('route not found');
-			if (!routeItem.actions) throw new Error('route action creator not found');
+			if (!routeItem) throw new Error('Route not found');
+			if (!routeItem.actions) throw new Error('Route action creator not found');
 			const action = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[
 				actionKey
 			];
-			if (!action) throw new Error('action not found');
+			if (!action) throw new Error(`Action "${actionKey}" not found`);
 			try {
 				await action(formData);
 				await invalidate();
