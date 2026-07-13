@@ -262,8 +262,6 @@ const save = useAction('save');
 
 Actions can be executed declaratively with `<Form />` or imperatively with `useAction()`.
 
----
-
 ## Form
 
 `Form` automatically creates a `FormData` object, executes the specified route action, invalidates the current route, and optionally resets the form.
