@@ -1,16 +1,8 @@
 import { useCallback } from 'react';
-import { useContextState, useRouteItemData } from '../state/state';
-import { useInvalidate } from './useInvalidate';
-import { useParams } from './useParams';
-import { useLatest } from './useLatest';
+import { useActionParams } from './useActionParams';
 
 export const useAction = (actionKey: string, onError?: (args: unknown) => void) => {
-	const invalidate = useInvalidate();
-	const [routeItemData] = useRouteItemData();
-	const [context, setContext] = useContextState();
-	const params = useParams<Record<string, string>>();
-	const { routeItem } = routeItemData;
-	const latestContext = useLatest(context);
+	const { invalidate, routeItem, latestContext, params, setContext } = useActionParams();
 
 	return useCallback(
 		async (formData: FormData) => {
