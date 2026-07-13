@@ -9,7 +9,6 @@ export { useLoaderState } from './hooks/useLoaderState';
 export { useInvalidate } from './hooks/useInvalidate';
 export { useBlocker } from './hooks/useBlocker';
 export { useAction } from './hooks/useAction';
-export { useBeforeUnload } from './hooks/useBeforeUnload';
 export { useRouterContext } from './hooks/useRouterContext';
 export { useQueryParam } from './hooks/useQueryParam';
 export { useSearchParams } from './hooks/useSearchParams';
