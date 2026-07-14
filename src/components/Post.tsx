@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import {
 	useRouterContext,
 	Link,
@@ -32,10 +32,10 @@ const Post = () => {
 
 	const { data: posts } = useLoaderState<string[]>();
 
-	const onSave = useCallback(() => {
+	const onSave = () => {
 		setPost(text);
 		setText('');
-	}, [text]);
+	};
 
 	const { setContext } = useRouterContext();
 
