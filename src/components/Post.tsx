@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import {
 	useRouterContext,
 	Link,
-	useBeforeUnload,
 	useNavigate,
 	useLocation,
 	useBlocker,
@@ -32,13 +31,11 @@ const Post = () => {
 	const { state, process, reset } = useBlocker(() => Boolean(text.length));
 
 	const { data: posts } = useLoaderState<string[]>();
-	console.log(posts);
+
 	const onSave = useCallback(() => {
 		setPost(text);
 		setText('');
 	}, [text]);
-
-	useBeforeUnload(text ? onSave : undefined);
 
 	const { setContext } = useRouterContext();
 
