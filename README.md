@@ -264,12 +264,12 @@ Actions can be executed declaratively with `<Form />` or imperatively with `useA
 
 ## Form
 
-`Form` automatically creates a `FormData` object, executes the specified route action, invalidates the current route, and optionally resets the form.
+`Form` automatically creates a `FormData` object on submit event, executes the specified route action, invalidates the current route, and optionally resets the form, if fields are uncontrolled.
 
 `isSubmitting` value available inside the `Form` component from the `useFormContext` hook
 
 ```tsx
-import { Form, useFormContext } from '../clear-router';
+import { Form, useFormContext } from 'clear-react-router';
 
 const SubmitButton = () => {
 	const {isSubmitting} = useFormContext()
@@ -317,17 +317,11 @@ const save = useAction('save');
 
 const handleClick = async () => {
   const data = new FormData();
-
   data.append('title', 'Hello');
-
   await save(data);
 };
-```
 
-```tsx
-<button onClick={handleClick}>
-  Save
-</button>
+<button onClick={handleClick}>Save</button>
 ```
 
 `useAction` automatically invalidates the current route after a successful action, causing both `beforeLoad` and `loader` to run again in the background.
