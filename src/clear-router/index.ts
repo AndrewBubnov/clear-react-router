@@ -1,4 +1,3 @@
-export { RouterProvider } from './components/RouterProvider';
 export { Router } from './components/Router';
 export { Link } from './components/Link';
 export { Form } from './components/Form';

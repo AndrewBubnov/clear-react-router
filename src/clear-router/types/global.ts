@@ -72,6 +72,7 @@ export type RouteItemData = {
 };
 
 export type RouterProps = {
+	routes: RouteItem[];
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;

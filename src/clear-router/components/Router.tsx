@@ -1,5 +1,11 @@
-import { PropsWithChildren } from 'react';
-import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
+import { PropsWithChildren, useEffect } from 'react';
+import {
+	useIsLoading,
+	useLoaderFallback,
+	useCurrentLoaderState,
+	useRouteItemData,
+	useCallbackState,
+} from '../state/state';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
@@ -8,10 +14,13 @@ import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types/global';
+import { useLoader } from '../hooks/useLoader.ts';
+import { useNavigation } from '../hooks/useNavigation.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
+	routes,
 	isAnimated,
 	animationDuration,
 	spinner = true,
@@ -27,6 +36,24 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 
 	const [loaderState] = useCurrentLoaderState();
+	const [, setCallbackState] = useCallbackState();
+
+	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
+
+	const updateLocation = useNavigation({
+		routes,
+		revalidateCache,
+		isCacheItemFresh,
+		loaderStateRef,
+	});
+
+	useEffect(() => {
+		setCallbackState({
+			updateLocation,
+			prefetchLoader,
+			invalidate,
+		});
+	}, [invalidate, prefetchLoader, setCallbackState, updateLocation]);
 
 	usePreserveScroll(preserveScroll);
 
