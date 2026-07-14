@@ -1,6 +1,6 @@
-import { useRouterActions } from './useServiceContext';
+import { useRouterCallback } from './useRouterCallback';
 
 export const useInvalidate = () => {
-	const { invalidate } = useRouterActions();
+	const { invalidate } = useRouterCallback();
 	return invalidate;
 };

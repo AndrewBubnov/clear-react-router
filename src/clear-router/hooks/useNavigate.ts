@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 import { useBlockedRoute } from '../state/state';
-import { useRouterActions } from './useServiceContext';
+import { useRouterCallback } from './useRouterCallback';
 import { useLocation } from './useLocation';
-import type { Location } from '../types/global';
 import { useLatest } from './useLatest';
+import type { Location } from '../types/global';
 
 export const useNavigate = () => {
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
 
-	const { updateLocation } = useRouterActions();
+	const { updateLocation } = useRouterCallback();
 	const location = useLocation();
 
 	const locationRef = useLatest(location);

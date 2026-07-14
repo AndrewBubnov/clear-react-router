@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
-import { useRouterActions } from './useServiceContext';
+import { useRouterCallback } from './useRouterCallback';
 import { BlockerState } from '../types/global';
 
 type UseBlockerReturnValue = {
@@ -13,7 +13,7 @@ type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock
 
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
-	const { updateLocation } = useRouterActions();
+	const { updateLocation } = useRouterCallback();
 
 	const [routeItemData] = useRouteItemData();
 	const {
