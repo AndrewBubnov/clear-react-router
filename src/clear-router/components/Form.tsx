@@ -1,6 +1,6 @@
 import { PropsWithChildren, SubmitEvent, useState } from 'react';
 import { FormProvider } from '../provider/FormProvider';
-import { useActionParams } from '../hooks/useActionParams';
+import { useGetAction } from '../hooks/useGetAction';
 
 type FormProps = {
 	action: string;
@@ -9,26 +9,16 @@ type FormProps = {
 	autoReset?: boolean;
 };
 
-export const Form = ({
-	children,
-	action: actionKey,
-	onSuccess,
-	onError,
-	autoReset = true,
-}: PropsWithChildren<FormProps>) => {
-	const { invalidate, routeItem, latestContext, params, setContext } = useActionParams();
+export const Form = ({ children, action, onSuccess, onError, autoReset = true }: PropsWithChildren<FormProps>) => {
+	const { currentAction, invalidate } = useGetAction(action);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const onSubmit = async (evt: SubmitEvent<HTMLFormElement>) => {
 		evt.preventDefault();
-		if (!routeItem) throw new Error('Route not found');
-		if (!routeItem.actions) throw new Error('Route action creator not found');
-		const action = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[actionKey];
-		if (!action) throw new Error(`Action "${actionKey}" not found`);
 		try {
 			setIsSubmitting(true);
-			const result = await action(new FormData(evt.target));
+			const result = await currentAction(new FormData(evt.target));
 			await invalidate();
 			if (autoReset) evt.target.reset();
 			onSuccess?.(result);

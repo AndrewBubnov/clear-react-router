@@ -1,24 +1,29 @@
 import { useCallback } from 'react';
-import { useActionParams } from './useActionParams';
+import { useGetAction } from './useGetAction';
+import { useLatest } from './useLatest';
 
-export const useAction = (actionKey: string, onError?: (args: unknown) => void) => {
-	const { invalidate, routeItem, latestContext, params, setContext } = useActionParams();
+type Options =
+	| Partial<{
+			onSuccess: (args: unknown) => void;
+			onError: (args: unknown) => void;
+	  }>
+	| undefined;
+
+export const useAction = (action: string, options: Options = {}) => {
+	const { currentAction, invalidate } = useGetAction(action);
+	const latestOnSuccess = useLatest(options?.onSuccess);
+	const latestOnError = useLatest(options?.onError);
 
 	return useCallback(
 		async (formData: FormData) => {
-			if (!routeItem) throw new Error('Route not found');
-			if (!routeItem.actions) throw new Error('Route action creator not found');
-			const action = routeItem.actions({ context: latestContext.current, setContext, params, invalidate })[
-				actionKey
-			];
-			if (!action) throw new Error(`Action "${actionKey}" not found`);
 			try {
-				await action(formData);
+				const result = await currentAction(formData);
 				await invalidate();
+				latestOnSuccess.current?.(result);
 			} catch (error) {
-				onError?.(error);
+				latestOnError.current?.(error);
 			}
 		},
-		[actionKey, latestContext, invalidate, onError, params, routeItem, setContext]
+		[currentAction, invalidate, latestOnError, latestOnSuccess]
 	);
 };
