@@ -1,6 +1,6 @@
-import { useRouterCallback } from './useRouterCallback';
+import { useRouterActions } from './useRouterActions.ts';
 
 export const useInvalidate = () => {
-	const { invalidate } = useRouterCallback();
+	const { invalidate } = useRouterActions();
 	return invalidate;
 };

@@ -4,7 +4,7 @@ import {
 	useLoaderFallback,
 	useCurrentLoaderState,
 	useRouteItemData,
-	useCallbackState,
+	useActionState,
 } from '../state/state';
 import { useLoader } from '../hooks/useLoader';
 import { useNavigation } from '../hooks/useNavigation';
@@ -21,8 +21,8 @@ const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
 	routes,
-	isAnimated,
 	animationDuration,
+	isAnimated = false,
 	spinner = true,
 	preserveScroll = true,
 	showFallbackOnAnimation = false,
@@ -35,7 +35,7 @@ export const Router = ({
 	const [currentLoaderFallback] = useLoaderFallback();
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
-	const [, setCallbackState] = useCallbackState();
+	const [, setCallbackState] = useActionState();
 
 	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
 
@@ -44,6 +44,8 @@ export const Router = ({
 		revalidateCache,
 		isCacheItemFresh,
 		loaderStateRef,
+		isAnimated,
+		showFallbackOnAnimation,
 	});
 
 	useEffect(() => {
