@@ -1,17 +1,23 @@
 [![npm version](https://badge.fury.io/js/clear-react-router.svg)](https://www.npmjs.com/package/clear-react-router)
 
-A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, and prefetching.
+# Clear Router
+
+A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, prefetching, and route actions.
 
 ## Why Clear Router?
 
-Most React routers focus on flexibility and ecosystem integrations.
-Clear Router focuses on predictable navigation with a small, explicit API.
+Most React routers focus on flexibility and ecosystem integrations. Clear Router focuses on predictable navigation with a small, explicit API and minimal setup.
+
+There is no `RouterProvider` or provider hierarchy to manage. Simply render `<Router />` once, and use router hooks anywhere in your application.
 
 It provides first-class support for:
 
-- Predictable routing
-- Built-in data loading
-- Small API
+* Predictable routing
+* Built-in data loading
+* Route actions and forms
+* Simple, provider-free architecture
+* Small, explicit API
+
 
 ## Features
 
@@ -49,36 +55,13 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
 
-
-### `RouterProvider`
-
-The root component that provides routing context to the application. Place static UI elements (like navbar or footer) outside `<Router />` to prevent unnecessary re-renders.
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `routes` | `RouteItem[]` | required | Array of route configurations |
-| `children` | `ReactNode` | required | App content (must include `<Router />`) |
-
-```tsx
-function App() {
-  return (
-    <RouterProvider routeList={routes}>
-      <Navbar />          							   {/* Static */}
-      <main>
-        <Router isAnimated animationDuration={800} />  {/* Dynamic — renders current page */}
-      </main>
-      <Footer />         							   {/* Static */}
-    </RouterProvider>
-  );
-}
-```
-
 ### `Router`
 
 Renders the current route's component. Must be placed inside `<RouterProvider>`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `routes` | `RouteItem[]` | required | Array of route configurations |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
@@ -90,10 +73,10 @@ Renders the current route's component. Must be placed inside `<RouterProvider>`.
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 
 ```tsx
-<RouterProvider routes={routes}>
+<div>
   <Navbar />
-  <Router spinner={false} isAnimated />  {/* disable the spinner */}
-</RouterProvider>
+  <Router routes={routes} spinner={false} isAnimated />  {/* disable the spinner */}
+</div>
 ```
 
 > **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`). On the initial page load, however, the route's loaderFallback is rendered if available.
@@ -124,9 +107,7 @@ Component for client-side navigation with prefetch support.
 import { RouterProvider, Router, Link } from 'clear-react-router';
 
 // Global prefetch: hover with 100ms delay
-<RouterProvider routes={routes} prefetch="hover" hoverPrefetchDelay={100}>
-  <Router />
-</RouterProvider>
+<Router routes={routes} prefetch="hover" hoverPrefetchDelay={100} />
 
 // Override for a specific link
 <Link to="/heavy-page" prefetch="viewport">
@@ -334,15 +315,11 @@ This hook is useful when the mutation is triggered programmatically, such as fro
 You can provide a custom error boundary to catch rendering errors in route components. This is useful for preventing the entire app from crashing when a specific route fails to render.
 
 ```tsx
-import { RouterProvider, Router } from 'clear-react-router';
+import { Router } from 'clear-react-router';
 import { routes } from './routes';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-const App = () => (
-    <RouterProvider routes={routes}>
-      <Router errorBoundary={ErrorBoundary} />
-    </RouterProvider>
-  );
+const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 ```
 **Note:** The `errorBoundary` prop only catches render-time errors in route components. It does not catch errors in `loader` or `beforeLoad` — those are handled by the router's `errorElement` mechanism.
 
