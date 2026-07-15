@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useBlockedRoute } from '../state/state';
-import { useRuntime } from './useRuntime.ts';
+import { useRuntime } from './useRuntime';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
 import type { Location } from '../types/global';

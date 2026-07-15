@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
-import { useRuntime } from './useRuntime.ts';
+import { useRuntime } from './useRuntime';
 import { BlockerState } from '../types/global';
 
 type UseBlockerReturnValue = {
