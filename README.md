@@ -57,8 +57,6 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 
 ### `Router`
 
-Renders the current route's component. Must be placed inside `<RouterProvider>`.
-
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `routes` | `RouteItem[]` | required | Array of route configurations |
@@ -104,7 +102,7 @@ Component for client-side navigation with prefetch support.
 **Example:**
 
 ```tsx
-import { RouterProvider, Router, Link } from 'clear-react-router';
+import { Router, Link } from 'clear-react-router';
 
 // Global prefetch: hover with 100ms delay
 <Router routes={routes} prefetch="hover" hoverPrefetchDelay={100} />
