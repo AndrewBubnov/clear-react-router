@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
 import { useLoader } from '../hooks/useLoader';
 import { useNavigation } from '../hooks/useNavigation';
-import { useSetRouterRuntime } from '../hooks/useSetRouterRuntime';
+import { useSetRouterRuntime } from '../hooks/useSetRuntime.ts';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';

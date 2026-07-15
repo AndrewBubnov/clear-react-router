@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useBlockedRoute } from '../state/state';
-import { useRouterActions } from './useRouterActions.ts';
+import { useRuntime } from './useRuntime.ts';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
 import type { Location } from '../types/global';
@@ -8,7 +8,7 @@ import type { Location } from '../types/global';
 export const useNavigate = () => {
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
 
-	const { updateLocation } = useRouterActions();
+	const { updateLocation } = useRuntime();
 
 	const location = useLocation();
 
