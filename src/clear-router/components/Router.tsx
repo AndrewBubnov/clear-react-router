@@ -1,13 +1,8 @@
-import { PropsWithChildren, useEffect } from 'react';
-import {
-	useIsLoading,
-	useLoaderFallback,
-	useCurrentLoaderState,
-	useRouteItemData,
-	useActionState,
-} from '../state/state';
+import { PropsWithChildren } from 'react';
+import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
 import { useLoader } from '../hooks/useLoader';
 import { useNavigation } from '../hooks/useNavigation';
+import { useSetRouterRuntime } from '../hooks/useSetRouterRuntime';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
@@ -35,7 +30,6 @@ export const Router = ({
 	const [currentLoaderFallback] = useLoaderFallback();
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
-	const [, setCallbackState] = useActionState();
 
 	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
 
@@ -48,18 +42,11 @@ export const Router = ({
 		showFallbackOnAnimation,
 	});
 
-	useEffect(() => {
-		setCallbackState({
-			updateLocation,
-			prefetchLoader,
-			invalidate,
-		});
-	}, [invalidate, prefetchLoader, setCallbackState, updateLocation]);
-
-	usePreserveScroll(preserveScroll);
-	useApplyCustomAnimation(animationDuration);
+	useSetRouterRuntime({ updateLocation, prefetchLoader, invalidate });
 	useSetRouterConfig({ isAnimated, showFallbackOnAnimation, prefetch, hoverPrefetchDelay });
+	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
+	usePreserveScroll(preserveScroll);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
