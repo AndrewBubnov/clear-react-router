@@ -1,4 +1,4 @@
-import { useRuntime } from './useRuntime.ts';
+import { useRuntime } from './useRuntime';
 
 export const useInvalidate = () => {
 	const { invalidate } = useRuntime();
