@@ -1,6 +1,6 @@
-import { useRouterActions } from './useServiceContext';
+import { useRuntime } from './useRuntime.ts';
 
 export const useInvalidate = () => {
-	const { invalidate } = useRouterActions();
+	const { invalidate } = useRuntime();
 	return invalidate;
 };

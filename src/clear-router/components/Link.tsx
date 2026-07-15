@@ -1,6 +1,6 @@
 import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
+import { useRuntime } from '../hooks/useRuntime.ts';
 import { useNavigate } from '../hooks/useNavigate';
-import { useRouterActions } from '../hooks/useServiceContext';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types/global';
 
@@ -16,7 +16,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	const prefetch = prefetchLink || configPrefetch;
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
-	const { prefetchLoader } = useRouterActions();
+	const { prefetchLoader } = useRuntime();
 	const navigate = useNavigate();
 
 	const timeout = useRef<number>(0);
