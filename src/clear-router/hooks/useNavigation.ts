@@ -61,7 +61,7 @@ export const useNavigation = ({
 
 	const transitionedNavigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
-			if (!isAnimated) {
+			if (!isAnimated || !prevPathname.current) {
 				navigation(nextLocation, routeItem);
 				return;
 			}
