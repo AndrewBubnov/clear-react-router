@@ -77,6 +77,8 @@ export type RouterProps = {
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
+	defaultLoaderFallback?: Element;
+	defaultErrorElement?: Element;
 	showFallbackOnAnimation?: boolean;
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;
