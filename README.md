@@ -62,6 +62,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `routes` | `RouteItem[]` | required | Array of route configurations |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
+| `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
 | `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
