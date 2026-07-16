@@ -1,0 +1,34 @@
+import { contextState, currentLoaderState, routeItemDataState } from '../state/state';
+import { comparePaths, getParamsObject } from '../utils/utils';
+import { timestampMap } from '../utils/isCacheItemFresh';
+import { loaderStateRef, revalidateCache } from '../utils/revalidateCache';
+import { routerConfig } from '../config/routerConfig';
+
+export const invalidate = async (path?: string) => {
+	const routePathname = routeItemDataState.getState().location.pathname;
+	const pathname = path || routePathname;
+	const routeItem = routerConfig.routes.find(el => comparePaths(el, pathname));
+	const resultParams = getParamsObject({
+		params: routeItem?.params,
+		pathname,
+	});
+	timestampMap.delete(pathname);
+	try {
+		if (routeItem?.beforeLoad) {
+			const context = contextState.getState();
+			const setContext = contextState.setState;
+			await routeItem.beforeLoad({
+				context,
+				redirect: () => Promise.resolve(),
+				params: resultParams,
+				setContext,
+			});
+		}
+		loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: null };
+	} catch (error) {
+		loaderStateRef.current = { ...loaderStateRef.current, beforeLoadError: error as Error };
+	}
+
+	await revalidateCache({ routeItem, pathname: pathname });
+	if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.current);
+};

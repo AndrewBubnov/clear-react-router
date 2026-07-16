@@ -1,6 +1,5 @@
 import { PropsWithChildren } from 'react';
 import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
-import { useLoader } from '../hooks/useLoader';
 import { useNavigation } from '../hooks/useNavigation';
 import { useSetRouterRuntime } from '../hooks/useSetRuntime';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
@@ -33,19 +32,14 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
 
-	const { prefetchLoader, revalidateCache, isCacheItemFresh, loaderStateRef, invalidate } = useLoader(routes);
-
 	const updateLocation = useNavigation({
 		routes,
-		revalidateCache,
-		isCacheItemFresh,
-		loaderStateRef,
 		isAnimated,
 		showFallbackOnAnimation,
 	});
 
-	useSetRouterRuntime({ updateLocation, prefetchLoader, invalidate });
-	useSetRouterConfig({ isAnimated, showFallbackOnAnimation, prefetch, hoverPrefetchDelay });
+	useSetRouterRuntime({ updateLocation });
+	useSetRouterConfig({ routes, isAnimated, prefetch, hoverPrefetchDelay });
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(preserveScroll);

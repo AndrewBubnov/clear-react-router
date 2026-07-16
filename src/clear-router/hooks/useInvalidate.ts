@@ -1,6 +1,3 @@
-import { useRuntime } from './useRuntime';
+import { invalidate } from '../runtime/invalidate';
 
-export const useInvalidate = () => {
-	const { invalidate } = useRuntime();
-	return invalidate;
-};
+export const useInvalidate = () => invalidate;

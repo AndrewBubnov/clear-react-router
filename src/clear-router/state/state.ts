@@ -1,21 +1,32 @@
-import { createState } from './createState.ts';
+import { create, createState, useGlobalState } from './createState';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, RouteItem, RouteItemData } from '../types/global';
 
 type Runtime = {
 	updateLocation(route: Location): Promise<void>;
-	prefetchLoader(arg: string): Promise<void>;
-	invalidate(path?: string): Promise<void>;
 };
 
-export const useIsLoading = createState(false);
+export const isLoadingState = create(false);
+export const useIsLoading = () => useGlobalState(isLoadingState);
+
 export const useBlockedRoute = createState({ from: '', to: '' });
-export const useLoaderFallback = createState<RouteItem['loaderFallback']>(undefined);
-export const useRouteItemData = createState<RouteItemData>({
+
+export const loaderFallbackState = create<RouteItem['loaderFallback']>(undefined);
+export const useLoaderFallback = () => useGlobalState(loaderFallbackState);
+
+export const routeItemDataState = create<RouteItemData>({
 	routeItem: undefined,
 	location: {} as Location,
 });
-export const useCurrentLoaderState = createState<LoaderState>(emptyLoaderState);
-export const useScrollMap = createState<Record<string, number>>({});
-export const useContextState = createState<Record<string, unknown>>({});
+export const useRouteItemData = () => useGlobalState(routeItemDataState);
+
+export const currentLoaderState = create<LoaderState>(emptyLoaderState);
+export const useCurrentLoaderState = () => useGlobalState(currentLoaderState);
+
+export const scrollMapState = create<Record<string, number>>({});
+export const useScrollMap = () => useGlobalState(scrollMapState);
+
+export const contextState = create<Record<string, unknown>>({});
+export const useContextState = () => useGlobalState(contextState);
+
 export const useActionState = createState<Runtime>({} as Runtime);
