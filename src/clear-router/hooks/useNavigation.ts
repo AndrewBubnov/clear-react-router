@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { navigationHandler } from '../runtime/navigationHandler';
 import { useBlockedRoute } from '../state/state';
 import { parseWindowLocation } from '../utils/utils';
 import { prevPathname } from '../utils/navigation';
-import { navigationHandler } from '../runtime/navigationHandler.ts';
 
 export const useNavigation = () => {
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
