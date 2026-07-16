@@ -1,4 +1,4 @@
-import { contextState } from '../state/state.ts';
+import { contextState } from '../state/state';
 
 export const getContext = () => {
 	const context = contextState.getState();

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { navigationHandler } from '../runtime/navigationHandler';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
 import { BlockerState } from '../types/global';
-import { navigationHandler } from '../runtime/navigationHandler.ts';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;

@@ -3,7 +3,7 @@ import { comparePaths, getParamsObject } from '../utils/utils';
 import { timestampMap } from '../utils/isCacheItemFresh';
 import { loaderStateRef, revalidateCache } from '../utils/revalidateCache';
 import { routerConfig } from '../config/routerConfig';
-import { getContext } from '../utils/getContext.ts';
+import { getContext } from '../utils/getContext';
 
 export const invalidate = async (path?: string) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
