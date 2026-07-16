@@ -9,7 +9,6 @@ import {
 	useScrollMap,
 	useContextState,
 } from '../state/state';
-import { routerConfig } from '../config/routerConfig';
 import { comparePaths, getParamsObject, parseWindowLocation } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, RevalidateCacheArgs, RouteItem } from '../types/global';
@@ -19,11 +18,20 @@ type UseHandleNavigation = {
 	revalidateCache(arg: RevalidateCacheArgs): Promise<unknown>;
 	isCacheItemFresh(arg: { routeItem?: RouteItem; pathname: string }): boolean;
 	loaderStateRef: RefObject<LoaderState>;
+	isAnimated: boolean;
+	showFallbackOnAnimation: boolean;
 };
 
 const ALL_LOCATIONS = '*';
 
-export const useNavigation = ({ routes, revalidateCache, isCacheItemFresh, loaderStateRef }: UseHandleNavigation) => {
+export const useNavigation = ({
+	routes,
+	revalidateCache,
+	isCacheItemFresh,
+	loaderStateRef,
+	isAnimated,
+	showFallbackOnAnimation: showFallback,
+}: UseHandleNavigation) => {
 	const [, setIsLoading] = useIsLoading();
 	const [, setScrollMap] = useScrollMap();
 	const [, setRouteItemData] = useRouteItemData();
@@ -31,7 +39,6 @@ export const useNavigation = ({ routes, revalidateCache, isCacheItemFresh, loade
 	const [, setCurrentLoaderFallback] = useLoaderFallback();
 	const [context, setContext] = useContextState();
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
-	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 
 	const prevPathname = useRef<string>('');
 	const navigationSeq = useRef<number>(0);
@@ -54,7 +61,7 @@ export const useNavigation = ({ routes, revalidateCache, isCacheItemFresh, loade
 
 	const transitionedNavigation = useCallback(
 		(nextLocation: Location, routeItem: RouteItem | undefined) => {
-			if (!isAnimated) {
+			if (!isAnimated || !prevPathname.current) {
 				navigation(nextLocation, routeItem);
 				return;
 			}
