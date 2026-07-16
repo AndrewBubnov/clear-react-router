@@ -25,6 +25,8 @@ export const Router = ({
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 	context: initialContext,
+	defaultLoaderFallback,
+	defaultErrorElement,
 }: RouterProps) => {
 	const [isLoading] = useIsLoading();
 	const [currentLoaderFallback] = useLoaderFallback();
@@ -55,7 +57,7 @@ export const Router = ({
 	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
-		return renderElement(currentLoaderFallback);
+		return renderElement(currentLoaderFallback || defaultLoaderFallback);
 	}
 
 	if (!showFallbackOnAnimation && isAnimated && loadingContent) return <Spinner />;
@@ -65,7 +67,7 @@ export const Router = ({
 	if (showErrorElement) {
 		return (
 			<>
-				{renderElement(routeItem.errorElement)}
+				{renderElement(routeItem.errorElement || defaultErrorElement)}
 				{showSpinner && <Spinner />}
 			</>
 		);
