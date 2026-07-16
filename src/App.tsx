@@ -1,15 +1,15 @@
-import { RouterProvider, Router } from './clear-router';
-import { routes } from './routes.ts';
-import { Navbar } from './components/Navbar.tsx';
+import { Router } from './clear-router';
+import { routes } from './routes';
+import { Navbar } from './components/Navbar';
 
 function App() {
 	return (
-		<RouterProvider routes={routes}>
+		<main>
 			<Navbar />
 			<div style={{ marginTop: 100 }}>
-				<Router isAnimated animationDuration={1200} />
+				<Router routes={routes} isAnimated animationDuration={1200} />
 			</div>
-		</RouterProvider>
+		</main>
 	);
 }
 
