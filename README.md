@@ -50,8 +50,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
-| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback (for loader) |
-| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback |
+| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
+| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
 
