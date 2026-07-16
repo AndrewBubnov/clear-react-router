@@ -5,6 +5,7 @@ class RouterConfig {
 	routes: RouterProps['routes'] = [];
 	prefetch: RouterProps['prefetch'] = 'hover';
 	isAnimated: RouterProps['isAnimated'] = false;
+	showFallbackOnAnimation: RouterProps['showFallbackOnAnimation'] = false;
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);

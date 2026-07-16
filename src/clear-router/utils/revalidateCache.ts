@@ -1,8 +1,8 @@
-import { contextState } from '../state/state';
 import type { LoaderState, RevalidateCacheArgs } from '../types/global';
 import { emptyLoaderState } from '../constants';
 import { isCacheItemFresh, timestampMap } from './isCacheItemFresh';
 import { getParamsObject } from './utils';
+import { getContext } from './getContext';
 
 const loaderMapRef: Record<string, LoaderState> = {};
 const loadingPromises: Map<string, Promise<unknown>> = new Map();
@@ -21,8 +21,7 @@ const revalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => {
 	const promise = (async () => {
 		if (!routeItem?.loader) return;
 		try {
-			const context = contextState.getState();
-			const setContext = contextState.setState;
+			const { context, setContext } = getContext();
 			const params: Record<string, string> = getParamsObject({ params: routeItem.params, pathname });
 			const result = await routeItem?.loader({
 				params,

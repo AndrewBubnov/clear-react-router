@@ -1,8 +1,9 @@
-import { contextState, currentLoaderState, routeItemDataState } from '../state/state';
+import { currentLoaderState, routeItemDataState } from '../state/state';
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { timestampMap } from '../utils/isCacheItemFresh';
 import { loaderStateRef, revalidateCache } from '../utils/revalidateCache';
 import { routerConfig } from '../config/routerConfig';
+import { getContext } from '../utils/getContext.ts';
 
 export const invalidate = async (path?: string) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
@@ -15,8 +16,7 @@ export const invalidate = async (path?: string) => {
 	timestampMap.delete(pathname);
 	try {
 		if (routeItem?.beforeLoad) {
-			const context = contextState.getState();
-			const setContext = contextState.setState;
+			const { context, setContext } = getContext();
 			await routeItem.beforeLoad({
 				context,
 				redirect: () => Promise.resolve(),

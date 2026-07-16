@@ -2,10 +2,6 @@ import { create, createState, useGlobalState } from './createState';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, RouteItem, RouteItemData } from '../types/global';
 
-type Runtime = {
-	updateLocation(route: Location): Promise<void>;
-};
-
 export const isLoadingState = create(false);
 export const useIsLoading = () => useGlobalState(isLoadingState);
 
@@ -28,5 +24,3 @@ export const useScrollMap = () => useGlobalState(scrollMapState);
 
 export const contextState = create<Record<string, unknown>>({});
 export const useContextState = () => useGlobalState(contextState);
-
-export const useActionState = createState<Runtime>({} as Runtime);
