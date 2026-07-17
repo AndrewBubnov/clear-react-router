@@ -2,7 +2,7 @@
 
 # Clear Router
 
-A lightweight, type-safe routing library for React applications with nested routes, data loading, navigation blocking, prefetching, and route actions.
+A lightweight, type-safe routing library for client side React applications with nested routes, data loading, navigation blocking, prefetching, and route actions.
 
 ## Why Clear Router?
 
