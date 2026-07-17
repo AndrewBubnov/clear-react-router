@@ -1,8 +1,7 @@
 import { revalidateCache } from '../utils/revalidateCache';
-import { comparePaths } from '../utils/utils';
-import { routerConfig } from '../config/routerConfig';
+import { findRoute } from '../utils/findRoute';
 
 export const prefetch = async (pathname: string) => {
-	const item = routerConfig.routes.find(el => comparePaths(el, pathname));
+	const item = findRoute(pathname);
 	if (item) await revalidateCache({ routeItem: item, pathname });
 };

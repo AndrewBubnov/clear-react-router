@@ -1,12 +1,13 @@
 import { isLoadingState, loaderFallbackState, scrollMapState } from '../state/state';
 import { revalidateCache } from '../utils/revalidateCache';
-import { comparePaths, getParamsObject } from '../utils/utils';
+import { getParamsObject } from '../utils/utils';
 import { transitionedNavigation } from '../utils/transitionedNavigation';
 import { isCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
+import { findRoute } from '../utils/findRoute';
 import { getContext } from '../utils/getContext';
 import { loaderStateRef, prevPathnameRef } from '../cell';
-import { ALL_LOCATIONS, emptyLoaderState } from '../constants';
+import { emptyLoaderState } from '../constants';
 import { Location } from '../types/global';
 
 let navigationSeq = 0;
@@ -15,9 +16,9 @@ export const navigate = async (nextLocation: Location) => {
 	navigationSeq = navigationSeq + 1;
 	const seq = navigationSeq;
 	loaderStateRef.set(emptyLoaderState);
-	const { routes, isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
+	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 
-	const nextItem = routes.find(el => el.path === ALL_LOCATIONS || comparePaths(el, nextLocation.pathname));
+	const nextItem = findRoute(nextLocation.pathname, true);
 
 	const params: Record<string, string> = getParamsObject({
 		params: nextItem?.params,

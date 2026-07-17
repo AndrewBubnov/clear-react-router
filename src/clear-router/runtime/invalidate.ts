@@ -1,14 +1,14 @@
 import { currentLoaderState, routeItemDataState } from '../state/state';
 import { revalidateCache } from '../utils/revalidateCache';
-import { comparePaths, getParamsObject } from '../utils/utils';
-import { routerConfig } from '../config/routerConfig';
+import { getParamsObject } from '../utils/utils';
 import { getContext } from '../utils/getContext';
+import { findRoute } from '../utils/findRoute';
 import { loaderStateRef, timestampMap } from '../cell';
 
 export const invalidate = async (path?: string) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
 	const pathname = path || routePathname;
-	const routeItem = routerConfig.routes.find(el => comparePaths(el, pathname));
+	const routeItem = findRoute(pathname);
 	const resultParams = getParamsObject({
 		params: routeItem?.params,
 		pathname,
