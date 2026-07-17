@@ -418,6 +418,8 @@ You can also invalidate any registered route by passing its pathname:
 const invalidate = useInvalidate();
 
 await invalidate('/posts');
+await invalidate('/posts/[id]');
+await invalidate('/posts/[id]/comment/[id]');
 ```
 
 The route does not need to be currently active. Its cache will be marked as stale, and the next time it is visited, `beforeLoad` and `loader` will run again.
