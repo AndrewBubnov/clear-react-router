@@ -2,19 +2,19 @@ import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction }
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
-type Element = (() => ReactElement) | ReactElement;
+export type RenderElement = (() => ReactElement) | ReactElement;
 
 export type ClientRouteItem = {
 	path: string;
-	element: Element | LazyComponent;
+	element: RenderElement | LazyComponent;
 	loader?(arg: {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}): Promise<unknown>;
-	loaderFallback?: Element;
-	errorElement?: Element;
-	fallback?: Element;
+	loaderFallback?: RenderElement;
+	errorElement?: RenderElement;
+	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
 	beforeLoad?: (arg: {
@@ -37,7 +37,7 @@ export type ClientRouteItem = {
 };
 
 export type RouteItem = ClientRouteItem & {
-	element: Element;
+	element: RenderElement;
 	params?: { key: string; value: string }[];
 	cacheTimestamp?: number;
 };
@@ -77,8 +77,8 @@ export type RouterProps = {
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
-	defaultLoaderFallback?: Element;
-	defaultErrorElement?: Element;
+	defaultLoaderFallback?: RenderElement;
+	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;

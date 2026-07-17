@@ -1,5 +1,5 @@
 import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
-import { useRuntime } from '../hooks/useRuntime';
+import { prefetch as prefetchExecutor } from '../runtime/prefetch';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types/global';
@@ -16,7 +16,6 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	const prefetch = prefetchLink || configPrefetch;
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
-	const { prefetchLoader } = useRuntime();
 	const navigate = useNavigate();
 
 	const timeout = useRef<number>(0);
@@ -25,8 +24,8 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
-		timeout.current = window.setTimeout(() => prefetchLoader(to), prefetchDelay);
-	}, [prefetch, prefetchDelay, prefetchLoader, to]);
+		timeout.current = window.setTimeout(() => prefetchExecutor(to), prefetchDelay);
+	}, [prefetch, prefetchDelay, to]);
 
 	const onMouseLeave = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
@@ -39,15 +38,15 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	useEffect(() => {
 		if (prefetch !== 'render') return;
 		(async () => {
-			await prefetchLoader(to);
+			await prefetchExecutor(to);
 		})();
-	}, [prefetch, prefetchLoader, to]);
+	}, [prefetch, to]);
 
 	useEffect(() => {
 		if (prefetch !== 'viewport') return;
 		const element = ref.current;
 		const observer = new IntersectionObserver(async () => {
-			await prefetchLoader(to);
+			await prefetchExecutor(to);
 			observer.disconnect();
 		});
 
@@ -56,7 +55,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 		return () => {
 			if (element) observer.disconnect();
 		};
-	}, [prefetch, prefetchLoader, to]);
+	}, [prefetch, to]);
 
 	return (
 		<a
