@@ -1,6 +1,5 @@
 import type { RouteItem } from '../types/global';
-
-export const timestampMap: Map<string, number> = new Map();
+import { timestampMap } from '../cell';
 
 export const isCacheItemFresh = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 	if (!routeItem) return true;

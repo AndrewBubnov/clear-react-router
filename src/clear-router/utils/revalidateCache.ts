@@ -1,12 +1,11 @@
 import type { LoaderState, RevalidateCacheArgs } from '../types/global';
-import { emptyLoaderState } from '../constants';
-import { isCacheItemFresh, timestampMap } from './isCacheItemFresh';
+import { isCacheItemFresh } from './isCacheItemFresh';
 import { getParamsObject } from './utils';
 import { getContext } from './getContext';
+import { loaderStateRef, timestampMap } from '../cell';
 
 const loaderMapRef: Record<string, LoaderState> = {};
 const loadingPromises: Map<string, Promise<unknown>> = new Map();
-const loaderStateRef: Record<'current', LoaderState> = { current: emptyLoaderState };
 
 const revalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => {
 	if (!routeItem?.loader) return;
@@ -14,7 +13,7 @@ const revalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => {
 	if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 
 	if (isCacheItemFresh({ routeItem, pathname })) {
-		loaderStateRef.current = loaderMapRef[pathname];
+		loaderStateRef.set(loaderMapRef[pathname]);
 		return;
 	}
 
@@ -29,10 +28,10 @@ const revalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => {
 				setContext,
 			});
 			timestampMap.set(pathname, Date.now());
-			loaderStateRef.current = { ...loaderStateRef?.current, data: result, loaderError: null };
-			loaderMapRef[pathname] = loaderStateRef.current;
+			loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
+			loaderMapRef[pathname] = loaderStateRef.value;
 		} catch (error) {
-			loaderStateRef.current = { ...loaderStateRef?.current, data: null, loaderError: error as Error };
+			loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
 		} finally {
 			loadingPromises.delete(pathname);
 		}
@@ -42,4 +41,4 @@ const revalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => {
 	return promise;
 };
 
-export { revalidateCache, loaderStateRef };
+export { revalidateCache };

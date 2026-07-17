@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { navigationHandler } from '../runtime/navigationHandler';
+import { navigate } from '../runtime/navigate.ts';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
 import { BlockerState } from '../types/global';
 
@@ -25,7 +25,7 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 				if (prevState.from === payload && type === 'charge') return prevState;
 				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
 				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') navigationHandler({ pathname: prevState.to });
+				if (type === 'process') navigate({ pathname: prevState.to });
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { navigationHandler } from '../runtime/navigationHandler';
+import { navigate } from '../runtime/navigate.ts';
 import { useBlockedRoute } from '../state/state';
 import { parseWindowLocation } from '../utils/utils';
-import { prevPathname } from '../utils/navigation';
+import { prevPathnameRef } from '../cell';
 
 export const useNavigation = () => {
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
@@ -10,11 +10,11 @@ export const useNavigation = () => {
 	useEffect(() => {
 		const handler = async (event: PopStateEvent) => {
 			const newLocation = parseWindowLocation((event.target as Window).location);
-			if (prevPathname.current === blockedRoute.from) {
-				setBlockedRoute({ from: prevPathname.current, to: newLocation.pathname });
-				history.pushState(null, '', prevPathname.current);
+			if (prevPathnameRef.value === blockedRoute.from) {
+				setBlockedRoute({ from: prevPathnameRef.value, to: newLocation.pathname });
+				history.pushState(null, '', prevPathnameRef.value);
 			} else {
-				navigationHandler(newLocation);
+				navigate(newLocation);
 			}
 		};
 		window.addEventListener('popstate', handler);
@@ -23,7 +23,7 @@ export const useNavigation = () => {
 
 	useEffect(() => {
 		const currentLocation = parseWindowLocation(window.location);
-		navigationHandler(currentLocation);
-		prevPathname.current = currentLocation.pathname;
+		navigate(currentLocation);
+		prevPathnameRef.set(currentLocation.pathname);
 	}, []);
 };

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { navigationHandler } from '../runtime/navigationHandler';
+import { navigate } from '../runtime/navigate.ts';
 import { useBlockedRoute } from '../state/state';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
@@ -15,7 +15,7 @@ export const useNavigate = () => {
 
 	return useCallback(
 		async (arg: Location | string | -1) => {
-			if (!navigationHandler) {
+			if (!navigate) {
 				throw new Error('Router has not been initialized. Did you forget to render <Router />?');
 			}
 
@@ -26,9 +26,9 @@ export const useNavigate = () => {
 			}
 			if (arg === -1) return history.go(arg);
 			if (typeof arg === 'string') {
-				if (arg !== locationRef.current.pathname) await navigationHandler({ pathname: arg });
+				if (arg !== locationRef.current.pathname) await navigate({ pathname: arg });
 			} else if (JSON.stringify(arg) !== JSON.stringify(locationRef.current)) {
-				await navigationHandler(arg);
+				await navigate(arg);
 			}
 		},
 		[blockedRouteRef, locationRef, setBlockedRoute]

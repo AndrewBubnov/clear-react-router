@@ -1,16 +1,17 @@
-import { navigation, prevPathname } from './navigation';
+import { navigationExecutor } from './navigationExecutor.ts';
 import { routerConfig } from '../config/routerConfig';
+import { prevPathnameRef } from '../cell';
 import { Location, RouteItem } from '../types/global';
 
 export const transitionedNavigation = (nextLocation: Location, routeItem: RouteItem | undefined) => {
 	const { isAnimated } = routerConfig;
-	if (!isAnimated || !prevPathname.current) {
-		navigation(nextLocation, routeItem);
+	if (!isAnimated || !prevPathnameRef.value) {
+		navigationExecutor(nextLocation, routeItem);
 		return;
 	}
 	try {
-		document.startViewTransition(() => navigation(nextLocation, routeItem));
+		document.startViewTransition(() => navigationExecutor(nextLocation, routeItem));
 	} catch {
-		navigation(nextLocation, routeItem);
+		navigationExecutor(nextLocation, routeItem);
 	}
 };
