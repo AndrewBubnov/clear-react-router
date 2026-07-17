@@ -1,6 +1,6 @@
-import { type ReactElement } from 'react';
+import { RenderElement } from '../types/global';
 
-export const renderElement = (Component?: (() => ReactElement) | ReactElement) => {
+export const renderElement = (Component?: RenderElement) => {
 	if (!Component) return null;
 	return typeof Component === 'function' ? <Component /> : Component;
 };
