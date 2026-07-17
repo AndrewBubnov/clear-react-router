@@ -9,10 +9,7 @@ export const invalidate = async (path?: string) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
 	const pathname = path || routePathname;
 	const routeItem = findRoute(pathname);
-	const resultParams = getParamsObject({
-		params: routeItem?.params,
-		pathname,
-	});
+	const resultParams = getParamsObject({ params: routeItem?.params, pathname });
 	timestampMap.delete(pathname);
 	try {
 		if (routeItem?.beforeLoad) {
