@@ -1,4 +1,4 @@
-import { navigationExecutor } from './navigationExecutor.ts';
+import { navigationExecutor } from './navigationExecutor';
 import { routerConfig } from '../config/routerConfig';
 import { prevPathnameRef } from '../cell';
 import { Location, RouteItem } from '../types/global';

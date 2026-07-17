@@ -1,5 +1,5 @@
 import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
-import { prefetch as prefetchExecutor } from '../runtime/prefetch.ts';
+import { prefetch as prefetchExecutor } from '../runtime/prefetch';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types/global';

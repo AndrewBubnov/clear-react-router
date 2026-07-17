@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { navigate } from '../runtime/navigate.ts';
+import { navigate } from '../runtime/navigate';
 import { useBlockedRoute, useRouteItemData } from '../state/state';
 import { BlockerState } from '../types/global';
 

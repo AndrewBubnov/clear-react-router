@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { navigate } from '../runtime/navigate.ts';
+import { navigate } from '../runtime/navigate';
 import { useBlockedRoute } from '../state/state';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';

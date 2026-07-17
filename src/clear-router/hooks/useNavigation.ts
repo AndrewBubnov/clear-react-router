@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { navigate } from '../runtime/navigate.ts';
+import { navigate } from '../runtime/navigate';
 import { useBlockedRoute } from '../state/state';
 import { parseWindowLocation } from '../utils/utils';
 import { prevPathnameRef } from '../cell';
