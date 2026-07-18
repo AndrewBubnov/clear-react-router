@@ -8,7 +8,8 @@ import { RouteItem } from '../types/global';
 
 const redirect = () => Promise.resolve();
 
-const invalidateKey = async (routeItem: RouteItem, pathname: string, routePathname: string) => {
+const invalidateKey = async (routeItem: RouteItem, pathname: string) => {
+	const routePathname = routeItemDataState.getState().location.pathname;
 	timestampMap.delete(pathname);
 	const params = getParamsObject({ params: routeItem?.params, pathname });
 	try {
@@ -24,16 +25,16 @@ const invalidateKey = async (routeItem: RouteItem, pathname: string, routePathna
 	if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
 };
 
-export const invalidateItem = async (pathname: string, routePathname: string) => {
+export const invalidateItem = async (pathname: string) => {
 	const routeItem = findRoute(pathname);
 	if (!routeItem) return;
 	const pathnameArray: string[] = [];
 	for (const [key] of timestampMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
-	await Promise.all(pathnameArray.map(pathname => invalidateKey(routeItem, pathname, routePathname)));
+	await Promise.all(pathnameArray.map(pathname => invalidateKey(routeItem, pathname)));
 };
 
 export const invalidate = async (pathList?: string | string[]) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
 	const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
-	await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, routePathname)));
+	await Promise.all(pathnameList.map(pathname => invalidateItem(pathname)));
 };
