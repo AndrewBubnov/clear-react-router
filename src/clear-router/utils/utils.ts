@@ -64,7 +64,7 @@ export const comparePaths = (el: RouteItem, pathname: string) => {
 	const paramsLength = el.params ? Object.keys(el.params).length : 0;
 	const splitPathname = pathname.split('/').filter(Boolean);
 	return (
-		splitElementPath.every((item, index) => item === splitPathname[index + (index ? 1 : 0)]) &&
+		splitElementPath.every((item, index) => item === splitPathname[2 * index]) &&
 		splitPathname.length === splitElementPath.length + paramsLength
 	);
 };
