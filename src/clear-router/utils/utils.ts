@@ -9,29 +9,28 @@ const parseClientRouteItem = (
 	parentParams: RouteItem['params'] = [],
 	parentPath = ''
 ): RouteItem[] => {
-	const currentParamsList = el.path.match(/:[^/]+/g);
+	const segments = el.path.split('/').filter(Boolean);
+	const staticSegments: string[] = [];
+	const currentParams: RouteItem['params'] = [...parentParams];
 
-	const normalizedSplitPath = el.path
-		.replaceAll(/:[^/]+(\/|$)/g, '')
-		.split('/')
-		.filter(Boolean);
+	let lastStaticSegment = '';
 
-	const splitPath = el.path.split('/');
+	for (const segment of segments) {
+		if (segment.startsWith(':')) {
+			if (!lastStaticSegment) throw new Error(`Route "${el.path}" cannot start with a parameter.`);
 
-	const currentParams = currentParamsList
-		? [
-				...parentParams,
-				...currentParamsList.map((param, index) => ({
-					key: normalizedSplitPath[index],
-					value: param.slice(1),
-				})),
-			]
-		: parentParams;
+			currentParams.push({
+				key: lastStaticSegment,
+				value: segment.slice(1),
+			});
+		} else {
+			lastStaticSegment = segment;
+			staticSegments.push(segment);
+		}
+	}
 
-	const path = currentParams.length ? `${parentPath}${splitPath.slice(0, splitPath.length - 1).join('/')}` : el.path;
-
+	const path = `${parentPath}/${staticSegments.join('/')}`.replace(/\/+/g, '/');
 	const resolvedElement = isLazy(el) ? createLazyComponent(el.element as LazyComponent, el.fallback) : el.element;
-
 	const currentRoute: RouteItem = {
 		...el,
 		path,
@@ -39,7 +38,7 @@ const parseClientRouteItem = (
 		element: resolvedElement as (() => ReactElement) | ReactElement,
 	};
 
-	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, currentParams, path)) || [];
+	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, currentParams, path)) ?? [];
 
 	return [currentRoute, ...childRoutes];
 };
