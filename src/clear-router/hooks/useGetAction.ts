@@ -1,10 +1,10 @@
-import { useInvalidate } from './useInvalidate';
+import { useRevalidate } from './useRevalidate.ts';
 import { useContextState, useRouteItemData } from '../state/state';
 import { useParams } from './useParams';
 import { useLatest } from './useLatest';
 
 export const useGetAction = (actionKey: string) => {
-	const invalidate = useInvalidate();
+	const invalidate = useRevalidate();
 	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();
 	const params = useParams<Record<string, string>>();
