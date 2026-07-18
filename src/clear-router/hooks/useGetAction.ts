@@ -1,4 +1,4 @@
-import { useInvalidate } from './useInvalidate';
+import { useInvalidate } from './useInvalidate.ts';
 import { useContextState, useRouteItemData } from '../state/state';
 import { useParams } from './useParams';
 import { useLatest } from './useLatest';
