@@ -20,7 +20,7 @@ const revalidateKey = async (routeItem: RouteItem, pathname: string, routePathna
 	} catch (error) {
 		loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 	}
-	await revalidateCache({ routeItem, pathname: pathname });
+	await revalidateCache({ routeItem, pathname });
 	if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
 };
 
