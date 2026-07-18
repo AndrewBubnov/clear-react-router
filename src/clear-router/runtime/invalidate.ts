@@ -41,6 +41,7 @@ const invalidateItem = async (pathname: string, withChildren?: boolean) => {
 
 export async function invalidate(path?: string[]): Promise<void>;
 export async function invalidate(path?: string, options?: Options): Promise<void>;
+
 export async function invalidate(pathList?: string | string[], options?: Options) {
 	const routePathname = routeItemDataState.getState().location.pathname;
 	const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
