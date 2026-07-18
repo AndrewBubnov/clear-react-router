@@ -1,3 +1,3 @@
-import { revalidate } from '../runtime/revalidate.ts';
+import { invalidate } from '../runtime/invalidate';
 
-export const useRevalidate = () => revalidate;
+export const useRevalidate = () => invalidate;
