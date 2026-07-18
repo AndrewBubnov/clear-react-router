@@ -29,11 +29,11 @@ export const revalidateItem = async (pathname: string, routePathname: string) =>
 	if (!routeItem) return;
 	const pathnameArray: string[] = [];
 	for (const [key] of timestampMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
-	pathnameArray.forEach(el => revalidateKey(routeItem, el, routePathname));
+	await Promise.all(pathnameArray.map(pathname => revalidateKey(routeItem, pathname, routePathname)));
 };
 
 export const revalidate = async (pathList?: string | string[]) => {
 	const routePathname = routeItemDataState.getState().location.pathname;
 	const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
-	pathnameList.forEach(el => revalidateItem(el, routePathname));
+	await Promise.all(pathnameList.map(pathname => revalidateItem(pathname, routePathname)));
 };
