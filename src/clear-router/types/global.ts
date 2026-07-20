@@ -1,4 +1,6 @@
 import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
+import { Store } from '../state/createState';
+import { Cell } from '../cell';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -72,7 +74,7 @@ export type RouteItemData = {
 };
 
 export type RouterProps = {
-	routes: RouteItem[];
+	router: RouterType;
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
@@ -84,4 +86,21 @@ export type RouterProps = {
 	hoverPrefetchDelay?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
 	context?: Record<string, unknown>;
+};
+
+export type RouterType = {
+	routes: RouteItem[];
+	state: {
+		isLoadingState: Store<boolean>;
+		loaderFallbackState: Store<RouteItem['loaderFallback']>;
+		routeItemDataState: Store<RouteItemData>;
+		currentLoaderState: Store<LoaderState>;
+		scrollMapState: Store<Record<string, number>>;
+		contextState: Store<Record<string, unknown>>;
+	};
+	cell: {
+		loaderStateRef: Cell<LoaderState>;
+		prevPathnameRef: Cell<string>;
+		timestampMap: Map<string, number>;
+	};
 };

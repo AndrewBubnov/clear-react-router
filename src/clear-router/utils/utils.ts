@@ -1,6 +1,17 @@
 import type { ReactElement } from 'react';
 import { createLazyComponent } from './createLazyComponent';
-import type { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types/global';
+import { create } from '../state/createState';
+import { Cell } from '../cell';
+import { emptyLoaderState } from '../constants';
+import {
+	ClientRouteItem,
+	LazyComponent,
+	LoaderState,
+	Location,
+	RouteItem,
+	RouteItemData,
+	RouterType,
+} from '../types/global';
 
 const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 
@@ -43,7 +54,25 @@ const parseClientRouteItem = (
 	return [currentRoute, ...childRoutes];
 };
 
-export const createRouter = (clientList: ClientRouteItem[]) => clientList.flatMap(el => parseClientRouteItem(el, []));
+export const createRouter = (clientList: ClientRouteItem[]): RouterType => ({
+	routes: clientList.flatMap(el => parseClientRouteItem(el, [])),
+	state: {
+		contextState: create<Record<string, unknown>>({}),
+		isLoadingState: create<boolean>(false),
+		loaderFallbackState: create<RouteItem['loaderFallback']>(undefined),
+		currentLoaderState: create<LoaderState>(emptyLoaderState),
+		routeItemDataState: create<RouteItemData>({
+			routeItem: undefined,
+			location: {} as Location,
+		}),
+		scrollMapState: create<Record<string, number>>({}),
+	},
+	cell: {
+		loaderStateRef: new Cell(emptyLoaderState),
+		prevPathnameRef: new Cell(''),
+		timestampMap: new Map<string, number>(),
+	},
+});
 
 export const getParamsObject = ({ params, pathname }: { params?: RouteItem['params']; pathname: string }) => {
 	if (!params) return {};

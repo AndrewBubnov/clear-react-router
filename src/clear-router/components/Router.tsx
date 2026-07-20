@@ -13,7 +13,7 @@ import { RouterProps } from '../types/global';
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
-	routes,
+	router,
 	animationDuration,
 	isAnimated = false,
 	spinner = true,
@@ -33,7 +33,7 @@ export const Router = ({
 
 	useNavigation();
 
-	useSetRouterConfig({ routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
+	useSetRouterConfig({ routes: router.routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(preserveScroll);
