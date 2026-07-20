@@ -26,8 +26,8 @@ export const createRouterInstance = (): RouterType => {
 		prevPathnameRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
 	};
-	const loaderMapRef: Record<string, LoaderState> = {};
-	const loadingPromises: Map<string, Promise<unknown>> = new Map();
+	const loaderMapRef = {};
+	const loadingPromises = new Map();
 
 	const navigationExecutor = createNavigationExecutor({ ...routerState });
 	const transitionedNavigation = createTransitionedNavigation(navigationExecutor, routerState.prevPathnameRef);
@@ -41,15 +41,6 @@ export const createRouterInstance = (): RouterType => {
 	const navigate = createNavigate({ ...routerState, transitionedNavigation, isCacheItemFresh, revalidateCache });
 	const invalidate = createInvalidate({ ...routerState, revalidateCache });
 	const prefetch = createPrefetch(revalidateCache);
-	const hooks = {
-		useIsLoading: () => useGlobalState(routerState.isLoadingState),
-		useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
-		useLoaderFallback: () => useGlobalState(routerState.loaderFallbackState),
-		useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
-		useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
-		useScrollMap: () => useGlobalState(routerState.scrollMapState),
-		useContextState: () => useGlobalState(routerState.contextState),
-	};
 
 	return {
 		state: {
@@ -67,6 +58,14 @@ export const createRouterInstance = (): RouterType => {
 			invalidate,
 			prefetch,
 		},
-		hooks,
+		hooks: {
+			useIsLoading: () => useGlobalState(routerState.isLoadingState),
+			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
+			useLoaderFallback: () => useGlobalState(routerState.loaderFallbackState),
+			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
+			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
+			useScrollMap: () => useGlobalState(routerState.scrollMapState),
+			useContextState: () => useGlobalState(routerState.contextState),
+		},
 	};
 };
