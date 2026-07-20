@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
+import { useRouter } from './useRouter';
 import { parseWindowLocation } from '../utils/utils';
-import { RouterType } from '../types/global';
 
-export const useNavigation = ({ state: { prevPathnameRef, blockedRouteState }, runtime: { navigate } }: RouterType) => {
+export const useNavigation = () => {
+	const {
+		state: { prevPathnameRef, blockedRouteState },
+		runtime: { navigate },
+	} = useRouter();
 	useEffect(() => {
 		const handler = async (event: PopStateEvent) => {
 			const newLocation = parseWindowLocation((event.target as Window).location);

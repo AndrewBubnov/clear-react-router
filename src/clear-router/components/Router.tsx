@@ -33,7 +33,7 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
 
-	useNavigation(instance);
+	useNavigation();
 
 	useSetRouterConfig({ routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
 	useApplyCustomAnimation(animationDuration);
