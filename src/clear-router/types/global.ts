@@ -74,7 +74,7 @@ export type RouteItemData = {
 };
 
 export type RouterProps = {
-	router: RouterType;
+	routes: RouteItem[];
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
@@ -88,19 +88,28 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
+export type RouterState = {
+	isLoadingState: Store<boolean>;
+	loaderFallbackState: Store<RouteItem['loaderFallback']>;
+	routeItemDataState: Store<RouteItemData>;
+	currentLoaderState: Store<LoaderState>;
+	scrollMapState: Store<Record<string, number>>;
+	contextState: Store<Record<string, unknown>>;
+	blockedRouteState: Store<{ from: string; to: string }>;
+	loaderStateRef: Cell<LoaderState>;
+	prevPathnameRef: Cell<string>;
+	timestampMap: Map<string, number>;
+};
+
 export type RouterType = {
-	routes: RouteItem[];
-	state: {
-		isLoadingState: Store<boolean>;
-		loaderFallbackState: Store<RouteItem['loaderFallback']>;
-		routeItemDataState: Store<RouteItemData>;
-		currentLoaderState: Store<LoaderState>;
-		scrollMapState: Store<Record<string, number>>;
-		contextState: Store<Record<string, unknown>>;
-	};
-	cell: {
-		loaderStateRef: Cell<LoaderState>;
-		prevPathnameRef: Cell<string>;
-		timestampMap: Map<string, number>;
+	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
+	runtime: {
+		navigate(arg: Location): Promise<void>;
+		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void>;
+		prefetch(pathname: string): Promise<void>;
 	};
 };
+
+export type InvalidateOptions = { withChildren?: boolean };
+export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
+export type IsCacheItemFresh = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => boolean;

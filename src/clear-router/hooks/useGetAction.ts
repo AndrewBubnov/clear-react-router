@@ -1,12 +1,14 @@
 import { useInvalidate } from './useInvalidate.ts';
-import { useContextState, useRouteItemData } from '../state/state';
+import { useContextState, useRouteItemData } from '../state/hooks.ts';
 import { useParams } from './useParams';
 import { useLatest } from './useLatest';
+import { useRouter } from './useRouter.ts';
 
 export const useGetAction = (actionKey: string) => {
+	const router = useRouter();
 	const invalidate = useInvalidate();
-	const [routeItemData] = useRouteItemData();
-	const [context, setContext] = useContextState();
+	const [routeItemData] = useRouteItemData(router);
+	const [context, setContext] = useContextState(router);
 	const params = useParams<Record<string, string>>();
 	const { routeItem } = routeItemData;
 	const latestContext = useLatest(context);

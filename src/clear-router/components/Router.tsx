@@ -1,5 +1,7 @@
-import { PropsWithChildren } from 'react';
-import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
+import { PropsWithChildren, useMemo } from 'react';
+import { createRouterInstance } from '../utils/createRouterInstance';
+import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/hooks.ts';
+import { RouterProvider } from '../provider/RouterProvider';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
@@ -13,7 +15,7 @@ import { RouterProps } from '../types/global';
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
-	router,
+	routes,
 	animationDuration,
 	isAnimated = false,
 	spinner = true,
@@ -26,14 +28,15 @@ export const Router = ({
 	defaultLoaderFallback,
 	defaultErrorElement,
 }: RouterProps) => {
-	const [isLoading] = useIsLoading();
-	const [currentLoaderFallback] = useLoaderFallback();
-	const [routeItemData] = useRouteItemData();
-	const [loaderState] = useCurrentLoaderState();
+	const instance = useMemo(() => createRouterInstance(), []);
+	const [isLoading] = useIsLoading(instance);
+	const [currentLoaderFallback] = useLoaderFallback(instance);
+	const [routeItemData] = useRouteItemData(instance);
+	const [loaderState] = useCurrentLoaderState(instance);
 
-	useNavigation();
+	useNavigation(instance);
 
-	useSetRouterConfig({ routes: router.routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
+	useSetRouterConfig({ routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(preserveScroll);
@@ -54,17 +57,19 @@ export const Router = ({
 
 	if (showErrorElement) {
 		return (
-			<>
+			<RouterProvider state={instance.state} runtime={instance.runtime}>
 				{renderElement(routeItem.errorElement || defaultErrorElement)}
 				{showSpinner && <Spinner />}
-			</>
+			</RouterProvider>
 		);
 	}
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
-			{showSpinner && <Spinner />}
+			<RouterProvider state={instance.state} runtime={instance.runtime}>
+				<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
+				{showSpinner && <Spinner />}
+			</RouterProvider>
 		</div>
 	);
 };

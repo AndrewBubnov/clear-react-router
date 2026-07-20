@@ -1,18 +1,29 @@
-import { isLoadingState, loaderFallbackState, scrollMapState } from '../state/state';
-import { revalidateCache } from '../utils/revalidateCache';
 import { getParamsObject } from '../utils/utils';
-import { transitionedNavigation } from '../utils/transitionedNavigation';
-import { isCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getContext } from '../utils/getContext';
-import { loaderStateRef, prevPathnameRef } from '../cell';
 import { emptyLoaderState } from '../constants';
-import { Location } from '../types/global';
+import { IsCacheItemFresh, Location, RevalidateCache, RouteItem, RouterState } from '../types/global';
+
+type CreateNavigate = RouterState & {
+	transitionedNavigation(nextLocation: Location, routeItem: RouteItem | undefined): void;
+	isCacheItemFresh: IsCacheItemFresh;
+	revalidateCache: RevalidateCache;
+};
 
 let navigationSeq = 0;
 
-export const navigate = async (nextLocation: Location) => {
+export const createNavigate = (args: CreateNavigate) => async (nextLocation: Location) => {
+	const {
+		loaderStateRef,
+		transitionedNavigation,
+		scrollMapState,
+		prevPathnameRef,
+		loaderFallbackState,
+		isLoadingState,
+		isCacheItemFresh,
+		revalidateCache,
+		contextState,
+	} = args;
 	navigationSeq = navigationSeq + 1;
 	const seq = navigationSeq;
 	loaderStateRef.set(emptyLoaderState);
@@ -24,12 +35,13 @@ export const navigate = async (nextLocation: Location) => {
 		params: nextItem?.params,
 		pathname: nextLocation.pathname,
 	});
-	const { context, setContext } = getContext();
+
+	const context = contextState.getState();
+	const setContext = contextState.setState;
 
 	if (nextItem?.beforeLoad) {
 		const redirect = async (location: Location | string) =>
-			await navigate(typeof location === 'string' ? { pathname: location } : location);
-
+			await createNavigate(args)(typeof location === 'string' ? { pathname: location } : location);
 		try {
 			await nextItem.beforeLoad({
 				context,

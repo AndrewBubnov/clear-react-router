@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { navigate } from '../runtime/navigate';
-import { useBlockedRoute, useRouteItemData } from '../state/state';
+import { useBlockedRoute, useRouteItemData } from '../state/hooks.ts';
 import { BlockerState } from '../types/global';
+import { useRouter } from './useRouter.ts';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
@@ -12,9 +12,10 @@ type UseBlockerReturnValue = {
 type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
 
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
-	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const router = useRouter();
+	const [blockedRoute, setBlockedRoute] = useBlockedRoute(router);
 
-	const [routeItemData] = useRouteItemData();
+	const [routeItemData] = useRouteItemData(router);
 	const {
 		location: { pathname },
 	} = routeItemData;
@@ -25,11 +26,11 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 				if (prevState.from === payload && type === 'charge') return prevState;
 				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
 				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') navigate({ pathname: prevState.to });
+				if (type === 'process') router.runtime.navigate({ pathname: prevState.to });
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
-		[setBlockedRoute]
+		[router.runtime, setBlockedRoute]
 	);
 
 	const blockerState: BlockerState = useMemo(() => {
