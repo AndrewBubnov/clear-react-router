@@ -6,7 +6,7 @@ export const RouterProvider = ({ children }: PropsWithChildren) => {
 	const instance = useMemo(() => createRouterInstance(), []);
 
 	return (
-		<InstanceProvider state={instance.state} runtime={instance.runtime}>
+		<InstanceProvider state={instance.state} runtime={instance.runtime} hooks={instance.hooks}>
 			{children}
 		</InstanceProvider>
 	);
