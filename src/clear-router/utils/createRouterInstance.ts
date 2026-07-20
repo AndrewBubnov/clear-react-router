@@ -1,4 +1,4 @@
-import { create } from '../state/createState';
+import { create, useGlobalState } from '../state/createState';
 import { Cell } from '../cell';
 import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
@@ -41,6 +41,16 @@ export const createRouterInstance = (): RouterType => {
 	const navigate = createNavigate({ ...routerState, transitionedNavigation, isCacheItemFresh, revalidateCache });
 	const invalidate = createInvalidate({ ...routerState, revalidateCache });
 	const prefetch = createPrefetch(revalidateCache);
+	const hooks = {
+		useIsLoading: () => useGlobalState(routerState.isLoadingState),
+		useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
+		useLoaderFallback: () => useGlobalState(routerState.loaderFallbackState),
+		useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
+		useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
+		useScrollMap: () => useGlobalState(routerState.scrollMapState),
+		useContextState: () => useGlobalState(routerState.contextState),
+	};
+
 	return {
 		state: {
 			isLoadingState: routerState.isLoadingState,
@@ -57,5 +67,6 @@ export const createRouterInstance = (): RouterType => {
 			invalidate,
 			prefetch,
 		},
+		hooks,
 	};
 };

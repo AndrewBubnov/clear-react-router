@@ -1,10 +1,9 @@
-import { useCurrentLoaderState } from '../state/hooks.ts';
+import { useRouter } from './useRouter';
 import { LoaderState } from '../types/global';
-import { useRouter } from './useRouter.ts';
 
 export const useLoaderState = <T>() => {
 	const router = useRouter();
-	const [loaderState] = useCurrentLoaderState(router);
+	const [loaderState] = router.hooks.useCurrentLoaderState();
 
 	return loaderState as LoaderState<T>;
 };

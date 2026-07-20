@@ -1,7 +1,8 @@
-import { useContextState } from '../state/hooks.ts';
+import { useRouter } from './useRouter';
 
 export const useRouterContext = () => {
-	const [context, setContext] = useContextState();
+	const router = useRouter();
+	const [context, setContext] = router.hooks.useContextState();
 
 	return { context, setContext };
 };

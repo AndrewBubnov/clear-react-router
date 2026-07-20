@@ -1,9 +1,8 @@
-import { useRouteItemData } from '../state/hooks.ts';
-import { useRouter } from './useRouter.ts';
+import { useRouter } from './useRouter';
 
 export const useLocation = () => {
 	const router = useRouter();
-	const [routeItemData] = useRouteItemData(router);
+	const [routeItemData] = router.hooks.useRouteItemData();
 
 	return routeItemData.location;
 };

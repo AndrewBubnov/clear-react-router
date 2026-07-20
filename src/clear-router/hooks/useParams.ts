@@ -1,11 +1,10 @@
-import { useRouteItemData } from '../state/hooks.ts';
-import { getParamsObject } from '../utils/utils';
 import { useMemo } from 'react';
-import { useRouter } from './useRouter.ts';
+import { getParamsObject } from '../utils/utils';
+import { useRouter } from './useRouter';
 
 export const useParams = <T>() => {
 	const router = useRouter();
-	const [routeItemData] = useRouteItemData(router);
+	const [routeItemData] = router.hooks.useRouteItemData();
 	const {
 		routeItem,
 		location: { pathname },

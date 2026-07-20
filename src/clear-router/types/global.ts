@@ -108,6 +108,35 @@ export type RouterType = {
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void>;
 		prefetch(pathname: string): Promise<void>;
 	};
+	hooks: {
+		useIsLoading: () => readonly [boolean, (action: SetStateAction<boolean>) => void];
+		useBlockedRoute: () => readonly [
+			{
+				from: string;
+				to: string;
+			},
+			(
+				action: SetStateAction<{
+					from: string;
+					to: string;
+				}>
+			) => void,
+		];
+		useLoaderFallback: () => readonly [
+			RenderElement | undefined,
+			(action: SetStateAction<RenderElement | undefined>) => void,
+		];
+		useRouteItemData: () => readonly [RouteItemData, (action: SetStateAction<RouteItemData>) => void];
+		useCurrentLoaderState: () => readonly [
+			LoaderState<unknown>,
+			(action: SetStateAction<LoaderState<unknown>>) => void,
+		];
+		useScrollMap: () => readonly [Record<string, number>, (action: SetStateAction<Record<string, number>>) => void];
+		useContextState: () => readonly [
+			Record<string, unknown>,
+			(action: SetStateAction<Record<string, unknown>>) => void,
+		];
+	};
 };
 
 export type InvalidateOptions = { withChildren?: boolean };
