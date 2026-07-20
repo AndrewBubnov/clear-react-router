@@ -1,7 +1,7 @@
 import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
-import { prefetch as prefetchExecutor } from '../runtime/prefetch';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
+import { useRouter } from '../hooks/useRouter';
 import { RouterProps } from '../types/global';
 
 type LinkProps = {
@@ -12,6 +12,8 @@ type LinkProps = {
 };
 
 export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay }: LinkProps) => {
+	const router = useRouter();
+
 	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
 	const prefetch = prefetchLink || configPrefetch;
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
@@ -24,8 +26,8 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
-		timeout.current = window.setTimeout(() => prefetchExecutor(to), prefetchDelay);
-	}, [prefetch, prefetchDelay, to]);
+		timeout.current = window.setTimeout(() => router.runtime.prefetch(to), prefetchDelay);
+	}, [prefetch, prefetchDelay, router.runtime, to]);
 
 	const onMouseLeave = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
@@ -38,7 +40,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 	useEffect(() => {
 		if (prefetch !== 'render') return;
 		(async () => {
-			await prefetchExecutor(to);
+			await router.runtime.prefetch(to);
 		})();
 	}, [prefetch, to]);
 
@@ -46,7 +48,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 		if (prefetch !== 'viewport') return;
 		const element = ref.current;
 		const observer = new IntersectionObserver(async () => {
-			await prefetchExecutor(to);
+			await router.runtime.prefetch(to);
 			observer.disconnect();
 		});
 
