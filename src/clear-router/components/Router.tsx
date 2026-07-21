@@ -8,7 +8,7 @@ import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
-import { RouterProps } from '../types/global';
+import { RouterProps } from '../types';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 

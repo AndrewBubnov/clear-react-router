@@ -1,4 +1,4 @@
-import { create, useGlobalState } from '../state/createState';
+import { create, useGlobalState } from '../create';
 import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
@@ -8,7 +8,7 @@ import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types/global';
+import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {

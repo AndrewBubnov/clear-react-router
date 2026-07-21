@@ -1,5 +1,5 @@
 import { STANDARD_PREFETCH_DELAY } from '../constants';
-import { ClientRouteItem, RouterProps } from '../types/global';
+import { ClientRouteItem, RouterProps } from '../types';
 
 class RouterConfig {
 	routes: RouterProps['routes'] = [];

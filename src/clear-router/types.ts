@@ -1,6 +1,6 @@
 import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
-import { Store } from '../state/createState';
-import { Cell } from '../cell';
+import { Store } from './create.ts';
+import { Cell } from './cell.ts';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -12,12 +12,6 @@ export type BeforeLoad = (arg: {
 	params: Record<string, string>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 }) => Promise<unknown> | undefined | void;
-
-export type AfterLoad = (arg: {
-	context: Record<string, unknown>;
-	params: Record<string, string>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-}) => Promise<void>;
 
 export type ClientRouteItem = {
 	path: string;

@@ -1,5 +1,5 @@
 import { findRoute } from '../utils/findRoute';
-import { RevalidateCache } from '../types/global';
+import { RevalidateCache } from '../types';
 
 export const createPrefetch = (revalidateCache: RevalidateCache) => async (pathname: string) => {
 	const item = findRoute(pathname);

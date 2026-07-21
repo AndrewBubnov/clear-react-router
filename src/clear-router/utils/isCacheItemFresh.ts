@@ -1,4 +1,4 @@
-import type { RouteItem } from '../types/global';
+import type { RouteItem } from '../types';
 
 export const createIsCacheItemFresh =
 	(timestampMap: Map<string, number>) =>

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { router } from '../instance';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
-import type { Location } from '../types/global';
+import type { Location } from '../types';
 
 export const useNavigate = () => {
 	const [blockedRoute, setBlockedRoute] = router.hooks.useBlockedRoute();

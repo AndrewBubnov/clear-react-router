@@ -14,4 +14,4 @@ export { useSearchParams } from './hooks/useSearchParams';
 export { useFormContext } from './hooks/useFormContext';
 export { adapter } from './utils/adapter';
 export { createRouter } from './utils/utils';
-export type { RouteItem, BlockerState, Location, Adapter, RouterProps } from './types/global';
+export type { RouteItem, BlockerState, Location, Adapter, RouterProps } from './types';

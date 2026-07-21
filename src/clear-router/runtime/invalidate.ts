@@ -1,6 +1,6 @@
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
-import { type InvalidateOptions, RevalidateCache, RouteItem, RouterState } from '../types/global';
+import { type InvalidateOptions, RevalidateCache, RouteItem, RouterState } from '../types';
 
 type CreateInvalidate = RouterState & { revalidateCache: RevalidateCache };
 

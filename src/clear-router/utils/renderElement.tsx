@@ -1,4 +1,4 @@
-import { RenderElement } from '../types/global';
+import { RenderElement } from '../types';
 
 export const renderElement = (Component?: RenderElement) => {
 	if (!Component) return null;

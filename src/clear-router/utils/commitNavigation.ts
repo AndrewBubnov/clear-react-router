@@ -1,6 +1,6 @@
 import { routerConfig } from '../config/routerConfig';
 import { Cell } from '../cell';
-import { Location, RouteItem } from '../types/global';
+import { Location, RouteItem } from '../types';
 
 export const createCommitNavigation =
 	(navigationExecutor: (arg: Location, routeItem: RouteItem | undefined) => void, prevPathnameRef: Cell<string>) =>

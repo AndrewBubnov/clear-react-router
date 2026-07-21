@@ -1,4 +1,4 @@
-import { Location, RouteItem, RouterState } from '../types/global';
+import { Location, RouteItem, RouterState } from '../types';
 
 export const createCommitState =
 	({

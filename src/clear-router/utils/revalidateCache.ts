@@ -1,5 +1,5 @@
 import { getParamsObject } from './utils';
-import { IsCacheItemFresh, LoaderState, RevalidateCacheArgs, RouterState } from '../types/global';
+import { IsCacheItemFresh, LoaderState, RevalidateCacheArgs, RouterState } from '../types';
 
 type RevalidateCache = RouterState & {
 	isCacheItemFresh: IsCacheItemFresh;

@@ -2,7 +2,7 @@ import { getParamsObject } from '../utils/utils';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { emptyLoaderState } from '../constants';
-import { BeforeLoad, IsCacheItemFresh, Location, RevalidateCache, RouteItem, RouterState } from '../types/global';
+import { BeforeLoad, IsCacheItemFresh, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 type CreateNavigate = RouterState & {
 	commitNavigation(nextLocation: Location, routeItem: RouteItem | undefined): void;

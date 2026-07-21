@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { router } from '../instance';
-import { BlockerState } from '../types/global';
+import { BlockerState } from '../types';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;

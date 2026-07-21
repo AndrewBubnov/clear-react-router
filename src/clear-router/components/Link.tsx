@@ -2,7 +2,7 @@ import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCall
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
-import { RouterProps } from '../types/global';
+import { RouterProps } from '../types';
 
 type LinkProps = {
 	to: string;
