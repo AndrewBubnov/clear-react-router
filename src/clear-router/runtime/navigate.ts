@@ -15,10 +15,7 @@ let navigationSeq = 0;
 const routeResolve = (location: Location) => {
 	loaderStateRef.set(emptyLoaderState);
 	const nextItem = findRoute(location.pathname, true);
-	const params = getParamsObject({
-		params: nextItem?.params,
-		pathname: location.pathname,
-	});
+	const params = getParamsObject({ params: nextItem?.params, pathname: location.pathname });
 	return { nextItem, params };
 };
 
@@ -27,14 +24,8 @@ const beforeLoad = async (routeItem: RouteItem | undefined, params: Record<strin
 	const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 		const redirect = async (redirected: Location | string) =>
 			await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
-		const { context, setContext } = getContext();
 		try {
-			await loaderFn({
-				context,
-				redirect,
-				params,
-				setContext,
-			});
+			await loaderFn({ ...getContext(), redirect, params });
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 		} catch (error) {
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
@@ -66,9 +57,8 @@ const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 
 const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
 	const { afterLoad } = routerConfig;
-	const { context, setContext } = getContext();
-	if (routeItem?.afterLoad) await routeItem.afterLoad({ context, params, setContext });
-	if (afterLoad) await afterLoad({ context, params, setContext });
+	if (routeItem?.afterLoad) await routeItem.afterLoad({ ...getContext(), params });
+	if (afterLoad) await afterLoad({ ...getContext(), params });
 };
 
 export const navigate = async (nextLocation: Location) => {
