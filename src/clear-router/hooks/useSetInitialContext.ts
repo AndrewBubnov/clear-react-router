@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useRouter } from './useRouter';
+import { router } from '../instance';
+import { RouterProps } from '../types/global';
 
-export const useSetInitialContext = (initialContext?: Record<string, unknown>) => {
-	const router = useRouter();
-	const [_, setContext] = router.hooks.useContextState();
+export const useSetInitialContext = (initialContext?: RouterProps['context']) => {
+	const [, setContext] = router.hooks.useContextState();
 
 	useEffect(() => {
 		if (initialContext) setContext(initialContext);

@@ -1,11 +1,10 @@
 import { useCallback } from 'react';
+import { router } from '../instance';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
-import { useRouter } from './useRouter';
 import type { Location } from '../types/global';
 
 export const useNavigate = () => {
-	const router = useRouter();
 	const [blockedRoute, setBlockedRoute] = router.hooks.useBlockedRoute();
 
 	const location = useLocation();
@@ -27,6 +26,6 @@ export const useNavigate = () => {
 				await router.runtime.navigate(arg);
 			}
 		},
-		[blockedRouteRef, locationRef, router.runtime, setBlockedRoute]
+		[blockedRouteRef, locationRef, setBlockedRoute]
 	);
 };

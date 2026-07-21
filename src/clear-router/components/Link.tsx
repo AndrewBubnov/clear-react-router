@@ -1,7 +1,7 @@
 import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
+import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
-import { useRouter } from '../hooks/useRouter';
 import { RouterProps } from '../types/global';
 
 type LinkProps = {
@@ -12,8 +12,6 @@ type LinkProps = {
 };
 
 export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay }: LinkProps) => {
-	const router = useRouter();
-
 	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
 	const prefetch = prefetchLink || configPrefetch;
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;

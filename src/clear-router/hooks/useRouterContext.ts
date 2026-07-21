@@ -1,7 +1,6 @@
-import { useRouter } from './useRouter';
+import { router } from '../instance.ts';
 
 export const useRouterContext = () => {
-	const router = useRouter();
 	const [context, setContext] = router.hooks.useContextState();
 
 	return { context, setContext };

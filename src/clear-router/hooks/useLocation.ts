@@ -1,7 +1,6 @@
-import { useRouter } from './useRouter';
+import { router } from '../instance';
 
 export const useLocation = () => {
-	const router = useRouter();
 	const [routeItemData] = router.hooks.useRouteItemData();
 
 	return routeItemData.location;

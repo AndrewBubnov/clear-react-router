@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { useRouter } from '../hooks/useRouter';
+import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
@@ -28,8 +28,7 @@ export const Router = ({
 	defaultLoaderFallback,
 	defaultErrorElement,
 }: RouterProps) => {
-	const instance = useRouter();
-	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = instance.hooks;
+	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = router.hooks;
 	const [isLoading] = useIsLoading();
 	const [currentLoaderFallback] = useLoaderFallback();
 	const [routeItemData] = useRouteItemData();

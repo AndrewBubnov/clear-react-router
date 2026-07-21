@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useRouter } from './useRouter';
+import { router } from '../instance';
 import { BlockerState } from '../types/global';
 
 type UseBlockerReturnValue = {
@@ -14,7 +14,7 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 	const {
 		hooks: { useBlockedRoute, useRouteItemData },
 		runtime: { navigate },
-	} = useRouter();
+	} = router;
 
 	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
 	const [routeItemData] = useRouteItemData();
