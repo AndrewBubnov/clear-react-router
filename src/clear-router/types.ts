@@ -117,7 +117,7 @@ export type RouterType = {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<unknown>>;
+		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState<unknown>>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 	};
