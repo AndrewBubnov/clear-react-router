@@ -1,6 +1,6 @@
 import { Location, RouteItem, RouterState } from '../types/global';
 
-export const createNavigationExecutor =
+export const createCommitState =
 	({
 		isLoadingState,
 		routeItemDataState,

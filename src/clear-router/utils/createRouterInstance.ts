@@ -1,12 +1,12 @@
 import { create, useGlobalState } from '../state/createState';
-import { Cell } from '../cell';
 import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
-import { createTransitionedNavigation } from './transitionedNavigation';
-import { createNavigationExecutor } from './navigationExecutor';
+import { createCommitState } from './commitState';
+import { createCommitNavigation } from './commitNavigation';
 import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { createRevalidateCache } from './revalidateCache';
+import { Cell } from '../cell';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types/global';
 
@@ -29,8 +29,8 @@ export const createRouterInstance = (): RouterType => {
 	const loaderMapRef = {};
 	const loadingPromises = new Map();
 
-	const navigationExecutor = createNavigationExecutor({ ...routerState });
-	const transitionedNavigation = createTransitionedNavigation(navigationExecutor, routerState.prevPathnameRef);
+	const navigationExecutor = createCommitState({ ...routerState });
+	const commitNavigation = createCommitNavigation(navigationExecutor, routerState.prevPathnameRef);
 	const isCacheItemFresh = createIsCacheItemFresh(routerState.timestampMap);
 	const revalidateCache = createRevalidateCache({
 		...routerState,
@@ -38,7 +38,7 @@ export const createRouterInstance = (): RouterType => {
 		loadingPromises,
 		loaderMapRef,
 	});
-	const navigate = createNavigate({ ...routerState, transitionedNavigation, isCacheItemFresh, revalidateCache });
+	const navigate = createNavigate({ ...routerState, commitNavigation, isCacheItemFresh, revalidateCache });
 	const invalidate = createInvalidate({ ...routerState, revalidateCache });
 	const prefetch = createPrefetch(revalidateCache);
 
