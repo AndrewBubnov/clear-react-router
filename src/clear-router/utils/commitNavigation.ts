@@ -1,4 +1,4 @@
-import { commitState } from './commitState.ts';
+import { commitState } from './commitState';
 import { routerConfig } from '../config/routerConfig';
 import { prevPathnameRef } from '../cell';
 import { Location, RouteItem } from '../types/global';
