@@ -35,8 +35,3 @@ export const useGlobalState = <T>({ subscribe, getState, setState }: Store<T>) =
 	const state = useSyncExternalStore(subscribe, getState);
 	return [state, setState] as const;
 };
-
-export const createState = <T>(initialState: T) => {
-	const store = create(initialState);
-	return () => useGlobalState(store);
-};
