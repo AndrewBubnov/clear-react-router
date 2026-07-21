@@ -14,6 +14,8 @@ const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
 	routes,
+	beforeLoad,
+	afterLoad,
 	animationDuration,
 	isAnimated = false,
 	spinner = true,
@@ -33,7 +35,15 @@ export const Router = ({
 
 	useNavigation();
 
-	useSetRouterConfig({ routes, isAnimated, prefetch, hoverPrefetchDelay, showFallbackOnAnimation });
+	useSetRouterConfig({
+		routes,
+		isAnimated,
+		prefetch,
+		hoverPrefetchDelay,
+		showFallbackOnAnimation,
+		beforeLoad,
+		afterLoad,
+	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(preserveScroll);
