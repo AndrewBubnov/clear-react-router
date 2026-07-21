@@ -38,9 +38,6 @@ export const createRouterInstance = (): RouterType => {
 		loadingPromises,
 		loaderMapRef,
 	});
-	const navigate = createNavigate({ ...routerState, commitNavigation, isCacheItemFresh, revalidateCache });
-	const invalidate = createInvalidate({ ...routerState, revalidateCache });
-	const prefetch = createPrefetch(revalidateCache);
 
 	return {
 		state: {
@@ -54,9 +51,9 @@ export const createRouterInstance = (): RouterType => {
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
 		runtime: {
-			navigate,
-			invalidate,
-			prefetch,
+			navigate: createNavigate({ ...routerState, commitNavigation, isCacheItemFresh, revalidateCache }),
+			invalidate: createInvalidate({ ...routerState, revalidateCache }),
+			prefetch: createPrefetch(revalidateCache),
 		},
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
