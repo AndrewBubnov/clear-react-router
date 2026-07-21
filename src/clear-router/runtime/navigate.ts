@@ -1,64 +1,84 @@
 import { isLoadingState, loaderFallbackState, scrollMapState } from '../state/state';
 import { revalidateCache } from '../utils/revalidateCache';
 import { getParamsObject } from '../utils/utils';
-import { transitionedNavigation } from '../utils/transitionedNavigation';
+import { commitNavigation } from '../utils/commitNavigation.ts';
 import { isCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { getContext } from '../utils/getContext';
 import { loaderStateRef, prevPathnameRef } from '../cell';
 import { emptyLoaderState } from '../constants';
-import { Location } from '../types/global';
+import { Location, RouteItem } from '../types/global';
 
 let navigationSeq = 0;
 
-export const navigate = async (nextLocation: Location) => {
+const routeResolve = (location: Location) => {
 	navigationSeq = navigationSeq + 1;
 	const seq = navigationSeq;
 	loaderStateRef.set(emptyLoaderState);
-	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 
-	const nextItem = findRoute(nextLocation.pathname, true);
+	const nextItem = findRoute(location.pathname, true);
 
-	const params: Record<string, string> = getParamsObject({
+	const params = getParamsObject({
 		params: nextItem?.params,
-		pathname: nextLocation.pathname,
+		pathname: location.pathname,
 	});
+
+	return { nextItem, params, seq };
+};
+
+const beforeLoad = async (routeItem: RouteItem | undefined, location: Location, params: Record<string, string>) => {
+	if (!routeItem?.beforeLoad) return;
+	const redirect = async (redirected: Location | string) =>
+		await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 	const { context, setContext } = getContext();
-
-	if (nextItem?.beforeLoad) {
-		const redirect = async (location: Location | string) =>
-			await navigate(typeof location === 'string' ? { pathname: location } : location);
-
-		try {
-			await nextItem.beforeLoad({
-				context,
-				redirect,
-				params,
-				setContext,
-			});
-			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
-		} catch (error) {
-			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
-			return transitionedNavigation(nextLocation, nextItem);
-		}
+	try {
+		await routeItem.beforeLoad({
+			context,
+			redirect,
+			params,
+			setContext,
+		});
+		loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
+	} catch (error) {
+		loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
+		return commitNavigation(location, routeItem);
 	}
-	if (seq !== navigationSeq) return;
+};
+
+const routeChangePrepare = (routeItem: RouteItem | undefined, location: Location) => {
+	const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 	scrollMapState.setState(prevState => {
 		const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
 		if (!scrollPosition || prevState[prevPathnameRef.value] === scrollPosition) return prevState;
 		return { ...prevState, [prevPathnameRef.value]: scrollPosition };
 	});
 	loaderFallbackState.setState(
-		isCacheItemFresh({ routeItem: nextItem, pathname: nextLocation.pathname }) || (isAnimated && !showFallback)
+		isCacheItemFresh({ routeItem, pathname: location.pathname }) || (isAnimated && !showFallback)
 			? undefined
-			: nextItem?.loaderFallback
+			: routeItem?.loaderFallback
 	);
-	if (nextItem?.loader) {
-		isLoadingState.setState(true);
-		await revalidateCache({ routeItem: nextItem, pathname: nextLocation.pathname });
-	}
+};
+
+const loader = async (routeItem: RouteItem | undefined, location: Location) => {
+	if (!routeItem?.loader) return;
+	isLoadingState.setState(true);
+	await revalidateCache({ routeItem, pathname: location.pathname });
+};
+
+const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
+	if (!routeItem?.afterLoad) return;
+	const { context, setContext } = getContext();
+	await routeItem.afterLoad({ context, params, setContext });
+};
+
+export const navigate = async (nextLocation: Location) => {
+	const { nextItem, params, seq } = routeResolve(nextLocation);
+	await beforeLoad(nextItem, nextLocation, params);
 	if (seq !== navigationSeq) return;
-	transitionedNavigation(nextLocation, nextItem);
-	if (nextItem?.afterLoad) await nextItem.afterLoad({ context, params, setContext });
+	routeChangePrepare(nextItem, nextLocation);
+	await loader(nextItem, nextLocation);
+	if (seq !== navigationSeq) return;
+	commitNavigation(nextLocation, nextItem);
+	await afterLoad(nextItem, params);
 };

@@ -2,7 +2,7 @@ import { currentLoaderState, isLoadingState, loaderFallbackState, routeItemDataS
 import { loaderStateRef, prevPathnameRef } from '../cell';
 import { Location, RouteItem } from '../types/global';
 
-export const navigationExecutor = (nextLocation: Location, routeItem: RouteItem | undefined) => {
+export const commitState = (nextLocation: Location, routeItem: RouteItem | undefined) => {
 	routeItemDataState.setState({ routeItem, location: nextLocation });
 	currentLoaderState.setState(loaderStateRef.value);
 	isLoadingState.setState(false);
