@@ -1,6 +1,6 @@
 import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
-import { Store } from './create.ts';
-import { Cell } from './cell.ts';
+import { Store, useGlobalState } from './create';
+import { Cell } from './cell';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -113,33 +113,13 @@ export type RouterType = {
 		prefetch(pathname: string): Promise<void>;
 	};
 	hooks: {
-		useIsLoading: () => readonly [boolean, (action: SetStateAction<boolean>) => void];
-		useBlockedRoute: () => readonly [
-			{
-				from: string;
-				to: string;
-			},
-			(
-				action: SetStateAction<{
-					from: string;
-					to: string;
-				}>
-			) => void,
-		];
-		useLoaderFallback: () => readonly [
-			RenderElement | undefined,
-			(action: SetStateAction<RenderElement | undefined>) => void,
-		];
-		useRouteItemData: () => readonly [RouteItemData, (action: SetStateAction<RouteItemData>) => void];
-		useCurrentLoaderState: () => readonly [
-			LoaderState<unknown>,
-			(action: SetStateAction<LoaderState<unknown>>) => void,
-		];
-		useScrollMap: () => readonly [Record<string, number>, (action: SetStateAction<Record<string, number>>) => void];
-		useContextState: () => readonly [
-			Record<string, unknown>,
-			(action: SetStateAction<Record<string, unknown>>) => void,
-		];
+		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
+		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
+		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
+		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
+		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<unknown>>;
+		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
+		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 	};
 };
 
