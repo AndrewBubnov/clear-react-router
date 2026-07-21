@@ -1,7 +1,7 @@
 import { isLoadingState, loaderFallbackState, scrollMapState } from '../state/state';
 import { revalidateCache } from '../utils/revalidateCache';
 import { getParamsObject } from '../utils/utils';
-import { commitNavigation } from '../utils/commitNavigation.ts';
+import { commitNavigation } from '../utils/commitNavigation';
 import { isCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
