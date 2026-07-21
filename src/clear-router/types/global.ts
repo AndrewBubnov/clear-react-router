@@ -4,6 +4,19 @@ export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
 export type RenderElement = (() => ReactElement) | ReactElement;
 
+export type BeforeLoad = (arg: {
+	context: Record<string, unknown>;
+	redirect: (arg: Location | string) => Promise<void>;
+	params: Record<string, string>;
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+}) => Promise<unknown> | undefined | void;
+
+export type AfterLoad = (arg: {
+	context: Record<string, unknown>;
+	params: Record<string, string>;
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+}) => Promise<void>;
+
 export type ClientRouteItem = {
 	path: string;
 	element: RenderElement | LazyComponent;
@@ -17,12 +30,7 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
-	beforeLoad?: (arg: {
-		context: Record<string, unknown>;
-		redirect: (arg: Location | string) => Promise<void>;
-		params: Record<string, string>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	}) => Promise<unknown> | undefined | void;
+	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
@@ -83,5 +91,7 @@ export type RouterProps = {
 	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	hoverPrefetchDelay?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
+	beforeLoad?: ClientRouteItem['beforeLoad'];
+	afterLoad?: ClientRouteItem['afterLoad'];
 	context?: Record<string, unknown>;
 };
