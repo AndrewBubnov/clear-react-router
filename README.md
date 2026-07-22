@@ -64,6 +64,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
+| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
+| `afterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
 | `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
 | `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
@@ -71,6 +73,8 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
+
+> **Note:** Global lifecycle hooks wrap every route navigation. The global beforeLoad runs **before** the route-specific beforeLoad, while the global afterLoad runs **after** the route-specific afterLoad.
 
 ```tsx
 <div>
