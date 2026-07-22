@@ -25,7 +25,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 		if (prefetch !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
 		timeout.current = window.setTimeout(() => router.runtime.prefetch(to), prefetchDelay);
-	}, [prefetch, prefetchDelay, router.runtime, to]);
+	}, [prefetch, prefetchDelay, to]);
 
 	const onMouseLeave = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
