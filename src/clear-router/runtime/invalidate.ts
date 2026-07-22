@@ -41,30 +41,19 @@ export const createInvalidate = (
 		if (!routeItem) return;
 
 		const pathnameArray: string[] = [];
-
-		for (const [key] of timestampMap) {
-			if (comparePaths(routeItem, key)) {
-				pathnameArray.push(key);
-			}
-		}
+		for (const [key] of timestampMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
 
 		await Promise.all(pathnameArray.map(pathname => invalidatePath(routeItem, pathname)));
 
 		if (withChildren && routeItem.children?.length) {
 			const childPathList = routeItem.children.map(el => el.path);
-
 			await Promise.all(childPathList.map(el => invalidateItem(`${pathname}${el}`, true)));
 		}
 	};
 
-	async function invalidate(pathList?: string[]): Promise<void>;
-	async function invalidate(path?: string, options?: InvalidateOptions): Promise<void>;
-
-	async function invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void> {
+	return async (pathList?: string | string[], options?: InvalidateOptions) => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
 		await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options?.withChildren)));
-	}
-
-	return invalidate;
+	};
 };

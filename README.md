@@ -456,10 +456,11 @@ await invalidate('/post/[id]/comment/[id]');
 
 #### Including child routes
 
-To revalidate a single route together with its cached child routes, pass the `withChildren` option:
+To revalidate routes together with their cached child routes, pass the `withChildren` option:
 
 ```tsx
-await invalidate('/posts', { withChildren: true }); // a route, not a route list
+await invalidate('/posts', { withChildren: true });
+await invalidate(['/posts', '/users'], { withChildren: true });
 ```
 
 This will recursively revalidate cached routes inside the route tree.
