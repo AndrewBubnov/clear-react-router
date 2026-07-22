@@ -59,6 +59,7 @@ export const parseWindowLocation = (location: typeof window.location): Location 
 });
 
 export const comparePaths = (el: RouteItem, pathname: string) => {
+	if (!el.params?.length) return el.path.replaceAll('/', '') === pathname.replaceAll('/', '');
 	const splitElementPath = el.path.split('/').filter(Boolean);
 	const paramsLength = el.params ? Object.keys(el.params).length : 0;
 	const splitPathname = pathname.split('/').filter(Boolean);
