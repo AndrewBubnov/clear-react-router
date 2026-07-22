@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { useIsLoading, useLoaderFallback, useCurrentLoaderState, useRouteItemData } from '../state/state';
+import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
@@ -8,7 +8,7 @@ import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
-import { RouterProps } from '../types/global';
+import { RouterProps } from '../types';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -28,6 +28,7 @@ export const Router = ({
 	defaultLoaderFallback,
 	defaultErrorElement,
 }: RouterProps) => {
+	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = router.hooks;
 	const [isLoading] = useIsLoading();
 	const [currentLoaderFallback] = useLoaderFallback();
 	const [routeItemData] = useRouteItemData();

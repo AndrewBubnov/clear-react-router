@@ -1,6 +1,6 @@
 import { emptyLoaderState } from './constants';
 
-class Cell<T> {
+export class Cell<T> {
 	constructor(private _value: T) {}
 
 	get value() {

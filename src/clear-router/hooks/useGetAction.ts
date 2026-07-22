@@ -1,9 +1,10 @@
-import { useInvalidate } from './useInvalidate.ts';
-import { useContextState, useRouteItemData } from '../state/state';
+import { router } from '../instance';
+import { useInvalidate } from './useInvalidate';
 import { useParams } from './useParams';
 import { useLatest } from './useLatest';
 
 export const useGetAction = (actionKey: string) => {
+	const { useRouteItemData, useContextState } = router.hooks;
 	const invalidate = useInvalidate();
 	const [routeItemData] = useRouteItemData();
 	const [context, setContext] = useContextState();

@@ -1,9 +1,9 @@
-import { useRouteItemData } from '../state/state';
-import { getParamsObject } from '../utils/utils';
 import { useMemo } from 'react';
+import { router } from '../instance';
+import { getParamsObject } from '../utils/utils';
 
 export const useParams = <T>() => {
-	const [routeItemData] = useRouteItemData();
+	const [routeItemData] = router.hooks.useRouteItemData();
 	const {
 		routeItem,
 		location: { pathname },
