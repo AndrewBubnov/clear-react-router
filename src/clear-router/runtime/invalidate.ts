@@ -57,14 +57,9 @@ export const createInvalidate = (
 		}
 	};
 
-	async function invalidate(pathList?: string[]): Promise<void>;
-	async function invalidate(path?: string, options?: InvalidateOptions): Promise<void>;
-
-	async function invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void> {
+	return async (pathList?: string | string[], options?: InvalidateOptions) => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
 		await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options?.withChildren)));
-	}
-
-	return invalidate;
+	};
 };
