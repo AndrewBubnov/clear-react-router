@@ -23,8 +23,7 @@ export const createNavigate = (routerSta: RouterState, revalidateCache: Revalida
 	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
 	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 
-	const context = contextState.getState();
-	const setContext = contextState.setState;
+	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
 	const routeResolve = (location: Location) => {
 		loaderStateRef.set(emptyLoaderState);
@@ -42,12 +41,7 @@ export const createNavigate = (routerSta: RouterState, revalidateCache: Revalida
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
-				await loaderFn({
-					context,
-					redirect,
-					params,
-					setContext,
-				});
+				await loaderFn({ ...getContext(), redirect, params });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
@@ -79,8 +73,8 @@ export const createNavigate = (routerSta: RouterState, revalidateCache: Revalida
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
 		const { afterLoad } = routerConfig;
-		if (routeItem?.afterLoad) await routeItem.afterLoad({ context, params, setContext });
-		if (afterLoad) await afterLoad({ context, params, setContext });
+		if (routeItem?.afterLoad) await routeItem.afterLoad({ ...getContext(), params });
+		if (afterLoad) await afterLoad({ ...getContext(), params });
 	};
 
 	const navigate = async (nextLocation: Location) => {
