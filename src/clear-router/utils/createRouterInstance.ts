@@ -2,9 +2,6 @@ import { create, useGlobalState } from '../create';
 import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
-import { createCommitState } from './commitState';
-import { createCommitNavigation } from './commitNavigation';
-import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
 import { emptyLoaderState } from '../constants';
@@ -26,18 +23,8 @@ export const createRouterInstance = (): RouterType => {
 		prevPathnameRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
 	};
-	const loaderMapRef = {};
-	const loadingPromises = new Map();
 
-	const navigationExecutor = createCommitState({ ...routerState });
-	const commitNavigation = createCommitNavigation(navigationExecutor, routerState.prevPathnameRef);
-	const isCacheItemFresh = createIsCacheItemFresh(routerState.timestampMap);
-	const revalidateCache = createRevalidateCache({
-		...routerState,
-		isCacheItemFresh,
-		loadingPromises,
-		loaderMapRef,
-	});
+	const revalidateCache = createRevalidateCache(routerState);
 
 	return {
 		state: {
@@ -51,8 +38,8 @@ export const createRouterInstance = (): RouterType => {
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
 		runtime: {
-			navigate: createNavigate({ ...routerState, commitNavigation, isCacheItemFresh, revalidateCache }),
-			invalidate: createInvalidate({ ...routerState, revalidateCache }),
+			navigate: createNavigate(routerState, revalidateCache),
+			invalidate: createInvalidate(routerState, revalidateCache),
 			prefetch: createPrefetch(revalidateCache),
 		},
 		hooks: {

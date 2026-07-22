@@ -1,23 +1,18 @@
 import { getParamsObject } from './utils';
-import { IsCacheItemFresh, LoaderState, RevalidateCacheArgs, RouterState } from '../types';
+import { createIsCacheItemFresh } from './isCacheItemFresh';
+import { LoaderState, RevalidateCacheArgs, RouterState } from '../types';
 
-type RevalidateCache = RouterState & {
-	isCacheItemFresh: IsCacheItemFresh;
-	loaderMapRef: Record<string, LoaderState>;
-	loadingPromises: Map<string, Promise<unknown>>;
-};
+const loaderMapRef: Record<string, LoaderState> = {};
+const loadingPromises = new Map();
 
 export const createRevalidateCache =
-	({
-		loaderStateRef,
-		timestampMap,
-		isCacheItemFresh,
-		loaderMapRef,
-		loadingPromises,
-		contextState,
-	}: RevalidateCache) =>
+	(routerState: RouterState) =>
 	({ routeItem, pathname }: RevalidateCacheArgs) => {
 		if (!routeItem?.loader) return;
+
+		const isCacheItemFresh = createIsCacheItemFresh(routerState.timestampMap);
+
+		const { loaderStateRef, timestampMap, contextState } = routerState;
 
 		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 

@@ -1,29 +1,27 @@
-import { getParamsObject } from '../utils/utils';
+import { createCommitState } from '../utils/commitState';
+import { createCommitNavigation } from '../utils/commitNavigation';
+import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
+import { getParamsObject } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
-import { BeforeLoad, IsCacheItemFresh, Location, RevalidateCache, RouteItem, RouterState } from '../types';
-
-type CreateNavigate = RouterState & {
-	commitNavigation(nextLocation: Location, routeItem: RouteItem | undefined): void;
-	isCacheItemFresh: IsCacheItemFresh;
-	revalidateCache: RevalidateCache;
-};
+import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 let navigationSeq = 0;
 
-export const createNavigate = (args: CreateNavigate) => {
+export const createNavigate = (routerSta: RouterState, revalidateCache: RevalidateCache) => {
 	const {
 		loaderStateRef,
-		commitNavigation,
 		scrollMapState,
 		prevPathnameRef,
 		loaderFallbackState,
 		isLoadingState,
-		isCacheItemFresh,
-		revalidateCache,
 		contextState,
-	} = args;
+		timestampMap,
+	} = routerSta;
+	const navigationExecutor = createCommitState(routerSta);
+	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
+	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 
 	const context = contextState.getState();
 	const setContext = contextState.setState;
