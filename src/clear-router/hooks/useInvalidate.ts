@@ -1,3 +1,3 @@
-import { invalidate } from '../runtime/invalidate';
+import { router } from '../instance';
 
-export const useInvalidate = () => invalidate;
+export const useInvalidate = () => router.runtime.invalidate;

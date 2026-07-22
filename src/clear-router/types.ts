@@ -1,4 +1,6 @@
 import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
+import { Store, useGlobalState } from './create';
+import { Cell } from './cell';
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -10,12 +12,6 @@ export type BeforeLoad = (arg: {
 	params: Record<string, string>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 }) => Promise<unknown> | undefined | void;
-
-export type AfterLoad = (arg: {
-	context: Record<string, unknown>;
-	params: Record<string, string>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-}) => Promise<void>;
 
 export type ClientRouteItem = {
 	path: string;
@@ -95,3 +91,38 @@ export type RouterProps = {
 	afterLoad?: ClientRouteItem['afterLoad'];
 	context?: Record<string, unknown>;
 };
+
+export type RouterState = {
+	isLoadingState: Store<boolean>;
+	loaderFallbackState: Store<RouteItem['loaderFallback']>;
+	routeItemDataState: Store<RouteItemData>;
+	currentLoaderState: Store<LoaderState>;
+	scrollMapState: Store<Record<string, number>>;
+	contextState: Store<Record<string, unknown>>;
+	blockedRouteState: Store<{ from: string; to: string }>;
+	loaderStateRef: Cell<LoaderState>;
+	prevPathnameRef: Cell<string>;
+	timestampMap: Map<string, number>;
+};
+
+export type RouterType = {
+	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
+	runtime: {
+		navigate(arg: Location): Promise<void>;
+		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void>;
+		prefetch(pathname: string): Promise<void>;
+	};
+	hooks: {
+		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
+		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
+		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
+		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
+		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState<unknown>>>;
+		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
+		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+	};
+};
+
+export type InvalidateOptions = { withChildren?: boolean };
+export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
+export type IsCacheItemFresh = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => boolean;

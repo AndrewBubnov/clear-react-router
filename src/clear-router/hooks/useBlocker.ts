@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { navigate } from '../runtime/navigate';
-import { useBlockedRoute, useRouteItemData } from '../state/state';
-import { BlockerState } from '../types/global';
+import { router } from '../instance';
+import { BlockerState } from '../types';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
@@ -12,9 +11,14 @@ type UseBlockerReturnValue = {
 type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
 
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
-	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const {
+		hooks: { useBlockedRoute, useRouteItemData },
+		runtime: { navigate },
+	} = router;
 
+	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
 	const [routeItemData] = useRouteItemData();
+
 	const {
 		location: { pathname },
 	} = routeItemData;
@@ -29,7 +33,7 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 				if (!prevState.from && !prevState.to) return prevState;
 				return { from: '', to: '' };
 			}),
-		[setBlockedRoute]
+		[navigate, setBlockedRoute]
 	);
 
 	const blockerState: BlockerState = useMemo(() => {

@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react';
 type SetStateAction<T> = ((prevState: T) => T) | T;
 type Listener<T> = (state: T, prevState: T) => void;
 
-type Store<T> = {
+export type Store<T> = {
 	subscribe: (listener: Listener<T>) => () => void;
 	getState: () => T;
 	setState: (action: SetStateAction<T>) => void;
@@ -34,9 +34,4 @@ export const create = <T>(initialState: T): Store<T> => {
 export const useGlobalState = <T>({ subscribe, getState, setState }: Store<T>) => {
 	const state = useSyncExternalStore(subscribe, getState);
 	return [state, setState] as const;
-};
-
-export const createState = <T>(initialState: T) => {
-	const store = create(initialState);
-	return () => useGlobalState(store);
 };

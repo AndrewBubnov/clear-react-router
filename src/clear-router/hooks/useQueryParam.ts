@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { useSearchParams } from './useSearchParams.ts';
-import { Adapter } from '../types/global.ts';
+import { useSearchParams } from './useSearchParams';
+import { Adapter } from '../types';
 
 export function useQueryParam<T>(field: string, adapter: Adapter<T>, defaultValue?: T): [T, (arg: T | null) => void] {
 	const { searchParams, setSearchParams } = useSearchParams();

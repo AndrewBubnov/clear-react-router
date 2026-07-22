@@ -1,12 +1,11 @@
 import { useCallback } from 'react';
-import { navigate } from '../runtime/navigate';
-import { useBlockedRoute } from '../state/state';
+import { router } from '../instance';
 import { useLocation } from './useLocation';
 import { useLatest } from './useLatest';
-import type { Location } from '../types/global';
+import type { Location } from '../types';
 
 export const useNavigate = () => {
-	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
+	const [blockedRoute, setBlockedRoute] = router.hooks.useBlockedRoute();
 
 	const location = useLocation();
 
@@ -15,10 +14,6 @@ export const useNavigate = () => {
 
 	return useCallback(
 		async (arg: Location | string | -1) => {
-			if (!navigate) {
-				throw new Error('Router has not been initialized. Did you forget to render <Router />?');
-			}
-
 			if (arg !== -1 && blockedRouteRef.current.from) {
 				const to = typeof arg === 'object' ? arg.pathname : arg;
 				setBlockedRoute(prevState => ({ ...prevState, to }));
@@ -26,9 +21,9 @@ export const useNavigate = () => {
 			}
 			if (arg === -1) return history.go(arg);
 			if (typeof arg === 'string') {
-				if (arg !== locationRef.current.pathname) await navigate({ pathname: arg });
+				if (arg !== locationRef.current.pathname) await router.runtime.navigate({ pathname: arg });
 			} else if (JSON.stringify(arg) !== JSON.stringify(locationRef.current)) {
-				await navigate(arg);
+				await router.runtime.navigate(arg);
 			}
 		},
 		[blockedRouteRef, locationRef, setBlockedRoute]

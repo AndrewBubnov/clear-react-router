@@ -1,7 +1,9 @@
 import { useCallback, useEffect } from 'react';
-import { useRouteItemData, useScrollMap } from '../state/state';
+import { router } from '../instance';
 
 export const usePreserveScroll = (preserveScroll: boolean) => {
+	const { useRouteItemData, useScrollMap } = router.hooks;
+
 	const [routeItemData] = useRouteItemData();
 	const [scrollMap] = useScrollMap();
 

@@ -1,7 +1,7 @@
-import { useRouteItemData } from '../state/state';
+import { router } from '../instance';
 
 export const useLocation = () => {
-	const [routeItemData] = useRouteItemData();
+	const [routeItemData] = router.hooks.useRouteItemData();
 
 	return routeItemData.location;
 };
