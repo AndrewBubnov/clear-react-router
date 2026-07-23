@@ -27,6 +27,8 @@ export const createRouterInstance = (): RouterType => {
 
 	const revalidateCache = createRevalidateCache(routerState);
 	const navigate = createNavigate(routerState, revalidateCache);
+	const invalidate = createInvalidate(routerState, revalidateCache);
+	const prefetch = createPrefetch(revalidateCache);
 
 	return {
 		state: {
@@ -39,11 +41,7 @@ export const createRouterInstance = (): RouterType => {
 			blockedRouteState: routerState.blockedRouteState,
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
-		runtime: {
-			navigate,
-			invalidate: createInvalidate(routerState, revalidateCache),
-			prefetch: createPrefetch(revalidateCache),
-		},
+		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
@@ -74,6 +72,28 @@ export const createRouterInstance = (): RouterType => {
 						if (arg !== location.pathname) await navigate({ pathname: arg });
 					} else if (JSON.stringify(arg) !== JSON.stringify(location)) {
 						await navigate(arg);
+					}
+				};
+			},
+			useGetAction: (actionKey: string) => {
+				const { routeItem, location } = routerState.routeItemDataState.getState();
+				const context = routerState.contextState.getState();
+				const setContext = routerState.contextState.setState;
+				const params = getParamsObject({ params: routeItem?.params, pathname: location.pathname });
+				if (!routeItem) throw new Error('Route not found');
+				if (!routeItem.actions) throw new Error('Route action creator not found');
+				const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
+				if (!action) throw new Error(`Action "${actionKey}" not found`);
+				return { currentAction: action, invalidate };
+			},
+			useRestoreScroll: () => {
+				const { pathname } = routerState.routeItemDataState.getState().location;
+				const scrollMap = routerState.scrollMapState.getState();
+				return () => {
+					if (pathname && scrollMap[pathname]) {
+						requestAnimationFrame(() => {
+							window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' });
+						});
 					}
 				};
 			},

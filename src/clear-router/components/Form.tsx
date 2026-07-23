@@ -1,6 +1,6 @@
 import { PropsWithChildren, SubmitEvent, useState } from 'react';
+import { router } from '../instance';
 import { FormProvider } from '../provider/FormProvider';
-import { useGetAction } from '../hooks/useGetAction';
 
 type FormProps = {
 	action: string;
@@ -10,7 +10,7 @@ type FormProps = {
 };
 
 export const Form = ({ children, action, onSuccess, onError, autoReset = true }: PropsWithChildren<FormProps>) => {
-	const { currentAction, invalidate } = useGetAction(action);
+	const { currentAction, invalidate } = router.hooks.useGetAction(action);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 

@@ -122,6 +122,11 @@ export type RouterType = {
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
+		useGetAction: (actionKey: string) => {
+			currentAction: (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown;
+			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<void>;
+		};
+		useRestoreScroll: () => () => void;
 	};
 };
 

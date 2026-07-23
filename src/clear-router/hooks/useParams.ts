@@ -1,3 +1,3 @@
 import { router } from '../instance';
 
-export const useParams = <T>() => router.hooks.useParams<T>();
+export const useParams = router.hooks.useParams;

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useGetAction } from './useGetAction';
+import { router } from '../instance';
 import { useLatest } from './useLatest';
 
 type Options =
@@ -10,7 +10,7 @@ type Options =
 	| undefined;
 
 export const useAction = (action: string, options: Options = {}) => {
-	const { currentAction, invalidate } = useGetAction(action);
+	const { currentAction, invalidate } = router.hooks.useGetAction(action);
 	const latestOnSuccess = useLatest(options?.onSuccess);
 	const latestOnError = useLatest(options?.onError);
 
