@@ -4,6 +4,7 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
+import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
 
@@ -25,6 +26,7 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
+	const navigate = createNavigate(routerState, revalidateCache);
 
 	return {
 		state: {
@@ -38,7 +40,7 @@ export const createRouterInstance = (): RouterType => {
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
 		runtime: {
-			navigate: createNavigate(routerState, revalidateCache),
+			navigate,
 			invalidate: createInvalidate(routerState, revalidateCache),
 			prefetch: createPrefetch(revalidateCache),
 		},
@@ -50,6 +52,31 @@ export const createRouterInstance = (): RouterType => {
 			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
+			useParams: <T>() => {
+				const routeItemData = routerState.routeItemDataState.getState();
+				return getParamsObject({
+					params: routeItemData.routeItem?.params,
+					pathname: routeItemData.location.pathname,
+				}) as T;
+			},
+			useNavigate: () => {
+				const { blockedRouteState } = routerState;
+				const { location } = routerState.routeItemDataState.getState();
+
+				return async (arg: Location | string | -1) => {
+					if (arg !== -1 && blockedRouteState.getState().from) {
+						const to = typeof arg === 'object' ? arg.pathname : arg;
+						blockedRouteState.setState(prevState => ({ ...prevState, to }));
+						return;
+					}
+					if (arg === -1) return history.go(arg);
+					if (typeof arg === 'string') {
+						if (arg !== location.pathname) await navigate({ pathname: arg });
+					} else if (JSON.stringify(arg) !== JSON.stringify(location)) {
+						await navigate(arg);
+					}
+				};
+			},
 		},
 	};
 };

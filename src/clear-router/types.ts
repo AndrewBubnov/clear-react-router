@@ -117,12 +117,13 @@ export type RouterType = {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState<unknown>>>;
+		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+		useParams: <T>() => T;
+		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
 	};
 };
 
 export type InvalidateOptions = { withChildren?: boolean };
 export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
-export type IsCacheItemFresh = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => boolean;
