@@ -90,10 +90,8 @@ export const createRouterInstance = (): RouterType => {
 				const { pathname } = routerState.routeItemDataState.getState().location;
 				const scrollMap = routerState.scrollMapState.getState();
 				return () => {
-					if (pathname && scrollMap[pathname]) {
-						requestAnimationFrame(() => {
-							window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' });
-						});
+					if (scrollMap[pathname]) {
+						requestAnimationFrame(() => window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' }));
 					}
 				};
 			},
