@@ -127,7 +127,7 @@ export type RouterType = {
 			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<void>;
 		};
 		useRestoreScroll: () => () => void;
-		useAction: (action: string, options: Options) => (arg: FormData) => Promise<void>;
+		useAction: (action: string, options?: Options) => (arg: FormData) => Promise<void>;
 	};
 };
 
