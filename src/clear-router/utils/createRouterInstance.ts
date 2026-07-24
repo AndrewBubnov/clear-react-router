@@ -6,7 +6,7 @@ import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
 import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
+import { LoaderState, Location, Options, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
@@ -30,6 +30,18 @@ export const createRouterInstance = (): RouterType => {
 	const invalidate = createInvalidate(routerState, revalidateCache);
 	const prefetch = createPrefetch(revalidateCache);
 
+	const useGetAction = (actionKey: string) => {
+		const { routeItem, location } = routerState.routeItemDataState.getState();
+		const context = routerState.contextState.getState();
+		const setContext = routerState.contextState.setState;
+		const params = getParamsObject({ params: routeItem?.params, pathname: location.pathname });
+		if (!routeItem) throw new Error('Route not found');
+		if (!routeItem.actions) throw new Error('Route action creator not found');
+		const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
+		if (!action) throw new Error(`Action "${actionKey}" not found`);
+		return { currentAction: action, invalidate };
+	};
+
 	return {
 		state: {
 			isLoadingState: routerState.isLoadingState,
@@ -42,6 +54,7 @@ export const createRouterInstance = (): RouterType => {
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
 		runtime: { navigate, invalidate, prefetch },
+
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
@@ -75,23 +88,25 @@ export const createRouterInstance = (): RouterType => {
 					}
 				};
 			},
-			useGetAction: (actionKey: string) => {
-				const { routeItem, location } = routerState.routeItemDataState.getState();
-				const context = routerState.contextState.getState();
-				const setContext = routerState.contextState.setState;
-				const params = getParamsObject({ params: routeItem?.params, pathname: location.pathname });
-				if (!routeItem) throw new Error('Route not found');
-				if (!routeItem.actions) throw new Error('Route action creator not found');
-				const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
-				if (!action) throw new Error(`Action "${actionKey}" not found`);
-				return { currentAction: action, invalidate };
-			},
 			useRestoreScroll: () => {
 				const { pathname } = routerState.routeItemDataState.getState().location;
 				const scrollMap = routerState.scrollMapState.getState();
 				return () => {
 					if (scrollMap[pathname]) {
 						requestAnimationFrame(() => window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' }));
+					}
+				};
+			},
+			useGetAction,
+			useAction: (action: string, options: Options = {}) => {
+				const { currentAction, invalidate } = useGetAction(action);
+				return async (formData: FormData) => {
+					try {
+						const result = await currentAction(formData);
+						await invalidate();
+						options.onSuccess?.(result);
+					} catch (error) {
+						options.onError?.(error);
 					}
 				};
 			},
