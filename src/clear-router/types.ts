@@ -117,12 +117,25 @@ export type RouterType = {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState<unknown>>>;
+		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+		useParams: <T>() => T;
+		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
+		useGetAction: (actionKey: string) => {
+			currentAction: (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown;
+			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<void>;
+		};
+		useRestoreScroll: () => () => void;
+		useAction: (action: string, options?: Options) => (arg: FormData) => Promise<void>;
 	};
 };
 
 export type InvalidateOptions = { withChildren?: boolean };
 export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
-export type IsCacheItemFresh = ({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => boolean;
+export type Options =
+	| Partial<{
+			onSuccess: (args: unknown) => void;
+			onError: (args: unknown) => void;
+	  }>
+	| undefined;

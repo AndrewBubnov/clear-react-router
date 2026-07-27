@@ -4,8 +4,9 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
+import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, Location, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
+import { LoaderState, Location, Options, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
@@ -25,6 +26,21 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
+	const navigate = createNavigate(routerState, revalidateCache);
+	const invalidate = createInvalidate(routerState, revalidateCache);
+	const prefetch = createPrefetch(revalidateCache);
+
+	const useGetAction = (actionKey: string) => {
+		const { routeItem, location } = routerState.routeItemDataState.getState();
+		const context = routerState.contextState.getState();
+		const setContext = routerState.contextState.setState;
+		const params = getParamsObject({ params: routeItem?.params, pathname: location.pathname });
+		if (!routeItem) throw new Error('Route not found');
+		if (!routeItem.actions) throw new Error('Route action creator not found');
+		const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
+		if (!action) throw new Error(`Action "${actionKey}" not found`);
+		return { currentAction: action, invalidate };
+	};
 
 	return {
 		state: {
@@ -37,11 +53,8 @@ export const createRouterInstance = (): RouterType => {
 			blockedRouteState: routerState.blockedRouteState,
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
-		runtime: {
-			navigate: createNavigate(routerState, revalidateCache),
-			invalidate: createInvalidate(routerState, revalidateCache),
-			prefetch: createPrefetch(revalidateCache),
-		},
+		runtime: { navigate, invalidate, prefetch },
+
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
@@ -50,6 +63,53 @@ export const createRouterInstance = (): RouterType => {
 			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
+			useParams: <T>() => {
+				const routeItemData = routerState.routeItemDataState.getState();
+				return getParamsObject({
+					params: routeItemData.routeItem?.params,
+					pathname: routeItemData.location.pathname,
+				}) as T;
+			},
+			useNavigate: () => {
+				const { blockedRouteState } = routerState;
+				const { location } = routerState.routeItemDataState.getState();
+
+				return async (arg: Location | string | -1) => {
+					if (arg !== -1 && blockedRouteState.getState().from) {
+						const to = typeof arg === 'object' ? arg.pathname : arg;
+						blockedRouteState.setState(prevState => ({ ...prevState, to }));
+						return;
+					}
+					if (arg === -1) return history.go(arg);
+					if (typeof arg === 'string') {
+						if (arg !== location.pathname) await navigate({ pathname: arg });
+					} else if (JSON.stringify(arg) !== JSON.stringify(location)) {
+						await navigate(arg);
+					}
+				};
+			},
+			useRestoreScroll: () => {
+				const { pathname } = routerState.routeItemDataState.getState().location;
+				const scrollMap = routerState.scrollMapState.getState();
+				return () => {
+					if (scrollMap[pathname]) {
+						requestAnimationFrame(() => window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' }));
+					}
+				};
+			},
+			useGetAction,
+			useAction: (action: string, options: Options = {}) => {
+				const { currentAction, invalidate } = useGetAction(action);
+				return async (formData: FormData) => {
+					try {
+						const result = await currentAction(formData);
+						await invalidate();
+						options.onSuccess?.(result);
+					} catch (error) {
+						options.onError?.(error);
+					}
+				};
+			},
 		},
 	};
 };
