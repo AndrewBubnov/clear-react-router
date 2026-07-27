@@ -56,7 +56,6 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				loaderMapRef[pathname] = loaderStateRef.value;
 			} catch (error) {
 				const retry = getRetry(routeItem);
-				console.log(retry);
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(pathname);
 					if (retry.delay) await sleep(retry.delay);
