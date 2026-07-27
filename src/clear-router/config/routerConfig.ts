@@ -9,6 +9,7 @@ class RouterConfig {
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	beforeLoad?: ClientRouteItem['beforeLoad'];
 	afterLoad?: ClientRouteItem['afterLoad'];
+	defaultRetry?: RouterProps['defaultRetry'];
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);
 	}

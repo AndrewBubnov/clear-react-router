@@ -1,13 +1,13 @@
 import { getParamsObject } from './utils';
 import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { LoaderState, RevalidateCacheArgs, RouterState } from '../types';
+import { routerConfig } from '../config/routerConfig.ts';
 
 const loaderMapRef: Record<string, LoaderState> = {};
 const loadingPromises = new Map();
 
-export const createRevalidateCache =
-	(routerState: RouterState) =>
-	({ routeItem, pathname }: RevalidateCacheArgs) => {
+export const createRevalidateCache = (routerState: RouterState) => {
+	const revalidateCache = async ({ routeItem, pathname }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(routerState.timestampMap);
@@ -36,7 +36,13 @@ export const createRevalidateCache =
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMapRef[pathname] = loaderStateRef.value;
 			} catch (error) {
-				loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
+				const retry = routeItem?.retry ?? routerConfig.defaultRetry ?? 0;
+				if (retry && retry > retried) {
+					loadingPromises.delete(pathname);
+					await revalidateCache({ routeItem, pathname }, retried + 1);
+				} else {
+					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
+				}
 			} finally {
 				loadingPromises.delete(pathname);
 			}
@@ -45,3 +51,5 @@ export const createRevalidateCache =
 		loadingPromises.set(pathname, promise);
 		return promise;
 	};
+	return revalidateCache;
+};

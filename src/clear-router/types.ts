@@ -26,6 +26,7 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	retry?: number;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -81,6 +82,7 @@ export type RouterProps = {
 	animationDuration?: number;
 	spinner?: boolean;
 	preserveScroll?: boolean;
+	defaultRetry?: number;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;
