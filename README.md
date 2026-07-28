@@ -463,7 +463,7 @@ const UserProfile = () => {
 
 ### `useInvalidate()`
 
-Returns a function that revalidates cached route data by executing the route lifecycle again.
+Returns a function that revalidates **cached** route data by executing the route lifecycle again.
 
 Calling `invalidate()` clears the cached loader result and immediately runs both `beforeLoad` and `loader` for the specified route. This is useful after mutations or any operation that changes data used by the route.
 
@@ -553,7 +553,7 @@ will revalidate the cached child routes:
 #### Notes
 
 * `invalidate()` re-executes both `beforeLoad` and `loader` for the invalidated route.
-* Only routes that already have cached data are revalidated.
+* **Only routes that already have cached data are revalidated.**
 * Cached data is discarded before the new loader starts.
 * When used as an event handler, wrap the call in an arrow function:
 
