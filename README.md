@@ -38,23 +38,6 @@ It provides first-class support for:
 
 ## API
 
-### `createRouter(routes)`
-
-Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic params, builds nested paths.
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `path` | `string` | Route path, e.g., `/user/:userId` |
-| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
-| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
-| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
-| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
-| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
-| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
-| `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
-| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
-
 ### `Router`
 
 | Prop | Type | Default | Description |
@@ -64,6 +47,7 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
+| `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
 | `afterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
@@ -82,8 +66,25 @@ Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic pa
   <Router routes={routes} spinner={false} isAnimated />  {/* disable the spinner */}
 </div>
 ```
-
 > **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`). On the initial page load, however, the route's loaderFallback is rendered if available.
+
+### `createRouter(routes)`
+
+Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic params, builds nested paths.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `path` | `string` | Route path, e.g., `/user/:userId` |
+| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
+| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
+| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
+| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
+| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
+| `retry` | `number \| { count: number; delay: number }` | `optional` | Overrides the global cache revalidation retry policy for this route |
+| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
+| `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
+| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
 
 ### `Link`
 
@@ -124,6 +125,68 @@ import { Router, Link } from 'clear-react-router';
 </Link>
 ```
 **Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
+
+## Retry
+
+Sometimes a request may fail because of a temporary network issue or a short-lived server problem. Instead of immediately rendering the error state, you can configure the router to automatically retry loading route data.
+
+### Route-level retry
+
+```tsx
+{
+  path: '/posts',
+  loader: loadPosts,
+  retry: 3,
+}
+```
+
+`retry: 3` means the router will make up to **3 additional attempts** after the initial failed request (up to **4 attempts** in total).
+
+You can also specify a delay between attempts:
+
+```tsx
+{
+  path: '/posts',
+  loader: loadPosts,
+  retry: {
+    count: 3,
+    delay: 500,
+  },
+}
+```
+
+### Global retry
+
+To apply the same retry policy to all routes, use `defaultRetry`:
+
+```tsx
+<Router routes={routes} defaultRetry={2} />
+```
+
+or with a delay:
+
+```tsx
+<Router routes={routes} defaultRetry={{ count: 2, delay: 500 }} />
+```
+
+A route-level `retry` always overrides `defaultRetry`.
+
+### How it works
+
+Unlike many routing libraries, retry is **not limited to the initial loader execution**.
+
+The retry policy is applied to the router's **cache revalidation mechanism**, so it automatically works for every operation that reloads route data, including:
+
+* Initial route loading
+* Cache revalidation
+* `invalidate()`
+* `prefetch()`
+
+This ensures consistent behavior regardless of how the data is being refreshed.
+
+### Why?
+
+The router treats the route loader as the single source of truth for route data. Since every data refresh goes through the same cache revalidation pipeline, retry is configured once and automatically applies everywhere without any additional code.
 
 ### `redirect`
 
