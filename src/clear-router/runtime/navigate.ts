@@ -9,7 +9,7 @@ import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '.
 
 let navigationSeq = 0;
 
-export const createNavigate = (routerSta: RouterState, revalidateCache: RevalidateCache) => {
+export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	const {
 		loaderStateRef,
 		scrollMapState,
@@ -18,8 +18,8 @@ export const createNavigate = (routerSta: RouterState, revalidateCache: Revalida
 		isLoadingState,
 		contextState,
 		timestampMap,
-	} = routerSta;
-	const navigationExecutor = createCommitState(routerSta);
+	} = routerState;
+	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
 	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 

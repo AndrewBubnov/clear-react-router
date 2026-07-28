@@ -27,6 +27,7 @@ export const Router = ({
 	context: initialContext,
 	defaultLoaderFallback,
 	defaultErrorElement,
+	defaultRetry,
 }: RouterProps) => {
 	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = router.hooks;
 	const [isLoading] = useIsLoading();
@@ -44,6 +45,7 @@ export const Router = ({
 		showFallbackOnAnimation,
 		beforeLoad,
 		afterLoad,
+		defaultRetry,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
