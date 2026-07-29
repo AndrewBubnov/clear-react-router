@@ -70,7 +70,7 @@ It provides first-class support for:
 
 ### `createRouter(routes)`
 
-Normalizes route configuration. Handles wildcard `*` routes, extracts dynamic params, builds nested paths.
+Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
 | Property | Type | Description |
 |----------|------|-------------|
