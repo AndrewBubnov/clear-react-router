@@ -519,7 +519,7 @@ await invalidate('/post/[id]/comment/[id]');
 
 #### Including child routes
 
-To include the `beforeLoad` function in the revalidation process, pass the `withBeforeLoad` option:
+To revalidate routes together with their cached child routes, pass the `withChildren` option:
 
 ```tsx
 await invalidate('/posts', { withChildren: true });
@@ -552,7 +552,7 @@ will revalidate the cached child routes:
 ```
 #### Including `beforeLoad`
 
-To run both `beforeLoad` and `loader` for the route or route list, pass the `withBeforeLoad` option:
+To include the `beforeLoad` function in the revalidation process, pass the `withBeforeLoad` option:
 
 ```tsx
 await invalidate('/posts', { withBeforeLoad: true });
