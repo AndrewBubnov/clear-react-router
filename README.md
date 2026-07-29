@@ -463,9 +463,7 @@ const UserProfile = () => {
 
 ### `useInvalidate()`
 
-Returns a function that revalidates **cached** route data.
-
-Calling invalidate() clears cached route data and immediately runs the corresponding route loader again.
+Returns a function that revalidates **cached** route data. Calling `invalidate()` clears cached route data and immediately runs the corresponding route loader again.
 
 #### Current route
 
