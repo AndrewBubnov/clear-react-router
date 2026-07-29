@@ -5,10 +5,8 @@ import { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types';
 
 const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 
-const parseClientRouteItem = (el: ClientRouteItem, parentPath = '', parentPattern = ''): RouteItem[] => {
+const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
 	const segments = el.path.split('/').filter(Boolean);
-	const staticSegments: string[] = [];
-
 	let lastStaticSegment = '';
 
 	for (const segment of segments) {
@@ -16,21 +14,14 @@ const parseClientRouteItem = (el: ClientRouteItem, parentPath = '', parentPatter
 			if (!lastStaticSegment) throw new Error(`Route "${el.path}" cannot start with a parameter.`);
 		} else {
 			lastStaticSegment = segment;
-			staticSegments.push(segment);
 		}
 	}
 
-	const path = `${parentPath}/${staticSegments.join('/')}`.replace(/\/+/g, '/');
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
 	const resolvedElement = isLazy(el) ? createLazyComponent(el.element as LazyComponent, el.fallback) : el.element;
-	const currentRoute: RouteItem = {
-		...el,
-		path,
-		pattern,
-		element: resolvedElement as (() => ReactElement) | ReactElement,
-	};
+	const currentRoute: RouteItem = { ...el, pattern, element: resolvedElement as (() => ReactElement) | ReactElement };
 
-	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, path, pattern)) ?? [];
+	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, pattern)) ?? [];
 
 	return [currentRoute, ...childRoutes];
 };
