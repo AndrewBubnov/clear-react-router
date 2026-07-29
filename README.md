@@ -463,9 +463,9 @@ const UserProfile = () => {
 
 ### `useInvalidate()`
 
-Returns a function that revalidates **cached** route data by executing the route lifecycle again.
+Returns a function that revalidates **cached** route data.
 
-Calling `invalidate()` clears the cached loader result and immediately runs both `beforeLoad` and `loader` for the specified route. This is useful after mutations or any operation that changes data used by the route.
+Calling invalidate() clears cached route data and immediately runs the corresponding route loader again.
 
 #### Current route
 
@@ -490,12 +490,12 @@ await invalidate('/posts');
 You can revalidate several routes at once by passing an array of pathnames:
 
 ```tsx
-await invalidate([ '/posts', '/profile', '/settings' ]);
+await invalidate(['/posts', '/profile', '/settings']);
 ```
 
 #### Dynamic routes
 
-When a dynamic route pattern is provided, every cached route matching that pattern will be revalidated.
+When a dynamic route pattern is provided, every cached route that matches the pattern will be revalidated.
 
 For example:
 
@@ -519,14 +519,14 @@ await invalidate('/post/[id]/comment/[id]');
 
 #### Including child routes
 
-To revalidate routes together with their cached child routes, pass the `withChildren` option:
+To include the `beforeLoad` function in the revalidation process, pass the `withBeforeLoad` option:
 
 ```tsx
 await invalidate('/posts', { withChildren: true });
 await invalidate(['/posts', '/users'], { withChildren: true });
 ```
 
-This will recursively revalidate cached routes inside the route tree.
+This will recursively revalidate all cached child routes.
 
 For example, if the following routes have been visited:
 
@@ -550,17 +550,23 @@ will revalidate the cached child routes:
 /post/23
 /post/42/comments
 ```
+#### Including `beforeLoad`
+
+To run both `beforeLoad` and `loader` for the route or route list, pass the `withBeforeLoad` option:
+
+```tsx
+await invalidate('/posts', { withBeforeLoad: true });
+await invalidate(['/posts', '/users'], { withBeforeLoad: true });
+```
+
 #### Notes
 
-* `invalidate()` re-executes both `beforeLoad` and `loader` for the invalidated route.
 * **Only routes that already have cached data are revalidated.**
-* Cached data is discarded before the new loader starts.
+* Cached data is cleared before the new loader starts.
 * When used as an event handler, wrap the call in an arrow function:
 
 ```tsx
-<button onClick={() => invalidate()}>
-	Refresh
-</button>
+<button onClick={() => invalidate()}>Refresh</button>
 ```
 
 Passing `invalidate` directly (`onClick={invalidate}`) is not supported because React passes a `MouseEvent` object to event handlers.
