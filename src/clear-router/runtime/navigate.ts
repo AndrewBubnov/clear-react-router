@@ -28,10 +28,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const routeResolve = (location: Location) => {
 		loaderStateRef.set(emptyLoaderState);
 		const nextItem = findRoute(location.pathname, true);
-		const params = getParamsObject({
-			params: nextItem?.params,
-			pathname: location.pathname,
-		});
+		const params = getParamsObject(nextItem, location.pathname);
 		return { nextItem, params };
 	};
 

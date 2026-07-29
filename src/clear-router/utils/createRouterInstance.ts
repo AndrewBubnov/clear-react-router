@@ -31,10 +31,10 @@ export const createRouterInstance = (): RouterType => {
 	const prefetch = createPrefetch(revalidateCache);
 
 	const useGetAction = (actionKey: string) => {
-		const { routeItem, location } = routerState.routeItemDataState.getState();
+		const { routeItem } = routerState.routeItemDataState.getState();
 		const context = routerState.contextState.getState();
 		const setContext = routerState.contextState.setState;
-		const params = getParamsObject({ params: routeItem?.params, pathname: location.pathname });
+		const params = getParamsObject();
 		if (!routeItem) throw new Error('Route not found');
 		if (!routeItem.actions) throw new Error('Route action creator not found');
 		const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
@@ -63,13 +63,7 @@ export const createRouterInstance = (): RouterType => {
 			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
-			useParams: <T>() => {
-				const routeItemData = routerState.routeItemDataState.getState();
-				return getParamsObject({
-					params: routeItemData.routeItem?.params,
-					pathname: routeItemData.location.pathname,
-				}) as T;
-			},
+			useParams: <T>() => getParamsObject() as T,
 			useNavigate: () => {
 				const { blockedRouteState } = routerState;
 				const { location } = routerState.routeItemDataState.getState();

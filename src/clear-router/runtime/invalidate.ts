@@ -11,10 +11,7 @@ export const createInvalidate = (
 	const invalidatePath = async (routeItem: RouteItem, pathname: string, options?: InvalidateOptions) => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		timestampMap.delete(pathname);
-		const params = getParamsObject({
-			params: routeItem?.params,
-			pathname,
-		});
+		const params = getParamsObject();
 
 		try {
 			if (routeItem?.beforeLoad && options?.withBeforeLoad) {

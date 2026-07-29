@@ -43,7 +43,7 @@ export type ClientRouteItem = {
 
 export type RouteItem = ClientRouteItem & {
 	element: RenderElement;
-	params?: { key: string; value: string }[];
+	pattern: string;
 	cacheTimestamp?: number;
 };
 
