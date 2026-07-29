@@ -137,7 +137,7 @@ export type RouterType = {
 	};
 };
 
-export type InvalidateOptions = { withChildren?: boolean };
+export type InvalidateOptions = { withChildren?: boolean; withBeforeLoad?: boolean };
 export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
 export type Options =
 	| Partial<{
