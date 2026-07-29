@@ -28,11 +28,13 @@ const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteIte
 
 export const createRouter = (clientList: ClientRouteItem[]) => clientList.flatMap(el => parseClientRouteItem(el));
 
-export const getParamsObject = () => {
+export const getParamsObject = (nextItem?: RouteItem, nextPathname?: string) => {
 	const {
-		routeItem,
-		location: { pathname },
+		routeItem: stateItem,
+		location: { pathname: statePathname },
 	} = router.state.routeItemDataState.getState();
+	const routeItem = nextItem || stateItem;
+	const pathname = nextPathname || statePathname;
 
 	if (!routeItem) return {};
 

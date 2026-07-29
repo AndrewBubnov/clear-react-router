@@ -45,7 +45,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			try {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
-				const params: Record<string, string> = getParamsObject();
+				const params: Record<string, string> = getParamsObject(routeItem, pathname);
 				const result = await routeItem?.loader({
 					params,
 					context,
