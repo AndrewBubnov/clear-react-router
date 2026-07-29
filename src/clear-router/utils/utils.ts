@@ -64,13 +64,10 @@ export const parseWindowLocation = (location: typeof window.location): Location 
 	search: location.search,
 });
 
-export const comparePaths = (el: RouteItem, pathname: string) => {
-	const paramsLength = el.pattern.split('/').filter(el => el.startsWith(':')).length;
-	if (!paramsLength) return el.path.replaceAll('/', '') === pathname.replaceAll('/', '');
-	const splitElementPath = el.path.split('/').filter(Boolean);
-	const splitPathname = pathname.split('/').filter(Boolean);
-	return (
-		splitElementPath.every((item, index) => item === splitPathname[2 * index]) &&
-		splitPathname.length === splitElementPath.length + paramsLength
-	);
+export const comparePaths = (route: RouteItem, pathname: string) => {
+	const pattern = route.pattern.split('/').filter(Boolean);
+	const current = pathname.split('/').filter(Boolean);
+	return pattern.length === current.length
+		? pattern.every((segment, index) => segment.startsWith(':') || segment === current[index])
+		: false;
 };
