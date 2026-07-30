@@ -4,11 +4,17 @@ import { type InvalidateOptions, RevalidateCache, RouteItem, RouterState } from 
 
 const redirect = () => Promise.resolve();
 
+type Result = { path: string; data: unknown };
+
 export const createInvalidate = (
 	{ routeItemDataState, loaderStateRef, timestampMap, currentLoaderState, contextState }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
-	const invalidatePath = async (routeItem: RouteItem, pathname: string, options?: InvalidateOptions) => {
+	const invalidatePath = async (
+		routeItem: RouteItem,
+		pathname: string,
+		options?: InvalidateOptions
+	): Promise<Result> => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		timestampMap.delete(pathname);
 		const params = getParamsObject();
@@ -24,33 +30,45 @@ export const createInvalidate = (
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 		}
 
-		await revalidateCache({
-			routeItem,
-			pathname,
-		});
+		const result = await revalidateCache({ routeItem, pathname });
 
 		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
+		return { path: pathname, data: result };
 	};
 
-	const invalidateItem = async (pathname: string, options?: InvalidateOptions) => {
+	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<Result[]> => {
 		const routeItem = findRoute(pathname);
 
-		if (!routeItem) return;
+		if (!routeItem) return [];
 
 		const pathnameArray: string[] = [];
 		for (const [key] of timestampMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
 
-		await Promise.all(pathnameArray.map(pathname => invalidatePath(routeItem, pathname, options)));
+		const currentResults = await Promise.all(
+			pathnameArray.map(pathname => invalidatePath(routeItem, pathname, options))
+		);
 
-		if (options?.withChildren && routeItem.children?.length) {
-			const childPathList = routeItem.children.map(el => el.path);
-			await Promise.all(childPathList.map(el => invalidateItem(`${pathname}${el}`, options)));
-		}
+		if (!options?.withChildren || !routeItem.children?.length) return currentResults;
+
+		const childResults = await Promise.all(
+			routeItem.children.map(child => invalidateItem(`${pathname}${child.path}`, options))
+		);
+
+		return [...currentResults, ...childResults.flat()];
 	};
 
 	return async (pathList?: string | string[], options?: InvalidateOptions) => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
-		await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options)));
+		const result = await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options)));
+
+		return result.flat().reduce(
+			(acc, cur) => {
+				if (!cur) return acc;
+				acc[cur.path] = cur.data;
+				return acc;
+			},
+			{} as Record<string, unknown>
+		);
 	};
 };

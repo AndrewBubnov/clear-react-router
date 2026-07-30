@@ -54,7 +54,6 @@ export const createRouterInstance = (): RouterType => {
 			prevPathnameRef: routerState.prevPathnameRef,
 		},
 		runtime: { navigate, invalidate, prefetch },
-
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),

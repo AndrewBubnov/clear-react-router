@@ -54,6 +54,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				timestampMap.set(pathname, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMapRef[pathname] = loaderStateRef.value;
+				return result;
 			} catch (error) {
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
