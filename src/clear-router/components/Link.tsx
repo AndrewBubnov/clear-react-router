@@ -31,15 +31,14 @@ export const Link = ({
 	const { useIsLoading } = router.hooks;
 	const [isPending] = useIsLoading();
 	const { pathname } = useLocation();
-	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
-
-	const prefetch = prefetchLink || configPrefetch;
-	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
-
 	const navigate = useNavigate();
 
 	const timeout = useRef<number>(0);
 	const ref = useRef<HTMLAnchorElement>(null);
+
+	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
+	const prefetch = prefetchLink || configPrefetch;
+	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
@@ -78,8 +77,11 @@ export const Link = ({
 	}, [prefetch, to]);
 
 	const isActive = to === pathname;
-	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : `${className}`;
+	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
+	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
+		.filter(Boolean)
+		.join(' ');
 
 	const clickHandler = async (event: MouseEvent) => {
 		event.preventDefault();
@@ -92,7 +94,7 @@ export const Link = ({
 			href={to}
 			ref={ref}
 			style={normalizedStyle}
-			className={`${isActive ? activeClassName : isPending ? pendingClassName : ''} ${normalizedClassName}`}
+			className={resultClassName}
 			onClick={clickHandler}
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
