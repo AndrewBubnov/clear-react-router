@@ -26,12 +26,11 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
+	const { loaderStateRef, timestampMap, contextState } = routerState;
 	const revalidateCache = async ({ routeItem, pathname }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
-		const isCacheItemFresh = createIsCacheItemFresh(routerState.timestampMap);
-
-		const { loaderStateRef, timestampMap, contextState } = routerState;
+		const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 
 		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 

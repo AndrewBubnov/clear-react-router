@@ -108,6 +108,7 @@ export type RouterState = {
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
 	prevPathnameRef: Cell<string>;
+	pendingPathRef: Cell<string>;
 	timestampMap: Map<string, number>;
 };
 

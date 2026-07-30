@@ -4,6 +4,7 @@ import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
+import { useIsRoutePending } from '../hooks/useIsRoutePending.ts';
 
 type LinkProps = {
 	to: string;
@@ -28,8 +29,7 @@ export const Link = ({
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
 }: LinkProps) => {
-	const { useIsLoading } = router.hooks;
-	const [isPending] = useIsLoading();
+	const isPending = useIsRoutePending(to);
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 
