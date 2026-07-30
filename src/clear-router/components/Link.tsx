@@ -1,4 +1,4 @@
-import { type CSSProperties, useRef, useCallback, useEffect, ReactNode } from 'react';
+import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent } from 'react';
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
@@ -14,6 +14,7 @@ type LinkProps = {
 	className?: string | (({ isActive }: { isActive: boolean; isPending: boolean }) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
+	onClick?(): void;
 };
 
 export const Link = ({
@@ -23,6 +24,7 @@ export const Link = ({
 	hoverPrefetchDelay,
 	className,
 	style,
+	onClick,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
 }: LinkProps) => {
@@ -76,17 +78,22 @@ export const Link = ({
 	}, [prefetch, to]);
 
 	const isActive = to === pathname;
-
 	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : `${className}`;
-
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
+
+	const clickHandler = async (event: MouseEvent) => {
+		event.preventDefault();
+		onClick?.();
+		await navigate(to);
+	};
 
 	return (
 		<a
+			href={to}
 			ref={ref}
 			style={normalizedStyle}
 			className={`${isActive ? activeClassName : isPending ? pendingClassName : ''} ${normalizedClassName}`}
-			onClick={() => navigate(to)}
+			onClick={clickHandler}
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
 		>
