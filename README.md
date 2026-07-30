@@ -588,9 +588,9 @@ await invalidate(['/posts', '/users'], { withBeforeLoad: true });
 
 An array of objects with the following structure:
 ```ts
-{ path: string; data: unknown }
+{ path: string; data: unknown; error: unknown }
 ```
-Each object represents a successfully revalidated route, where `path` is the route pathname and `data` is the revalidated loader result.
+Each object represents a revalidated route, where `path` is the route pathname, `data` is the revalidated loader result, and `error` is the loader error, if any.
 
 #### Notes
 
