@@ -1,10 +1,10 @@
 import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent } from 'react';
 import { router } from '../instance';
+import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
-import { useIsRoutePending } from '../hooks/useIsRoutePending.ts';
 
 type LinkProps = {
 	to: string;
