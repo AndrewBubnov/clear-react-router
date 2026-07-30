@@ -36,7 +36,7 @@ export type ClientRouteItem = {
 	actions?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
-		invalidate: (path?: string) => Promise<void>;
+		invalidate: (path?: string) => Promise<InvalidateResult[]>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
@@ -116,7 +116,7 @@ export type RouterType = {
 	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
-		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<void>;
+		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
 		prefetch(pathname: string): Promise<void>;
 	};
 	hooks: {
@@ -131,7 +131,7 @@ export type RouterType = {
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
 		useGetAction: (actionKey: string) => {
 			currentAction: (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown;
-			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<void>;
+			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<InvalidateResult[]>;
 		};
 		useRestoreScroll: () => () => void;
 		useAction: (action: string, options?: Options) => (arg: FormData) => Promise<void>;
@@ -139,10 +139,15 @@ export type RouterType = {
 };
 
 export type InvalidateOptions = { withChildren?: boolean; withBeforeLoad?: boolean };
-export type RevalidateCache = ({ routeItem, pathname }: RevalidateCacheArgs) => Promise<unknown> | undefined;
+export type RevalidateCache = ({
+	routeItem,
+	pathname,
+}: RevalidateCacheArgs) => Promise<{ data: unknown; error: unknown }>;
 export type Options =
 	| Partial<{
 			onSuccess: (args: unknown) => void;
 			onError: (args: unknown) => void;
 	  }>
 	| undefined;
+
+export type InvalidateResult = { path: string; data: unknown };
