@@ -1,4 +1,12 @@
-import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent } from 'react';
+import {
+	type CSSProperties,
+	useRef,
+	useCallback,
+	useEffect,
+	ReactNode,
+	MouseEvent,
+	ComponentPropsWithoutRef,
+} from 'react';
 import { router } from '../instance';
 import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
@@ -6,7 +14,7 @@ import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
 
-type LinkProps = {
+type LinkProps = Omit<ComponentPropsWithoutRef<'a'>, 'href' | 'className' | 'style'> & {
 	to: string;
 	children: ReactNode;
 	prefetch?: RouterProps['prefetch'];
