@@ -34,10 +34,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 
-		if (isCacheItemFresh({ routeItem, pathname })) {
-			loaderStateRef.set(loaderMapRef[pathname]);
-			return;
-		}
+		if (isCacheItemFresh({ routeItem, pathname })) loaderStateRef.set(loaderMapRef[pathname]);
 
 		const promise = (async () => {
 			if (!routeItem?.loader) return;
@@ -53,15 +50,17 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				timestampMap.set(pathname, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMapRef[pathname] = loaderStateRef.value;
-				return result;
+				return { data: result, error: null };
 			} catch (error) {
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(pathname);
 					if (retry.delay) await sleep(retry.delay);
 					await revalidateCache({ routeItem, pathname }, retried + 1);
+					return { data: null, error };
 				} else {
 					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
+					return { data: null, error };
 				}
 			} finally {
 				loadingPromises.delete(pathname);

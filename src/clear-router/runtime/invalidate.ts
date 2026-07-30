@@ -1,10 +1,8 @@
 import { comparePaths, getParamsObject } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
-import { type InvalidateOptions, RevalidateCache, RouteItem, RouterState } from '../types';
+import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
 const redirect = () => Promise.resolve();
-
-type Result = { path: string; data: unknown };
 
 export const createInvalidate = (
 	{ routeItemDataState, loaderStateRef, timestampMap, currentLoaderState, contextState }: RouterState,
@@ -14,7 +12,7 @@ export const createInvalidate = (
 		routeItem: RouteItem,
 		pathname: string,
 		options?: InvalidateOptions
-	): Promise<Result> => {
+	): Promise<InvalidateResult> => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		timestampMap.delete(pathname);
 		const params = getParamsObject();
@@ -33,10 +31,10 @@ export const createInvalidate = (
 		const result = await revalidateCache({ routeItem, pathname });
 
 		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
-		return { path: pathname, data: result };
+		return { path: pathname, ...result };
 	};
 
-	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<Result[]> => {
+	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {
 		const routeItem = findRoute(pathname);
 
 		if (!routeItem) return [];
