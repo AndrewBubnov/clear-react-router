@@ -12,9 +12,20 @@ type LinkProps = {
 	hoverPrefetchDelay?: number;
 	style?: CSSProperties | (({ isActive }: { isActive: boolean; isPending: boolean }) => CSSProperties);
 	className?: string | (({ isActive }: { isActive: boolean; isPending: boolean }) => string);
+	activeClassName?: string;
+	pendingClassName?: string;
 };
 
-export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay, className, style }: LinkProps) => {
+export const Link = ({
+	children,
+	to,
+	prefetch: prefetchLink,
+	hoverPrefetchDelay,
+	className,
+	style,
+	activeClassName = 'active-link',
+	pendingClassName = 'pending-link',
+}: LinkProps) => {
 	const { useIsLoading } = router.hooks;
 	const [isPending] = useIsLoading();
 	const { pathname } = useLocation();
@@ -74,7 +85,7 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay,
 		<a
 			ref={ref}
 			style={normalizedStyle}
-			className={`${isActive ? 'active-link' : isPending ? 'pending-link' : ''} ${normalizedClassName}`}
+			className={`${isActive ? activeClassName : isPending ? pendingClassName : ''} ${normalizedClassName}`}
 			onClick={() => navigate(to)}
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
