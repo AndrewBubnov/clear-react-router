@@ -584,6 +584,14 @@ await invalidate('/posts', { withBeforeLoad: true });
 await invalidate(['/posts', '/users'], { withBeforeLoad: true });
 ```
 
+#### Returns
+
+An array of objects with the following structure:
+```ts
+{ path: string; data: unknown }
+```
+Each object represents a successfully revalidated route, where `path` is the route pathname and `data` is the revalidated loader result.
+
 #### Notes
 
 * **Only routes that already have cached data are revalidated.**
