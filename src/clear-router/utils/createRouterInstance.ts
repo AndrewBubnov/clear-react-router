@@ -22,6 +22,7 @@ export const createRouterInstance = (): RouterType => {
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
 		prevPathnameRef: new Cell<string>(''),
+		pendingPathRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
 	};
 
@@ -52,6 +53,7 @@ export const createRouterInstance = (): RouterType => {
 			contextState: routerState.contextState,
 			blockedRouteState: routerState.blockedRouteState,
 			prevPathnameRef: routerState.prevPathnameRef,
+			pendingPathRef: routerState.pendingPathRef,
 		},
 		runtime: { navigate, invalidate, prefetch },
 
