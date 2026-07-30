@@ -1,18 +1,25 @@
-import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
+import { type CSSProperties, useRef, useCallback, useEffect, ReactNode } from 'react';
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
+import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
 
 type LinkProps = {
 	to: string;
-	children: ReactElement<{ onClick: (e: MouseEvent) => void; style: CSSProperties }>;
+	children: ReactNode;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
+	style?: CSSProperties | (({ isActive }: { isActive: boolean; isPending: boolean }) => CSSProperties);
+	className?: string | (({ isActive }: { isActive: boolean; isPending: boolean }) => string);
 };
 
-export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay }: LinkProps) => {
+export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay, className, style }: LinkProps) => {
+	const { useIsLoading } = router.hooks;
+	const [isPending] = useIsLoading();
+	const { pathname } = useLocation();
 	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
+
 	const prefetch = prefetchLink || configPrefetch;
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
@@ -57,10 +64,17 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 		};
 	}, [prefetch, to]);
 
+	const isActive = to === pathname;
+
+	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : `${className}`;
+
+	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
+
 	return (
 		<a
 			ref={ref}
-			style={{ cursor: 'pointer' }}
+			style={normalizedStyle}
+			className={`${isActive ? 'active-link' : isPending ? 'pending-link' : ''} ${normalizedClassName}`}
 			onClick={() => navigate(to)}
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
