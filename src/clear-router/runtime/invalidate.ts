@@ -61,14 +61,6 @@ export const createInvalidate = (
 		const routePathname = routeItemDataState.getState().location.pathname;
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
 		const result = await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options)));
-
-		return result.flat().reduce(
-			(acc, cur) => {
-				if (!cur) return acc;
-				acc[cur.path] = cur.data;
-				return acc;
-			},
-			{} as Record<string, unknown>
-		);
+		return result.flat();
 	};
 };
