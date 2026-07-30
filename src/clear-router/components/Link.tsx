@@ -1,25 +1,44 @@
-import { type ReactElement, type MouseEvent, type CSSProperties, useRef, useCallback, useEffect } from 'react';
+import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent } from 'react';
 import { router } from '../instance';
+import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
+import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
 
 type LinkProps = {
 	to: string;
-	children: ReactElement<{ onClick: (e: MouseEvent) => void; style: CSSProperties }>;
+	children: ReactNode;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
+	style?: CSSProperties | (({ isActive }: { isActive: boolean; isPending: boolean }) => CSSProperties);
+	className?: string | (({ isActive }: { isActive: boolean; isPending: boolean }) => string);
+	activeClassName?: string;
+	pendingClassName?: string;
+	onClick?(): void;
 };
 
-export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay }: LinkProps) => {
-	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
-	const prefetch = prefetchLink || configPrefetch;
-	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
-
+export const Link = ({
+	children,
+	to,
+	prefetch: prefetchLink,
+	hoverPrefetchDelay,
+	className,
+	style,
+	onClick,
+	activeClassName = 'active-link',
+	pendingClassName = 'pending-link',
+}: LinkProps) => {
+	const isPending = useIsRoutePending(to);
+	const { pathname } = useLocation();
 	const navigate = useNavigate();
 
 	const timeout = useRef<number>(0);
 	const ref = useRef<HTMLAnchorElement>(null);
+
+	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
+	const prefetch = prefetchLink || configPrefetch;
+	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
@@ -57,11 +76,26 @@ export const Link = ({ children, to, prefetch: prefetchLink, hoverPrefetchDelay 
 		};
 	}, [prefetch, to]);
 
+	const isActive = to === pathname;
+	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
+	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
+	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
+		.filter(Boolean)
+		.join(' ');
+
+	const clickHandler = async (event: MouseEvent) => {
+		event.preventDefault();
+		onClick?.();
+		await navigate(to);
+	};
+
 	return (
 		<a
+			href={to}
 			ref={ref}
-			style={{ cursor: 'pointer' }}
-			onClick={() => navigate(to)}
+			style={normalizedStyle}
+			className={resultClassName}
+			onClick={clickHandler}
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
 		>

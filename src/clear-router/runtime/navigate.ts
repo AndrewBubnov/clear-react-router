@@ -18,6 +18,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		isLoadingState,
 		contextState,
 		timestampMap,
+		pendingPathRef,
 	} = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
@@ -65,7 +66,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
 		isLoadingState.setState(true);
+		pendingPathRef.set(location.pathname);
 		await revalidateCache({ routeItem, pathname: location.pathname });
+		pendingPathRef.set('');
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
