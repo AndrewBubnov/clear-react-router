@@ -24,6 +24,7 @@ export const createRouterInstance = (): RouterType => {
 		prevPathnameRef: new Cell<string>(''),
 		pendingPathRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
+		reloadMap: new Map<string, number>(),
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);

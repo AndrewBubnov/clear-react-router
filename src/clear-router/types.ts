@@ -112,10 +112,11 @@ export type RouterState = {
 	prevPathnameRef: Cell<string>;
 	pendingPathRef: Cell<string>;
 	timestampMap: Map<string, number>;
+	reloadMap: Map<string, number>;
 };
 
 export type RouterType = {
-	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
+	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap' | 'reloadMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;

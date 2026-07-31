@@ -26,7 +26,17 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderStateRef, timestampMap, contextState } = routerState;
+	const { loaderStateRef, timestampMap, contextState, reloadMap } = routerState;
+	const setStaleTimeout = (routeItem: RouteItem | undefined, pathname: string) => {
+		const staleTime = routeItem?.staleTime || routerConfig.defaultStaleTime;
+		if (!staleTime) return;
+		if (reloadMap.has(pathname)) window.clearTimeout(reloadMap.get(pathname));
+		const timeout = window.setTimeout(() => {
+			reloadMap.delete(pathname);
+			revalidateCache({ routeItem, pathname });
+		}, staleTime);
+		reloadMap.set(pathname, timeout);
+	};
 	const revalidateCache = async ({ routeItem, pathname }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
@@ -45,12 +55,12 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
 				const params: Record<string, string> = getParamsObject(routeItem, pathname);
+				timestampMap.set(pathname, Date.now());
 				const result = await routeItem?.loader({
 					params,
 					context,
 					setContext,
 				});
-				timestampMap.set(pathname, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMapRef[pathname] = loaderStateRef.value;
 				return { data: result, error: null };
@@ -71,6 +81,9 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		})();
 
 		loadingPromises.set(pathname, promise);
+
+		setStaleTimeout(routeItem, pathname);
+
 		return promise;
 	};
 	return revalidateCache;
