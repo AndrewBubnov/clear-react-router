@@ -1,14 +1,23 @@
-import type { ReactElement } from 'react';
 import { router } from '../instance';
 import { createLazyComponent } from './createLazyComponent';
-import { ClientRouteItem, LazyComponent, Location, RouteItem } from '../types';
+import { ClientRouteItem, LazyComponent, Location, RenderElement, RouteItem } from '../types';
 
 const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
 
 const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
-	const resolvedElement = isLazy(el) ? createLazyComponent(el.element as LazyComponent, el.fallback) : el.element;
-	const currentRoute: RouteItem = { ...el, pattern, element: resolvedElement as (() => ReactElement) | ReactElement };
+	const preloadElement = isLazy(el)
+		? createLazyComponent(el.element as LazyComponent, el.fallback).preloadElement
+		: undefined;
+	const resolvedElement = isLazy(el)
+		? createLazyComponent(el.element as LazyComponent, el.fallback).Component
+		: el.element;
+	const currentRoute: RouteItem = {
+		...el,
+		pattern,
+		element: resolvedElement as RenderElement,
+		preloadElement,
+	};
 
 	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, pattern)) ?? [];
 
