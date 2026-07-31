@@ -1,4 +1,12 @@
-import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent } from 'react';
+import {
+	type CSSProperties,
+	useRef,
+	useCallback,
+	useEffect,
+	ReactNode,
+	MouseEvent,
+	ComponentPropsWithoutRef,
+} from 'react';
 import { router } from '../instance';
 import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
@@ -6,13 +14,15 @@ import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { RouterProps } from '../types';
 
-type LinkProps = {
+type States = { isActive: boolean; isPending: boolean };
+
+type LinkProps = Omit<ComponentPropsWithoutRef<'a'>, 'href' | 'className' | 'style'> & {
 	to: string;
 	children: ReactNode;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
-	style?: CSSProperties | (({ isActive }: { isActive: boolean; isPending: boolean }) => CSSProperties);
-	className?: string | (({ isActive }: { isActive: boolean; isPending: boolean }) => string);
+	style?: CSSProperties | ((arg: States) => CSSProperties);
+	className?: string | ((arg: States) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
 	onClick?(): void;
