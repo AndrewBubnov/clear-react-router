@@ -88,7 +88,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
 ### `Link`
 
-Component for client-side navigation with prefetch support, active state detection, and pending state styling.
+Component for client-side navigation with prefetch support, active state detection, and pending state styling. Prefetch includes lazy route component preload.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|

@@ -34,7 +34,10 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 
-		if (isCacheItemFresh({ routeItem, pathname })) loaderStateRef.set(loaderMapRef[pathname]);
+		if (isCacheItemFresh({ routeItem, pathname })) {
+			loaderStateRef.set(loaderMapRef[pathname]);
+			return;
+		}
 
 		const promise = (async () => {
 			if (!routeItem?.loader) return;
