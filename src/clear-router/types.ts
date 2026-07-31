@@ -88,6 +88,7 @@ export type RouterProps = {
 	spinner?: boolean;
 	preserveScroll?: boolean;
 	defaultRetry?: Retry;
+	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;

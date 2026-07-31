@@ -10,6 +10,7 @@ class RouterConfig {
 	beforeLoad?: ClientRouteItem['beforeLoad'];
 	afterLoad?: ClientRouteItem['afterLoad'];
 	defaultRetry?: RouterProps['defaultRetry'];
+	defaultStaleTime?: RouterProps['defaultStaleTime'];
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);
 	}
