@@ -9,6 +9,7 @@ import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
+import { useCleanupStaleTime } from '../hooks/useCleanupStaleTime.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -52,6 +53,7 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(preserveScroll);
+	useCleanupStaleTime();
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 

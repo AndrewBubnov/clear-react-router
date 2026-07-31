@@ -55,6 +55,7 @@ export const createRouterInstance = (): RouterType => {
 			blockedRouteState: routerState.blockedRouteState,
 			prevPathnameRef: routerState.prevPathnameRef,
 			pendingPathRef: routerState.pendingPathRef,
+			reloadMap: routerState.reloadMap,
 		},
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {

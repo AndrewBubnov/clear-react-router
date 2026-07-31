@@ -116,7 +116,7 @@ export type RouterState = {
 };
 
 export type RouterType = {
-	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap' | 'reloadMap'>;
+	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
