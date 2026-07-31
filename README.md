@@ -88,14 +88,26 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
 ### `Link`
 
-Component for client-side navigation with prefetch support.
+Component for client-side navigation with prefetch support, active state detection, and pending state styling.
 
-| Prop | Type | Default |
-|------|------|---------|
-| `to` | `string` | required |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `to` | `string` | required | Target path |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
 | `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
-| `children` | `ReactElement` | required | Content to render inside the link |
+| `children` | `ReactNode` | required | Content to render inside the link |
+| `className` | `string \| ({ isActive, isPending }) => string` | `undefined` | CSS class name(s). Can be a function for dynamic styling |
+| `style` | `CSSProperties \| ({ isActive, isPending }) => CSSProperties` | `undefined` | Inline styles. Can be a function for dynamic styling |
+| `activeClassName` | `string` optional | `'active-link'` | Class name applied when the link matches the current URL |
+| `pendingClassName` | `string` optional | `'pending-link'` | Class name applied when the link's target is loading |
+| `onClick` | `() => void` | `undefined` | Callback fired before navigation |
+
+**State values:**
+
+| State | Type | Description |
+|-------|------|-------------|
+| `isActive` | `boolean` | `true` when the link's `to` matches the current URL |
+| `isPending` | `boolean` | `true` when the target route is currently loading (loader is running) |
 
 ### Prefetch Strategies
 
@@ -122,6 +134,21 @@ import { Router, Link } from 'clear-react-router';
 // Disable prefetch for a specific link
 <Link to="/admin" prefetch="none">
   Admin Panel
+</Link>
+
+// With custom active/pending classes
+<Link to="/settings" activeClassName="active-nav-link" pendingClassName="loading-nav-link">
+  Settings
+</Link>
+
+// With dynamic className
+<Link to="/dashboard" className={({ isActive, isPending }) => isActive ? 'text-blue-600' : isPending ? 'text-gray-400' : 'text-gray-600'}>
+  Dashboard
+</Link>
+
+// With dynamic style
+<Link to="/profile" style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
+  Profile
 </Link>
 ```
 **Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
@@ -556,6 +583,14 @@ To include the `beforeLoad` function in the revalidation process, pass the `with
 await invalidate('/posts', { withBeforeLoad: true });
 await invalidate(['/posts', '/users'], { withBeforeLoad: true });
 ```
+
+#### Returns
+
+An array of objects with the following structure:
+```ts
+{ path: string; data: unknown; error: unknown }
+```
+Each object represents a revalidated route, where `path` is the route pathname, `data` is the revalidated loader result, and `error` is the loader error, if any.
 
 #### Notes
 

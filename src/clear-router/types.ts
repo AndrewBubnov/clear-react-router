@@ -45,6 +45,7 @@ export type RouteItem = ClientRouteItem & {
 	element: RenderElement;
 	pattern: string;
 	cacheTimestamp?: number;
+	preloadElement?(): Promise<{ default: ComponentType<unknown> }>;
 };
 
 export type Location = {
