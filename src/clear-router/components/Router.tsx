@@ -5,11 +5,11 @@ import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
+import { usePolling } from '../hooks/usePolling';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
-import { useCleanupStaleTime } from '../hooks/useCleanupStaleTime.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -20,7 +20,7 @@ export const Router = ({
 	animationDuration,
 	isAnimated = false,
 	spinner = true,
-	preserveScroll = true,
+	defaultPreserveScroll = true,
 	showFallbackOnAnimation = false,
 	prefetch = 'hover',
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
@@ -37,6 +37,8 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
 
+	const { routeItem, location } = routeItemData;
+
 	useNavigation();
 
 	useSetRouterConfig({
@@ -49,17 +51,17 @@ export const Router = ({
 		afterLoad,
 		defaultRetry,
 		defaultStaleTime,
+		defaultPreserveScroll,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
-	usePreserveScroll(preserveScroll);
-	useCleanupStaleTime();
+	usePreserveScroll(routeItemData);
+	usePolling(routeItem);
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
-	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
 		return renderElement(currentLoaderFallback || defaultLoaderFallback);

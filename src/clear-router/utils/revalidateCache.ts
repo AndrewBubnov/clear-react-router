@@ -26,17 +26,7 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderStateRef, timestampMap, contextState, reloadMap } = routerState;
-	const setStaleTimeout = (routeItem: RouteItem | undefined, pathname: string) => {
-		const staleTime = routeItem?.staleTime || routerConfig.defaultStaleTime;
-		if (!staleTime) return;
-		if (reloadMap.has(pathname)) window.clearTimeout(reloadMap.get(pathname));
-		const timeout = window.setTimeout(() => {
-			reloadMap.delete(pathname);
-			revalidateCache({ routeItem, pathname });
-		}, staleTime);
-		reloadMap.set(pathname, timeout);
-	};
+	const { loaderStateRef, timestampMap, contextState } = routerState;
 	const revalidateCache = async ({ routeItem, pathname }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
@@ -82,9 +72,8 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		loadingPromises.set(pathname, promise);
 
-		setStaleTimeout(routeItem, pathname);
-
 		return promise;
 	};
+
 	return revalidateCache;
 };

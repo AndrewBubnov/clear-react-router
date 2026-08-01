@@ -26,7 +26,9 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	pollingInterval?: number;
 	retry?: Retry;
+	preserveScroll?: boolean;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -86,7 +88,7 @@ export type RouterProps = {
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
-	preserveScroll?: boolean;
+	defaultPreserveScroll?: boolean;
 	defaultRetry?: Retry;
 	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
@@ -112,7 +114,6 @@ export type RouterState = {
 	prevPathnameRef: Cell<string>;
 	pendingPathRef: Cell<string>;
 	timestampMap: Map<string, number>;
-	reloadMap: Map<string, number>;
 };
 
 export type RouterType = {

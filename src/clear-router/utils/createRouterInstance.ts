@@ -24,12 +24,12 @@ export const createRouterInstance = (): RouterType => {
 		prevPathnameRef: new Cell<string>(''),
 		pendingPathRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
-		reloadMap: new Map<string, number>(),
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
-	const navigate = createNavigate(routerState, revalidateCache);
 	const invalidate = createInvalidate(routerState, revalidateCache);
+	const navigate = createNavigate(routerState, revalidateCache);
+
 	const prefetch = createPrefetch(revalidateCache);
 
 	const useGetAction = (actionKey: string) => {
@@ -55,7 +55,6 @@ export const createRouterInstance = (): RouterType => {
 			blockedRouteState: routerState.blockedRouteState,
 			prevPathnameRef: routerState.prevPathnameRef,
 			pendingPathRef: routerState.pendingPathRef,
-			reloadMap: routerState.reloadMap,
 		},
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
