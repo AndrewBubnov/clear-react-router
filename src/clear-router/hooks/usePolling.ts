@@ -6,7 +6,7 @@ export const usePolling = (routeItem: RouteItem | undefined) => {
 	const invalidate = useInvalidate();
 	useEffect(() => {
 		const pollingInterval = routeItem?.pollingInterval;
-		if (!routeItem || !pollingInterval) return;
+		if (!pollingInterval) return;
 		const interval = window.setInterval(() => invalidate(), pollingInterval);
 		return () => window.clearInterval(interval);
 	}, [invalidate, routeItem]);
