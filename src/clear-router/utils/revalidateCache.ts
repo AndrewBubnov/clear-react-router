@@ -45,10 +45,15 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
 				const params: Record<string, string> = getParamsObject(routeItem, pathname);
+				timestampMap.set(pathname, Date.now());
+				const searchParams: Record<string, string> = Object.fromEntries(
+					new URLSearchParams(location.search).entries()
+				);
 				const result = await routeItem?.loader({
 					params,
 					context,
 					setContext,
+					searchParams,
 				});
 				timestampMap.set(pathname, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));

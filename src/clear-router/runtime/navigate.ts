@@ -19,6 +19,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		contextState,
 		timestampMap,
 		pendingPathRef,
+		routeItemDataState,
 	} = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
@@ -78,6 +79,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const navigate = async (nextLocation: Location) => {
+		if (routeItemDataState.getState().location.pathname === nextLocation.pathname) {
+			routeItemDataState.setState(prevState => ({ ...prevState, location: nextLocation }));
+			history.replaceState(null, '', nextLocation.pathname + nextLocation.search);
+			return;
+		}
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);

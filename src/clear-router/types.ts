@@ -20,6 +20,7 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+		searchParams: Record<string, string>;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement;

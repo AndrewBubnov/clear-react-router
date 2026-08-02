@@ -5,6 +5,7 @@ import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
+import { useSearchValue } from '../hooks/useSearchValue';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
@@ -36,6 +37,8 @@ export const Router = ({
 	const [loaderState] = useCurrentLoaderState();
 
 	useNavigation();
+
+	useSearchValue();
 
 	useSetRouterConfig({
 		routes,
