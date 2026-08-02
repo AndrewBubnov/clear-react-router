@@ -36,9 +36,11 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
 
+	const { routeItem, location } = routeItemData;
+
 	useNavigation();
 
-	useSearchValue();
+	useSearchValue(routeItem?.watchSearch);
 
 	useSetRouterConfig({
 		routes,
@@ -58,7 +60,6 @@ export const Router = ({
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
-	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
 		return renderElement(currentLoaderFallback || defaultLoaderFallback);

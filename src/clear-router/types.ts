@@ -28,6 +28,8 @@ export type ClientRouteItem = {
 	children?: ClientRouteItem[];
 	staleTime?: number;
 	retry?: Retry;
+	watchSearch?: boolean;
+	preserveScroll?: boolean;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
