@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
-import { SetStateAction } from './types';
 
+type SetStateAction<T> = ((prevState: T) => T) | T;
 type Listener<T> = (state: T, prevState: T) => void;
 
 export type Store<T> = {

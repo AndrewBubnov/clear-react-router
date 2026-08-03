@@ -1,8 +1,6 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import { Store, useGlobalState } from './create';
 import { Cell } from './cell';
-
-export type SetStateAction<T> = ((prevState: T) => T) | T;
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -12,7 +10,7 @@ export type BeforeLoad = (arg: {
 	context: Record<string, unknown>;
 	redirect: (arg: Location | string) => Promise<void>;
 	params: Record<string, string>;
-	setContext: SetStateAction<Record<string, unknown>>;
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 }) => Promise<unknown> | undefined | void;
 
 export type ClientRouteItem = {
@@ -21,7 +19,7 @@ export type ClientRouteItem = {
 	loader?(arg: {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
-		setContext: SetStateAction<Record<string, unknown>>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 		searchParams: Record<string, string>;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
@@ -36,13 +34,13 @@ export type ClientRouteItem = {
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
-		setContext: SetStateAction<Record<string, unknown>>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
 	actions?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
 		invalidate: (path?: string) => Promise<InvalidateResult[]>;
-		setContext: SetStateAction<Record<string, unknown>>;
+		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 
