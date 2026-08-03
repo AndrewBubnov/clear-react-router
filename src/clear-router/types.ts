@@ -27,6 +27,7 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	pollingInterval?: number;
 	retry?: Retry;
 	watchSearch?: boolean;
 	preserveScroll?: boolean;
@@ -89,8 +90,9 @@ export type RouterProps = {
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
-	preserveScroll?: boolean;
+	defaultPreserveScroll?: boolean;
 	defaultRetry?: Retry;
+	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;

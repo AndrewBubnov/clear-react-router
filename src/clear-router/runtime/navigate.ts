@@ -8,6 +8,7 @@ import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 let navigationSeq = 0;
+let interval = 0;
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	const {
@@ -66,10 +67,17 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
+		window.clearInterval(interval);
 		isLoadingState.setState(true);
 		pendingPathRef.set(location.pathname);
 		await revalidateCache({ routeItem, pathname: location.pathname });
 		pendingPathRef.set('');
+		if (routeItem.pollingInterval) {
+			interval = window.setInterval(
+				() => revalidateCache({ routeItem, pathname: location.pathname }),
+				routeItem.pollingInterval
+			);
+		}
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {

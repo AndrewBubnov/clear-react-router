@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { router } from '../instance';
-import { useLocation } from './useLocation';
+import { routerConfig } from '../config/routerConfig';
+import { RouteItemData } from '../types';
 
-export const usePreserveScroll = (preserveScroll: boolean) => {
+export const usePreserveScroll = ({ routeItem, location: { pathname } }: RouteItemData) => {
+	const preserveScroll =
+		routeItem?.preserveScroll === undefined ? routerConfig.defaultPreserveScroll : routeItem.preserveScroll;
 	const restoreScroll = router.hooks.useRestoreScroll();
-	const { pathname } = useLocation();
 	useEffect(() => {
 		if (preserveScroll) restoreScroll();
 	}, [preserveScroll, restoreScroll, pathname]);
