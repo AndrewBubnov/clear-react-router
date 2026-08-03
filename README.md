@@ -48,10 +48,11 @@ It provides first-class support for:
 | `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
 | `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
+| `defaultStaleTime` | `number` | `optional` | Default time in milliseconds before cached loader data is considered stale |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
 | `afterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
-| `preserveScroll` | `boolean \| undefined` | `true` | Save and restore scroll position when navigating between pages |
+| `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
 | `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` | Default prefetch strategy for all `<Link>` components |
 | `hoverPrefetchDelay` | `number` | `150` | Delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
@@ -76,15 +77,27 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
-| `loader` | `({ params, context, setContext }) => Promise<unknown>` | Fetch data using route params and context. Can update context via `setContext` |
-| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Analytics, side effects after data is loaded. Can update context via `setContext` |
+| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `loader` | `({ params, context, setContext, searchParams }) => Promise<unknown>` | Fetch data using route params, search params, and context. Can update context via `setContext` |
+| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
-| `retry` | `number \| { count: number; delay: number }` | `optional` | Overrides the global cache revalidation retry policy for this route |
+| `retry` | `number \| { count: number; delay: number }` | `undefined` | Overrides the global cache revalidation retry policy for this route |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
-| `staleTime` | `number` | Time in ms before cached data is considered stale and re-fetched in the background. If not provided, data never expires (cached forever) |
-| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can refresh loader data using the router-provided `invalidate`. |
+| `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
+| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
+| `pollingInterval` | `number \| undefined` | `undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
+| `preserveScroll` | `boolean \| undefined` | `undefined` | Save and restore route scroll position when navigating between pages |
+
+Loader arguments:
+```ts
+{
+  params: Record<string, string>;                                   // Route parameters
+  context: Record<string, unknown>;                                 // Router context
+  setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
+  searchParams: Record<string, string>;                             // URL search parameters
+}
+```
 
 ### `Link`
 
