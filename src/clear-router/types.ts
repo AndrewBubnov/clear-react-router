@@ -1,6 +1,8 @@
-import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
 import { Store, useGlobalState } from './create';
 import { Cell } from './cell';
+
+export type SetStateAction<T> = ((prevState: T) => T) | T;
 
 export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
 
@@ -10,7 +12,7 @@ export type BeforeLoad = (arg: {
 	context: Record<string, unknown>;
 	redirect: (arg: Location | string) => Promise<void>;
 	params: Record<string, string>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	setContext: SetStateAction<Record<string, unknown>>;
 }) => Promise<unknown> | undefined | void;
 
 export type ClientRouteItem = {
@@ -19,7 +21,7 @@ export type ClientRouteItem = {
 	loader?(arg: {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+		setContext: SetStateAction<Record<string, unknown>>;
 		searchParams: Record<string, string>;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
@@ -29,19 +31,18 @@ export type ClientRouteItem = {
 	staleTime?: number;
 	pollingInterval?: number;
 	retry?: Retry;
-	watchSearch?: boolean;
 	preserveScroll?: boolean;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+		setContext: SetStateAction<Record<string, unknown>>;
 	}) => Promise<void>;
 	actions?: (arg: {
 		context: Record<string, unknown>;
 		params: Record<string, string>;
 		invalidate: (path?: string) => Promise<InvalidateResult[]>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+		setContext: SetStateAction<Record<string, unknown>>;
 	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 
@@ -63,6 +64,7 @@ export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;
+	search?: string;
 };
 
 export type LoaderState<T = unknown> = {

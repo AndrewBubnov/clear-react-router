@@ -65,19 +65,24 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		);
 	};
 
+	const beforeEachLoad = (location: Location) => {
+		window.clearInterval(interval);
+		if (routeItemDataState.getState().location.pathname !== location.pathname) isLoadingState.setState(true);
+		pendingPathRef.set(location.pathname);
+	};
+
+	const afterEachLoad = (routeItem: RouteItem | undefined) => {
+		pendingPathRef.set('');
+		if (!routeItem?.pollingInterval) return;
+		interval = window.setInterval(
+			() => revalidateCache({ routeItem, pathname: location.pathname }),
+			routeItem.pollingInterval
+		);
+	};
+
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
-		window.clearInterval(interval);
-		isLoadingState.setState(true);
-		pendingPathRef.set(location.pathname);
-		await revalidateCache({ routeItem, pathname: location.pathname });
-		pendingPathRef.set('');
-		if (routeItem.pollingInterval) {
-			interval = window.setInterval(
-				() => revalidateCache({ routeItem, pathname: location.pathname }),
-				routeItem.pollingInterval
-			);
-		}
+		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
@@ -87,18 +92,15 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const navigate = async (nextLocation: Location) => {
-		if (routeItemDataState.getState().location.pathname === nextLocation.pathname) {
-			routeItemDataState.setState(prevState => ({ ...prevState, location: nextLocation }));
-			history.replaceState(null, '', nextLocation.pathname + nextLocation.search);
-			return;
-		}
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
 		await beforeLoad(nextItem, params);
 		if (seq !== navigationSeq) return;
 		prepareNavigation(nextItem, nextLocation);
+		beforeEachLoad(nextLocation);
 		await loader(nextItem, nextLocation);
+		afterEachLoad(nextItem);
 		if (seq !== navigationSeq) return;
 		commitNavigation(nextLocation, nextItem);
 		await afterLoad(nextItem, params);

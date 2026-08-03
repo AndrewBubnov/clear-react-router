@@ -5,7 +5,6 @@ import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
-import { useSearchValue } from '../hooks/useSearchValue';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
@@ -37,11 +36,7 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
 
-	const { routeItem, location } = routeItemData;
-
 	useNavigation();
-
-	useSearchValue(routeItem?.watchSearch);
 
 	useSetRouterConfig({
 		routes,
@@ -58,6 +53,8 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(routeItemData);
+
+	const { routeItem, location } = routeItemData;
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 

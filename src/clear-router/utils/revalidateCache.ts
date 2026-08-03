@@ -26,8 +26,8 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderStateRef, timestampMap, contextState, routeItemDataState } = routerState;
-	const revalidateCache = async ({ routeItem, pathname }: RevalidateCacheArgs, retried = 0) => {
+	const { loaderStateRef, timestampMap, contextState } = routerState;
+	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
@@ -41,27 +41,26 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const promise = (async () => {
 			if (!routeItem?.loader) return;
+
 			try {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
 				const params: Record<string, string> = getParamsObject(routeItem, pathname);
-				const searchParams: Record<string, string> = Object.fromEntries(
-					new URLSearchParams(routeItemDataState.getState().location.search).entries()
-				);
+				const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(search).entries());
 				const result = await routeItem?.loader({
 					params,
 					context,
 					setContext,
 					searchParams,
 				});
-				timestampMap.set(pathname, Date.now());
+				timestampMap.set(`${pathname}${search}`, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
-				loaderMapRef[pathname] = loaderStateRef.value;
+				loaderMapRef[`${pathname}${search}`] = loaderStateRef.value;
 				return { data: result, error: null };
 			} catch (error) {
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
-					loadingPromises.delete(pathname);
+					loadingPromises.delete(`${pathname}${search}`);
 					if (retry.delay) await sleep(retry.delay);
 					await revalidateCache({ routeItem, pathname }, retried + 1);
 					return { data: null, error };
@@ -70,11 +69,11 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					return { data: null, error };
 				}
 			} finally {
-				loadingPromises.delete(pathname);
+				loadingPromises.delete(`${pathname}${search}`);
 			}
 		})();
 
-		loadingPromises.set(pathname, promise);
+		loadingPromises.set(`${pathname}${search}`, promise);
 		return promise;
 	};
 	return revalidateCache;
