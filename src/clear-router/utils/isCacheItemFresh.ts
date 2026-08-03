@@ -5,10 +5,9 @@ export const createIsCacheItemFresh =
 	(timestampMap: Map<string, number>) =>
 	({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
-		const { defaultStaleTime } = routerConfig;
-		const currentCacheTimestamp = timestampMap.get(pathname);
-		if (!currentCacheTimestamp) return false;
-		if (!routeItem.staleTime && !defaultStaleTime) return true;
-		const staleTime = routeItem.staleTime || defaultStaleTime;
-		return Date.now() - currentCacheTimestamp <= (staleTime ?? 0);
+		const timestamp = timestampMap.get(pathname);
+		if (timestamp === undefined) return false;
+		const staleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime;
+		if (staleTime === undefined) return true;
+		return Date.now() - timestamp <= staleTime;
 	};
