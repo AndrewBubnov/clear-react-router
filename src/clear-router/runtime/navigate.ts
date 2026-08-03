@@ -8,6 +8,7 @@ import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 let navigationSeq = 0;
+let interval = 0;
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	const {
@@ -19,6 +20,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		contextState,
 		timestampMap,
 		pendingPathRef,
+		routeItemDataState,
 	} = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
@@ -63,12 +65,26 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		);
 	};
 
+	const beforeEachLoad = (location: Location) => {
+		window.clearInterval(interval);
+		if (routeItemDataState.getState().location.pathname !== location.pathname) isLoadingState.setState(true);
+		pendingPathRef.set(location.pathname);
+	};
+
+	const afterEachLoad = (routeItem: RouteItem | undefined) => {
+		pendingPathRef.set('');
+		if (!routeItem?.pollingInterval) return;
+		interval = window.setInterval(
+			() => revalidateCache({ routeItem, pathname: location.pathname }),
+			routeItem.pollingInterval
+		);
+	};
+
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
-		isLoadingState.setState(true);
-		pendingPathRef.set(location.pathname);
-		await revalidateCache({ routeItem, pathname: location.pathname });
-		pendingPathRef.set('');
+		beforeEachLoad(location);
+		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
+		afterEachLoad(routeItem);
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {

@@ -19,7 +19,7 @@ export const Router = ({
 	animationDuration,
 	isAnimated = false,
 	spinner = true,
-	preserveScroll = true,
+	defaultPreserveScroll = true,
 	showFallbackOnAnimation = false,
 	prefetch = 'hover',
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
@@ -28,6 +28,7 @@ export const Router = ({
 	defaultLoaderFallback,
 	defaultErrorElement,
 	defaultRetry,
+	defaultStaleTime,
 }: RouterProps) => {
 	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = router.hooks;
 	const [isLoading] = useIsLoading();
@@ -46,16 +47,19 @@ export const Router = ({
 		beforeLoad,
 		afterLoad,
 		defaultRetry,
+		defaultStaleTime,
+		defaultPreserveScroll,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
-	usePreserveScroll(preserveScroll);
+	usePreserveScroll(routeItemData);
+
+	const { routeItem, location } = routeItemData;
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
-	const { routeItem, location } = routeItemData;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
 		return renderElement(currentLoaderFallback || defaultLoaderFallback);

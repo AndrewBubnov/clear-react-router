@@ -20,13 +20,16 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		context: Record<string, unknown>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+		searchParams: Record<string, string>;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement;
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	pollingInterval?: number;
 	retry?: Retry;
+	preserveScroll?: boolean;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -59,6 +62,7 @@ export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;
+	search?: string;
 };
 
 export type LoaderState<T = unknown> = {
@@ -86,8 +90,9 @@ export type RouterProps = {
 	isAnimated?: boolean;
 	animationDuration?: number;
 	spinner?: boolean;
-	preserveScroll?: boolean;
+	defaultPreserveScroll?: boolean;
 	defaultRetry?: Retry;
+	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;
