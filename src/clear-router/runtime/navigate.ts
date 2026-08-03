@@ -82,7 +82,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
+		beforeEachLoad(location);
 		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
+		afterEachLoad(routeItem);
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
@@ -98,9 +100,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		await beforeLoad(nextItem, params);
 		if (seq !== navigationSeq) return;
 		prepareNavigation(nextItem, nextLocation);
-		beforeEachLoad(nextLocation);
 		await loader(nextItem, nextLocation);
-		afterEachLoad(nextItem);
 		if (seq !== navigationSeq) return;
 		commitNavigation(nextLocation, nextItem);
 		await afterLoad(nextItem, params);
