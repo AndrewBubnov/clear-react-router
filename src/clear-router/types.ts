@@ -106,7 +106,6 @@ export type RouterProps = {
 
 export type RouterState = {
 	isLoadingState: Store<boolean>;
-	pendingState: Store<RouteItemData | undefined>;
 	routeItemDataState: Store<RouteItemData>;
 	currentLoaderState: Store<LoaderState>;
 	scrollMapState: Store<Record<string, number>>;
@@ -114,6 +113,7 @@ export type RouterState = {
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
 	prevPathnameRef: Cell<string>;
+	pendingState: Cell<RouteItemData | undefined>;
 	timestampMap: Map<string, number>;
 };
 
@@ -127,7 +127,6 @@ export type RouterType = {
 	hooks: {
 		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
-		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
 		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
