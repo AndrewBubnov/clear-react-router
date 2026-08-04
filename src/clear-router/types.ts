@@ -113,7 +113,6 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
-	prevPathnameRef: Cell<string>;
 	timestampMap: Map<string, number>;
 };
 

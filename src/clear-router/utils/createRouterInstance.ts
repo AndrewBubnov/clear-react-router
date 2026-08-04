@@ -8,22 +8,19 @@ import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
 import { LoaderState, Location, Options, RouteItemData, RouterState, RouterType } from '../types';
 
-const defaultRouteItemData = {
-	routeItem: undefined,
-	location: {} as Location,
-};
-
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
 		isLoadingState: create(false),
 		pendingState: create<RouteItemData | undefined>(undefined),
-		routeItemDataState: create<RouteItemData>(defaultRouteItemData),
+		routeItemDataState: create<RouteItemData>({
+			routeItem: undefined,
+			location: {} as Location,
+		}),
 		currentLoaderState: create<LoaderState>(emptyLoaderState),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
-		prevPathnameRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
 	};
 

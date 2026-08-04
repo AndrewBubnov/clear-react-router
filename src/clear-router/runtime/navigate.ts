@@ -14,7 +14,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const {
 		loaderStateRef,
 		scrollMapState,
-		prevPathnameRef,
 		pendingState,
 		isLoadingState,
 		contextState,
@@ -22,7 +21,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		routeItemDataState,
 	} = routerState;
 	const navigationExecutor = createCommitState(routerState);
-	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
+	const commitNavigation = createCommitNavigation(navigationExecutor, routeItemDataState);
 	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
@@ -53,8 +52,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
 		scrollMapState.setState(prevState => {
 			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-			if (!scrollPosition || prevState[prevPathnameRef.value] === scrollPosition) return prevState;
-			return { ...prevState, [prevPathnameRef.value]: scrollPosition };
+			const prevPathname = routeItemDataState.getState().location.pathname;
+			if (!scrollPosition || prevState[prevPathname] === scrollPosition) return prevState;
+			return { ...prevState, [prevPathname]: scrollPosition };
 		});
 		pendingState.setState(
 			isCacheItemFresh({ routeItem, pathname: location.pathname }) ? undefined : { routeItem, location }
