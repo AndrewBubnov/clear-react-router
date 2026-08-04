@@ -8,11 +8,8 @@ export const createCommitNavigation =
 		routeItemDataState: Store<RouteItemData>
 	) =>
 	(nextLocation: Location, routeItem: RouteItem | undefined) => {
-		const { isAnimated } = routerConfig;
-		if (!isAnimated || !routeItemDataState.getState().location.pathname) {
-			navigationExecutor(nextLocation, routeItem);
-			return;
-		}
+		const isFirstLoad = !routeItemDataState.getState().location.pathname;
+		if (!routerConfig.isAnimated || isFirstLoad) return navigationExecutor(nextLocation, routeItem);
 		try {
 			document.startViewTransition(() => navigationExecutor(nextLocation, routeItem));
 		} catch {
