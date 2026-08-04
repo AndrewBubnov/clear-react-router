@@ -1,10 +1,9 @@
 import { router } from '../instance';
 
 export const useIsRoutePending = (routePath: string) => {
-	const {
-		hooks: { useIsLoading },
-		state: { pendingPathRef },
-	} = router;
+	const { useIsLoading, usePendingState } = router.hooks;
 	const [isPending] = useIsLoading();
-	return isPending && pendingPathRef.value === routePath;
+	const [pendingState] = usePendingState();
+
+	return isPending && pendingState?.location.pathname === routePath;
 };

@@ -15,11 +15,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		loaderStateRef,
 		scrollMapState,
 		prevPathnameRef,
-		loaderFallbackState,
+		pendingState,
 		isLoadingState,
 		contextState,
 		timestampMap,
-		pendingPathRef,
 		routeItemDataState,
 	} = routerState;
 	const navigationExecutor = createCommitState(routerState);
@@ -52,27 +51,22 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
-		const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 		scrollMapState.setState(prevState => {
 			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
 			if (!scrollPosition || prevState[prevPathnameRef.value] === scrollPosition) return prevState;
 			return { ...prevState, [prevPathnameRef.value]: scrollPosition };
 		});
-		loaderFallbackState.setState(
-			isCacheItemFresh({ routeItem, pathname: location.pathname }) || (isAnimated && !showFallback)
-				? undefined
-				: routeItem?.loaderFallback
+		pendingState.setState(
+			isCacheItemFresh({ routeItem, pathname: location.pathname }) ? undefined : { routeItem, location }
 		);
 	};
 
 	const beforeEachLoad = (location: Location) => {
 		window.clearInterval(interval);
 		if (routeItemDataState.getState().location.pathname !== location.pathname) isLoadingState.setState(true);
-		pendingPathRef.set(location.pathname);
 	};
 
 	const afterEachLoad = (routeItem: RouteItem | undefined) => {
-		pendingPathRef.set('');
 		if (!routeItem?.pollingInterval) return;
 		interval = window.setInterval(
 			() => revalidateCache({ routeItem, pathname: location.pathname }),

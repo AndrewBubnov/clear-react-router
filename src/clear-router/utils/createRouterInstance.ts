@@ -6,23 +6,24 @@ import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
 import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, Location, Options, RouteItem, RouteItemData, RouterState, RouterType } from '../types';
+import { LoaderState, Location, Options, RouteItemData, RouterState, RouterType } from '../types';
+
+const defaultRouteItemData = {
+	routeItem: undefined,
+	location: {} as Location,
+};
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
 		isLoadingState: create(false),
-		loaderFallbackState: create<RouteItem['loaderFallback']>(undefined),
-		routeItemDataState: create<RouteItemData>({
-			routeItem: undefined,
-			location: {} as Location,
-		}),
+		pendingState: create<RouteItemData | undefined>(undefined),
+		routeItemDataState: create<RouteItemData>(defaultRouteItemData),
 		currentLoaderState: create<LoaderState>(emptyLoaderState),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
 		prevPathnameRef: new Cell<string>(''),
-		pendingPathRef: new Cell<string>(''),
 		timestampMap: new Map<string, number>(),
 	};
 
@@ -45,22 +46,12 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	return {
-		state: {
-			isLoadingState: routerState.isLoadingState,
-			loaderFallbackState: routerState.loaderFallbackState,
-			routeItemDataState: routerState.routeItemDataState,
-			currentLoaderState: routerState.currentLoaderState,
-			scrollMapState: routerState.scrollMapState,
-			contextState: routerState.contextState,
-			blockedRouteState: routerState.blockedRouteState,
-			prevPathnameRef: routerState.prevPathnameRef,
-			pendingPathRef: routerState.pendingPathRef,
-		},
+		state: routerState,
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
-			useLoaderFallback: () => useGlobalState(routerState.loaderFallbackState),
+			usePendingState: () => useGlobalState(routerState.pendingState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),

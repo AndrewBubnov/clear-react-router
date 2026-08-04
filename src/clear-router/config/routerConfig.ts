@@ -5,7 +5,6 @@ class RouterConfig {
 	routes: RouterProps['routes'] = [];
 	prefetch: RouterProps['prefetch'] = 'hover';
 	isAnimated: RouterProps['isAnimated'] = false;
-	showFallbackOnAnimation: RouterProps['showFallbackOnAnimation'] = false;
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	beforeLoad?: ClientRouteItem['beforeLoad'];
 	afterLoad?: ClientRouteItem['afterLoad'];

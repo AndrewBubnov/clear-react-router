@@ -4,7 +4,7 @@ export const createCommitState =
 	({
 		isLoadingState,
 		routeItemDataState,
-		loaderFallbackState,
+		pendingState,
 		currentLoaderState,
 		prevPathnameRef,
 		loaderStateRef,
@@ -13,7 +13,7 @@ export const createCommitState =
 		routeItemDataState.setState({ routeItem, location: nextLocation });
 		currentLoaderState.setState(loaderStateRef.value);
 		isLoadingState.setState(false);
-		loaderFallbackState.setState(undefined);
+		pendingState.setState(undefined);
 		prevPathnameRef.set(nextLocation.pathname);
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
 		if (fullPath === window.location.pathname + window.location.search) return;
