@@ -56,7 +56,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (!scrollPosition || prevState[prevPathname] === scrollPosition) return prevState;
 			return { ...prevState, [prevPathname]: scrollPosition };
 		});
-		pendingState.setState(
+		pendingState.set(
 			isCacheItemFresh({ routeItem, pathname: location.pathname }) ? undefined : { routeItem, location }
 		);
 	};

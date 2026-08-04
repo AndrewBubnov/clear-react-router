@@ -11,7 +11,6 @@ import { LoaderState, Location, Options, RouteItemData, RouterState, RouterType 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
 		isLoadingState: create(false),
-		pendingState: create<RouteItemData | undefined>(undefined),
 		routeItemDataState: create<RouteItemData>({
 			routeItem: undefined,
 			location: {} as Location,
@@ -21,6 +20,7 @@ export const createRouterInstance = (): RouterType => {
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
+		pendingState: new Cell<RouteItemData | undefined>(undefined),
 		timestampMap: new Map<string, number>(),
 	};
 
@@ -48,7 +48,6 @@ export const createRouterInstance = (): RouterType => {
 		hooks: {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
-			usePendingState: () => useGlobalState(routerState.pendingState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),

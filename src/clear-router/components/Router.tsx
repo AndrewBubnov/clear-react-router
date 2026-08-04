@@ -30,11 +30,11 @@ export const Router = ({
 	defaultRetry,
 	defaultStaleTime,
 }: RouterProps) => {
-	const { useIsLoading, usePendingState, useRouteItemData, useCurrentLoaderState } = router.hooks;
+	const { useIsLoading, useRouteItemData, useCurrentLoaderState } = router.hooks;
 	const [isLoading] = useIsLoading();
-	const [pendingState] = usePendingState();
 	const [routeItemData] = useRouteItemData();
 	const [loaderState] = useCurrentLoaderState();
+	const pendingState = router.state.pendingState.value;
 
 	useNavigation();
 
