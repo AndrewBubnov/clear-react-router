@@ -11,7 +11,7 @@ import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
-let r = 0;
+
 export const Router = ({
 	routes,
 	beforeLoad,
@@ -35,8 +35,7 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const pendingState = router.state.pendingState.value;
 	const loaderState = router.state.loaderStateRef.value;
-	r++;
-	console.log(r);
+
 	useNavigation();
 
 	useSetRouterConfig({
