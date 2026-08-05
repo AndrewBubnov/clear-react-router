@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useSearch } from './useSearch.ts';
+import { useSearch } from './useSearch';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
@@ -48,7 +48,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 				throw new Error('useSearchParams first argument must be either function or string');
 			}
 		},
-		[search, navigateWithSearchParams]
+		[navigateWithSearchParams, search]
 	);
 
 	return { searchParams, getSearchParams, setSearchParams };
