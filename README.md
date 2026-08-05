@@ -31,7 +31,6 @@ It provides first-class support for:
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
-- **Typed Query Param** — Type-safe reading and writing of URL query parameters with built-in parsers for strings, numbers, booleans, arrays, and Zod schemas
 - **Flexible API** - Use components or hooks as you prefer
 - **Browser History** - Full support for browser back/forward buttons
 - **Context-aware** - Pass and update context through routes
