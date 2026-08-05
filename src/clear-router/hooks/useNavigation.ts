@@ -4,26 +4,28 @@ import { parseWindowLocation } from '../utils/utils';
 
 export const useNavigation = () => {
 	const {
-		state: { prevPathnameRef, blockedRouteState },
+		state: { routeItemDataState, blockedRouteState },
 		runtime: { navigate },
 	} = router;
+
 	useEffect(() => {
 		const handler = async (event: PopStateEvent) => {
 			const newLocation = parseWindowLocation((event.target as Window).location);
-			if (prevPathnameRef.value === blockedRouteState.getState().from) {
-				blockedRouteState.setState({ from: prevPathnameRef.value, to: newLocation.pathname });
-				history.pushState(null, '', prevPathnameRef.value);
+			if (routeItemDataState.getState().location.pathname === blockedRouteState.getState().from) {
+				blockedRouteState.setState({
+					from: routeItemDataState.getState().location.pathname,
+					to: newLocation.pathname,
+				});
+				history.pushState(null, '', routeItemDataState.getState().location.pathname);
 			} else {
 				navigate(newLocation);
 			}
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockedRouteState, navigate, prevPathnameRef.value]);
+	}, [blockedRouteState, navigate, routeItemDataState]);
 
 	useEffect(() => {
-		const currentLocation = parseWindowLocation(window.location);
-		navigate(currentLocation);
-		prevPathnameRef.set(currentLocation.pathname);
-	}, [navigate, prevPathnameRef]);
+		navigate(parseWindowLocation(window.location));
+	}, [navigate]);
 };

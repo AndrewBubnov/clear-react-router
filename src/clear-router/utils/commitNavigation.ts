@@ -1,15 +1,15 @@
 import { routerConfig } from '../config/routerConfig';
-import { Cell } from '../cell';
-import { Location, RouteItem } from '../types';
+import { Store } from '../create';
+import { Location, RouteItem, RouteItemData } from '../types';
 
 export const createCommitNavigation =
-	(navigationExecutor: (arg: Location, routeItem: RouteItem | undefined) => void, prevPathnameRef: Cell<string>) =>
+	(
+		navigationExecutor: (arg: Location, routeItem: RouteItem | undefined) => void,
+		routeItemDataState: Store<RouteItemData>
+	) =>
 	(nextLocation: Location, routeItem: RouteItem | undefined) => {
-		const { isAnimated } = routerConfig;
-		if (!isAnimated || !prevPathnameRef.value) {
-			navigationExecutor(nextLocation, routeItem);
-			return;
-		}
+		const isFirstLoad = !routeItemDataState.getState().location.pathname;
+		if (!routerConfig.isAnimated || isFirstLoad) return navigationExecutor(nextLocation, routeItem);
 		try {
 			document.startViewTransition(() => navigationExecutor(nextLocation, routeItem));
 		} catch {

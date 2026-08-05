@@ -11,19 +11,10 @@ let navigationSeq = 0;
 let interval = 0;
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
-	const {
-		loaderStateRef,
-		scrollMapState,
-		prevPathnameRef,
-		loaderFallbackState,
-		isLoadingState,
-		contextState,
-		timestampMap,
-		pendingPathRef,
-		routeItemDataState,
-	} = routerState;
+	const { loaderStateRef, scrollMapState, pendingState, contextState, timestampMap, routeItemDataState } =
+		routerState;
 	const navigationExecutor = createCommitState(routerState);
-	const commitNavigation = createCommitNavigation(navigationExecutor, prevPathnameRef);
+	const commitNavigation = createCommitNavigation(navigationExecutor, routeItemDataState);
 	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
@@ -52,27 +43,17 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
-		const { isAnimated, showFallbackOnAnimation: showFallback } = routerConfig;
 		scrollMapState.setState(prevState => {
 			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-			if (!scrollPosition || prevState[prevPathnameRef.value] === scrollPosition) return prevState;
-			return { ...prevState, [prevPathnameRef.value]: scrollPosition };
+			const prevPathname = routeItemDataState.getState().location.pathname;
+			if (!scrollPosition || prevState[prevPathname] === scrollPosition) return prevState;
+			return { ...prevState, [prevPathname]: scrollPosition };
 		});
-		loaderFallbackState.setState(
-			isCacheItemFresh({ routeItem, pathname: location.pathname }) || (isAnimated && !showFallback)
-				? undefined
-				: routeItem?.loaderFallback
-		);
-	};
-
-	const beforeEachLoad = (location: Location) => {
-		window.clearInterval(interval);
-		if (routeItemDataState.getState().location.pathname !== location.pathname) isLoadingState.setState(true);
-		pendingPathRef.set(location.pathname);
+		const pendingShouldExist = routeItem?.loader && !isCacheItemFresh({ routeItem, pathname: location.pathname });
+		pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
 	};
 
 	const afterEachLoad = (routeItem: RouteItem | undefined) => {
-		pendingPathRef.set('');
 		if (!routeItem?.pollingInterval) return;
 		interval = window.setInterval(
 			() => revalidateCache({ routeItem, pathname: location.pathname }),
@@ -82,7 +63,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.loader) return;
-		beforeEachLoad(location);
+		window.clearInterval(interval);
 		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
 		afterEachLoad(routeItem);
 	};

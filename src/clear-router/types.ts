@@ -105,33 +105,28 @@ export type RouterProps = {
 };
 
 export type RouterState = {
-	isLoadingState: Store<boolean>;
-	loaderFallbackState: Store<RouteItem['loaderFallback']>;
 	routeItemDataState: Store<RouteItemData>;
+	pendingState: Store<RouteItemData | undefined>;
 	currentLoaderState: Store<LoaderState>;
 	scrollMapState: Store<Record<string, number>>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
-	prevPathnameRef: Cell<string>;
-	pendingPathRef: Cell<string>;
 	timestampMap: Map<string, number>;
 };
 
 export type RouterType = {
-	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
+	state: Omit<RouterState, 'timestampMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
 		prefetch(pathname: string): Promise<void>;
 	};
 	hooks: {
-		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
-		useLoaderFallback: () => ReturnType<typeof useGlobalState<RenderElement | undefined>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
+		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;

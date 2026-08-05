@@ -30,11 +30,11 @@ export const Router = ({
 	defaultRetry,
 	defaultStaleTime,
 }: RouterProps) => {
-	const { useIsLoading, useLoaderFallback, useRouteItemData, useCurrentLoaderState } = router.hooks;
-	const [isLoading] = useIsLoading();
-	const [currentLoaderFallback] = useLoaderFallback();
+	const { useRouteItemData, usePendingState } = router.hooks;
 	const [routeItemData] = useRouteItemData();
-	const [loaderState] = useCurrentLoaderState();
+	const [pendingState] = usePendingState();
+	const loaderState = router.state.loaderStateRef.value;
+	const isLoading = Boolean(pendingState);
 
 	useNavigation();
 
@@ -43,7 +43,6 @@ export const Router = ({
 		isAnimated,
 		prefetch,
 		hoverPrefetchDelay,
-		showFallbackOnAnimation,
 		beforeLoad,
 		afterLoad,
 		defaultRetry,
@@ -62,7 +61,7 @@ export const Router = ({
 	const loadingContent = !showErrorElement && isLoading;
 
 	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
-		return renderElement(currentLoaderFallback || defaultLoaderFallback);
+		return renderElement(pendingState?.routeItem?.loaderFallback || defaultLoaderFallback);
 	}
 
 	if (!showFallbackOnAnimation && isAnimated && loadingContent) return <Spinner />;
