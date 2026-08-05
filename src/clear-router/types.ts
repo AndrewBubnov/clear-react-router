@@ -71,11 +71,6 @@ export type LoaderState<T = unknown> = {
 	beforeLoadError: Error | null;
 };
 
-export type Adapter<T> = {
-	parse: (params: string[]) => T;
-	serialize?: (params: T) => string | string[];
-};
-
 export type RouteItemData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
