@@ -105,14 +105,13 @@ export type RouterProps = {
 };
 
 export type RouterState = {
-	isLoadingState: Store<boolean>;
 	routeItemDataState: Store<RouteItemData>;
+	pendingState: Store<RouteItemData | undefined>;
 	currentLoaderState: Store<LoaderState>;
 	scrollMapState: Store<Record<string, number>>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
-	pendingState: Cell<RouteItemData | undefined>;
 	timestampMap: Map<string, number>;
 };
 
@@ -124,10 +123,10 @@ export type RouterType = {
 		prefetch(pathname: string): Promise<void>;
 	};
 	hooks: {
-		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
+		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;

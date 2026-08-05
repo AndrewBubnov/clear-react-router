@@ -10,17 +10,16 @@ import { LoaderState, Location, Options, RouteItemData, RouterState, RouterType 
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
-		isLoadingState: create(false),
 		routeItemDataState: create<RouteItemData>({
 			routeItem: undefined,
 			location: {} as Location,
 		}),
+		pendingState: create<RouteItemData | undefined>(undefined),
 		currentLoaderState: create<LoaderState>(emptyLoaderState),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
-		pendingState: new Cell<RouteItemData | undefined>(undefined),
 		timestampMap: new Map<string, number>(),
 	};
 
@@ -46,10 +45,10 @@ export const createRouterInstance = (): RouterType => {
 		state: routerState,
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
-			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
+			usePendingState: () => useGlobalState(routerState.pendingState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useParams: <T>() => getParamsObject() as T,
 			useNavigate: () => {
