@@ -1,10 +1,9 @@
 import { Location, RouteItem, RouterState } from '../types';
 
 export const createCommitState =
-	({ isLoadingState, routeItemDataState, pendingState, currentLoaderState, loaderStateRef }: RouterState) =>
+	({ isLoadingState, routeItemDataState, pendingState }: RouterState) =>
 	(nextLocation: Location, routeItem: RouteItem | undefined) => {
 		routeItemDataState.setState({ routeItem, location: nextLocation });
-		currentLoaderState.setState(loaderStateRef.value);
 		isLoadingState.setState(false);
 		pendingState.set(undefined);
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;

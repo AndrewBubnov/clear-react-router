@@ -117,7 +117,7 @@ export type RouterState = {
 };
 
 export type RouterType = {
-	state: Omit<RouterState, 'loaderStateRef' | 'timestampMap'>;
+	state: Omit<RouterState, 'timestampMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
@@ -127,7 +127,6 @@ export type RouterType = {
 		useIsLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useCurrentLoaderState: () => ReturnType<typeof useGlobalState<LoaderState>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useParams: <T>() => T;

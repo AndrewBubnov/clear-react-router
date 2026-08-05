@@ -49,7 +49,6 @@ export const createRouterInstance = (): RouterType => {
 			useIsLoading: () => useGlobalState(routerState.isLoadingState),
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
-			useCurrentLoaderState: () => useGlobalState(routerState.currentLoaderState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useParams: <T>() => getParamsObject() as T,
