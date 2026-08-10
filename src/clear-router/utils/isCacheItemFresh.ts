@@ -1,8 +1,8 @@
-import { LoaderState, RouteItem } from '../types';
 import { routerConfig } from '../config/routerConfig';
+import { LoaderStateItem, RouteItem } from '../types';
 
 export const createIsCacheItemFresh =
-	(loaderMap: Map<string, { state: LoaderState; timestamp: number }>) =>
+	(loaderMap: Map<string, LoaderStateItem>) =>
 	({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
 		const item = loaderMap.get(pathname);
