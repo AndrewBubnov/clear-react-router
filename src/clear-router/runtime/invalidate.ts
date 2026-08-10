@@ -5,7 +5,7 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 const redirect = () => Promise.resolve();
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderStateRef, timestampMap, currentLoaderState, contextState }: RouterState,
+	{ routeItemDataState, loaderStateRef, loaderMap, currentLoaderState, contextState }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
@@ -14,7 +14,7 @@ export const createInvalidate = (
 		options?: InvalidateOptions
 	): Promise<InvalidateResult> => {
 		const routePathname = routeItemDataState.getState().location.pathname;
-		timestampMap.delete(pathname);
+		loaderMap.delete(pathname);
 		const params = getParamsObject();
 
 		try {
@@ -40,7 +40,7 @@ export const createInvalidate = (
 		if (!routeItem) return [];
 
 		const pathnameArray: string[] = [];
-		for (const [key] of timestampMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
+		for (const [key] of loaderMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
 
 		const currentResults = await Promise.all(
 			pathnameArray.map(pathname => invalidatePath(routeItem, pathname, options))
