@@ -82,7 +82,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
-| `retry` | `number \| { count: number; delay: number }` | `undefined` | Overrides the global cache revalidation retry policy for this route |
+| `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
 | `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
