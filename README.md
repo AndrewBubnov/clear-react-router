@@ -87,8 +87,8 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
-| `pollingInterval` | `number \| undefined` | `undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
-| `preserveScroll` | `boolean \| undefined` | `undefined` | Save and restore route scroll position when navigating between pages |
+| `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
+| `preserveScroll` | `boolean \| undefined` | Save and restore route scroll position when navigating between pages |
 
 Loader arguments:
 ```ts
