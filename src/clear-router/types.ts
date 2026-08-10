@@ -100,6 +100,8 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
+export type LoaderStateItem = { state: LoaderState; timestamp: number };
+
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
 	pendingState: Store<RouteItemData | undefined>;
@@ -108,7 +110,7 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
-	loaderMap: Map<string, { state: LoaderState; timestamp: number }>;
+	loaderMap: Map<string, LoaderStateItem>;
 };
 
 export type RouterType = {
