@@ -83,7 +83,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
 | `retry` | `number \| { count: number; delay: number }` | `undefined` | Overrides the global cache revalidation retry policy for this route |
-| `optimistic` |  `boolean \| undefined` | `undefined` | Instant navigation using stale data while fresh data is loaded in the background |
+| `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
