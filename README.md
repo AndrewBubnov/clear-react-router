@@ -31,6 +31,7 @@ It provides first-class support for:
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
+- **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
 - **Flexible API** - Use components or hooks as you prefer
 - **Browser History** - Full support for browser back/forward buttons
 - **Context-aware** - Pass and update context through routes
@@ -82,6 +83,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
 | `retry` | `number \| { count: number; delay: number }` | `undefined` | Overrides the global cache revalidation retry policy for this route |
+| `optimistic` |  `boolean \| undefined` | `undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
@@ -112,7 +114,7 @@ Component for client-side navigation with prefetch support, active state detecti
 | `style` | `CSSProperties \| ({ isActive, isPending }) => CSSProperties` | `undefined` | Inline styles. Can be a function for dynamic styling |
 | `activeClassName` | `string` optional | `'active-link'` | Class name applied when the link matches the current URL |
 | `pendingClassName` | `string` optional | `'pending-link'` | Class name applied when the link's target is loading |
-| `onClick` | `() => void` | `undefined` | Callback fired before navigation |
+| `beforeNavigate` | `() => Promise<void> \| undefined` | `undefined` | Callback fired before navigation |
 
 **State values:**
 
@@ -161,6 +163,11 @@ import { Router, Link } from 'clear-react-router';
 // With dynamic style
 <Link to="/profile" style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
   Profile
+</Link>
+
+// Use `beforeNavigate`
+<Link to="/details" beforeNavigate={saveDashboardData}>
+  Admin Panel
 </Link>
 ```
 **Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
