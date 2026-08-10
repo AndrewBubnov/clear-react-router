@@ -20,7 +20,7 @@ export const createRouterInstance = (): RouterType => {
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
-		timestampMap: new Map<string, number>(),
+		loaderMap: new Map<string, { state: LoaderState; timestamp: number }>(),
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
