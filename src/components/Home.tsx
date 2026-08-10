@@ -1,12 +1,12 @@
-import { Link, useQueryParam, adapter } from '../clear-router';
+import { Link, useLoaderState } from '../clear-router';
 import { loremIpsum } from 'lorem-ipsum';
 
 const Home = () => {
-	const [value, setValue] = useQueryParam('filter', adapter.string, '');
+	const { data } = useLoaderState<string>();
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 			<h3>Home</h3>
-			<input value={value} onChange={e => setValue(e.target.value)} placeholder="Search" />
+			<span>{data}</span>
 			<Link to="/about">
 				<span>To about page</span>
 			</Link>
