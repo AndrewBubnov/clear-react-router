@@ -1,13 +1,13 @@
-import type { RouteItem } from '../types';
 import { routerConfig } from '../config/routerConfig';
+import { LoaderStateItem, RouteItem } from '../types';
 
 export const createIsCacheItemFresh =
-	(timestampMap: Map<string, number>) =>
+	(loaderMap: Map<string, LoaderStateItem>) =>
 	({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
 		if (!routeItem) return true;
-		const timestamp = timestampMap.get(pathname);
-		if (timestamp === undefined) return false;
+		const item = loaderMap.get(pathname);
+		if (item === undefined) return false;
 		const staleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime;
 		if (staleTime === undefined) return true;
-		return Date.now() - timestamp <= staleTime;
+		return Date.now() - item.timestamp <= staleTime;
 	};

@@ -11,11 +11,10 @@ let navigationSeq = 0;
 let interval = 0;
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
-	const { loaderStateRef, scrollMapState, pendingState, contextState, timestampMap, routeItemDataState } =
-		routerState;
+	const { loaderStateRef, scrollMapState, pendingState, contextState, loaderMap, routeItemDataState } = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, routeItemDataState);
-	const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
+	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
@@ -49,8 +48,15 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (!scrollPosition || prevState[prevPathname] === scrollPosition) return prevState;
 			return { ...prevState, [prevPathname]: scrollPosition };
 		});
-		const pendingShouldExist = routeItem?.loader && !isCacheItemFresh({ routeItem, pathname: location.pathname });
-		pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
+		if (routeItem?.optimistic && loaderMap.has(location.pathname)) {
+			routeItemDataState.setState({ routeItem, location });
+			const currentLoaderState = loaderMap.get(location.pathname)?.state;
+			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
+		} else {
+			const pendingShouldExist =
+				routeItem?.loader && !isCacheItemFresh({ routeItem, pathname: location.pathname });
+			pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
+		}
 	};
 
 	const afterEachLoad = (routeItem: RouteItem | undefined) => {

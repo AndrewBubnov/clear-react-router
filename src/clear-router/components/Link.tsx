@@ -25,7 +25,7 @@ type LinkProps = Omit<ComponentPropsWithoutRef<'a'>, 'href' | 'className' | 'sty
 	className?: string | ((arg: States) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
-	onClick?(): void;
+	beforeNavigate?(): Promise<void>;
 };
 
 export const Link = ({
@@ -35,7 +35,7 @@ export const Link = ({
 	hoverPrefetchDelay,
 	className,
 	style,
-	onClick,
+	beforeNavigate,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
 }: LinkProps) => {
@@ -95,7 +95,7 @@ export const Link = ({
 
 	const clickHandler = async (event: MouseEvent) => {
 		event.preventDefault();
-		onClick?.();
+		await beforeNavigate?.();
 		await navigate(to);
 	};
 

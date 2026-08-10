@@ -27,6 +27,7 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	optimistic?: boolean;
 	pollingInterval?: number;
 	retry?: Retry;
 	preserveScroll?: boolean;
@@ -99,6 +100,8 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
+export type LoaderStateItem = { state: LoaderState; timestamp: number };
+
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
 	pendingState: Store<RouteItemData | undefined>;
@@ -107,7 +110,7 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
-	timestampMap: Map<string, number>;
+	loaderMap: Map<string, LoaderStateItem>;
 };
 
 export type RouterType = {

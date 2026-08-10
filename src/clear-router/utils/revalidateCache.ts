@@ -1,9 +1,8 @@
 import { getParamsObject } from './utils';
 import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
-import { LoaderState, Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
+import { Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
-const loaderMapRef: Record<string, LoaderState> = {};
 const loadingPromises = new Map();
 
 const isObjectRetry = (arg: Retry) => typeof arg === 'object';
@@ -26,16 +25,17 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderStateRef, timestampMap, contextState } = routerState;
+	const { loaderStateRef, contextState, loaderMap } = routerState;
 	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
-		const isCacheItemFresh = createIsCacheItemFresh(timestampMap);
+		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
 
 		if (isCacheItemFresh({ routeItem, pathname })) {
-			loaderStateRef.set(loaderMapRef[pathname]);
+			const item = loaderMap.get(pathname);
+			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
 
@@ -53,9 +53,8 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					setContext,
 					searchParams,
 				});
-				timestampMap.set(`${pathname}${search}`, Date.now());
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
-				loaderMapRef[`${pathname}${search}`] = loaderStateRef.value;
+				loaderMap.set(`${pathname}${search}`, { state: loaderStateRef.value, timestamp: Date.now() });
 				return { data: result, error: null };
 			} catch (error) {
 				const retry = getRetry(routeItem);
