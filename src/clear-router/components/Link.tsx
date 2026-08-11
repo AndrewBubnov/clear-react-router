@@ -1,12 +1,4 @@
-import {
-	type CSSProperties,
-	useRef,
-	useCallback,
-	useEffect,
-	ReactNode,
-	MouseEvent,
-	ComponentPropsWithoutRef,
-} from 'react';
+import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent, ReactElement, Ref } from 'react';
 import { router } from '../instance';
 import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
@@ -16,35 +8,55 @@ import { RouterProps } from '../types';
 
 type States = { isActive: boolean; isPending: boolean };
 
-type LinkProps = Omit<ComponentPropsWithoutRef<'a'>, 'href' | 'className' | 'style'> & {
+type ElementProps<T extends HTMLElement = HTMLElement> = {
+	ref: Ref<T>;
+	href: string;
+	isActive: boolean;
+	isPending: boolean;
+	onClick(event: MouseEvent): void;
+	onMouseEnter(event: MouseEvent): void;
+	onMouseLeave(event: MouseEvent): void;
+	className?: string;
+	style?: CSSProperties;
+	children?: ReactNode;
+};
+
+type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;
-	children: ReactNode;
+	children?: ReactNode;
+	as?: (props: ElementProps<T>) => ReactElement;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
-	style?: CSSProperties | ((arg: States) => CSSProperties);
 	className?: string | ((arg: States) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
 	beforeNavigate?(): Promise<void>;
+	style?: CSSProperties | ((arg: States) => CSSProperties);
+	exact?: boolean;
 };
 
-export const Link = ({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const defaultAs = ({ isActive, isPending, ...props }: ElementProps<HTMLAnchorElement>) => <a {...props} />;
+
+export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
 	to,
+	as = defaultAs as unknown as (props: ElementProps<T>) => ReactElement,
 	prefetch: prefetchLink,
 	hoverPrefetchDelay,
 	className,
 	style,
 	beforeNavigate,
+	exact = false,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
-}: LinkProps) => {
+}: LinkProps<T>) => {
 	const isPending = useIsRoutePending(to);
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 
 	const timeout = useRef<number>(0);
-	const ref = useRef<HTMLAnchorElement>(null);
+	const elementRef = useRef<HTMLElement | null>(null);
 
 	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
 	const prefetch = prefetchLink || configPrefetch;
@@ -73,20 +85,24 @@ export const Link = ({
 
 	useEffect(() => {
 		if (prefetch !== 'viewport') return;
-		const element = ref.current;
+		const element = elementRef.current;
+		if (!element) return;
 		const observer = new IntersectionObserver(async () => {
 			await router.runtime.prefetch(to);
 			observer.disconnect();
 		});
-
-		if (element) observer.observe(element);
-
-		return () => {
-			if (element) observer.disconnect();
-		};
+		observer.observe(element);
+		return () => observer.disconnect();
 	}, [prefetch, to]);
 
-	const isActive = to === pathname;
+	useEffect(
+		() => () => {
+			if (timeout.current) clearTimeout(timeout.current);
+		},
+		[]
+	);
+	const isActive =
+		to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
 	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
@@ -94,22 +110,32 @@ export const Link = ({
 		.join(' ');
 
 	const clickHandler = async (event: MouseEvent) => {
+		if (
+			event.defaultPrevented ||
+			event.button !== 0 ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.shiftKey ||
+			event.altKey
+		) {
+			return;
+		}
 		event.preventDefault();
 		await beforeNavigate?.();
 		await navigate(to);
 	};
 
-	return (
-		<a
-			href={to}
-			ref={ref}
-			style={normalizedStyle}
-			className={resultClassName}
-			onClick={clickHandler}
-			onMouseEnter={onMouseEnter}
-			onMouseLeave={onMouseLeave}
-		>
-			{children}
-		</a>
-	);
+	// eslint-disable-next-line react-hooks/refs
+	return as({
+		ref: elementRef as Ref<T>,
+		href: to,
+		style: normalizedStyle,
+		className: resultClassName,
+		onClick: clickHandler,
+		onMouseEnter,
+		onMouseLeave,
+		isActive,
+		isPending,
+		children,
+	});
 };
