@@ -60,6 +60,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 
 	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
 	const prefetch = prefetchLink || configPrefetch;
+
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
 	const onMouseEnter = useCallback(() => {
@@ -87,7 +88,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		if (prefetch !== 'viewport') return;
 		const element = elementRef.current;
 		if (!element) return;
-		const observer = new IntersectionObserver(async () => {
+		const observer = new IntersectionObserver(async ([entry]) => {
+			if (!entry.isIntersecting) return;
 			await router.runtime.prefetch(to);
 			observer.disconnect();
 		});
