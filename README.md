@@ -134,6 +134,39 @@ Component for client-side navigation with prefetch support, active state detecti
 | `'viewport'` | Prefetches when the link enters the viewport (using Intersection Observer) |
 | `'none'` | No prefetching |
 
+### Custom elements via `as`
+
+When using `as` to render a custom component instead of the default `<a>`, your component **must spread all received props onto the underlying host element** — including `ref`. If any prop is dropped, the corresponding feature silently stops working (no error is thrown):
+
+- Missing `ref` → `viewport` prefetch never triggers (the `IntersectionObserver` has nothing to observe).
+- Missing `onClick` → navigation doesn't happen, the link just does nothing.
+- Missing `onMouseEnter`/`onMouseLeave` → `hover` prefetch doesn't trigger.
+- Missing `href` → the link isn't reachable via keyboard, screen readers, "open in new tab", etc.
+
+```tsx
+// ✅ correct — every prop is forwarded to the host element
+const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => (
+  <button {...props}>{children}</button>
+);
+
+// ❌ wrong — ref, event handlers, and href are silently dropped
+const Button = ({ children }: { children: ReactNode }) => (
+  <button>{children}</button>
+);
+```
+
+If you only want to add or override specific props (e.g. add a `variant`), spread the received props first, then apply your own on top:
+
+```tsx
+const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => (
+  <button {...props} className={`btn ${props.className ?? ''}`}>
+    {children}
+  </button>
+);
+```
+
+> **Note:** `as` is called as a plain function, not rendered via JSX — avoid using React hooks (`useState`, `useEffect`, etc.) directly inside the function you pass to `as`, since it isn't tracked by React as a separate component in the fiber tree.
+
 **Example:**
 
 ```tsx
