@@ -13,11 +13,11 @@ type ElementProps<T extends HTMLElement = HTMLElement> = {
 	href: string;
 	isActive: boolean;
 	isPending: boolean;
-	className?: string;
-	style?: CSSProperties;
 	onClick(event: MouseEvent): void;
 	onMouseEnter(event: MouseEvent): void;
 	onMouseLeave(event: MouseEvent): void;
+	className?: string;
+	style?: CSSProperties;
 	children?: ReactNode;
 };
 
@@ -27,11 +27,11 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	as?: (props: ElementProps<T>) => ReactElement;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
-	style?: CSSProperties | ((arg: States) => CSSProperties);
 	className?: string | ((arg: States) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
 	beforeNavigate?(): Promise<void>;
+	style?: CSSProperties | ((arg: States) => CSSProperties);
 	exact?: boolean;
 };
 
