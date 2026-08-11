@@ -107,6 +107,8 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
+| `as` | `(props: ElementProps<T>) => ReactElement` | renders `<a>` | Render prop for using a custom element/component instead of the default `<a>`. Receives the computed isActive and isPending values, event handlers, and ref to attach to your own element |
+| `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
 | `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
 | `children` | `ReactNode` | required | Content to render inside the link |
@@ -120,7 +122,7 @@ Component for client-side navigation with prefetch support, active state detecti
 
 | State | Type | Description |
 |-------|------|-------------|
-| `isActive` | `boolean` | `true` when the link's `to` matches the current URL |
+| `isActive` | `boolean` | `true` when the link's `to` matches the current URL considering `exact` value |
 | `isPending` | `boolean` | `true` when the target route is currently loading (loader is running) |
 
 ### Prefetch Strategies
@@ -136,6 +138,22 @@ Component for client-side navigation with prefetch support, active state detecti
 
 ```tsx
 import { Router, Link } from 'clear-react-router';
+
+// Render a custom element/component via `as`. The function receives ref, event handlers, isActive/isPending and must render them itself
+import { Button } from '@mui/material';
+
+<Link
+  to="/dashboard"
+  as={({ isActive, isPending, ...props }) => (
+    <Button
+      {...props}
+      variant={isActive ? 'contained' : 'outlined'}
+      sx={{ opacity: isPending ? 0.5 : 1 }}
+    />
+  )}
+>
+  Dashboard
+</Link>
 
 // Global prefetch: hover with 100ms delay
 <Router routes={routes} prefetch="hover" hoverPrefetchDelay={100} />
@@ -168,6 +186,12 @@ import { Router, Link } from 'clear-react-router';
 // Use `beforeNavigate`
 <Link to="/details" beforeNavigate={saveDashboardData}>
   Admin Panel
+</Link>
+
+// `exact={false}` — active for nested routes too
+// e.g. active when current URL is "/settings" or "/settings/profile"
+<Link to="/settings" exact={false}>
+  Settings
 </Link>
 ```
 **Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
