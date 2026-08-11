@@ -35,7 +35,8 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	exact?: boolean;
 };
 
-const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const defaultAs = ({ isActive, isPending, ...props }: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 
 export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
