@@ -108,7 +108,7 @@ Component for client-side navigation with prefetch support, active state detecti
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
 | `as` | `(props: ElementProps<T>) => ReactElement` | renders `<a>` | Render prop for using a custom element/component instead of the default `<a>`. Receives the computed isActive and isPending values, event handlers, and ref to attach to your own element |
-| `exact` | `boolean` | `true` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
+| `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
 | `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
 | `children` | `ReactNode` | required | Content to render inside the link |
