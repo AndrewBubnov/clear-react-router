@@ -101,8 +101,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		},
 		[]
 	);
-
-	const isActive = exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
+	const isActive =
+		to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
 	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
