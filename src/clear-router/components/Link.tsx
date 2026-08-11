@@ -46,8 +46,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	hoverPrefetchDelay,
 	className,
 	style,
-	exact,
 	beforeNavigate,
+	exact = false,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
 }: LinkProps<T>) => {
