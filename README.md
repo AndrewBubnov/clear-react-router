@@ -107,7 +107,7 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
-| `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and { isActive, isPending } as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
+| `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
 | `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
 | `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
@@ -183,7 +183,8 @@ const Button = (
 
 <Link to="/about" as={Button}>To about page</Link>
 
-For third-party components (MUI, Chakra, etc.), wrap them in an inline arrow function — most of them accept a single `props` argument and forward it to the host element themselves:
+For third-party components (MUI, Chakra, etc.), wrap them in an inline arrow function — most of them accept a
+single `props` argument and forward it to the host element themselves:
 
 import { Button } from '@mui/material';
 
