@@ -12,4 +12,4 @@ export { useRouterContext } from './hooks/useRouterContext';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useFormContext } from './hooks/useFormContext';
 export { createRouter } from './utils/utils';
-export type { RouteItem, BlockerState, Location, RouterProps } from './types';
+export type { RouteItem, BlockerState, Location, RouterProps, ElementProps } from './types';
