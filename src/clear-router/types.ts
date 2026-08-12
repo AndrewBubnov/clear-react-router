@@ -1,4 +1,13 @@
-import type { ComponentType, Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
+import {
+	ComponentType,
+	type CSSProperties,
+	Dispatch,
+	MouseEvent,
+	ReactElement,
+	ReactNode,
+	Ref,
+	SetStateAction,
+} from 'react';
 import { Store, useGlobalState } from './create';
 import { Cell } from './cell';
 
@@ -150,3 +159,14 @@ export type Options =
 	| undefined;
 
 export type InvalidateResult = { path: string; data: unknown };
+
+export type ElementProps<T extends HTMLElement = HTMLElement> = {
+	ref: Ref<T>;
+	href: string;
+	className?: string;
+	style?: CSSProperties;
+	onClick(event: MouseEvent): void;
+	onMouseEnter(event: MouseEvent): void;
+	onMouseLeave(event: MouseEvent): void;
+	children?: ReactNode;
+};

@@ -4,39 +4,25 @@ import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
-import { RouterProps } from '../types';
+import { ElementProps, RouterProps } from '../types';
 
-type States = { isActive: boolean; isPending: boolean };
-
-type ElementProps<T extends HTMLElement = HTMLElement> = {
-	ref: Ref<T>;
-	href: string;
-	isActive: boolean;
-	isPending: boolean;
-	onClick(event: MouseEvent): void;
-	onMouseEnter(event: MouseEvent): void;
-	onMouseLeave(event: MouseEvent): void;
-	className?: string;
-	style?: CSSProperties;
-	children?: ReactNode;
-};
+type ElementState = { isActive: boolean; isPending: boolean };
 
 type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;
 	children?: ReactNode;
-	as?: (props: ElementProps<T>) => ReactElement;
+	as?: (props: ElementProps<T>, state: ElementState) => ReactElement;
 	prefetch?: RouterProps['prefetch'];
 	hoverPrefetchDelay?: number;
-	className?: string | ((arg: States) => string);
+	className?: string | ((arg: ElementState) => string);
 	activeClassName?: string;
 	pendingClassName?: string;
 	beforeNavigate?(): Promise<void>;
-	style?: CSSProperties | ((arg: States) => CSSProperties);
+	style?: CSSProperties | ((arg: ElementState) => CSSProperties);
 	exact?: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const defaultAs = ({ isActive, isPending, ...props }: ElementProps<HTMLAnchorElement>) => <a {...props} />;
+const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 
 export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
@@ -127,17 +113,18 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		await navigate(to);
 	};
 
-	// eslint-disable-next-line react-hooks/refs
-	return as({
-		ref: elementRef as Ref<T>,
-		href: to,
-		style: normalizedStyle,
-		className: resultClassName,
-		onClick: clickHandler,
-		onMouseEnter,
-		onMouseLeave,
-		isActive,
-		isPending,
-		children,
-	});
+	return as(
+		// eslint-disable-next-line react-hooks/refs
+		{
+			ref: elementRef as Ref<T>,
+			href: to,
+			style: normalizedStyle,
+			className: resultClassName,
+			onClick: clickHandler,
+			onMouseEnter,
+			onMouseLeave,
+			children,
+		},
+		{ isActive, isPending }
+	);
 };
