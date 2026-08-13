@@ -62,3 +62,9 @@ export const comparePaths = (route: RouteItem, pathname: string) => {
 		? pattern.every((segment, index) => segment.startsWith(':') || segment === current[index])
 		: false;
 };
+
+export const isMobile = () => {
+	const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+	const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+	return hasCoarsePointer && isSmallScreen;
+};

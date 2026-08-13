@@ -9,6 +9,7 @@ import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
+import { isMobile } from '../utils/utils.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -21,7 +22,7 @@ export const Router = ({
 	spinner = true,
 	defaultPreserveScroll = true,
 	showFallbackOnAnimation = false,
-	prefetch = 'hover',
+	prefetch = isMobile() ? 'viewport' : 'hover',
 	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 	context: initialContext,
