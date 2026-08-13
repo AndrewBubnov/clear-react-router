@@ -101,11 +101,11 @@ export type RouterProps = {
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	showFallbackOnAnimation?: boolean;
-	prefetch?: 'hover' | 'render' | 'viewport' | 'none';
-	hoverPrefetchDelay?: number;
+	defaultPrefetch?: 'hover' | 'render' | 'viewport' | 'none';
+	defaultHoverPrefetchDelay?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
-	beforeLoad?: ClientRouteItem['beforeLoad'];
-	afterLoad?: ClientRouteItem['afterLoad'];
+	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
+	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	context?: Record<string, unknown>;
 };
 
