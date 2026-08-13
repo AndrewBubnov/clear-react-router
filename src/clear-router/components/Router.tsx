@@ -7,9 +7,9 @@ import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
+import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
-import { isMobile } from '../utils/utils.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
