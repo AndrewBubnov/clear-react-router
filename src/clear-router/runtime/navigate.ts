@@ -59,7 +59,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		}
 	};
 
-	const afterEachLoad = (routeItem: RouteItem | undefined) => {
+	const afterEachLoad = (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.pollingInterval) return;
 		interval = window.setInterval(
 			() => revalidateCache({ routeItem, pathname: location.pathname }),
@@ -71,7 +71,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.loader) return;
 		window.clearInterval(interval);
 		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
-		afterEachLoad(routeItem);
+		afterEachLoad(routeItem, location);
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
