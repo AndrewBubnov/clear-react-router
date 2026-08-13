@@ -1,4 +1,4 @@
-import { createRouter } from './clear-router';
+import { createRouter, lazy } from './clear-router';
 import { Test } from './components/Test';
 import { User } from './components/User';
 import { NotFound } from './components/NotFound';
@@ -11,7 +11,7 @@ let posts: string[] = [];
 export const routes = createRouter([
 	{
 		path: '/',
-		element: () => import('./components/Home.tsx'),
+		element: lazy(() => import('./components/Home.tsx')),
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching Home');
@@ -23,7 +23,7 @@ export const routes = createRouter([
 	},
 	{
 		path: '/about',
-		element: () => import('./components/About.tsx'),
+		element: lazy(() => import('./components/About.tsx')),
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching About');
@@ -40,7 +40,7 @@ export const routes = createRouter([
 	{ path: '/user/:userId', element: User },
 	{
 		path: '/post/:postId',
-		element: () => import('./components/Post.tsx'),
+		element: lazy(() => import('./components/Post.tsx')),
 		actions: () => ({
 			addPost: formData => {
 				const post = formData.get('text') as string;
@@ -56,7 +56,7 @@ export const routes = createRouter([
 		children: [
 			{
 				path: '/comment/:commentId',
-				element: () => import('./components/Comment.tsx'),
+				element: lazy(() => import('./components/Comment.tsx')),
 				beforeLoad: ({ context, redirect }) => {
 					if (!context.isAuthorized) return redirect('/');
 				},
