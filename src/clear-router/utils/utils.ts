@@ -1,17 +1,16 @@
 import { router } from '../instance';
 import { createLazyComponent } from './createLazyComponent';
-import { ClientRouteItem, LazyComponent, Location, RenderElement, RouteItem } from '../types';
+import { ClientRouteItem, LAZY_MARKER, LazyComponent, Location, RenderElement, RouteItem } from '../types';
 
-const isLazy = (el: ClientRouteItem) => typeof el.element === 'function' && el.element.toString().includes('import(');
+const isLazy = (el: ClientRouteItem): el is ClientRouteItem & { element: LazyComponent } =>
+	typeof el.element === 'object' && el.element !== null && LAZY_MARKER in el.element;
 
 const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
 	const preloadElement = isLazy(el)
-		? createLazyComponent(el.element as LazyComponent, el.fallback).preloadElement
+		? createLazyComponent(el.element.importFn, el.fallback).preloadElement
 		: undefined;
-	const resolvedElement = isLazy(el)
-		? createLazyComponent(el.element as LazyComponent, el.fallback).Component
-		: el.element;
+	const resolvedElement = isLazy(el) ? createLazyComponent(el.element.importFn, el.fallback).Component : el.element;
 	const currentRoute: RouteItem = {
 		...el,
 		pattern,
