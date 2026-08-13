@@ -11,7 +11,12 @@ import {
 import { Store, useGlobalState } from './create';
 import { Cell } from './cell';
 
-export type LazyComponent = () => Promise<{ default: ComponentType<unknown> }>;
+export const LAZY_MARKER = Symbol('clear-router-lazy');
+
+export type LazyComponent = {
+	readonly [LAZY_MARKER]: true;
+	importFn: () => Promise<{ default: ComponentType<unknown> }>;
+};
 
 export type RenderElement = (() => ReactElement) | ReactElement;
 
