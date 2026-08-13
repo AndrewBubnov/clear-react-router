@@ -3,11 +3,11 @@ import { ClientRouteItem, RouterProps } from '../types';
 
 class RouterConfig {
 	routes: RouterProps['routes'] = [];
-	prefetch: RouterProps['prefetch'] = 'hover';
+	defaultPrefetch: RouterProps['defaultPrefetch'] = 'hover';
 	isAnimated: RouterProps['isAnimated'] = false;
-	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
-	beforeLoad?: ClientRouteItem['beforeLoad'];
-	afterLoad?: ClientRouteItem['afterLoad'];
+	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
+	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
+	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	defaultRetry?: RouterProps['defaultRetry'];
 	defaultStaleTime?: RouterProps['defaultStaleTime'];
 	defaultPreserveScroll?: RouterProps['defaultPreserveScroll'];

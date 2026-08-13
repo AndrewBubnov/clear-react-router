@@ -26,7 +26,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const beforeLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
-		const { beforeLoad } = routerConfig;
+		const { defaultBeforeLoad } = routerConfig;
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
@@ -37,7 +37,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 			}
 		};
-		if (beforeLoad) await runBeforeLoad(beforeLoad);
+		if (defaultBeforeLoad) await runBeforeLoad(defaultBeforeLoad);
 		if (routeItem?.beforeLoad) await runBeforeLoad(routeItem?.beforeLoad);
 	};
 
@@ -75,9 +75,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
-		const { afterLoad } = routerConfig;
+		const { defaultAfterLoad } = routerConfig;
 		if (routeItem?.afterLoad) await routeItem.afterLoad({ ...getContext(), params });
-		if (afterLoad) await afterLoad({ ...getContext(), params });
+		if (defaultAfterLoad) await defaultAfterLoad({ ...getContext(), params });
 	};
 
 	const navigate = async (nextLocation: Location) => {
