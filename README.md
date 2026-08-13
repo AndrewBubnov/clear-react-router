@@ -107,7 +107,7 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
-| `as` | `(props: ElementProps<T>) => ReactElement` | renders `<a>` | Render prop for using a custom element/component instead of the default `<a>`. Receives the computed isActive and isPending values, event handlers, and ref to attach to your own element |
+| `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
 | `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
 | `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
@@ -165,29 +165,37 @@ const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => (
 );
 ```
 
-> **Note:** `as` is called as a plain function, not rendered via JSX — avoid using React hooks (`useState`, `useEffect`, etc.) directly inside the function you pass to `as`, since it isn't tracked by React as a separate component in the fiber tree.
+> **Note:** Because `as` is called as a plain function rather than rendered via JSX, avoid using React hooks (`useState`, `useEffect`, etc.) inside the function you pass to `as` — it isn't tracked by React as a separate component in the fiber tree. A function written for `as` (like `Button` above, which takes a second `state` argument) also isn't a valid standalone React component and shouldn't be rendered directly as `<Button />` elsewhere.
 
 **Example:**
 
 ```tsx
-import { Router, Link } from 'clear-react-router';
+import { Link, type ElementProps } from 'clear-react-router';
 
-// Render a custom element/component via `as`. The function receives ref, event handlers, isActive/isPending and must render them itself
+const Button = (
+  { children, ...rest }: ElementProps<HTMLButtonElement>,
+  { isActive }: { isActive: boolean }
+) => (
+  <button {...rest} style={{ background: isActive ? 'tomato' : 'green' }}>
+    {children}
+  </button>
+);
+
+<Link to="/about" as={Button}>To about page</Link>
+
+For third-party components (MUI, Chakra, etc.), wrap them in an inline arrow function — most of them accept a
+single `props` argument and forward it to the host element themselves:
+
 import { Button } from '@mui/material';
 
 <Link
-  to="/dashboard"
-  as={({ isActive, isPending, ...props }) => (
-    <Button
-      {...props}
-      variant={isActive ? 'contained' : 'outlined'}
-      sx={{ opacity: isPending ? 0.5 : 1 }}
-    />
-  )}
+  to="/about"
+  as={(props, { isActive }) => <Button {...props} variant={isActive ? 'contained' : 'text'} />}
 >
-  Dashboard
+  To about page
 </Link>
-
+```
+```tsx
 // Global prefetch: hover with 100ms delay
 <Router routes={routes} prefetch="hover" hoverPrefetchDelay={100} />
 

@@ -12,7 +12,7 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;
 	children?: ReactNode;
 	as?: (props: ElementProps<T>, state: ElementState) => ReactElement;
-	prefetch?: RouterProps['prefetch'];
+	prefetch?: RouterProps['defaultPrefetch'];
 	hoverPrefetchDelay?: number;
 	className?: string | ((arg: ElementState) => string);
 	activeClassName?: string;
@@ -28,7 +28,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
 	to,
 	as = defaultAs as unknown as (props: ElementProps<T>) => ReactElement,
-	prefetch: prefetchLink,
+	prefetch: linkPrefetch,
 	hoverPrefetchDelay,
 	className,
 	style,
@@ -44,8 +44,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);
 
-	const { prefetch: configPrefetch, hoverPrefetchDelay: configPrefetchDelay } = routerConfig;
-	const prefetch = prefetchLink || configPrefetch;
+	const { defaultPrefetch: configPrefetch, defaultHoverPrefetchDelay: configPrefetchDelay } = routerConfig;
+	const prefetch = linkPrefetch || configPrefetch;
 
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 

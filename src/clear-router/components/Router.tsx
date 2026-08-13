@@ -7,6 +7,7 @@ import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
+import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
 
@@ -14,21 +15,21 @@ const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 export const Router = ({
 	routes,
-	beforeLoad,
-	afterLoad,
+	defaultBeforeLoad,
+	defaultAfterLoad,
 	animationDuration,
-	isAnimated = false,
-	spinner = true,
-	defaultPreserveScroll = true,
-	showFallbackOnAnimation = false,
-	prefetch = 'hover',
-	hoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
-	errorBoundary: ErrorBoundary = EmptyBoundary,
-	context: initialContext,
 	defaultLoaderFallback,
 	defaultErrorElement,
 	defaultRetry,
 	defaultStaleTime,
+	context: initialContext,
+	isAnimated = false,
+	spinner = true,
+	defaultPreserveScroll = true,
+	showFallbackOnAnimation = false,
+	defaultPrefetch = isMobile() ? 'viewport' : 'hover',
+	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
+	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
 	const { useRouteItemData, usePendingState } = router.hooks;
 	const [routeItemData] = useRouteItemData();
@@ -41,10 +42,10 @@ export const Router = ({
 	useSetRouterConfig({
 		routes,
 		isAnimated,
-		prefetch,
-		hoverPrefetchDelay,
-		beforeLoad,
-		afterLoad,
+		defaultPrefetch,
+		defaultHoverPrefetchDelay,
+		defaultBeforeLoad,
+		defaultAfterLoad,
 		defaultRetry,
 		defaultStaleTime,
 		defaultPreserveScroll,
