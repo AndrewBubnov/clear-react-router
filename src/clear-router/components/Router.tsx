@@ -13,6 +13,8 @@ import { RouterProps } from '../types';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
+const IS_MOBILE = isMobile();
+
 export const Router = ({
 	routes,
 	defaultBeforeLoad,
@@ -27,7 +29,7 @@ export const Router = ({
 	spinner = true,
 	defaultPreserveScroll = true,
 	showFallbackOnAnimation = false,
-	defaultPrefetch = isMobile() ? 'viewport' : 'hover',
+	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {

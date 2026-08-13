@@ -61,7 +61,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(`${pathname}${search}`);
 					if (retry.delay) await sleep(retry.delay);
-					await revalidateCache({ routeItem, pathname }, retried + 1);
+					await revalidateCache({ routeItem, pathname, search }, retried + 1);
 					return { data: null, error };
 				} else {
 					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
