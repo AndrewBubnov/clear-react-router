@@ -44,7 +44,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);
 
-	const { prefetch: configPrefetch, defaultHoverPrefetchDelay: configPrefetchDelay } = routerConfig;
+	const { defaultPrefetch: configPrefetch, defaultHoverPrefetchDelay: configPrefetchDelay } = routerConfig;
 	const prefetch = linkPrefetch || configPrefetch;
 
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;

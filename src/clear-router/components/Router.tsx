@@ -18,6 +18,11 @@ export const Router = ({
 	defaultBeforeLoad,
 	defaultAfterLoad,
 	animationDuration,
+	defaultLoaderFallback,
+	defaultErrorElement,
+	defaultRetry,
+	defaultStaleTime,
+	context: initialContext,
 	isAnimated = false,
 	spinner = true,
 	defaultPreserveScroll = true,
@@ -25,11 +30,6 @@ export const Router = ({
 	defaultPrefetch = isMobile() ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
-	context: initialContext,
-	defaultLoaderFallback,
-	defaultErrorElement,
-	defaultRetry,
-	defaultStaleTime,
 }: RouterProps) => {
 	const { useRouteItemData, usePendingState } = router.hooks;
 	const [routeItemData] = useRouteItemData();
