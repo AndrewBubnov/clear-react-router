@@ -26,15 +26,25 @@ const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, m
 
 export const createRevalidateCache = (routerState: RouterState) => {
 	const { loaderStateRef, contextState, loaderMap } = routerState;
+	const removeFirstStaleItem = () => {
+		const deletedItem = [...loaderMap.entries()].find(([, item]) => {
+			const staleTime = item.staleTime ?? routerConfig.defaultStaleTime;
+			return staleTime && staleTime + item.timestamp < Date.now();
+		});
+		if (deletedItem) loaderMap.delete(deletedItem[0]);
+	};
+
 	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
-		if (loadingPromises.has(pathname)) return loadingPromises.get(pathname);
+		removeFirstStaleItem();
 
-		if (isCacheItemFresh({ routeItem, pathname, search })) {
-			const item = loaderMap.get(pathname);
+		if (loadingPromises.has(pathname)) return loadingPromises.get(`${pathname}${search}`);
+
+		if (isCacheItemFresh(pathname, search)) {
+			const item = loaderMap.get(`${pathname}${search}`);
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
@@ -54,11 +64,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					searchParams,
 				});
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
-				const deletedItem = [...loaderMap.entries()].find(([, item]) => {
-					const staleTime = item.staleTime ?? routerConfig.defaultStaleTime;
-					return staleTime && staleTime + item.timestamp < Date.now();
-				});
-				if (deletedItem) loaderMap.delete(deletedItem[0]);
+
 				loaderMap.set(`${pathname}${search}`, {
 					state: loaderStateRef.value,
 					timestamp: Date.now(),
