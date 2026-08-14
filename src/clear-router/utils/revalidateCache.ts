@@ -41,10 +41,12 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		removeFirstStaleItem();
 
-		if (loadingPromises.has(pathname)) return loadingPromises.get(`${pathname}${search}`);
+		const path = `${pathname}${search}`;
 
-		if (isCacheItemFresh(pathname, search)) {
-			const item = loaderMap.get(`${pathname}${search}`);
+		if (loadingPromises.has(path)) return loadingPromises.get(path);
+
+		if (isCacheItemFresh(path)) {
+			const item = loaderMap.get(path);
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
@@ -64,8 +66,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					searchParams,
 				});
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
-
-				loaderMap.set(`${pathname}${search}`, {
+				loaderMap.set(path, {
 					state: loaderStateRef.value,
 					timestamp: Date.now(),
 					staleTime: routeItem.staleTime,
@@ -74,7 +75,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			} catch (error) {
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
-					loadingPromises.delete(`${pathname}${search}`);
+					loadingPromises.delete(path);
 					if (retry.delay) await sleep(retry.delay);
 					await revalidateCache({ routeItem, pathname, search }, retried + 1);
 					return { data: null, error };
@@ -83,11 +84,11 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					return { data: null, error };
 				}
 			} finally {
-				loadingPromises.delete(`${pathname}${search}`);
+				loadingPromises.delete(path);
 			}
 		})();
 
-		loadingPromises.set(`${pathname}${search}`, promise);
+		loadingPromises.set(path, promise);
 		return promise;
 	};
 	return revalidateCache;
