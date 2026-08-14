@@ -41,7 +41,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		removeFirstStaleItem();
 
-		if (loadingPromises.has(pathname)) return loadingPromises.get(`${pathname}${search}`);
+		if (loadingPromises.has(`${pathname}${search}`)) return loadingPromises.get(`${pathname}${search}`);
 
 		if (isCacheItemFresh(pathname, search)) {
 			const item = loaderMap.get(`${pathname}${search}`);
