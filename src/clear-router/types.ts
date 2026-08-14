@@ -114,7 +114,7 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = { state: LoaderState; timestamp: number };
+export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
 
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
