@@ -3,9 +3,9 @@ import { LoaderStateItem, RouteItem } from '../types';
 
 export const createIsCacheItemFresh =
 	(loaderMap: Map<string, LoaderStateItem>) =>
-	({ routeItem, pathname }: { routeItem?: RouteItem; pathname: string }) => {
+	({ routeItem, pathname, search = '' }: { routeItem?: RouteItem; pathname: string; search?: string }) => {
 		if (!routeItem) return true;
-		const item = loaderMap.get(pathname);
+		const item = loaderMap.get(`${pathname}${search}`);
 		if (item === undefined) return false;
 		const staleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime;
 		if (staleTime === undefined) return true;

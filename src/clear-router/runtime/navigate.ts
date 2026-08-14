@@ -54,7 +54,8 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
 		} else {
 			const pendingShouldExist =
-				routeItem?.loader && !isCacheItemFresh({ routeItem, pathname: location.pathname });
+				routeItem?.loader &&
+				!isCacheItemFresh({ routeItem, pathname: location.pathname, search: location.search });
 			pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
 		}
 	};
