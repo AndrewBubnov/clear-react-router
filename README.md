@@ -572,6 +572,8 @@ const UserProfile = () => {
   staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
 }
 ```
+ - Stale cache entries are cleaned up incrementally on every navigation, keeping the loader cache from growing unbounded over long sessions.
+
 
 ### `useInvalidate()`
 
