@@ -48,21 +48,21 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (!scrollPosition || prevState[prevPathname] === scrollPosition) return prevState;
 			return { ...prevState, [prevPathname]: scrollPosition };
 		});
-		if (routeItem?.optimistic && loaderMap.has(location.pathname)) {
+		const path = `${location.pathname}${location.search}`;
+		if (routeItem?.optimistic && loaderMap.has(path)) {
 			routeItemDataState.setState({ routeItem, location });
-			const currentLoaderState = loaderMap.get(location.pathname)?.state;
+			const currentLoaderState = loaderMap.get(path)?.state;
 			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
 		} else {
-			const pendingShouldExist =
-				routeItem?.loader && !isCacheItemFresh({ routeItem, pathname: location.pathname });
+			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
 			pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
 		}
 	};
 
-	const afterEachLoad = (routeItem: RouteItem | undefined, location: Location) => {
+	const polling = (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.pollingInterval) return;
 		interval = window.setInterval(
-			() => revalidateCache({ routeItem, pathname: location.pathname }),
+			() => revalidateCache({ routeItem, pathname: location.pathname, search: location.search }),
 			routeItem.pollingInterval
 		);
 	};
@@ -71,7 +71,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.loader) return;
 		window.clearInterval(interval);
 		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
-		afterEachLoad(routeItem, location);
+		polling(routeItem, location);
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {

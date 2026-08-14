@@ -114,7 +114,7 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = { state: LoaderState; timestamp: number };
+export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
 
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
@@ -152,10 +152,7 @@ export type RouterType = {
 };
 
 export type InvalidateOptions = { withChildren?: boolean; withBeforeLoad?: boolean };
-export type RevalidateCache = ({
-	routeItem,
-	pathname,
-}: RevalidateCacheArgs) => Promise<{ data: unknown; error: unknown }>;
+export type RevalidateCache = (args: RevalidateCacheArgs) => Promise<{ data: unknown; error: unknown }>;
 export type Options =
 	| Partial<{
 			onSuccess: (args: unknown) => void;
