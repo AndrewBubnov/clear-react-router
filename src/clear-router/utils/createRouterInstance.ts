@@ -6,7 +6,16 @@ import { createRevalidateCache } from './revalidateCache';
 import { Cell } from '../cell';
 import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
-import { LoaderState, LoaderStateItem, Location, Options, RouteItemData, RouterState, RouterType } from '../types';
+import {
+	LoaderState,
+	LoaderStateItem,
+	LoadingPromise,
+	Location,
+	Options,
+	RouteItemData,
+	RouterState,
+	RouterType,
+} from '../types';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
@@ -21,6 +30,7 @@ export const createRouterInstance = (): RouterType => {
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
 		loaderMap: new Map<string, LoaderStateItem>(),
+		loadingPromises: new Map<string, LoadingPromise>(),
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
