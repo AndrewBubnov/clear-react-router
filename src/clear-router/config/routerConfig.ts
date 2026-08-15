@@ -3,6 +3,7 @@ import { ClientRouteItem, RouterProps } from '../types';
 
 class RouterConfig {
 	routes: RouterProps['routes'] = [];
+	maxCacheSize: number = 0;
 	defaultPrefetch: RouterProps['defaultPrefetch'] = 'hover';
 	isAnimated: RouterProps['isAnimated'] = false;
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY;

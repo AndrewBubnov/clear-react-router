@@ -572,6 +572,8 @@ const UserProfile = () => {
   staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
 }
 ```
+ - Stale cache entries are cleaned up incrementally on every navigation, keeping the loader cache from growing unbounded over long sessions.
+
 
 ### `useInvalidate()`
 
@@ -773,11 +775,13 @@ function ProductFilter() {
 
 ## Lazy Loading
 
-Clear Router supports code-splitting out of the box. Simply pass a function that returns a dynamic import:
+Clear Router supports code-splitting out of the box. Simply wrap dynamic import into a library's `lazy` function:
 ```tsx
+import { lazy } from 'clear-react-router';
+
 {
   path: '/heavy-page',
-  element: () => import('./pages/HeavyComponent'),
+  element: lazy(() => import('./pages/HeavyComponent')),
   fallback: () => <div>Loading...</div>,
 }
 ```
