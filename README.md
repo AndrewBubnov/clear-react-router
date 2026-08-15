@@ -22,17 +22,17 @@ It provides first-class support for:
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
-- **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
+- **Data Loading** - Built-in loaders with TTL-based caching (`staleTime`)
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
 - **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
 - **Programmatic Redirects** - Redirect from beforeLoad hook
 - **Cache invalidation** - Manual route invalidation
+- **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
-- **Flexible API** - Use components or hooks as you prefer
 - **Browser History** - Full support for browser back/forward buttons
 - **Context-aware** - Pass and update context through routes
 
