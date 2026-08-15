@@ -161,7 +161,7 @@ export type RouterType = {
 };
 
 export type InvalidateOptions = { withChildren?: boolean; withBeforeLoad?: boolean };
-export type RevalidateCache = (args: RevalidateCacheArgs) => Promise<{ data: unknown; error: unknown }>;
+export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
 export type Options =
 	| Partial<{
 			onSuccess: (args: unknown) => void;
