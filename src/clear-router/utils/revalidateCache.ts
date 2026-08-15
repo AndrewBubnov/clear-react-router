@@ -3,8 +3,6 @@ import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
-const loadingPromises = new Map();
-
 const isObjectRetry = (arg: Retry) => typeof arg === 'object';
 const createRetry = (arg: Retry) => {
 	if (arg === undefined) return null;
@@ -25,21 +23,29 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderStateRef, contextState, loaderMap } = routerState;
-	const removeFirstStaleItem = () => {
-		const deletedItem = [...loaderMap.entries()].find(([, item]) => {
+	const { loaderStateRef, contextState, loaderMap, loadingPromises } = routerState;
+	const removeStaleItems = () => {
+		const deletedItems = [...loaderMap.entries()].filter(([, item]) => {
 			const staleTime = item.staleTime ?? routerConfig.defaultStaleTime;
 			return staleTime && staleTime + item.timestamp < Date.now();
 		});
-		if (deletedItem) loaderMap.delete(deletedItem[0]);
+		if (deletedItems.length) deletedItems.forEach(item => loaderMap.delete(item[0]));
 	};
-
+	const evict = () => {
+		const count = routerConfig.maxCacheSize - loaderMap.size;
+		if (count >= 0) return;
+		const evicted = [...loaderMap.entries()]
+			.sort((a, b) => b[1].lastAccessed - a[1].lastAccessed)
+			.slice(count)
+			.map(el => el[0]);
+		evicted.forEach(el => loaderMap.delete(el));
+	};
 	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
-		removeFirstStaleItem();
+		removeStaleItems();
 
 		const path = `${pathname}${search}`;
 
@@ -47,6 +53,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		if (isCacheItemFresh(path)) {
 			const item = loaderMap.get(path);
+			if (item) loaderMap.set(path, { ...item, lastAccessed: Date.now() });
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
@@ -70,7 +77,9 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					state: loaderStateRef.value,
 					timestamp: Date.now(),
 					staleTime: routeItem.staleTime,
+					lastAccessed: Date.now(),
 				});
+				evict();
 				return { data: result, error: null };
 			} catch (error) {
 				const retry = getRetry(routeItem);

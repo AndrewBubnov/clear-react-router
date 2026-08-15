@@ -108,13 +108,21 @@ export type RouterProps = {
 	showFallbackOnAnimation?: boolean;
 	defaultPrefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	defaultHoverPrefetchDelay?: number;
+	maxCacheSize?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
+export type LoaderStateItem = {
+	state: LoaderState;
+	timestamp: number;
+	staleTime: number | undefined;
+	lastAccessed: number;
+};
+
+export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
@@ -125,6 +133,7 @@ export type RouterState = {
 	blockedRouteState: Store<{ from: string; to: string }>;
 	loaderStateRef: Cell<LoaderState>;
 	loaderMap: Map<string, LoaderStateItem>;
+	loadingPromises: Map<string, LoadingPromise>;
 };
 
 export type RouterType = {

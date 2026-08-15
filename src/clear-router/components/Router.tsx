@@ -14,6 +14,8 @@ import { RouterProps } from '../types';
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
 const IS_MOBILE = isMobile();
+const MOBILE_CACHE_SIZE = 60;
+const DESKTOP_CACHE_SIZE = 150;
 
 export const Router = ({
 	routes,
@@ -29,6 +31,7 @@ export const Router = ({
 	spinner = true,
 	defaultPreserveScroll = true,
 	showFallbackOnAnimation = false,
+	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
@@ -51,6 +54,7 @@ export const Router = ({
 		defaultRetry,
 		defaultStaleTime,
 		defaultPreserveScroll,
+		maxCacheSize,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);

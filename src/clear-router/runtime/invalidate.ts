@@ -2,7 +2,7 @@ import { comparePaths, getParamsObject } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
-const redirect = () => Promise.resolve();
+const redirect = Promise.resolve;
 
 export const createInvalidate = (
 	{ routeItemDataState, loaderStateRef, loaderMap, currentLoaderState, contextState }: RouterState,
@@ -16,7 +16,6 @@ export const createInvalidate = (
 		const routePathname = routeItemDataState.getState().location.pathname;
 		loaderMap.delete(pathname);
 		const params = getParamsObject();
-
 		try {
 			if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 				const context = contextState.getState();
