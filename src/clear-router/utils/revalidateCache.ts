@@ -36,6 +36,14 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		const oldestKey = loaderMap.keys().next().value;
 		if (oldestKey) loaderMap.delete(oldestKey);
 	};
+	const moveItemToLastPosition = (path: string) => {
+		const item = loaderMap.get(path);
+		if (item) {
+			loaderMap.delete(path);
+			loaderMap.set(path, item);
+		}
+		return item;
+	};
 	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
@@ -46,20 +54,12 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
-			const item = loaderMap.get(path);
-			if (item) {
-				loaderMap.delete(path);
-				loaderMap.set(path, item);
-			}
+			moveItemToLastPosition(path);
 			return loadingPromises.get(path);
 		}
 
 		if (isCacheItemFresh(path)) {
-			const item = loaderMap.get(path);
-			if (item) {
-				loaderMap.delete(path);
-				loaderMap.set(path, item);
-			}
+			const item = moveItemToLastPosition(path);
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
