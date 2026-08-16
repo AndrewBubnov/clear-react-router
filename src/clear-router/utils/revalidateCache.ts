@@ -44,7 +44,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		}
 		return item;
 	};
-	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
+	const revalidateCache = async ({ routeItem, pathname, search = '', signal }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
@@ -66,7 +66,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const promise = (async () => {
 			if (!routeItem?.loader) return;
-
+			const effectiveSignal = signal ?? new AbortController().signal;
 			try {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
@@ -77,6 +77,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					context,
 					setContext,
 					searchParams,
+					signal: effectiveSignal,
 				});
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMap.set(path, {
@@ -87,11 +88,12 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				evict();
 				return { data: result, error: null };
 			} catch (error) {
+				if (effectiveSignal.aborted) return { data: null, error: null };
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(path);
 					if (retry.delay) await sleep(retry.delay);
-					await revalidateCache({ routeItem, pathname, search }, retried + 1);
+					await revalidateCache({ routeItem, pathname, search, signal }, retried + 1);
 					return { data: null, error };
 				} else {
 					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
