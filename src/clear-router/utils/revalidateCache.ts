@@ -46,15 +46,20 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
-			const item = loaderMap.get(path)!;
-			loaderMap.delete(path);
-			loaderMap.set(path, item);
+			const item = loaderMap.get(path);
+			if (item) {
+				loaderMap.delete(path);
+				loaderMap.set(path, item);
+			}
 			return loadingPromises.get(path);
 		}
 
 		if (isCacheItemFresh(path)) {
 			const item = loaderMap.get(path);
-			if (item) loaderMap.set(path, item);
+			if (item) {
+				loaderMap.delete(path);
+				loaderMap.set(path, item);
+			}
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
