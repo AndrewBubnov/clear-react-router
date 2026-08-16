@@ -115,12 +115,7 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = {
-	state: LoaderState;
-	timestamp: number;
-	staleTime: number | undefined;
-	lastAccessed: number;
-};
+export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 

@@ -32,13 +32,9 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		if (deletedItems.length) deletedItems.forEach(item => loaderMap.delete(item[0]));
 	};
 	const evict = () => {
-		const count = routerConfig.maxCacheSize - loaderMap.size;
-		if (count >= 0) return;
-		const evicted = [...loaderMap.entries()]
-			.sort((a, b) => b[1].lastAccessed - a[1].lastAccessed)
-			.slice(count)
-			.map(el => el[0]);
-		evicted.forEach(el => loaderMap.delete(el));
+		if (loaderMap.size <= routerConfig.maxCacheSize) return;
+		const oldestKey = loaderMap.keys().next().value;
+		if (oldestKey) loaderMap.delete(oldestKey);
 	};
 	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
@@ -49,11 +45,16 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const path = `${pathname}${search}`;
 
-		if (loadingPromises.has(path)) return loadingPromises.get(path);
+		if (loadingPromises.has(path)) {
+			const item = loaderMap.get(path)!;
+			loaderMap.delete(path);
+			loaderMap.set(path, item);
+			return loadingPromises.get(path);
+		}
 
 		if (isCacheItemFresh(path)) {
 			const item = loaderMap.get(path);
-			if (item) loaderMap.set(path, { ...item, lastAccessed: Date.now() });
+			if (item) loaderMap.set(path, item);
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
@@ -77,7 +78,6 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					state: loaderStateRef.value,
 					timestamp: Date.now(),
 					staleTime: routeItem.staleTime,
-					lastAccessed: Date.now(),
 				});
 				evict();
 				return { data: result, error: null };
