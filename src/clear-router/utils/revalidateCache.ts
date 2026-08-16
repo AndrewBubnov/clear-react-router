@@ -54,6 +54,9 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
+			// NB: if this in-flight promise originated from a prefetch (no signal),
+			// a subsequent navigation's AbortSignal is discarded here — the prefetch
+			// request will complete regardless of later navigation changes.
 			moveItemToLastPosition(path);
 			return loadingPromises.get(path);
 		}

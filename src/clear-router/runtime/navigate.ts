@@ -10,7 +10,7 @@ import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '.
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	let navigationSeq = 0;
 	let interval = 0;
-	let navigationAbortController: AbortController | null = null;
+	let abortController: AbortController | null = null;
 
 	const { loaderStateRef, scrollMapState, pendingState, contextState, loaderMap, routeItemDataState } = routerState;
 	const navigationExecutor = createCommitState(routerState);
@@ -18,9 +18,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 	const createSignal = () => {
-		navigationAbortController?.abort();
-		navigationAbortController = new AbortController();
-		return navigationAbortController.signal;
+		abortController?.abort();
+		abortController = new AbortController();
+		return abortController.signal;
 	};
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
