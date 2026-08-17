@@ -639,6 +639,15 @@ This also works for nested dynamic routes:
 await invalidate('/post/[id]/comment/[id]');
 ```
 
+### Force revalidation
+By default only paths that already exist in the cache are revalidated.
+Pass { force: true } to also revalidate the exact path(s) you passed, even if they were never cached:
+
+```tsx
+await invalidate('/about', { force: true });
+await invalidate(['/about', '/post/10'], { force: true });
+```
+
 #### Including child routes
 
 To revalidate routes together with their cached child routes, pass the `withChildren` option:
@@ -691,7 +700,8 @@ Each object represents a revalidated route, where `path` is the route pathname, 
 
 #### Notes
 
-* **Only routes that already have cached data are revalidated.**
+* Without `force` option, **only routes that already have cached data** are revalidated.
+* With `force: true`, the exact pathnames you pass are always revalidated (and stored in the cache).
 * Cached data is cleared before the new loader starts.
 * When used as an event handler, wrap the call in an arrow function:
 
