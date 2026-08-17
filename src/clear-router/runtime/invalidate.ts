@@ -38,11 +38,12 @@ export const createInvalidate = (
 
 		if (!routeItem) return [];
 
-		const pathnameArray: string[] = [];
-		for (const [key] of loaderMap) if (comparePaths(routeItem, key)) pathnameArray.push(key);
+		const pathnameSet = new Set<string>();
+		for (const [key] of loaderMap) if (comparePaths(routeItem, key)) pathnameSet.add(key);
+		if (options?.force) pathnameSet.add(pathname);
 
 		const currentResults = await Promise.all(
-			pathnameArray.map(pathname => invalidatePath(routeItem, pathname, options))
+			[...pathnameSet].map(pathname => invalidatePath(routeItem, pathname, options))
 		);
 
 		if (!options?.withChildren || !routeItem.children?.length) return currentResults;
