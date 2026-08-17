@@ -8,6 +8,7 @@ export { useLoaderState } from './hooks/useLoaderState';
 export { useInvalidate } from './hooks/useInvalidate';
 export { useBlocker } from './hooks/useBlocker';
 export { useAction } from './hooks/useAction';
+export { useIsDataLoading } from './hooks/useIsDataLoading';
 export { useRouterContext } from './hooks/useRouterContext';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useFormContext } from './hooks/useFormContext';
