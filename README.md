@@ -729,6 +729,10 @@ useEffect(() => {
 }, [state, process, reset]);
 ```
 
+### `useIsDataLoading()`
+
+Returns a boolean indicating whether any route loader is currently fetching data. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
+
 ### `useRouterContext()`
 
 Returns the router context object and a function to update it. Useful for accessing or modifying global state (like user authentication, theme, etc.) from anywhere in your app.
