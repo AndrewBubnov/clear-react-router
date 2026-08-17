@@ -22,17 +22,17 @@ It provides first-class support for:
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
-- **Data Loading** - Built-in loaders with caching and stale-while-revalidate strategy
+- **Data Loading** - Built-in loaders with TTL-based caching (`staleTime`)
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
 - **Static Layout** — Keep navbar, footer, and other elements outside the router to avoid unnecessary re-renders
 - **Programmatic Redirects** - Redirect from beforeLoad hook
 - **Cache invalidation** - Manual route invalidation
+- **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
-- **Flexible API** - Use components or hooks as you prefer
 - **Browser History** - Full support for browser back/forward buttons
 - **Context-aware** - Pass and update context through routes
 
@@ -43,6 +43,7 @@ It provides first-class support for:
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `routes` | `RouteItem[]` | required | Array of route configurations |
+| `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
@@ -79,7 +80,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
-| `loader` | `({ params, context, setContext, searchParams }) => Promise<unknown>` | Fetch data using route params, search params, and context. Can update context via `setContext` |
+| `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
@@ -98,6 +99,7 @@ Loader arguments:
   context: Record<string, unknown>;                                 // Router context
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
   searchParams: Record<string, string>;                             // URL search parameters
+  signal: AbortSignal;                                              // AbortController signal
 }
 ```
 
@@ -563,16 +565,24 @@ const UserProfile = () => {
 ```
 
 ### Caching behavior:
+
 - The loader result is cached and reused when navigating back to the same route (e.g., from /user/123 back to /user/456 it will be a new request because different params, but from /user/456 to /user/456 — cache hit).
-- Use staleTime in route config to control how long cache is considered fresh:
-```
+- Use `staleTime` in route config to control how long cache is considered fresh:
+
+```tsx
 {
   path: '/user/:userId',
   loader: async ({ params }) => fetchUser(params.userId),
   staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
 }
 ```
- - Stale cache entries are cleaned up incrementally on every navigation, keeping the loader cache from growing unbounded over long sessions.
+
+- Stale entries are cleaned up on every navigation, so cache growth stays tied to how often you actually revisit stale data — not to how long the session lasts.
+- On top of that, the cache is bounded by `maxCacheSize` — once the limit is reached, the least recently used entry is evicted to make room for a new one, regardless of whether it's still fresh. This caps memory usage for apps with many high-cardinality dynamic routes (e.g. `/product/:id` across a large catalog). It defaults to a device-aware value (lower on mobile) and can be overridden on the `Router`:
+
+```tsx
+<Router routes={routes} maxCacheSize={200} />
+```
 
 
 ### `useInvalidate()`
@@ -718,6 +728,10 @@ useEffect(() => {
   }
 }, [state, process, reset]);
 ```
+
+### `useIsDataLoading()`
+
+Returns a boolean indicating whether any route loader is currently fetching data. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
 
 ### `useRouterContext()`
 
