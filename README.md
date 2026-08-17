@@ -641,7 +641,7 @@ await invalidate('/post/[id]/comment/[id]');
 
 ### Force revalidation
 By default only paths that already exist in the cache are revalidated.
-Pass { force: true } to also revalidate the exact path(s) you passed, even if they were never cached:
+Pass `{ force: true }` to also revalidate the exact path(s) you passed, even if they were never cached:
 
 ```tsx
 await invalidate('/about', { force: true });
