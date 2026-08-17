@@ -35,6 +35,7 @@ export type ClientRouteItem = {
 		context: Record<string, unknown>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 		searchParams: Record<string, string>;
+		signal: AbortSignal;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement;
@@ -78,6 +79,7 @@ export type RevalidateCacheArgs = {
 	pathname: string;
 	routeItem?: RouteItem;
 	search?: string;
+	signal?: AbortSignal;
 };
 
 export type LoaderState<T = unknown> = {
@@ -115,12 +117,7 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = {
-	state: LoaderState;
-	timestamp: number;
-	staleTime: number | undefined;
-	lastAccessed: number;
-};
+export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 

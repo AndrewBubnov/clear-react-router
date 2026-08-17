@@ -30,7 +30,7 @@ export const createInvalidate = (
 		const result = await revalidateCache({ routeItem, pathname });
 
 		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
-		return { path: pathname, ...result };
+		return { path: pathname, ...result } as InvalidateResult;
 	};
 
 	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {

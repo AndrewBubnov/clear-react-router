@@ -7,14 +7,21 @@ import { getParamsObject } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
-let navigationSeq = 0;
-let interval = 0;
-
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
+	let navigationSeq = 0;
+	let interval = 0;
+	let abortController: AbortController | null = null;
+
 	const { loaderStateRef, scrollMapState, pendingState, contextState, loaderMap, routeItemDataState } = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const commitNavigation = createCommitNavigation(navigationExecutor, routeItemDataState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
+
+	const createSignal = () => {
+		abortController?.abort();
+		abortController = new AbortController();
+		return abortController.signal;
+	};
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
@@ -61,16 +68,19 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const polling = (routeItem: RouteItem | undefined, location: Location) => {
 		if (!routeItem?.pollingInterval) return;
+		const signal = createSignal();
 		interval = window.setInterval(
-			() => revalidateCache({ routeItem, pathname: location.pathname, search: location.search }),
+			() => revalidateCache({ routeItem, pathname: location.pathname, search: location.search, signal }),
 			routeItem.pollingInterval
 		);
 	};
 
-	const loader = async (routeItem: RouteItem | undefined, location: Location) => {
+	const loader = async (routeItem: RouteItem | undefined, location: Location, seq: number) => {
 		if (!routeItem?.loader) return;
 		window.clearInterval(interval);
-		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search });
+		const signal = createSignal();
+		await revalidateCache({ routeItem, pathname: location.pathname, search: location.search, signal });
+		if (seq !== navigationSeq) return;
 		polling(routeItem, location);
 	};
 
@@ -87,7 +97,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		await beforeLoad(nextItem, params);
 		if (seq !== navigationSeq) return;
 		prepareNavigation(nextItem, nextLocation);
-		await loader(nextItem, nextLocation);
+		await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
 		commitNavigation(nextLocation, nextItem);
 		await afterLoad(nextItem, params);
