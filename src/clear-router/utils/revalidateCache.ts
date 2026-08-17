@@ -32,15 +32,19 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		if (deletedItems.length) deletedItems.forEach(item => loaderMap.delete(item[0]));
 	};
 	const evict = () => {
-		const count = routerConfig.maxCacheSize - loaderMap.size;
-		if (count >= 0) return;
-		const evicted = [...loaderMap.entries()]
-			.sort((a, b) => b[1].lastAccessed - a[1].lastAccessed)
-			.slice(count)
-			.map(el => el[0]);
-		evicted.forEach(el => loaderMap.delete(el));
+		if (loaderMap.size <= routerConfig.maxCacheSize) return;
+		const oldestKey = loaderMap.keys().next().value;
+		if (oldestKey) loaderMap.delete(oldestKey);
 	};
-	const revalidateCache = async ({ routeItem, pathname, search = '' }: RevalidateCacheArgs, retried = 0) => {
+	const moveItemToLastPosition = (path: string) => {
+		const item = loaderMap.get(path);
+		if (item) {
+			loaderMap.delete(path);
+			loaderMap.set(path, item);
+		}
+		return item;
+	};
+	const revalidateCache = async ({ routeItem, pathname, search = '', signal }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
@@ -49,18 +53,23 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const path = `${pathname}${search}`;
 
-		if (loadingPromises.has(path)) return loadingPromises.get(path);
+		if (loadingPromises.has(path)) {
+			// NB: if this in-flight promise originated from a prefetch (no signal),
+			// a subsequent navigation's AbortSignal is discarded here — the prefetch
+			// request will complete regardless of later navigation changes.
+			moveItemToLastPosition(path);
+			return loadingPromises.get(path);
+		}
 
 		if (isCacheItemFresh(path)) {
-			const item = loaderMap.get(path);
-			if (item) loaderMap.set(path, { ...item, lastAccessed: Date.now() });
+			const item = moveItemToLastPosition(path);
 			if (item?.state) loaderStateRef.set(item.state);
 			return;
 		}
 
 		const promise = (async () => {
 			if (!routeItem?.loader) return;
-
+			const effectiveSignal = signal ?? new AbortController().signal;
 			try {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
@@ -71,22 +80,23 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					context,
 					setContext,
 					searchParams,
+					signal: effectiveSignal,
 				});
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMap.set(path, {
 					state: loaderStateRef.value,
 					timestamp: Date.now(),
 					staleTime: routeItem.staleTime,
-					lastAccessed: Date.now(),
 				});
 				evict();
 				return { data: result, error: null };
 			} catch (error) {
+				if (effectiveSignal.aborted) return { data: null, error: null };
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(path);
 					if (retry.delay) await sleep(retry.delay);
-					await revalidateCache({ routeItem, pathname, search }, retried + 1);
+					await revalidateCache({ routeItem, pathname, search, signal }, retried + 1);
 					return { data: null, error };
 				} else {
 					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
