@@ -80,7 +80,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
-| `loader` | `({ params, context, setContext, searchParams }) => Promise<unknown>` | Fetch data using route params, search params, and context. Can update context via `setContext` |
+| `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
@@ -99,6 +99,7 @@ Loader arguments:
   context: Record<string, unknown>;                                 // Router context
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
   searchParams: Record<string, string>;                             // URL search parameters
+  signal: AbortSignal;                                              // AbortController signal
 }
 ```
 
