@@ -67,3 +67,5 @@ export const isMobile = () => {
 	const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
 	return hasCoarsePointer && isSmallScreen;
 };
+
+export const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

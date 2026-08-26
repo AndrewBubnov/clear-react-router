@@ -1,4 +1,4 @@
-import { getParamsObject } from './utils';
+import { getParamsObject, sleep } from './utils';
 import { createIsCacheItemFresh } from './isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
@@ -20,7 +20,6 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 		delay: routeRetry ? routeRetry.delay : globalRetry?.delay || 0,
 	};
 };
-const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const createRevalidateCache = (routerState: RouterState) => {
 	const { loaderStateRef, contextState, loaderMap, loadingPromises } = routerState;

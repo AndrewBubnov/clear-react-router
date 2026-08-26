@@ -45,6 +45,7 @@ export type ClientRouteItem = {
 	optimistic?: boolean;
 	pollingInterval?: number;
 	retry?: Retry;
+	minLoaderDuration?: number;
 	preserveScroll?: boolean;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
@@ -107,9 +108,9 @@ export type RouterProps = {
 	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
-	showFallbackOnAnimation?: boolean;
 	defaultPrefetch?: 'hover' | 'render' | 'viewport' | 'none';
 	defaultHoverPrefetchDelay?: number;
+	defaultMinLoaderDuration?: number;
 	maxCacheSize?: number;
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];

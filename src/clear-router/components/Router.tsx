@@ -30,7 +30,7 @@ export const Router = ({
 	isAnimated = false,
 	spinner = true,
 	defaultPreserveScroll = true,
-	showFallbackOnAnimation = false,
+	defaultMinLoaderDuration = 0,
 	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
@@ -38,9 +38,9 @@ export const Router = ({
 }: RouterProps) => {
 	const { useRouteItemData, usePendingState } = router.hooks;
 	const [routeItemData] = useRouteItemData();
-	const [pendingState] = usePendingState();
+	const [pendingRouteData] = usePendingState();
 	const loaderState = router.state.loaderStateRef.value;
-	const isLoading = Boolean(pendingState);
+	const isLoading = Boolean(pendingRouteData);
 
 	useNavigation();
 
@@ -54,6 +54,7 @@ export const Router = ({
 		defaultRetry,
 		defaultStaleTime,
 		defaultPreserveScroll,
+		defaultMinLoaderDuration,
 		maxCacheSize,
 	});
 	useApplyCustomAnimation(animationDuration);
@@ -67,11 +68,14 @@ export const Router = ({
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
 
-	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
-		return renderElement(pendingState?.routeItem?.loaderFallback || defaultLoaderFallback);
+	if (loadingContent) {
+		return (
+			<>
+				{renderElement(pendingRouteData?.routeItem?.loaderFallback || defaultLoaderFallback)}
+				{showSpinner && <Spinner />}
+			</>
+		);
 	}
-
-	if (!showFallbackOnAnimation && isAnimated && loadingContent) return <Spinner />;
 
 	if (!routeItem) return null;
 
