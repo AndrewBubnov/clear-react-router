@@ -23,13 +23,6 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 
 export const createRevalidateCache = (routerState: RouterState) => {
 	const { loaderStateRef, contextState, loaderMap, loadingPromises } = routerState;
-	const removeStaleItems = () => {
-		const deletedItems = [...loaderMap.entries()].filter(([, item]) => {
-			const staleTime = item.staleTime ?? routerConfig.defaultStaleTime;
-			return staleTime && staleTime + item.timestamp < Date.now();
-		});
-		if (deletedItems.length) deletedItems.forEach(item => loaderMap.delete(item[0]));
-	};
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const oldestKey = loaderMap.keys().next().value;
@@ -47,8 +40,6 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
-
-		removeStaleItems();
 
 		const path = `${pathname}${search}`;
 

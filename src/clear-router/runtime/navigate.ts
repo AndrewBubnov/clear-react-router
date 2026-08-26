@@ -1,5 +1,5 @@
 import { createCommitState } from '../utils/commitState';
-import { createCommitNavigation } from '../utils/commitNavigation';
+import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
@@ -14,7 +14,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const { loaderStateRef, scrollMapState, pendingState, contextState, loaderMap, routeItemDataState } = routerState;
 	const navigationExecutor = createCommitState(routerState);
-	const commitNavigation = createCommitNavigation(navigationExecutor, routeItemDataState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 	const createSignal = () => {
@@ -64,7 +63,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
-			pendingState.setState(pendingShouldExist ? { routeItem, location } : undefined);
+			if (pendingShouldExist) {
+				commitNavigation(() => pendingState.setState({ routeItem, location }));
+			} else {
+				pendingState.setState(undefined);
+			}
 		}
 	};
 
@@ -111,7 +114,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		prepareNavigation(nextItem, nextLocation);
 		await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
-		commitNavigation(nextLocation, nextItem);
+		commitNavigation(() => navigationExecutor(nextLocation, nextItem));
 		await afterLoad(nextItem, params);
 	};
 

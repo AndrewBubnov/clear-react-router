@@ -68,25 +68,11 @@ export const Router = ({
 	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
 
-	if (loadingContent) {
-		return (
-			<>
-				{renderElement(pendingRouteData?.routeItem?.loaderFallback || defaultLoaderFallback)}
-				{showSpinner && <Spinner />}
-			</>
-		);
-	}
+	if (loadingContent) return renderElement(pendingRouteData?.routeItem?.loaderFallback || defaultLoaderFallback);
 
 	if (!routeItem) return null;
 
-	if (showErrorElement) {
-		return (
-			<>
-				{renderElement(routeItem.errorElement || defaultErrorElement)}
-				{showSpinner && <Spinner />}
-			</>
-		);
-	}
+	if (showErrorElement) return renderElement(routeItem.errorElement || defaultErrorElement);
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
