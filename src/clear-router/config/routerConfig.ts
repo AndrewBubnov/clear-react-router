@@ -12,6 +12,7 @@ class RouterConfig {
 	defaultRetry?: RouterProps['defaultRetry'];
 	defaultStaleTime?: RouterProps['defaultStaleTime'];
 	defaultPreserveScroll?: RouterProps['defaultPreserveScroll'];
+	defaultMinLoaderDuration?: RouterProps['defaultMinLoaderDuration'];
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);
 	}
