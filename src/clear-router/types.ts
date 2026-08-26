@@ -102,7 +102,7 @@ export type RouterProps = {
 	routes: RouteItem[];
 	isAnimated?: boolean;
 	animationDuration?: number;
-	spinner?: boolean;
+	optimisticSpinner?: boolean;
 	defaultPreserveScroll?: boolean;
 	defaultRetry?: Retry;
 	defaultStaleTime?: number;
@@ -129,6 +129,7 @@ export type RouterState = {
 	scrollMapState: Store<Record<string, number>>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
+	isOptimisticLoading: Store<boolean>;
 	loaderStateRef: Cell<LoaderState>;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
@@ -147,6 +148,7 @@ export type RouterType = {
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
 		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+		useOptimisticLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
 		useGetAction: (actionKey: string) => {
