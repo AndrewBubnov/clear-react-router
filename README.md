@@ -46,10 +46,10 @@ It provides first-class support for:
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
-| `spinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while loading data (only when `isAnimated` is enabled) |
+| `optimisticSpinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while optimistic route data revalidates in the background |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
-| `showFallbackOnAnimation` | `boolean \| undefined` | `false` | Show `loaderFallback` even when `isAnimated` is `true` (instead of spinner) |
+| `defaultMinLoaderDuration` | `number \| undefined` | `0` | Default minimum time the loader fallback stays visible, to avoid flickering |
 | `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
 | `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
@@ -63,14 +63,6 @@ It provides first-class support for:
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
-```tsx
-<div>
-  <Navbar />
-  <Router routes={routes} spinner={false} isAnimated />  {/* disable the spinner */}
-</div>
-```
-> **Note:** When `isAnimated` is enabled, `loaderFallback` is not shown. Instead, a small spinner appears (if `spinner={true}`). On the initial page load, however, the route's loaderFallback is rendered if available.
-
 ### `createRouter(routes)`
 
 Normalizes route configuration. Extracts dynamic params, builds nested paths.
@@ -82,6 +74,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
 | `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
+| `minLoaderDuration` | `number \| undefined` | `undefined` | Minimum time the loader fallback stays visible, to avoid flickering |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
 | `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
@@ -816,8 +809,6 @@ Clear Router supports smooth page transitions using the native View Transitions 
 ## How It Works
 
 - **Data loads first** — All `loader` and `beforeLoad` hooks complete before animation starts
-- **No `loaderFallback`** — The `loaderFallback` is not shown during animated transitions
-- **Subtle spinner** — A small spinner appears in the top-left corner while data is loading and `spinner` prop of `Router` component is on, so users know the app is responsive
 - **Native API** — Uses `document.startViewTransition` for smooth, hardware-accelerated animations
 
 ## Browser Support
