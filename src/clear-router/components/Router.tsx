@@ -28,19 +28,20 @@ export const Router = ({
 	defaultStaleTime,
 	context: initialContext,
 	isAnimated = false,
-	spinner = true,
+	optimisticSpinner = true,
 	defaultPreserveScroll = true,
-	showFallbackOnAnimation = false,
+	defaultMinLoaderDuration = 0,
 	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const { useRouteItemData, usePendingState } = router.hooks;
+	const { useRouteItemData, usePendingState, useOptimisticLoading } = router.hooks;
 	const [routeItemData] = useRouteItemData();
-	const [pendingState] = usePendingState();
+	const [pendingRouteData] = usePendingState();
+	const [isOptimisticLoading] = useOptimisticLoading();
 	const loaderState = router.state.loaderStateRef.value;
-	const isLoading = Boolean(pendingState);
+	const isLoading = Boolean(pendingRouteData);
 
 	useNavigation();
 
@@ -54,6 +55,7 @@ export const Router = ({
 		defaultRetry,
 		defaultStaleTime,
 		defaultPreserveScroll,
+		defaultMinLoaderDuration,
 		maxCacheSize,
 	});
 	useApplyCustomAnimation(animationDuration);
@@ -64,30 +66,18 @@ export const Router = ({
 
 	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
 
-	const showSpinner = spinner && isAnimated && isLoading;
 	const loadingContent = !showErrorElement && isLoading;
 
-	if ((showFallbackOnAnimation || !isAnimated) && loadingContent) {
-		return renderElement(pendingState?.routeItem?.loaderFallback || defaultLoaderFallback);
-	}
-
-	if (!showFallbackOnAnimation && isAnimated && loadingContent) return <Spinner />;
+	if (loadingContent) return renderElement(pendingRouteData?.routeItem?.loaderFallback || defaultLoaderFallback);
 
 	if (!routeItem) return null;
 
-	if (showErrorElement) {
-		return (
-			<>
-				{renderElement(routeItem.errorElement || defaultErrorElement)}
-				{showSpinner && <Spinner />}
-			</>
-		);
-	}
+	if (showErrorElement) return renderElement(routeItem.errorElement || defaultErrorElement);
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
-			{showSpinner && <Spinner />}
+			{optimisticSpinner && isOptimisticLoading && <Spinner />}
 		</div>
 	);
 };
