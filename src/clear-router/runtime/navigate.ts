@@ -14,6 +14,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const {
 		loaderState,
+		loaderStateRef,
 		scrollMapState,
 		pendingState,
 		contextState,
@@ -35,7 +36,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
 	const routeResolve = (location: Location) => {
-		loaderState.setState(emptyLoaderState);
+		loaderStateRef.set(emptyLoaderState);
 		const nextItem = findRoute(location.pathname, true);
 		const params = getParamsObject(nextItem, location.pathname);
 		return { nextItem, params };
@@ -48,9 +49,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
 				await loaderFn({ ...getContext(), redirect, params });
-				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
+				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
-				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
+				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 			}
 		};
 		if (defaultBeforeLoad) await runBeforeLoad(defaultBeforeLoad);
@@ -104,7 +105,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			revalidateCache({ routeItem, pathname: nextLocation.pathname, search: nextLocation.search, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
-		if (result) loaderState.setState(prev => ({ ...prev, ...result }));
+		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
 	};
