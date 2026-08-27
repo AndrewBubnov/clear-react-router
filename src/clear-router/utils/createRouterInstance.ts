@@ -15,6 +15,7 @@ import {
 	RouterState,
 	RouterType,
 } from '../types';
+import { Cell } from '../cell';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
@@ -28,6 +29,7 @@ export const createRouterInstance = (): RouterType => {
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		isOptimisticLoading: create(false),
 		loaderState: create<LoaderState>(emptyLoaderState),
+		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
 	};
