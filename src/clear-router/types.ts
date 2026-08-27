@@ -9,7 +9,6 @@ import {
 	SetStateAction,
 } from 'react';
 import { Store, useGlobalState } from './create';
-import { Cell } from './cell';
 
 export const LAZY_MARKER = Symbol('clear-router-lazy');
 
@@ -130,7 +129,7 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	isOptimisticLoading: Store<boolean>;
-	loaderStateRef: Cell<LoaderState>;
+	loaderState: Store<LoaderState>;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
 };

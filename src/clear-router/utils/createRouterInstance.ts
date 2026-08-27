@@ -3,7 +3,6 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
-import { Cell } from '../cell';
 import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
 import {
@@ -29,7 +28,7 @@ export const createRouterInstance = (): RouterType => {
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		isOptimisticLoading: create(false),
-		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
+		loaderState: create<LoaderState>(emptyLoaderState),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
 	};

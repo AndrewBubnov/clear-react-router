@@ -10,6 +10,7 @@ import { renderElement } from '../utils/renderElement';
 import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
+import { useLoaderState } from '../hooks/useLoaderState.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -40,7 +41,7 @@ export const Router = ({
 	const [routeItemData] = useRouteItemData();
 	const [pendingRouteData] = usePendingState();
 	const [isOptimisticLoading] = useOptimisticLoading();
-	const loaderState = router.state.loaderStateRef.value;
+	const loaderState = useLoaderState();
 	const isLoading = Boolean(pendingRouteData);
 
 	useNavigation();

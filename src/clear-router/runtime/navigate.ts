@@ -13,7 +13,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let abortController: AbortController | null = null;
 
 	const {
-		loaderStateRef,
+		loaderState,
 		scrollMapState,
 		pendingState,
 		contextState,
@@ -35,7 +35,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
 	const routeResolve = (location: Location) => {
-		loaderStateRef.set(emptyLoaderState);
+		loaderState.setState(emptyLoaderState);
 		const nextItem = findRoute(location.pathname, true);
 		const params = getParamsObject(nextItem, location.pathname);
 		return { nextItem, params };
@@ -48,9 +48,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
 				await loaderFn({ ...getContext(), redirect, params });
-				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
+				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
-				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
+				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
 			}
 		};
 		if (defaultBeforeLoad) await runBeforeLoad(defaultBeforeLoad);
@@ -69,7 +69,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			routeItemDataState.setState({ routeItem, location });
 			isOptimisticLoading.setState(true);
 			const currentLoaderState = loaderMap.get(path)?.state;
-			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
+			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
 			if (pendingShouldExist) {
@@ -104,7 +104,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			revalidateCache({ routeItem, pathname: nextLocation.pathname, search: nextLocation.search, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
-		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
+		if (result) loaderState.setState(prev => ({ ...prev, ...result }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
 	};
