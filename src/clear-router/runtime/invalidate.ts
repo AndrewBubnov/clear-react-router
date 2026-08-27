@@ -16,25 +16,27 @@ export const createInvalidate = (
 		const routePathname = routeItemDataState.getState().location.pathname;
 		loaderMap.delete(pathname);
 		const params = getParamsObject();
+		const [path, search = ''] = pathname.split('?');
+
 		try {
 			if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
-				await routeItem.beforeLoad({ context, redirect, params, setContext, location: { pathname } });
+				await routeItem.beforeLoad({ context, redirect, params, setContext, location: { pathname, search } });
 			}
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 		} catch (error) {
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 		}
 
-		const result = await revalidateCache({ routeItem, location: { pathname } });
+		const result = await revalidateCache({ routeItem, location: { pathname: path, search } });
 
 		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
 		return { path: pathname, ...result } as InvalidateResult;
 	};
 
 	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {
-		const routeItem = findRoute(pathname);
+		const routeItem = findRoute(pathname.split('?')[0]);
 
 		if (!routeItem) return [];
 

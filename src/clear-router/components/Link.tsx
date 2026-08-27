@@ -1,15 +1,27 @@
-import { type CSSProperties, useRef, useCallback, useEffect, ReactNode, MouseEvent, ReactElement, Ref } from 'react';
+import {
+	type CSSProperties,
+	useRef,
+	useCallback,
+	useEffect,
+	ReactNode,
+	MouseEvent,
+	ReactElement,
+	Ref,
+	useMemo,
+} from 'react';
 import { router } from '../instance';
 import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
-import { ElementProps, RouterProps } from '../types';
+import { ElementProps, RouterProps, Location } from '../types';
 
 type ElementState = { isActive: boolean; isPending: boolean };
 
 type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;
+	search?: string;
+	state?: unknown;
 	children?: ReactNode;
 	as?: (props: ElementProps<T>, state: ElementState) => ReactElement;
 	prefetch?: RouterProps['defaultPrefetch'];
@@ -27,6 +39,8 @@ const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
 	to,
+	search = '',
+	state,
 	as = defaultAs as unknown as (props: ElementProps<T>) => ReactElement,
 	prefetch: linkPrefetch,
 	hoverPrefetchDelay,
@@ -49,11 +63,13 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
+	const location: Location = useMemo(() => ({ pathname: to, search, state }), [search, state, to]);
+
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
-		timeout.current = window.setTimeout(() => router.runtime.prefetch({ pathname: to }), prefetchDelay);
-	}, [prefetch, prefetchDelay, to]);
+		timeout.current = window.setTimeout(() => router.runtime.prefetch(location), prefetchDelay);
+	}, [prefetch, prefetchDelay, location]);
 
 	const onMouseLeave = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
@@ -66,9 +82,9 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	useEffect(() => {
 		if (prefetch !== 'render') return;
 		(async () => {
-			await router.runtime.prefetch({ pathname: to });
+			await router.runtime.prefetch(location);
 		})();
-	}, [prefetch, to]);
+	}, [prefetch, location]);
 
 	useEffect(() => {
 		if (prefetch !== 'viewport') return;
@@ -76,12 +92,12 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		if (!element) return;
 		const observer = new IntersectionObserver(async ([entry]) => {
 			if (!entry.isIntersecting) return;
-			await router.runtime.prefetch({ pathname: to });
+			await router.runtime.prefetch(location);
 			observer.disconnect();
 		});
 		observer.observe(element);
 		return () => observer.disconnect();
-	}, [prefetch, to]);
+	}, [prefetch, location]);
 
 	useEffect(
 		() => () => {
@@ -110,7 +126,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		}
 		event.preventDefault();
 		await beforeNavigate?.();
-		await navigate(to);
+		await navigate(location);
 	};
 
 	return as(
