@@ -100,10 +100,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.loader) return;
 		window.clearInterval(interval);
 		const signal = createSignal();
-		await Promise.all([
+		const [result] = await Promise.all([
 			revalidateCache({ routeItem, pathname: nextLocation.pathname, search: nextLocation.search, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
+		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
 	};
