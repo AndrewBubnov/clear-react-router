@@ -60,6 +60,7 @@ export const createRouterInstance = (): RouterType => {
 			usePendingState: () => useGlobalState(routerState.pendingState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useOptimisticLoading: () => useGlobalState(routerState.isOptimisticLoading),
+			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
 			useParams: <T>() => getParamsObject() as T,
 			useNavigate: () => {
 				const { blockedRouteState } = routerState;

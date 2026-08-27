@@ -147,6 +147,7 @@ export type RouterType = {
 		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useOptimisticLoading: () => ReturnType<typeof useGlobalState<boolean>>;
+		useLoaderState: <T>() => LoaderState<T>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
 		useGetAction: (actionKey: string) => {
