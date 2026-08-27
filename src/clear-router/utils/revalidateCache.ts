@@ -41,7 +41,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
-		const { pathname, search } = location;
+		const { pathname, search = '' } = location;
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
