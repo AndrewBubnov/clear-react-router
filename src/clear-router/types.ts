@@ -124,7 +124,6 @@ export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: nu
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
 	pendingState: Store<RouteItemData | undefined>;
-	currentLoaderState: Store<LoaderState>;
 	scrollMapState: Store<Record<string, number>>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;

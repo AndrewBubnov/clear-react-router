@@ -23,7 +23,6 @@ export const createRouterInstance = (): RouterType => {
 			location: {} as Location,
 		}),
 		pendingState: create<RouteItemData | undefined>(undefined),
-		currentLoaderState: create<LoaderState>(emptyLoaderState),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
