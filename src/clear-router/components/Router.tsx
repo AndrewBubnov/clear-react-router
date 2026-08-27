@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
+import { useLoaderState } from '../hooks/useLoaderState';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
@@ -10,7 +11,6 @@ import { renderElement } from '../utils/renderElement';
 import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
-import { useLoaderState } from '../hooks/useLoaderState.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
