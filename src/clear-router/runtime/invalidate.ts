@@ -20,14 +20,14 @@ export const createInvalidate = (
 			if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
-				await routeItem.beforeLoad({ context, redirect, params, setContext });
+				await routeItem.beforeLoad({ context, redirect, params, setContext, location: { pathname } });
 			}
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 		} catch (error) {
 			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
 		}
 
-		const result = await revalidateCache({ routeItem, pathname });
+		const result = await revalidateCache({ routeItem, location: { pathname } });
 
 		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
 		return { path: pathname, ...result } as InvalidateResult;

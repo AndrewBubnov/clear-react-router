@@ -25,6 +25,7 @@ export type BeforeLoad = (arg: {
 	redirect: (arg: Location | string) => Promise<void>;
 	params: Record<string, string>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	location: Location;
 }) => Promise<unknown> | undefined | void;
 
 export type ClientRouteItem = {
@@ -36,6 +37,7 @@ export type ClientRouteItem = {
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 		searchParams: Record<string, string>;
 		signal: AbortSignal;
+		location: Location;
 	}): Promise<unknown>;
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement;
@@ -77,9 +79,8 @@ export type Location = {
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
 export type RevalidateCacheArgs = {
-	pathname: string;
+	location: Location;
 	routeItem?: RouteItem;
-	search?: string;
 	signal?: AbortSignal;
 };
 
@@ -140,7 +141,7 @@ export type RouterType = {
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
-		prefetch(pathname: string): Promise<void>;
+		prefetch(location: Location): Promise<void>;
 	};
 	hooks: {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;

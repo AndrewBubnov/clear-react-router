@@ -52,7 +52,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
-		timeout.current = window.setTimeout(() => router.runtime.prefetch(to), prefetchDelay);
+		timeout.current = window.setTimeout(() => router.runtime.prefetch({ pathname: to }), prefetchDelay);
 	}, [prefetch, prefetchDelay, to]);
 
 	const onMouseLeave = useCallback(() => {
@@ -66,7 +66,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	useEffect(() => {
 		if (prefetch !== 'render') return;
 		(async () => {
-			await router.runtime.prefetch(to);
+			await router.runtime.prefetch({ pathname: to });
 		})();
 	}, [prefetch, to]);
 
@@ -76,7 +76,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		if (!element) return;
 		const observer = new IntersectionObserver(async ([entry]) => {
 			if (!entry.isIntersecting) return;
-			await router.runtime.prefetch(to);
+			await router.runtime.prefetch({ pathname: to });
 			observer.disconnect();
 		});
 		observer.observe(element);

@@ -36,11 +36,12 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		}
 		return item;
 	};
-	const revalidateCache = async ({ routeItem, pathname, search = '', signal }: RevalidateCacheArgs, retried = 0) => {
+	const revalidateCache = async ({ routeItem, location, signal }: RevalidateCacheArgs, retried = 0) => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
+		const { pathname, search } = location;
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
@@ -71,6 +72,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					setContext,
 					searchParams,
 					signal: effectiveSignal,
+					location,
 				});
 				loaderStateRef.set(prev => ({ ...prev, data: result, loaderError: null }));
 				loaderMap.set(path, {
@@ -86,7 +88,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(path);
 					if (retry.delay) await sleep(retry.delay);
-					await revalidateCache({ routeItem, pathname, search, signal }, retried + 1);
+					await revalidateCache({ routeItem, location, signal }, retried + 1);
 					return { data: null, error };
 				} else {
 					loaderStateRef.set(prev => ({ ...prev, data: null, loaderError: error as Error }));
