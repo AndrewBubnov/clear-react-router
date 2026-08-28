@@ -1,7 +1,7 @@
 import { router } from '../instance';
 
 export const useIsDataLoading = () => {
-	const { usePendingState } = router.hooks;
-	const [pendingState] = usePendingState();
-	return Boolean(pendingState);
+	const { useStatus } = router.hooks;
+	const [status] = useStatus();
+	return status === 'pending';
 };
