@@ -122,9 +122,11 @@ export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
+export type Status = 'idle' | 'pending' | 'active';
+
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
-	pendingState: Store<RouteItemData | undefined>;
+	statusState: Store<Status>;
 	scrollMapState: Store<Record<string, number>>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
@@ -146,7 +148,7 @@ export type RouterType = {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
 		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
-		usePendingState: () => ReturnType<typeof useGlobalState<RouteItemData | undefined>>;
+		useStatus: () => ReturnType<typeof useGlobalState<Status>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useOptimisticLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useLoaderState: <T>() => LoaderState<T>;
