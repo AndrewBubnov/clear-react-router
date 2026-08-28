@@ -39,7 +39,7 @@ export const createRouterInstance = (): RouterType => {
 	const invalidate = createInvalidate(routerState, revalidateCache);
 	const navigate = createNavigate(routerState, revalidateCache);
 
-	const prefetch = createPrefetch(revalidateCache);
+	const prefetch = createPrefetch(routerState, revalidateCache);
 
 	const useGetAction = (actionKey: string) => {
 		const { routeItem } = routerState.routeItemDataState.getState();
