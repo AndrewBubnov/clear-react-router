@@ -9,5 +9,5 @@ export const createCommitState =
 		loaderState.setState(loaderStateRef.value);
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
 		if (fullPath === window.location.pathname + window.location.search) return;
-		history.pushState(null, '', fullPath);
+		history.pushState(null, '', `${nextLocation.pathname}${nextLocation.search}`);
 	};
