@@ -4,6 +4,7 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
 import { getParamsObject } from './utils';
+import { Cell } from '../cell';
 import { emptyLoaderState } from '../constants';
 import {
 	LoaderState,
@@ -17,7 +18,6 @@ import {
 	ScrollMap,
 	Status,
 } from '../types';
-import { Cell } from '../cell';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
