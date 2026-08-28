@@ -57,10 +57,10 @@ export const getPartialLoaderArgs = (location: Location) => {
 
 export const updateScrollMap = () => {
 	const { routeItemDataState, scrollMapState } = router.state;
-	const { routeItem: currentRouteItem, location: currentLocation } = routeItemDataState.getState();
+	const { routeItem, location } = routeItemDataState.getState();
 	scrollMapState.setState(prevState => {
-		if (Array.isArray(currentRouteItem?.preserveScroll)) {
-			const scrollMapItem = currentRouteItem.preserveScroll.reduce(
+		if (Array.isArray(routeItem?.preserveScroll)) {
+			const scrollMapItem = routeItem.preserveScroll.reduce(
 				(acc, cur) => {
 					const element = document.getElementById(cur);
 					acc[cur] = element?.scrollTop || 0;
@@ -68,11 +68,11 @@ export const updateScrollMap = () => {
 				},
 				{} as Record<string, number>
 			);
-			return { ...prevState, [currentLocation.pathname]: scrollMapItem };
+			return { ...prevState, [location.pathname]: scrollMapItem };
 		} else {
 			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-			if (!scrollPosition || prevState[currentLocation.pathname] === scrollPosition) return prevState;
-			return { ...prevState, [currentLocation.pathname]: scrollPosition };
+			if (!scrollPosition || prevState[location.pathname] === scrollPosition) return prevState;
+			return { ...prevState, [location.pathname]: scrollPosition };
 		}
 	});
 };
