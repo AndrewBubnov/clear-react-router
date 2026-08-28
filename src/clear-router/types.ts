@@ -25,6 +25,7 @@ export type BeforeLoad = (arg: {
 	redirect: (arg: Location | string) => Promise<void>;
 	params: Record<string, string>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	searchParams: Record<string, string>;
 	location: Location;
 }) => Promise<unknown> | undefined | void;
 

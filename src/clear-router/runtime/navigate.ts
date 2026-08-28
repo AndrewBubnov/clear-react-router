@@ -51,8 +51,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
+			const searchParams: Record<string, string> = Object.fromEntries(
+				new URLSearchParams(nextLocation.search).entries()
+			);
 			try {
-				await loaderFn({ ...getContext(), redirect, params, location: nextLocation });
+				await loaderFn({ ...getContext(), redirect, params, location: nextLocation, searchParams });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
