@@ -15,12 +15,14 @@ export const createInvalidate = (
 	): Promise<InvalidateResult> => {
 		const routePathname = routeItemDataState.getState().location.pathname;
 		loaderMap.delete(pathname);
+		const [path, search = ''] = pathname.split('?');
+		const location = { pathname: path, search };
 		const params = getParamsObject();
 		if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 			try {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
-				await routeItem.beforeLoad({ context, redirect, params, setContext });
+				await routeItem.beforeLoad({ context, redirect, params, setContext, location });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
