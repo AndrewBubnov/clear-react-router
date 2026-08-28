@@ -69,3 +69,12 @@ export const isMobile = () => {
 };
 
 export const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const getPartialBeforeLoadArgs = (location: Location) => {
+	const params = getParamsObject();
+	const { contextState } = router.state;
+	const context = contextState.getState();
+	const setContext = contextState.setState;
+	const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
+	return { params, context, setContext, searchParams, location };
+};

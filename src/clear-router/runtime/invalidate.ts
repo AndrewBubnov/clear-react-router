@@ -1,11 +1,11 @@
-import { comparePaths, getParamsObject } from '../utils/utils';
+import { comparePaths, getPartialBeforeLoadArgs } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
 const redirect = Promise.resolve;
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderState, loaderMap, contextState }: RouterState,
+	{ routeItemDataState, loaderState, loaderMap }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
@@ -17,12 +17,9 @@ export const createInvalidate = (
 		loaderMap.delete(pathname);
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
-		const params = getParamsObject();
 		if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 			try {
-				const context = contextState.getState();
-				const setContext = contextState.setState;
-				await routeItem.beforeLoad({ context, redirect, params, setContext, location });
+				await routeItem.beforeLoad({ redirect, ...getPartialBeforeLoadArgs(location) });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));

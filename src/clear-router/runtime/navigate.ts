@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParamsObject, sleep } from '../utils/utils';
+import { getParamsObject, getPartialBeforeLoadArgs, sleep } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -42,20 +42,13 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return { nextItem, params };
 	};
 
-	const beforeLoad = async (
-		routeItem: RouteItem | undefined,
-		nextLocation: Location,
-		params: Record<string, string>
-	) => {
+	const beforeLoad = async (routeItem: RouteItem | undefined, nextLocation: Location) => {
 		const { defaultBeforeLoad } = routerConfig;
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
-			const searchParams: Record<string, string> = Object.fromEntries(
-				new URLSearchParams(nextLocation.search).entries()
-			);
 			try {
-				await loaderFn({ ...getContext(), redirect, params, location: nextLocation, searchParams });
+				await loaderFn({ redirect, ...getPartialBeforeLoadArgs(nextLocation) });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
@@ -124,7 +117,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
-		await beforeLoad(nextItem, nextLocation, params);
+		await beforeLoad(nextItem, nextLocation);
 		if (seq !== navigationSeq) return;
 		prepareNavigation(nextItem, nextLocation);
 		await loader(nextItem, nextLocation, seq);
