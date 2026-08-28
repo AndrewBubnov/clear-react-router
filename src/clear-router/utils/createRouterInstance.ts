@@ -14,6 +14,7 @@ import {
 	RouteItemData,
 	RouterState,
 	RouterType,
+	Status,
 } from '../types';
 import { Cell } from '../cell';
 
@@ -23,7 +24,7 @@ export const createRouterInstance = (): RouterType => {
 			routeItem: undefined,
 			location: {} as Location,
 		}),
-		pendingState: create<RouteItemData | undefined>(undefined),
+		statusState: create<Status>('idle'),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
@@ -38,7 +39,7 @@ export const createRouterInstance = (): RouterType => {
 	const invalidate = createInvalidate(routerState, revalidateCache);
 	const navigate = createNavigate(routerState, revalidateCache);
 
-	const prefetch = createPrefetch(revalidateCache);
+	const prefetch = createPrefetch(routerState, revalidateCache);
 
 	const useGetAction = (actionKey: string) => {
 		const { routeItem } = routerState.routeItemDataState.getState();
@@ -59,7 +60,7 @@ export const createRouterInstance = (): RouterType => {
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
-			usePendingState: () => useGlobalState(routerState.pendingState),
+			useStatus: () => useGlobalState(routerState.statusState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useOptimisticLoading: () => useGlobalState(routerState.isOptimisticLoading),
 			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,

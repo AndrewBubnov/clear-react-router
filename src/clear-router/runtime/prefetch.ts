@@ -1,10 +1,14 @@
 import { findRoute } from '../utils/findRoute';
-import { RevalidateCache } from '../types';
+import { RevalidateCache, RouterState } from '../types';
 
-export const createPrefetch = (revalidateCache: RevalidateCache) => async (pathname: string) => {
-	const item = findRoute(pathname);
-	if (item) {
-		await item.preloadElement?.();
-		await revalidateCache({ routeItem: item, pathname });
-	}
-};
+export const createPrefetch =
+	({ routeItemDataState }: RouterState, revalidateCache: RevalidateCache) =>
+	async (location: Location) => {
+		const item = findRoute(location.pathname);
+		if (item) {
+			const currentLocation = routeItemDataState.getState().location;
+			if (location.pathname === currentLocation.pathname && location.search === currentLocation.search) return;
+			await item.preloadElement?.();
+			await revalidateCache({ routeItem: item, location });
+		}
+	};

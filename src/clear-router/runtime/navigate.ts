@@ -16,7 +16,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		loaderState,
 		loaderStateRef,
 		scrollMapState,
-		pendingState,
+		statusState,
 		contextState,
 		loaderMap,
 		routeItemDataState,
@@ -31,7 +31,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return abortController.signal;
 	};
 
-	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search ?? ''}`;
+	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search}`;
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
@@ -42,13 +42,20 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return { nextItem, params };
 	};
 
-	const beforeLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
+	const beforeLoad = async (
+		routeItem: RouteItem | undefined,
+		nextLocation: Location,
+		params: Record<string, string>
+	) => {
 		const { defaultBeforeLoad } = routerConfig;
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
+			const searchParams: Record<string, string> = Object.fromEntries(
+				new URLSearchParams(nextLocation.search).entries()
+			);
 			try {
-				await loaderFn({ ...getContext(), redirect, params });
+				await loaderFn({ ...getContext(), redirect, params, location: nextLocation, searchParams });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
@@ -73,11 +80,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
-			if (pendingShouldExist) {
-				commitNavigation(() => pendingState.setState({ routeItem, location }));
-			} else {
-				pendingState.setState(undefined);
-			}
+			commitNavigation(() => statusState.setState(pendingShouldExist ? 'pending' : 'active'));
 		}
 	};
 
@@ -85,7 +88,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.pollingInterval) return;
 		const signal = createSignal();
 		interval = window.setInterval(
-			() => revalidateCache({ routeItem, pathname: nextLocation.pathname, search: nextLocation.search, signal }),
+			() => revalidateCache({ routeItem, location: nextLocation, signal }),
 			routeItem.pollingInterval
 		);
 	};
@@ -102,7 +105,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		window.clearInterval(interval);
 		const signal = createSignal();
 		const [result] = await Promise.all([
-			revalidateCache({ routeItem, pathname: nextLocation.pathname, search: nextLocation.search, signal }),
+			revalidateCache({ routeItem, location: nextLocation, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
 		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
@@ -116,11 +119,12 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (defaultAfterLoad) await defaultAfterLoad({ ...getContext(), params });
 	};
 
-	const navigate = async (nextLocation: Location) => {
+	const navigate = async (rawLocation: Location) => {
+		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
-		await beforeLoad(nextItem, params);
+		await beforeLoad(nextItem, nextLocation, params);
 		if (seq !== navigationSeq) return;
 		prepareNavigation(nextItem, nextLocation);
 		await loader(nextItem, nextLocation, seq);

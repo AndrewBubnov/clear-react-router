@@ -14,7 +14,17 @@
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-
+  a {
+    color: currentColor;
+    text-decoration: none;
+  }
+  .active-link {
+    text-decoration: underline;
+    color: steelblue;
+  }
+  .pending-link {
+    opacity: 0.5;
+  }
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;

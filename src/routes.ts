@@ -1,4 +1,4 @@
-import { createRouter } from './clear-router';
+import { createRouter, lazy } from './clear-router';
 import { Test } from './components/Test';
 import { User } from './components/User';
 import { NotFound } from './components/NotFound';
@@ -6,10 +6,12 @@ import { Fallback } from './components/Fallback';
 import { ErrorComponent } from './components/ErrorComponent';
 import { UserList } from './components/UserList';
 
+let posts: string[] = [];
+
 export const routes = createRouter([
 	{
 		path: '/',
-		element: () => import('./components/Home.tsx'),
+		element: lazy(() => import('./components/Home.tsx')),
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching Home');
@@ -21,7 +23,7 @@ export const routes = createRouter([
 	},
 	{
 		path: '/about',
-		element: () => import('./components/About.tsx'),
+		element: lazy(() => import('./components/About.tsx')),
 		loader: () =>
 			new Promise((resolve, _) => {
 				console.log('fetching About');
@@ -38,19 +40,25 @@ export const routes = createRouter([
 	{ path: '/user/:userId', element: User },
 	{
 		path: '/post/:postId',
-		element: () => import('./components/Post'),
-		loader: ({ params }) =>
-			new Promise((resolve, _) => {
+		element: lazy(() => import('./components/Post.tsx')),
+		actions: () => ({
+			addPost: formData => {
+				const post = formData.get('text') as string;
+				posts = [...posts, post];
+			},
+		}),
+		loader: () =>
+			new Promise(resolve => {
 				console.log('fetching Post');
-				return setTimeout(() => resolve(`Post, ${JSON.stringify(params)}`), 1500);
+				return setTimeout(() => resolve(posts), 1000);
 			}),
 		afterLoad: ({ params }) => new Promise(() => console.log(`After load: params = ${JSON.stringify(params)}`)),
 		children: [
 			{
 				path: '/comment/:commentId',
-				element: () => import('./components/Comment.tsx'),
+				element: lazy(() => import('./components/Comment.tsx')),
 				beforeLoad: ({ context, redirect }) => {
-					if (!context.isAuthorized) return redirect( '/');
+					if (!context.isAuthorized) return redirect('/');
 				},
 				loader: ({ params }) =>
 					new Promise((resolve, _) => {
