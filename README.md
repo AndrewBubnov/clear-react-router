@@ -85,26 +85,31 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `preserveScroll` | `boolean \| undefined` | Save and restore route scroll position when navigating between pages |
 
-Before load arguments:
+Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
+
+`beforeLoad` and `loader` both receive:
+
 ```ts
 {
-  params: Record<string, string>;                                   // Route parameters
-  context: Record<string, unknown>;                                 // Router context
-  redirect: (arg: Location | string) => Promise<void>;              // Programmatic redirection
-  setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
-  location: Location;                                               // Route location
+  params: Record<string, string>;                                // Route parameters
+  context: Record<string, unknown>;                              // Router context
+  setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
+  searchParams: Record<string, string>;                          // URL search parameters
+  location: Location;                                            // Route location
 }
 ```
-See [`redirect`](#redirect) below
 
-Loader arguments:
+`beforeLoad` additionally receives:
 ```ts
 {
-  params: Record<string, string>;                                   // Route parameters
-  context: Record<string, unknown>;                                 // Router context
-  setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
-  searchParams: Record<string, string>;                             // URL search parameters
-  signal: AbortSignal;                                              // AbortController signal
+  redirect: (arg: Location | string) => Promise<void>;           // Programmatic redirection, see [redirect](#redirect)
+}
+```
+
+`loader` additionally receives:
+```ts
+{
+  signal: AbortSignal;                                           // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
 }
 ```
 
@@ -115,6 +120,8 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
+| `search` | `string \| undefined` | `undefined` | Query string appended to the target path |
+| `state` | `unknown` | `undefined` | Arbitrary value attached to the navigation entry |
 | `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
 | `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
 | `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
