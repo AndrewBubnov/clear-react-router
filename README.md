@@ -90,7 +90,7 @@ Before load arguments:
 {
   params: Record<string, string>;                                   // Route parameters
   context: Record<string, unknown>;                                 // Router context
-  redirect: (arg: Location | string) => Promise<void>;              // Programmatic redirection
+  [redirect](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#redirect): (arg: Location | string) => Promise<void>;              // Programmatic redirection
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
   location: Location;                                               // Route location
 }
