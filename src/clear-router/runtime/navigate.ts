@@ -31,7 +31,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return abortController.signal;
 	};
 
-	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search ?? ''}`;
+	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search}`;
 
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
@@ -116,7 +116,8 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (defaultAfterLoad) await defaultAfterLoad({ ...getContext(), params });
 	};
 
-	const navigate = async (nextLocation: Location) => {
+	const navigate = async (rawLocation: Location) => {
+		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
