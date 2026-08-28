@@ -90,11 +90,12 @@ Before load arguments:
 {
   params: Record<string, string>;                                   // Route parameters
   context: Record<string, unknown>;                                 // Router context
-  [redirect](#redirect): (arg: Location | string) => Promise<void>;              // Programmatic redirection
+  redirect: (arg: Location | string) => Promise<void>;              // Programmatic redirection
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
   location: Location;                                               // Route location
 }
 ```
+See [`redirect`](#redirect) below
 
 Loader arguments:
 ```ts
