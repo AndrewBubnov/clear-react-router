@@ -37,12 +37,12 @@ export const Router = ({
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const { useRouteItemData, usePendingState, useOptimisticLoading } = router.hooks;
+	const { useRouteItemData, useStatus, useOptimisticLoading } = router.hooks;
 	const [routeItemData] = useRouteItemData();
-	const [pendingRouteData] = usePendingState();
+	const [status] = useStatus();
 	const [isOptimisticLoading] = useOptimisticLoading();
 	const loaderState = useLoaderState();
-	const isLoading = Boolean(pendingRouteData);
+	const isLoading = status === 'pending';
 
 	useNavigation();
 
@@ -69,7 +69,7 @@ export const Router = ({
 
 	const loadingContent = !showErrorElement && isLoading;
 
-	if (loadingContent) return renderElement(pendingRouteData?.routeItem?.loaderFallback || defaultLoaderFallback);
+	if (loadingContent) return renderElement(routeItemData?.routeItem?.loaderFallback || defaultLoaderFallback);
 
 	if (!routeItem) return null;
 

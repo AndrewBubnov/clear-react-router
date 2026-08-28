@@ -16,7 +16,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		loaderState,
 		loaderStateRef,
 		scrollMapState,
-		pendingState,
+		statusState,
 		contextState,
 		loaderMap,
 		routeItemDataState,
@@ -73,11 +73,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
-			if (pendingShouldExist) {
-				commitNavigation(() => pendingState.setState({ routeItem, location }));
-			} else {
-				pendingState.setState(undefined);
-			}
+			commitNavigation(() => statusState.setState(pendingShouldExist ? 'pending' : 'active'));
 		}
 	};
 
