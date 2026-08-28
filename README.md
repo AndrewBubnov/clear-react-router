@@ -54,7 +54,7 @@ It provides first-class support for:
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
 | `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
 | `defaultStaleTime` | `number` | `optional` | Default time in milliseconds before cached loader data is considered stale |
-| `defaultBeforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
+| `defaultBeforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
 | `defaultAfterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
@@ -71,7 +71,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `beforeLoad` | `({ params, context, redirect, setContext }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
+| `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
 | `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `minLoaderDuration` | `number \| undefined` | `undefined` | Minimum time the loader fallback stays visible, to avoid flickering |
@@ -84,6 +84,17 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `preserveScroll` | `boolean \| undefined` | Save and restore route scroll position when navigating between pages |
+
+Before load arguments:
+```ts
+{
+  params: Record<string, string>;                                   // Route parameters
+  context: Record<string, unknown>;                                 // Router context
+  redirect: (arg: Location | string) => Promise<void>;              // Programmatic redirection
+  setContext: Dispatch<SetStateAction<Record<string, unknown>>>;    // Updates the router context
+  location: Location;                                               // Route location
+}
+```
 
 Loader arguments:
 ```ts
