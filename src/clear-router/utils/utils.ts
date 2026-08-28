@@ -54,3 +54,25 @@ export const getPartialLoaderArgs = (location: Location) => {
 	const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
 	return { params, context, setContext, searchParams, location };
 };
+
+export const updateScrollMap = () => {
+	const { routeItemDataState, scrollMapState } = router.state;
+	const { routeItem: currentRouteItem, location: currentLocation } = routeItemDataState.getState();
+	scrollMapState.setState(prevState => {
+		if (Array.isArray(currentRouteItem?.preserveScroll)) {
+			const scrollMapItem = currentRouteItem.preserveScroll.reduce(
+				(acc, cur) => {
+					const element = document.getElementById(cur);
+					acc[cur] = element?.scrollTop || 0;
+					return acc;
+				},
+				{} as Record<string, number>
+			);
+			return { ...prevState, [currentLocation.pathname]: scrollMapItem };
+		} else {
+			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+			if (!scrollPosition || prevState[currentLocation.pathname] === scrollPosition) return prevState;
+			return { ...prevState, [currentLocation.pathname]: scrollPosition };
+		}
+	});
+};

@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParamsObject, getPartialLoaderArgs, sleep } from '../utils/utils';
+import { getParamsObject, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -15,7 +15,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const {
 		loaderState,
 		loaderStateRef,
-		scrollMapState,
 		statusState,
 		contextState,
 		loaderMap,
@@ -59,24 +58,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
-		const { routeItem: currentRouteItem, location: currentLocation } = routeItemDataState.getState();
-		scrollMapState.setState(prevState => {
-			if (Array.isArray(currentRouteItem?.preserveScroll)) {
-				const scrollMapItem = (currentRouteItem?.preserveScroll as string[]).reduce(
-					(acc, cur) => {
-						const element = document.getElementById(cur);
-						acc[cur] = element?.scrollTop || 0;
-						return acc;
-					},
-					{} as Record<string, number>
-				);
-				return { ...prevState, [currentLocation.pathname]: scrollMapItem };
-			} else {
-				const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-				if (!scrollPosition || prevState[currentLocation.pathname] === scrollPosition) return prevState;
-				return { ...prevState, [currentLocation.pathname]: scrollPosition };
-			}
-		});
+		updateScrollMap();
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			routeItemDataState.setState({ routeItem, location });
