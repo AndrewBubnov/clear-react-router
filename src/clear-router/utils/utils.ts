@@ -70,7 +70,7 @@ export const isMobile = () => {
 
 export const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const getPartialBeforeLoadArgs = (location: Location) => {
+export const getPartialLoaderArgs = (location: Location) => {
 	const params = getParamsObject();
 	const { contextState } = router.state;
 	const context = contextState.getState();

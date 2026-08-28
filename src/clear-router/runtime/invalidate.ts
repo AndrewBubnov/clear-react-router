@@ -1,4 +1,4 @@
-import { comparePaths, getPartialBeforeLoadArgs } from '../utils/utils';
+import { comparePaths, getPartialLoaderArgs } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -19,7 +19,7 @@ export const createInvalidate = (
 		const location = { pathname: path, search };
 		if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 			try {
-				await routeItem.beforeLoad({ redirect, ...getPartialBeforeLoadArgs(location) });
+				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(location) });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));

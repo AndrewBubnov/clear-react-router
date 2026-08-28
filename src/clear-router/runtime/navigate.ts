@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParamsObject, getPartialBeforeLoadArgs, sleep } from '../utils/utils';
+import { getParamsObject, getPartialLoaderArgs, sleep } from '../utils/utils';
 import { emptyLoaderState } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -48,7 +48,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
-				await loaderFn({ redirect, ...getPartialBeforeLoadArgs(nextLocation) });
+				await loaderFn({ redirect, ...getPartialLoaderArgs(nextLocation) });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));

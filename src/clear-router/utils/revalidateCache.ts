@@ -1,5 +1,5 @@
-import { getParamsObject, sleep } from './utils';
 import { createIsCacheItemFresh } from './isCacheItemFresh';
+import { getPartialLoaderArgs, sleep } from './utils';
 import { routerConfig } from '../config/routerConfig';
 import { LoadingPromise, Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
@@ -22,7 +22,7 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 };
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { contextState, loaderMap, loadingPromises } = routerState;
+	const { loaderMap, loadingPromises } = routerState;
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const oldestKey = loaderMap.keys().next().value;
@@ -36,7 +36,10 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		}
 		return item;
 	};
-	const revalidateCache = async ({ routeItem, location, signal }: RevalidateCacheArgs, retried = 0) : LoadingPromise => {
+	const revalidateCache = async (
+		{ routeItem, location, signal }: RevalidateCacheArgs,
+		retried = 0
+	): LoadingPromise => {
 		if (!routeItem?.loader) return;
 
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
@@ -64,18 +67,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			if (!routeItem?.loader) return;
 			const effectiveSignal = signal ?? new AbortController().signal;
 			try {
-				const context = contextState.getState();
-				const setContext = contextState.setState;
-				const params: Record<string, string> = getParamsObject(routeItem, pathname);
-				const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(search).entries());
-				const result = await routeItem?.loader({
-					params,
-					context,
-					setContext,
-					searchParams,
-					signal: effectiveSignal,
-					location,
-				});
+				const result = await routeItem?.loader({ ...getPartialLoaderArgs(location), signal: effectiveSignal });
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),
