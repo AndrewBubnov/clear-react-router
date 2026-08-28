@@ -14,6 +14,7 @@ import {
 	RouteItemData,
 	RouterState,
 	RouterType,
+	ScrollMap,
 	Status,
 } from '../types';
 import { Cell } from '../cell';
@@ -25,7 +26,7 @@ export const createRouterInstance = (): RouterType => {
 			location: {} as Location,
 		}),
 		statusState: create<Status>('idle'),
-		scrollMapState: create<Record<string, number>>({}),
+		scrollMapState: create<ScrollMap>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		isOptimisticLoading: create(false),
@@ -87,8 +88,18 @@ export const createRouterInstance = (): RouterType => {
 				const { pathname } = routerState.routeItemDataState.getState().location;
 				const scrollMap = routerState.scrollMapState.getState();
 				return () => {
-					if (scrollMap[pathname]) {
-						requestAnimationFrame(() => window.scrollTo({ top: scrollMap[pathname], behavior: 'smooth' }));
+					if (!scrollMap[pathname]) return;
+					if (typeof scrollMap[pathname] === 'object') {
+						Object.keys(scrollMap[pathname]).forEach(key => {
+							const element = document.getElementById(key);
+							requestAnimationFrame(() => {
+								if (element) element.scrollTop = (scrollMap[pathname] as Record<string, number>)[key];
+							});
+						});
+					} else {
+						requestAnimationFrame(() =>
+							window.scrollTo({ top: scrollMap[pathname] as number, behavior: 'smooth' })
+						);
 					}
 				};
 			},

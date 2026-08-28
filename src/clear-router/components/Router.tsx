@@ -30,7 +30,6 @@ export const Router = ({
 	context: initialContext,
 	isAnimated = false,
 	optimisticSpinner = true,
-	defaultPreserveScroll = true,
 	defaultMinLoaderDuration = 0,
 	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
@@ -55,7 +54,6 @@ export const Router = ({
 		defaultAfterLoad,
 		defaultRetry,
 		defaultStaleTime,
-		defaultPreserveScroll,
 		defaultMinLoaderDuration,
 		maxCacheSize,
 	});

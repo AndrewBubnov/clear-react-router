@@ -49,7 +49,7 @@ export type ClientRouteItem = {
 	pollingInterval?: number;
 	retry?: Retry;
 	minLoaderDuration?: number;
-	preserveScroll?: boolean;
+	preserveScroll?: boolean | string[];
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -105,7 +105,6 @@ export type RouterProps = {
 	isAnimated?: boolean;
 	animationDuration?: number;
 	optimisticSpinner?: boolean;
-	defaultPreserveScroll?: boolean;
 	defaultRetry?: Retry;
 	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;
@@ -126,10 +125,12 @@ export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: nu
 
 export type Status = 'idle' | 'pending' | 'active';
 
+export type ScrollMap = Record<string, number | Record<string | number, number>>;
+
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
 	statusState: Store<Status>;
-	scrollMapState: Store<Record<string, number>>;
+	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
 	isOptimisticLoading: Store<boolean>;
@@ -149,7 +150,7 @@ export type RouterType = {
 	hooks: {
 		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useScrollMap: () => ReturnType<typeof useGlobalState<Record<string, number>>>;
+		useScrollMap: () => ReturnType<typeof useGlobalState<ScrollMap>>;
 		useStatus: () => ReturnType<typeof useGlobalState<Status>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useOptimisticLoading: () => ReturnType<typeof useGlobalState<boolean>>;
