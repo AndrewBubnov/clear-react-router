@@ -13,9 +13,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let abortController: AbortController | null = null;
 
 	const {
+		loaderState,
 		loaderStateRef,
 		scrollMapState,
-		pendingState,
+		statusState,
 		contextState,
 		loaderMap,
 		routeItemDataState,
@@ -73,14 +74,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			routeItemDataState.setState({ routeItem, location });
 			isOptimisticLoading.setState(true);
 			const currentLoaderState = loaderMap.get(path)?.state;
-			if (currentLoaderState) loaderStateRef.set(currentLoaderState);
+			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
-			if (pendingShouldExist) {
-				commitNavigation(() => pendingState.setState({ routeItem, location }));
-			} else {
-				pendingState.setState(undefined);
-			}
+			commitNavigation(() => statusState.setState(pendingShouldExist ? 'pending' : 'active'));
 		}
 	};
 
@@ -104,10 +101,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.loader) return;
 		window.clearInterval(interval);
 		const signal = createSignal();
-		await Promise.all([
+		const [result] = await Promise.all([
 			revalidateCache({ routeItem, location: nextLocation, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
+		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
 	};

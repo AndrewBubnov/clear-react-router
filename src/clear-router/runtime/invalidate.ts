@@ -5,7 +5,7 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 const redirect = Promise.resolve;
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderStateRef, loaderMap, currentLoaderState, contextState }: RouterState,
+	{ routeItemDataState, loaderState, loaderMap, contextState }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
@@ -24,14 +24,20 @@ export const createInvalidate = (
 				const setContext = contextState.setState;
 				await routeItem.beforeLoad({ context, redirect, params, setContext, location: { pathname, search } });
 			}
-			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
+			loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 		} catch (error) {
-			loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
+			loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
 		}
 
 		const result = await revalidateCache({ routeItem, location: { pathname: path, search } });
 
-		if (pathname === routePathname) currentLoaderState.setState(loaderStateRef.value);
+		if (result && pathname === routePathname)
+			loaderState.setState({
+				data: result.data,
+				loaderError: result.error as Error | null,
+				beforeLoadError: null,
+			});
+
 		return { path: pathname, ...result } as InvalidateResult;
 	};
 

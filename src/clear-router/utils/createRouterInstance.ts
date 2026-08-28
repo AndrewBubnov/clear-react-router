@@ -3,7 +3,6 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
-import { Cell } from '../cell';
 import { getParamsObject } from './utils';
 import { emptyLoaderState } from '../constants';
 import {
@@ -15,7 +14,9 @@ import {
 	RouteItemData,
 	RouterState,
 	RouterType,
+	Status,
 } from '../types';
+import { Cell } from '../cell';
 
 export const createRouterInstance = (): RouterType => {
 	const routerState: RouterState = {
@@ -23,12 +24,12 @@ export const createRouterInstance = (): RouterType => {
 			routeItem: undefined,
 			location: {} as Location,
 		}),
-		pendingState: create<RouteItemData | undefined>(undefined),
-		currentLoaderState: create<LoaderState>(emptyLoaderState),
+		statusState: create<Status>('idle'),
 		scrollMapState: create<Record<string, number>>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		isOptimisticLoading: create(false),
+		loaderState: create<LoaderState>(emptyLoaderState),
 		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
@@ -59,9 +60,10 @@ export const createRouterInstance = (): RouterType => {
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
-			usePendingState: () => useGlobalState(routerState.pendingState),
+			useStatus: () => useGlobalState(routerState.statusState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useOptimisticLoading: () => useGlobalState(routerState.isOptimisticLoading),
+			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
 			useParams: <T>() => getParamsObject() as T,
 			useNavigate: () => {
 				const { blockedRouteState } = routerState;
