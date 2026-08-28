@@ -17,19 +17,20 @@ export const createInvalidate = (
 		loaderMap.delete(pathname);
 		const params = getParamsObject();
 		const [path, search = ''] = pathname.split('?');
+		const location = { pathname: path, search };
 
 		try {
 			if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 				const context = contextState.getState();
 				const setContext = contextState.setState;
-				await routeItem.beforeLoad({ context, redirect, params, setContext, location: { pathname, search } });
+				await routeItem.beforeLoad({ context, redirect, params, setContext, location });
 			}
 			loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 		} catch (error) {
 			loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
 		}
 
-		const result = await revalidateCache({ routeItem, location: { pathname: path, search } });
+		const result = await revalidateCache({ routeItem, location });
 
 		if (result && pathname === routePathname)
 			loaderState.setState({
