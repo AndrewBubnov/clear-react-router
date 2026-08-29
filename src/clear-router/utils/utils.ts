@@ -55,6 +55,8 @@ export const getPartialLoaderArgs = (location: Location) => {
 	return { params, context, setContext, searchParams, location };
 };
 
+export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight > el.clientHeight;
+
 export const updateScrollMap = () => {
 	const { routeItemDataState, scrollMapState } = router.state;
 	const { routeItem, location } = routeItemDataState.getState();
@@ -63,14 +65,13 @@ export const updateScrollMap = () => {
 			return {
 				...prevState,
 				[location.pathname]: routeItem.preserveScroll.map(key => {
-					const element = document.getElementById(key);
-					return [key, element?.scrollTop || 0];
+					const el = document.getElementById(key);
+					return [key, isVerticalScroll(el) ? el?.scrollTop || 0 : el?.scrollLeft || 0];
 				}),
 			};
-		} else {
-			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-			if (!scrollPosition || prevState[location.pathname] === scrollPosition) return prevState;
-			return { ...prevState, [location.pathname]: scrollPosition };
 		}
+		const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
+		if (!scrollPosition || prevState[location.pathname] === scrollPosition) return prevState;
+		return { ...prevState, [location.pathname]: scrollPosition };
 	});
 };

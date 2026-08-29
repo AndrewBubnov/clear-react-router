@@ -3,7 +3,7 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
-import { getParamsObject } from './utils';
+import { getParamsObject, isVerticalScroll } from './utils';
 import { Cell } from '../cell';
 import { emptyLoaderState } from '../constants';
 import {
@@ -90,10 +90,12 @@ export const createRouterInstance = (): RouterType => {
 				return () => {
 					if (!scrollMap[pathname]) return;
 					if (Array.isArray(scrollMap[pathname])) {
-						scrollMap[pathname].forEach(([key, scrollTop]) => {
+						scrollMap[pathname].forEach(([key, scrollPosition]) => {
 							const element = document.getElementById(key);
+							if (!element) return;
+							const property = isVerticalScroll(element) ? 'scrollTop' : 'scrollLeft';
 							requestAnimationFrame(() => {
-								if (element) element.scrollTop = scrollTop;
+								element[property] = scrollPosition;
 							});
 						});
 					} else {
