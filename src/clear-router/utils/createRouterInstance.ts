@@ -89,11 +89,11 @@ export const createRouterInstance = (): RouterType => {
 				const scrollMap = routerState.scrollMapState.getState();
 				return () => {
 					if (!scrollMap[pathname]) return;
-					if (typeof scrollMap[pathname] === 'object') {
-						Object.keys(scrollMap[pathname]).forEach(key => {
+					if (Array.isArray(scrollMap[pathname])) {
+						scrollMap[pathname].forEach(([key, scrollTop]) => {
 							const element = document.getElementById(key);
 							requestAnimationFrame(() => {
-								if (element) element.scrollTop = (scrollMap[pathname] as Record<string, number>)[key];
+								if (element) element.scrollTop = scrollTop;
 							});
 						});
 					} else {

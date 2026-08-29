@@ -60,15 +60,13 @@ export const updateScrollMap = () => {
 	const { routeItem, location } = routeItemDataState.getState();
 	scrollMapState.setState(prevState => {
 		if (Array.isArray(routeItem?.preserveScroll)) {
-			const scrollMapItem = routeItem.preserveScroll.reduce(
-				(acc, cur) => {
-					const element = document.getElementById(cur);
-					acc[cur] = element?.scrollTop || 0;
-					return acc;
-				},
-				{} as Record<string, number>
-			);
-			return { ...prevState, [location.pathname]: scrollMapItem };
+			return {
+				...prevState,
+				[location.pathname]: routeItem.preserveScroll.map(key => {
+					const element = document.getElementById(key);
+					return [key, element?.scrollTop || 0];
+				}),
+			};
 		} else {
 			const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
 			if (!scrollPosition || prevState[location.pathname] === scrollPosition) return prevState;
