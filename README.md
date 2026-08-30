@@ -85,7 +85,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
-| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Route scroll restoration behavior |
+| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
 Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
 
