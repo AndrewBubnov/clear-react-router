@@ -29,7 +29,6 @@ export const createRouterInstance = (): RouterType => {
 		scrollMapState: create<ScrollMap>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
-		isOptimisticLoading: create(false),
 		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 		loaderStateRef: new Cell<LoaderState>(EMPTY_LOADER_STATE),
 		loaderMap: new Map<string, LoaderStateItem>(),
@@ -63,7 +62,6 @@ export const createRouterInstance = (): RouterType => {
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useStatus: () => useGlobalState(routerState.statusState),
 			useContextState: () => useGlobalState(routerState.contextState),
-			useOptimisticLoading: () => useGlobalState(routerState.isOptimisticLoading),
 			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
 			useParams: <T>() => getParamsObject() as T,
 			useNavigate: () => {

@@ -12,15 +12,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let interval = 0;
 	let abortController: AbortController | null = null;
 
-	const {
-		loaderState,
-		loaderStateRef,
-		statusState,
-		contextState,
-		loaderMap,
-		routeItemDataState,
-		isOptimisticLoading,
-	} = routerState;
+	const { loaderState, loaderStateRef, statusState, contextState, loaderMap, routeItemDataState } = routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -62,7 +54,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			routeItemDataState.setState({ routeItem, location });
-			isOptimisticLoading.setState(true);
+			statusState.setState('optimistic');
 			const currentLoaderState = loaderMap.get(path)?.state;
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
@@ -95,7 +87,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			revalidateCache({ routeItem, location: nextLocation, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
-		if (result) loaderStateRef.set(prev => ({ ...prev, ...result }));
+		if (result) loaderStateRef.set(prev => ({ ...prev, data: result.data, loaderError: result.error as Error }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
 	};

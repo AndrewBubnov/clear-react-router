@@ -37,12 +37,12 @@ export const Router = ({
 	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const { useRouteItemData, useStatus, useOptimisticLoading } = router.hooks;
+	const { useRouteItemData, useStatus } = router.hooks;
 	const [routeItemData] = useRouteItemData();
 	const [status] = useStatus();
-	const [isOptimisticLoading] = useOptimisticLoading();
 	const loaderState = useLoaderState();
 	const isLoading = status === 'pending';
+	const isOptimistic = status === 'optimistic';
 
 	useNavigation();
 
@@ -77,7 +77,7 @@ export const Router = ({
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
-			{optimisticSpinner && isOptimisticLoading && <Spinner />}
+			{optimisticSpinner && isOptimistic && <Spinner />}
 		</div>
 	);
 };

@@ -127,7 +127,7 @@ export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
-export type Status = 'idle' | 'pending' | 'active';
+export type Status = 'idle' | 'pending' | 'active' | 'optimistic';
 
 export type ScrollMap = Record<string, [string, number][]>;
 
@@ -137,7 +137,6 @@ export type RouterState = {
 	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
-	isOptimisticLoading: Store<boolean>;
 	loaderState: Store<LoaderState>;
 	loaderStateRef: Cell<LoaderState>;
 	loaderMap: Map<string, LoaderStateItem>;
@@ -157,7 +156,6 @@ export type RouterType = {
 		useScrollMap: () => ReturnType<typeof useGlobalState<ScrollMap>>;
 		useStatus: () => ReturnType<typeof useGlobalState<Status>>;
 		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
-		useOptimisticLoading: () => ReturnType<typeof useGlobalState<boolean>>;
 		useLoaderState: <T>() => LoaderState<T>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
