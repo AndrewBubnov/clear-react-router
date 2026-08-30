@@ -59,7 +59,7 @@ It provides first-class support for:
 | `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
 | `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
-| `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant' \| undefined` | `auto` | Default scroll restoration behavior |
+| `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
 
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
@@ -85,7 +85,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `scrollRestoration` | `boolean \| string[] \| undefined` | `true` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
-| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant' \| undefined` | `auto` | Route scroll restoration behavior |
+| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Route scroll restoration behavior |
 
 Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
 
