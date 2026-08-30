@@ -45,7 +45,7 @@ It provides first-class support for:
 | `routes` | `RouteItem[]` | required | Array of route configurations |
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
-| `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `optimisticSpinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while optimistic route data revalidates in the background |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
@@ -58,7 +58,7 @@ It provides first-class support for:
 | `defaultAfterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
-| `defaultHoverPrefetchDelay` | `number` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant' \| undefined` | `auto` | Default scroll restoration behavior |
 
 
