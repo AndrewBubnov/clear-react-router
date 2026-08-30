@@ -45,7 +45,7 @@ It provides first-class support for:
 | `routes` | `RouteItem[]` | required | Array of route configurations |
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
-| `animationDuration` | `number` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
+| `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `optimisticSpinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while optimistic route data revalidates in the background |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
@@ -58,7 +58,8 @@ It provides first-class support for:
 | `defaultAfterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
-| `defaultHoverPrefetchDelay` | `number` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
+| `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
 
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
@@ -80,10 +81,11 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
 | `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
-| `staleTime` | `number` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
+| `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
-| `preserveScroll` | `boolean \| undefined` | Save and restore route scroll position when navigating between pages |
+| `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
+| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
 Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
 
