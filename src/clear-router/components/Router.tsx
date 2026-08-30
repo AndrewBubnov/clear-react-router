@@ -34,6 +34,7 @@ export const Router = ({
 	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
+	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
 	const { useRouteItemData, useStatus, useOptimisticLoading } = router.hooks;
@@ -59,7 +60,7 @@ export const Router = ({
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
-	usePreserveScroll(routeItemData);
+	usePreserveScroll(defaultScrollRestorationBehavior);
 
 	const { routeItem, location } = routeItemData;
 

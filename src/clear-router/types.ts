@@ -29,6 +29,8 @@ export type BeforeLoad = (arg: {
 	location: Location;
 }) => Promise<unknown> | undefined | void;
 
+export type ScrollRestorationBehavior = 'auto' | 'smooth' | 'instant';
+
 export type ClientRouteItem = {
 	path: string;
 	element: RenderElement | LazyComponent;
@@ -50,6 +52,7 @@ export type ClientRouteItem = {
 	retry?: Retry;
 	minLoaderDuration?: number;
 	scrollRestoration?: boolean | string[];
+	scrollRestorationBehavior?: ScrollRestorationBehavior;
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -116,6 +119,7 @@ export type RouterProps = {
 	errorBoundary?: ComponentType<{ children: ReactNode }>;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
+	defaultScrollRestorationBehavior?: ScrollRestorationBehavior;
 	context?: Record<string, unknown>;
 };
 
@@ -161,7 +165,6 @@ export type RouterType = {
 			currentAction: (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown;
 			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<InvalidateResult[]>;
 		};
-		useRestoreScroll: () => () => void;
 		useAction: (action: string, options?: Options) => (arg: FormData) => Promise<void>;
 	};
 };
