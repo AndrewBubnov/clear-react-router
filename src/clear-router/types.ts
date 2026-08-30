@@ -49,7 +49,7 @@ export type ClientRouteItem = {
 	pollingInterval?: number;
 	retry?: Retry;
 	minLoaderDuration?: number;
-	preserveScroll?: boolean | string[];
+	scrollRestoration?: boolean | string[];
 	beforeLoad?: BeforeLoad;
 	afterLoad?: (arg: {
 		context: Record<string, unknown>;
@@ -125,7 +125,7 @@ export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: nu
 
 export type Status = 'idle' | 'pending' | 'active';
 
-export type ScrollMap = Record<string, number | [string, number][]>;
+export type ScrollMap = Record<string, [string, number][]>;
 
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;

@@ -4,7 +4,7 @@ import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { getParamsObject, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
-import { emptyLoaderState } from '../constants';
+import { EMPTY_LOADER_STATE } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
@@ -35,7 +35,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
 	const routeResolve = (location: Location) => {
-		loaderStateRef.set(emptyLoaderState);
+		loaderStateRef.set(EMPTY_LOADER_STATE);
 		const nextItem = findRoute(location.pathname, true);
 		const params = getParamsObject(nextItem, location.pathname);
 		return { nextItem, params };

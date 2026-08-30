@@ -5,7 +5,7 @@ import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from './revalidateCache';
 import { getParamsObject, isVerticalScroll } from './utils';
 import { Cell } from '../cell';
-import { emptyLoaderState } from '../constants';
+import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import {
 	LoaderState,
 	LoaderStateItem,
@@ -30,8 +30,8 @@ export const createRouterInstance = (): RouterType => {
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
 		isOptimisticLoading: create(false),
-		loaderState: create<LoaderState>(emptyLoaderState),
-		loaderStateRef: new Cell<LoaderState>(emptyLoaderState),
+		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
+		loaderStateRef: new Cell<LoaderState>(EMPTY_LOADER_STATE),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
 	};
@@ -89,20 +89,23 @@ export const createRouterInstance = (): RouterType => {
 				const scrollMap = routerState.scrollMapState.getState();
 				return () => {
 					if (!scrollMap[pathname]) return;
-					if (Array.isArray(scrollMap[pathname])) {
-						scrollMap[pathname].forEach(([key, scrollPosition]) => {
-							const element = document.getElementById(key);
-							if (!element) return;
-							const property = isVerticalScroll(element) ? 'scrollTop' : 'scrollLeft';
+					scrollMap[pathname].forEach(([key, scrollPosition]) => {
+						if (key === WINDOW_TOP || key === WINDOW_LEFT) {
 							requestAnimationFrame(() => {
-								element[property] = scrollPosition;
+								window.scrollTo({
+									[key === WINDOW_TOP ? 'top' : 'left']: scrollPosition,
+									behavior: 'smooth',
+								});
 							});
+							return;
+						}
+						const element = document.getElementById(key);
+						if (!element) return;
+						const axis = isVerticalScroll(element) ? 'top' : 'left';
+						requestAnimationFrame(() => {
+							element.scrollTo({ [axis]: scrollPosition, behavior: 'smooth' });
 						});
-					} else {
-						requestAnimationFrame(() =>
-							window.scrollTo({ top: scrollMap[pathname] as number, behavior: 'smooth' })
-						);
-					}
+					});
 				};
 			},
 			useGetAction,

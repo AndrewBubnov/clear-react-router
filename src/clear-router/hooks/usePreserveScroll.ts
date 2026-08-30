@@ -5,7 +5,7 @@ import { RouteItemData } from '../types';
 export const usePreserveScroll = ({ routeItem }: RouteItemData) => {
 	const restoreScroll = router.hooks.useRestoreScroll();
 	useEffect(() => {
-		if (routeItem?.preserveScroll === false) return;
+		if (routeItem?.scrollRestoration === false) return;
 		restoreScroll();
-	}, [restoreScroll, routeItem?.preserveScroll]);
+	}, [restoreScroll, routeItem?.scrollRestoration]);
 };

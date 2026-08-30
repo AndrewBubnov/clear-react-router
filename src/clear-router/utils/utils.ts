@@ -1,5 +1,6 @@
 import { router } from '../instance';
 import { Location, RouteItem } from '../types';
+import { WINDOW_LEFT, WINDOW_TOP } from '../constants.ts';
 
 export const getParamsObject = (nextItem?: RouteItem, nextPathname?: string) => {
 	const {
@@ -59,19 +60,29 @@ export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight 
 
 export const updateScrollMap = () => {
 	const { routeItemDataState, scrollMapState } = router.state;
-	const { routeItem, location } = routeItemDataState.getState();
+	const {
+		routeItem,
+		location: { pathname },
+	} = routeItemDataState.getState();
 	scrollMapState.setState(prevState => {
-		if (Array.isArray(routeItem?.preserveScroll)) {
+		if (Array.isArray(routeItem?.scrollRestoration)) {
 			return {
 				...prevState,
-				[location.pathname]: routeItem.preserveScroll.map(key => {
+				[pathname]: routeItem.scrollRestoration.map(key => {
 					const el = document.getElementById(key);
 					return [key, isVerticalScroll(el) ? el?.scrollTop || 0 : el?.scrollLeft || 0];
 				}),
 			};
 		}
-		const scrollPosition = document.scrollingElement?.scrollTop ?? 0;
-		if (!scrollPosition || prevState[location.pathname] === scrollPosition) return prevState;
-		return { ...prevState, [location.pathname]: scrollPosition };
+		const scrollingElement = document.scrollingElement;
+		const top = scrollingElement?.scrollTop ?? 0;
+		const left = scrollingElement?.scrollLeft ?? 0;
+		const entries: [string, number][] = [];
+		if (top) entries.push([WINDOW_TOP, top]);
+		if (left) entries.push([WINDOW_LEFT, left]);
+		if (!entries.length) return prevState;
+		const prevEntries = prevState[pathname];
+		if (prevEntries && JSON.stringify(prevEntries) === JSON.stringify(entries)) return prevState;
+		return { ...prevState, [pathname]: entries };
 	});
 };
