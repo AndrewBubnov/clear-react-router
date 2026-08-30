@@ -1,6 +1,6 @@
 import { router } from '../instance';
 import { Location, RouteItem } from '../types';
-import { WINDOW_LEFT, WINDOW_TOP } from '../constants.ts';
+import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
 
 export const getParamsObject = (nextItem?: RouteItem, nextPathname?: string) => {
 	const {
