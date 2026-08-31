@@ -416,12 +416,15 @@ actions?: ({ context, params, invalidate, setContext }) => ({
 
 #### Arguments
 
-| Property     | Type                                                | Description                                                                                  |
-| ------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `context`    | `Record<string, unknown>`                           | Current router context.                                                                      |
-| `params`     | `Record<string, string>`                            | Route parameters.                                                                            |
-| `invalidate` | `(path?: string) => Promise<void>`                  | Invalidates the current route or a specific route, re-running its `beforeLoad` and `loader`. |
-| `setContext` | `Dispatch<SetStateAction<Record<string, unknown>>>` | Updates the router context.                                                                  |
+```ts
+{
+  params: Record<string, string>;                                // Route parameters
+  context: Record<string, unknown>;                              // Router context
+  setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
+  searchParams: Record<string, string>;                          // URL search parameters
+  location: Location;                                            // Route location
+}
+```
 
 #### Returns
 
@@ -429,9 +432,7 @@ A record where each key is an action name and each value is a function accepting
 
 ## useSubmitAction()
 
-`useSubmitAction` wraps a route's `action` with submission state (`isSubmitting`, `data`, `error`) and
-gives you two ways to trigger it — a ready-made `onSubmit` for native forms, or a raw `submit(formData)`
-you can call from any form library.
+`useSubmitAction` wraps a route's `action` with submission state (`isSubmitting`, `data`, `error`) and gives you two ways to trigger it — a ready-made `onSubmit` for native forms, or a raw `submit(formData)` you can call from any form library.
 
 ```tsx
 import { useSubmitAction } from 'clear-react-router';
