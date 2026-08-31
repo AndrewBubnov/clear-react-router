@@ -42,13 +42,14 @@ export const createRouterInstance = (): RouterType => {
 	const prefetch = createPrefetch(routerState, revalidateCache);
 
 	const useGetCurrentAction = (actionKey: string) => {
-		const { routeItem } = routerState.routeItemDataState.getState();
+		const { routeItem, location } = routerState.routeItemDataState.getState();
+		if (!routeItem) throw new Error('Route not found');
+		if (!routeItem.actions) throw new Error('Route action creator not found');
 		const context = routerState.contextState.getState();
 		const setContext = routerState.contextState.setState;
 		const params = getParamsObject();
-		if (!routeItem) throw new Error('Route not found');
-		if (!routeItem.actions) throw new Error('Route action creator not found');
-		const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
+		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
+		const action = routeItem.actions({ context, setContext, params, location, searchParams })[actionKey];
 		if (!action) throw new Error(`Action "${actionKey}" not found`);
 		return action;
 	};
@@ -67,7 +68,6 @@ export const createRouterInstance = (): RouterType => {
 			useNavigate: () => {
 				const { blockedRouteState } = routerState;
 				const { location } = routerState.routeItemDataState.getState();
-
 				return async (arg: Location | string | -1) => {
 					if (arg !== -1 && blockedRouteState.getState().from) {
 						const to = typeof arg === 'object' ? arg.pathname : arg;

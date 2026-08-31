@@ -20,28 +20,28 @@ export type LazyComponent = {
 
 export type RenderElement = (() => ReactElement) | ReactElement;
 
-export type BeforeLoad = (arg: {
+type LoaderArgs = {
 	context: Record<string, unknown>;
-	redirect: (arg: Location | string) => Promise<void>;
 	params: Record<string, string>;
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	searchParams: Record<string, string>;
 	location: Location;
-}) => Promise<unknown> | undefined | void;
+};
+
+export type BeforeLoad = (
+	arg: LoaderArgs & { redirect: (arg: Location | string) => Promise<void> }
+) => Promise<unknown> | undefined | void;
 
 export type ScrollRestorationBehavior = 'auto' | 'smooth' | 'instant';
 
 export type ClientRouteItem = {
 	path: string;
 	element: RenderElement | LazyComponent;
-	loader?(arg: {
-		params: Record<string, string>;
-		context: Record<string, unknown>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-		searchParams: Record<string, string>;
-		signal: AbortSignal;
-		location: Location;
-	}): Promise<unknown>;
+	loader?(
+		arg: LoaderArgs & {
+			signal: AbortSignal;
+		}
+	): Promise<unknown>;
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement;
 	fallback?: RenderElement;
@@ -59,12 +59,7 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
-	actions?: (arg: {
-		context: Record<string, unknown>;
-		params: Record<string, string>;
-		invalidate: (path?: string) => Promise<InvalidateResult[]>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	}) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
+	actions?: (arg: LoaderArgs) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 
 export type RouteItem = ClientRouteItem & {
