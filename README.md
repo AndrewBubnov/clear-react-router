@@ -14,7 +14,7 @@ It provides first-class support for:
 
 * Predictable routing
 * Built-in data loading
-* Route actions and forms
+* Route actions
 * Simple, provider-free architecture
 * Small, explicit API
 
@@ -477,7 +477,7 @@ Arguments:
 | `options.onSuccess` | `(data: unknown) => void \| undefined` | `undefined` | Called after a successful submission |
 | `options.onError` | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws |
 | `options.autoReset` | `boolean \| undefined` | `true` | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
-| `options.withBeforeLoad` | `boolean \| undefined` | `false` | Should `beforeLoad` also be fired on successful case or not |
+| `options.withBeforeLoad` | `boolean \| undefined` | `false` |  Whether to run the `beforeLoad` hook on a successful action submit as well |
 
 Return value:
 
@@ -498,7 +498,7 @@ Return value:
 | Argument | Type | Description |
 |----------|------|-------------|
 | `action` | `string` | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
-| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails and `withBeforeLoad` value to set route's `beforeLoad` to also run. |
+| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails and `withBeforeLoad` value to set route's `beforeLoad` to run. |
 
 ```ts
 type Options = Partial<{
