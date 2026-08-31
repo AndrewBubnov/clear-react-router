@@ -41,7 +41,7 @@ export const createRouterInstance = (): RouterType => {
 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 
-	const useGetAction = (actionKey: string) => {
+	const useGetCurrentAction = (actionKey: string) => {
 		const { routeItem } = routerState.routeItemDataState.getState();
 		const context = routerState.contextState.getState();
 		const setContext = routerState.contextState.setState;
@@ -50,7 +50,7 @@ export const createRouterInstance = (): RouterType => {
 		if (!routeItem.actions) throw new Error('Route action creator not found');
 		const action = routeItem.actions({ context, setContext, params, invalidate })[actionKey];
 		if (!action) throw new Error(`Action "${actionKey}" not found`);
-		return { currentAction: action, invalidate };
+		return action;
 	};
 
 	return {
@@ -82,16 +82,17 @@ export const createRouterInstance = (): RouterType => {
 					}
 				};
 			},
-			useGetAction,
 			useAction: (action: string, options: Options = {}) => {
-				const { currentAction, invalidate } = useGetAction(action);
+				const currentAction = useGetCurrentAction(action);
 				return async (formData: FormData) => {
 					try {
-						const result = await currentAction(formData);
-						await invalidate();
-						options.onSuccess?.(result);
+						const data = await currentAction(formData);
+						await invalidate('', { withBeforeLoad: options.withBeforeLoad });
+						options.onSuccess?.(data);
+						return { data, error: null };
 					} catch (error) {
 						options.onError?.(error);
+						return { data: null, error: error as Error };
 					}
 				};
 			},

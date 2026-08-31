@@ -159,11 +159,10 @@ export type RouterType = {
 		useLoaderState: <T>() => LoaderState<T>;
 		useParams: <T>() => T;
 		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
-		useGetAction: (actionKey: string) => {
-			currentAction: (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown;
-			invalidate: (pathList?: string | string[], options?: InvalidateOptions) => Promise<InvalidateResult[]>;
-		};
-		useAction: (action: string, options?: Options) => (arg: FormData) => Promise<void>;
+		useAction: (
+			action: string,
+			options?: Options
+		) => (arg: FormData) => Promise<{ data: unknown; error: Error | null }>;
 	};
 };
 
@@ -173,6 +172,7 @@ export type Options =
 	| Partial<{
 			onSuccess: (args: unknown) => void;
 			onError: (args: unknown) => void;
+			withBeforeLoad?: boolean;
 	  }>
 	| undefined;
 
