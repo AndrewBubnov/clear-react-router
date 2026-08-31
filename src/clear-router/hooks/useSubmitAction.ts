@@ -5,6 +5,7 @@ type Options = {
 	onSuccess?(arg: unknown): void;
 	onError?(arg: unknown): void;
 	autoReset?: boolean;
+	withBeforeLoad?: boolean;
 };
 
 export const useSubmitAction = (action: string, options?: Options) => {

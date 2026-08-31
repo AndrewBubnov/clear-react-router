@@ -172,6 +172,7 @@ export type Options =
 	| Partial<{
 			onSuccess: (args: unknown) => void;
 			onError: (args: unknown) => void;
+			withBeforeLoad?: boolean;
 	  }>
 	| undefined;
 

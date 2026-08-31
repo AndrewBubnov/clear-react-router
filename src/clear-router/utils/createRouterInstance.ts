@@ -87,7 +87,7 @@ export const createRouterInstance = (): RouterType => {
 				return async (formData: FormData) => {
 					try {
 						const data = await currentAction(formData);
-						await invalidate();
+						await invalidate('', { withBeforeLoad: options.withBeforeLoad });
 						options.onSuccess?.(data);
 						return { data, error: null };
 					} catch (error) {
