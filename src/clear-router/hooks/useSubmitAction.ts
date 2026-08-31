@@ -1,14 +1,13 @@
 import { SubmitEvent, useCallback, useState } from 'react';
 import { router } from '../instance';
 
-type FormProps = {
-	action: string;
+type Options = {
 	onSuccess?(arg: unknown): void;
 	onError?(arg: unknown): void;
 	autoReset?: boolean;
 };
 
-export const useSubmitAction = ({ action, autoReset = true, ...options }: FormProps) => {
+export const useSubmitAction = (action: string, options?: Options) => {
 	const currentAction = router.hooks.useAction(action, options);
 	const [data, setData] = useState<unknown>();
 	const [error, setError] = useState<Error | null>(null);
@@ -31,9 +30,10 @@ export const useSubmitAction = ({ action, autoReset = true, ...options }: FormPr
 			evt.preventDefault();
 			const target = evt.target as HTMLFormElement;
 			const { error } = await submit(new FormData(target));
-			if (autoReset && !error) target.reset();
+			const preventReset = options?.autoReset === false;
+			if (!preventReset && !error) target.reset();
 		},
-		[submit, autoReset]
+		[options?.autoReset, submit]
 	);
 
 	return { submit, onSubmit, data, error, isSubmitting };
