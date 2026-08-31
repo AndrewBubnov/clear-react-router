@@ -400,7 +400,7 @@ const routes = createRouter([
 
 Defines route-specific actions for handling data mutations such as creating, updating, or deleting resources.
 
-Actions are available through the `Form` component and the `useAction` hook. After a successful action, the current route is automatically invalidated, causing both `beforeLoad` and `loader` to run again in the background.
+Actions are available through the `useSubmitAction` and `useAction` hooks. After a successful action, the current route is automatically invalidated, causing `loader` to run again in the background.
 
 ```tsx
 actions?: ({ context, params, invalidate, setContext }) => ({
@@ -427,66 +427,86 @@ actions?: ({ context, params, invalidate, setContext }) => ({
 
 A record where each key is an action name and each value is a function accepting a `FormData` instance.
 
-These action names are referenced by both `Form` and `useAction`.
+## useSubmitAction()
+
+`useSubmitAction` wraps a route's `action` with submission state (`isSubmitting`, `data`, `error`) and
+gives you two ways to trigger it — a ready-made `onSubmit` for native forms, or a raw `submit(formData)`
+you can call from any form library.
 
 ```tsx
-<Form action="save" />
+import { useSubmitAction } from 'clear-react-router';
 
-const save = useAction('save');
+const CreateUserForm = () => {
+    const { onSubmit, isSubmitting, error } = useSubmitAction('createUser');
+
+    return (
+       <form onSubmit={onSubmit}>
+          <input name="email" disabled={isSubmitting} />
+          <button disabled={isSubmitting}>Create</button>
+          {error && <span>{error.message}</span>}
+       </form>
+    );
+};
 ```
 
-
-Actions can be executed declaratively with `<Form />` or imperatively with `useAction()`.
-
-## Form
-
-`Form` automatically creates a `FormData` object on submit event, executes the specified route action, invalidates the current route, and optionally resets the form, if fields are uncontrolled.
-
-`isSubmitting` value available inside the `Form` component from the `useFormContext` hook
+`submit(formData)` accepts a plain `FormData`, so it works with any form library that gives you
+validated values — not just native `<form>` submissions:
 
 ```tsx
-import { Form, useFormContext } from 'clear-react-router';
+import { useForm } from 'react-hook-form';
 
-const SubmitButton = () => {
-	const {isSubmitting} = useFormContext()
-	return <button disabled={isSubmitting} type='submit'>Save</button>
-}
+const { register, handleSubmit } = useForm<FormValues>();
+const { submit, isSubmitting } = useSubmitAction('createUser');
 
-<Form action="save" onSuccess={() => console.log('Saved')} onError={console.error}>
-  <input name="title" />
-  <SubmitButton />
-</Form>
+const onValid = (values: FormValues) => {
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, value]) => formData.append(key, String(value)));
+    return submit(formData);
+};
 
+<form onSubmit={handleSubmit(onValid)}>
+    <input {...register('email')} disabled={isSubmitting} />
+</form>
 ```
 
-### Props
+Arguments:
 
-| Prop        | Type                        | Description                                                                      |
-| ----------- | --------------------------- | -------------------------------------------------------------------------------- |
-| `action`    | `string`                    | Name of the route action to execute.                                             |
-| `onSuccess` | `(result: unknown) => void` | Called when the action completes successfully. Receives the action return value. |
-| `onError`   | `(error: unknown) => void`  | Called when the action throws.                                                   |
-| `autoReset` | `boolean`                   | Automatically resets the form after a successful submission. Default: `true`.    |
+| Argument | Type | Default | Description |
+|---|---|---|---|
+| `action` | `string` | — | The action key defined in the route's `actions` |
+| `options.onSuccess` | `(data: unknown) => void \| undefined` | `undefined` | Called after a successful submission |
+| `options.onError` | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws |
+| `options.autoReset` | `boolean \| undefined` | `true` | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
+| `options.withBeforeLoad` | `boolean \| undefined` | `false` | Should `beforeLoad` also be fired on successful case or not |
 
-During submission, `Form` exposes the current submission state through `useFormContext()`.
+Return value:
 
-After a successful action:
+| Field | Type | Description |
+|---|---|---|
+| `submit` | `(formData: FormData) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source |
+| `onSubmit` | `(evt: SubmitEvent<HTMLFormElement>) => Promise<void>` | Ready-made handler for a native `<form onSubmit={...}>` |
+| `data` | `unknown` | Result of the last successful submission |
+| `error` | `Error \| null` | Error from the last failed submission |
+| `isSubmitting` | `boolean` | `true` while the action is in flight |
 
-* the current route is invalidated;
-* `beforeLoad` is executed again;
-* `loader` is executed again;
-* fresh loader data becomes available.
+## useAction()
 
-## useAction
-
-`useAction` provides direct access to a route action without rendering a `<Form />`.
+`useAction` provides direct access to a route action.
 
 ### Arguments
 
 | Argument | Type | Description |
 |----------|------|-------------|
 | `action` | `string` | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
-| `options` | `{ onSuccess?, onError? }` | Optional callbacks invoked after the action succeeds or fails. |
+| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails and `withBeforeLoad` value to set route's `beforeLoad` to also run. |
+
+```ts
+type Options = Partial<{
+			onSuccess: (args: unknown) => void;
+			onError: (args: unknown) => void;
+			withBeforeLoad?: boolean;
+	  }> | undefined;
+```
 
 ```tsx
 const save = useAction('save');
@@ -500,7 +520,7 @@ const handleClick = async () => {
 <button onClick={handleClick}>Save</button>
 ```
 
-`useAction` automatically invalidates the current route after a successful action, causing both `beforeLoad` and `loader` to run again in the background.
+`useAction` automatically invalidates the current route after a successful action, causing `loader` to run again in the background.
 
 This hook is useful when the mutation is triggered programmatically, such as from dialogs, context menus, drag-and-drop interactions, keyboard shortcuts, or custom UI components.
 
