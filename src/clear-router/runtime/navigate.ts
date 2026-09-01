@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParamsObject, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
+import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
 import { EMPTY_LOADER_STATE } from '../constants';
 import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -30,7 +30,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const routeResolve = (location: Location) => {
 		loaderStateRef.set(EMPTY_LOADER_STATE);
 		const nextItem = findRoute(location.pathname, true);
-		const params = getParamsObject(location, nextItem);
+		const params = getParams(location, nextItem);
 		return { nextItem, params };
 	};
 

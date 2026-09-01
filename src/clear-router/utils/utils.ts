@@ -1,8 +1,8 @@
 import { Location, RouteItem, RouteItemData, RouterState, ScrollMap } from '../types';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
-import { Store } from '../create.ts';
+import { Store } from '../create';
 
-export const getParamsObject = (location: Location, routeItem?: RouteItem) => {
+export const getParams = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
 
 	const pathnameSegments = location.pathname.split('/');
@@ -45,7 +45,7 @@ export const getPartialLoaderArgs = (
 	location: Location,
 	routeItem?: RouteItem
 ) => {
-	const params = getParamsObject(location, routeItem);
+	const params = getParams(location, routeItem);
 	const context = contextState.getState();
 	const setContext = contextState.setState;
 	const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
