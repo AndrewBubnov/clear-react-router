@@ -1,4 +1,4 @@
-import { Location, RouteItem, RouteItemData, RouterState, ScrollMap } from '../types';
+import { Location, RouteItem, RouteItemData, RouterState, ScrollMap, ScrollRestorationBehavior } from '../types';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import { Store } from '../create';
 
@@ -79,5 +79,25 @@ export const updateScrollMap = (routeItemDataState: Store<RouteItemData>, scroll
 		const prevEntries = prevState[pathname];
 		if (prevEntries && JSON.stringify(prevEntries) === JSON.stringify(entries)) return prevState;
 		return { ...prevState, [pathname]: entries };
+	});
+};
+
+export const restoreScroll = (scrollMap: ScrollMap, pathname: string, behavior: ScrollRestorationBehavior) => {
+	scrollMap[pathname].forEach(([key, scrollPosition]) => {
+		if (key === WINDOW_TOP || key === WINDOW_LEFT) {
+			requestAnimationFrame(() => {
+				window.scrollTo({
+					[key === WINDOW_TOP ? 'top' : 'left']: scrollPosition,
+					behavior,
+				});
+			});
+			return;
+		}
+		const element = document.getElementById(key);
+		if (!element) return;
+		const axis = isVerticalScroll(element) ? 'top' : 'left';
+		requestAnimationFrame(() => {
+			element.scrollTo({ [axis]: scrollPosition, behavior });
+		});
 	});
 };

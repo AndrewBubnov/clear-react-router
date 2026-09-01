@@ -146,18 +146,19 @@ export type RouterType = {
 		prefetch(location: Location): Promise<void>;
 	};
 	hooks: {
-		useBlockedRoute: () => ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
-		useRouteItemData: () => ReturnType<typeof useGlobalState<RouteItemData>>;
-		useScrollMap: () => ReturnType<typeof useGlobalState<ScrollMap>>;
-		useStatus: () => ReturnType<typeof useGlobalState<Status>>;
-		useContextState: () => ReturnType<typeof useGlobalState<Record<string, unknown>>>;
-		useLoaderState: <T>() => LoaderState<T>;
-		useParams: <T>() => T;
-		useNavigate: () => (arg: Location | string | -1) => Promise<void>;
-		useAction: (
+		useBlockedRoute(): ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
+		useRouteItemData(): ReturnType<typeof useGlobalState<RouteItemData>>;
+		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
+		useStatus(): ReturnType<typeof useGlobalState<Status>>;
+		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+		useLoaderState<T>(): LoaderState<T>;
+		useParams<T>(): T;
+		useNavigate(): (arg: Location | string | -1) => Promise<void>;
+		useAction(
 			action: string,
 			options?: Options
-		) => (arg: FormData) => Promise<{ data: unknown; error: Error | null }>;
+		): (arg: FormData) => Promise<{ data: unknown; error: Error | null }>;
+		useRestoreScroll(restorationBehavior: ScrollRestorationBehavior): (() => void) | undefined;
 	};
 };
 

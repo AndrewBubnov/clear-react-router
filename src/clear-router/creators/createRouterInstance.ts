@@ -3,7 +3,7 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
-import { getParams } from '../utils/utils';
+import { getParams, restoreScroll } from '../utils/utils';
 import { Cell } from '../cell';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
@@ -16,6 +16,7 @@ import {
 	RouterState,
 	RouterType,
 	ScrollMap,
+	ScrollRestorationBehavior,
 	Status,
 } from '../types';
 
@@ -41,7 +42,7 @@ export const createRouterInstance = (): RouterType => {
 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 
-	const useGetCurrentAction = (actionKey: string) => {
+	const getCurrentAction = (actionKey: string) => {
 		const { routeItem, location } = routerState.routeItemDataState.getState();
 		if (!routeItem) throw new Error('Route not found');
 		if (!routeItem.actions) throw new Error('Route action creator not found');
@@ -86,7 +87,7 @@ export const createRouterInstance = (): RouterType => {
 				};
 			},
 			useAction: (action: string, options: Options = {}) => {
-				const currentAction = useGetCurrentAction(action);
+				const currentAction = getCurrentAction(action);
 				return async (formData: FormData) => {
 					try {
 						const data = await currentAction(formData);
@@ -98,6 +99,16 @@ export const createRouterInstance = (): RouterType => {
 						return { data: null, error: error as Error };
 					}
 				};
+			},
+			useRestoreScroll: (restorationBehavior: ScrollRestorationBehavior) => {
+				const {
+					routeItem,
+					location: { pathname },
+				} = routerState.routeItemDataState.getState();
+				const scrollMap = routerState.scrollMapState.getState();
+				if (!routeItem || routeItem.scrollRestoration === false || !scrollMap[pathname]) return;
+				return () =>
+					restoreScroll(scrollMap, pathname, routeItem.scrollRestorationBehavior ?? restorationBehavior);
 			},
 		},
 	};
