@@ -12,7 +12,8 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let interval = 0;
 	let abortController: AbortController | null = null;
 
-	const { loaderState, loaderStateRef, statusState, contextState, loaderMap, routeItemDataState } = routerState;
+	const { loaderState, loaderStateRef, statusState, contextState, loaderMap, routeItemDataState, scrollMapState } =
+		routerState;
 	const navigationExecutor = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -29,7 +30,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const routeResolve = (location: Location) => {
 		loaderStateRef.set(EMPTY_LOADER_STATE);
 		const nextItem = findRoute(location.pathname, true);
-		const params = getParamsObject(nextItem, location.pathname);
+		const params = getParamsObject(location, nextItem);
 		return { nextItem, params };
 	};
 
@@ -39,7 +40,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			const redirect = async (redirected: Location | string) =>
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
-				await loaderFn({ redirect, ...getPartialLoaderArgs(nextLocation) });
+				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem) });
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
@@ -50,7 +51,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
-		updateScrollMap();
+		updateScrollMap(routeItemDataState, scrollMapState);
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			routeItemDataState.setState({ routeItem, location });

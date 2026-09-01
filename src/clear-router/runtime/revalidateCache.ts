@@ -1,5 +1,5 @@
-import { createIsCacheItemFresh } from './isCacheItemFresh';
-import { getPartialLoaderArgs, sleep } from './utils';
+import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
+import { getPartialLoaderArgs, sleep } from '../utils/utils';
 import { routerConfig } from '../config/routerConfig';
 import { LoadingPromise, Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
@@ -22,7 +22,7 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 };
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderMap, loadingPromises } = routerState;
+	const { loaderMap, loadingPromises, contextState } = routerState;
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const oldestKey = loaderMap.keys().next().value;
@@ -67,7 +67,10 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			if (!routeItem?.loader) return;
 			const effectiveSignal = signal ?? new AbortController().signal;
 			try {
-				const result = await routeItem?.loader({ ...getPartialLoaderArgs(location), signal: effectiveSignal });
+				const result = await routeItem?.loader({
+					...getPartialLoaderArgs(contextState, location, routeItem),
+					signal: effectiveSignal,
+				});
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),

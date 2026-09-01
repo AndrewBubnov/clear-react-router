@@ -2,8 +2,8 @@ import { create, useGlobalState } from '../create';
 import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
-import { createRevalidateCache } from './revalidateCache';
-import { getParamsObject } from './utils';
+import { createRevalidateCache } from '../runtime/revalidateCache';
+import { getParamsObject } from '../utils/utils';
 import { Cell } from '../cell';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
@@ -47,7 +47,7 @@ export const createRouterInstance = (): RouterType => {
 		if (!routeItem.actions) throw new Error('Route action creator not found');
 		const context = routerState.contextState.getState();
 		const setContext = routerState.contextState.setState;
-		const params = getParamsObject();
+		const params = getParamsObject(location, routeItem);
 		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
 		const action = routeItem.actions({ context, setContext, params, location, searchParams })[actionKey];
 		if (!action) throw new Error(`Action "${actionKey}" not found`);
@@ -64,7 +64,10 @@ export const createRouterInstance = (): RouterType => {
 			useStatus: () => useGlobalState(routerState.statusState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
-			useParams: <T>() => getParamsObject() as T,
+			useParams: <T>() => {
+				const { routeItem, location } = routerState.routeItemDataState.getState();
+				return getParamsObject(location, routeItem) as T;
+			},
 			useNavigate: () => {
 				const { blockedRouteState } = routerState;
 				const { location } = routerState.routeItemDataState.getState();

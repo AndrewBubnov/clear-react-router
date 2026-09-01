@@ -1,3 +1,3 @@
-import { createRouterInstance } from './utils/createRouterInstance';
+import { createRouterInstance } from './creators/createRouterInstance';
 
 export const router = createRouterInstance();

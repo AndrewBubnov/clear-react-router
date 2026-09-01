@@ -11,6 +11,6 @@ export { useIsDataLoading } from './hooks/useIsDataLoading';
 export { useRouterContext } from './hooks/useRouterContext';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useSubmitAction } from './hooks/useSubmitAction';
-export { createRouter } from './utils/createRouter';
+export { createRouter } from './creators/createRouter';
 export { lazy } from './utils/lazy';
 export type { RouteItem, BlockerState, Location, RouterProps, ElementProps } from './types';

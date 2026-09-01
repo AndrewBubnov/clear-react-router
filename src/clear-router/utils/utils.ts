@@ -1,18 +1,11 @@
-import { router } from '../instance';
-import { Location, RouteItem } from '../types';
+import { Location, RouteItem, RouteItemData, RouterState, ScrollMap } from '../types';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
+import { Store } from '../create.ts';
 
-export const getParamsObject = (nextItem?: RouteItem, nextPathname?: string) => {
-	const {
-		routeItem: stateItem,
-		location: { pathname: statePathname },
-	} = router.state.routeItemDataState.getState();
-	const routeItem = nextItem || stateItem;
-	const pathname = nextPathname || statePathname;
-
+export const getParamsObject = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
 
-	const pathnameSegments = pathname.split('/');
+	const pathnameSegments = location.pathname.split('/');
 	const rawSegments = routeItem.pattern.split('/');
 
 	return rawSegments.reduce(
@@ -47,9 +40,12 @@ export const isMobile = () => {
 
 export const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const getPartialLoaderArgs = (location: Location) => {
-	const params = getParamsObject();
-	const { contextState } = router.state;
+export const getPartialLoaderArgs = (
+	contextState: RouterState['contextState'],
+	location: Location,
+	routeItem?: RouteItem
+) => {
+	const params = getParamsObject(location, routeItem);
 	const context = contextState.getState();
 	const setContext = contextState.setState;
 	const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
@@ -58,8 +54,7 @@ export const getPartialLoaderArgs = (location: Location) => {
 
 export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight > el.clientHeight;
 
-export const updateScrollMap = () => {
-	const { routeItemDataState, scrollMapState } = router.state;
+export const updateScrollMap = (routeItemDataState: Store<RouteItemData>, scrollMapState: Store<ScrollMap>) => {
 	const {
 		routeItem,
 		location: { pathname },

@@ -5,7 +5,7 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 const redirect = Promise.resolve;
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderState, loaderMap }: RouterState,
+	{ routeItemDataState, loaderState, loaderMap, contextState }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
@@ -19,7 +19,7 @@ export const createInvalidate = (
 		const location = { pathname: path, search };
 		if (routeItem?.beforeLoad && options?.withBeforeLoad) {
 			try {
-				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(location) });
+				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(contextState, location, routeItem) });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
 			} catch (error) {
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));

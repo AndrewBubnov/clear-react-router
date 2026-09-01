@@ -1,4 +1,4 @@
-import { createLazyComponent } from './createLazyComponent';
+import { createLazyComponent } from '../utils/createLazyComponent';
 import { ClientRouteItem, LAZY_MARKER, LazyComponent, RenderElement, RouteItem } from '../types';
 
 const isLazy = (el: ClientRouteItem): el is ClientRouteItem & { element: LazyComponent } =>
