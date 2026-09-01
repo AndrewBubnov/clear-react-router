@@ -1,7 +1,7 @@
 import { routerConfig } from '../config/routerConfig';
 
-export const commitNavigation = (callback: () => void) => {
-	if (!routerConfig.isAnimated) return callback();
+export const commitNavigation = (callback: () => void, isCommited?: boolean) => {
+	if (!routerConfig.isAnimated || isCommited) return callback();
 	try {
 		const transition = document.startViewTransition(callback);
 		transition.ready.catch(() => {});

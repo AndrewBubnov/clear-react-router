@@ -1,8 +1,9 @@
-import { Location, RouterState } from '../types';
+import { Location, RouteItem, RouterState } from '../types';
 
 export const createCommitState =
-	({ statusState, loaderStateRef, loaderState }: RouterState) =>
-	(nextLocation: Location) => {
+	({ statusState, loaderStateRef, loaderState, routeItemDataState }: RouterState) =>
+	(nextLocation: Location, routeItem?: RouteItem) => {
+		if (!routeItem?.loader) routeItemDataState.setState({ routeItem, location: nextLocation });
 		const isError = loaderStateRef.value.loaderError || loaderStateRef.value.beforeLoadError;
 		statusState.setState(isError ? 'error' : 'active');
 		loaderState.setState(loaderStateRef.value);
