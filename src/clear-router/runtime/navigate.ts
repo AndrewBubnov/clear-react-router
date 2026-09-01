@@ -52,16 +52,22 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
 		updateScrollMap(routeItemDataState, scrollMapState);
+
+		loaderState.setState(EMPTY_LOADER_STATE);
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
-			routeItemDataState.setState({ routeItem, location });
 			statusState.setState('optimistic');
 			const currentLoaderState = loaderMap.get(path)?.state;
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		} else {
 			const pendingShouldExist = routeItem?.loader && !isCacheItemFresh(path);
-			commitNavigation(() => statusState.setState(pendingShouldExist ? 'pending' : 'active'));
+			// if (routeItem?.loaderFallback) {
+			// commitNavigation(() => statusState.setState(pendingShouldExist ? 'pending' : 'active'));
+			// } else {
+			statusState.setState(pendingShouldExist ? 'pending' : 'active');
+			// }
 		}
+		routeItemDataState.setState({ routeItem, location });
 	};
 
 	const polling = (routeItem: RouteItem | undefined, nextLocation: Location) => {
@@ -109,7 +115,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		prepareNavigation(nextItem, nextLocation);
 		await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
-		commitNavigation(() => navigationExecutor(nextLocation, nextItem));
+		commitNavigation(() => navigationExecutor(nextLocation));
 		await afterLoad(nextItem, params);
 	};
 

@@ -122,7 +122,7 @@ export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
-export type Status = 'idle' | 'pending' | 'active' | 'optimistic';
+export type Status = 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
 
 export type ScrollMap = Record<string, [string, number][]>;
 

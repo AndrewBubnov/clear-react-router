@@ -1,10 +1,10 @@
-import { Location, RouteItem, RouterState } from '../types';
+import { Location, RouterState } from '../types';
 
 export const createCommitState =
-	({ routeItemDataState, statusState, loaderStateRef, loaderState }: RouterState) =>
-	(nextLocation: Location, routeItem: RouteItem | undefined) => {
-		routeItemDataState.setState({ routeItem, location: nextLocation });
-		statusState.setState('active');
+	({ statusState, loaderStateRef, loaderState }: RouterState) =>
+	(nextLocation: Location) => {
+		const isError = loaderStateRef.value.loaderError || loaderStateRef.value.beforeLoadError;
+		statusState.setState(isError ? 'error' : 'active');
 		loaderState.setState(loaderStateRef.value);
 		const fullPath = nextLocation.search ? `${nextLocation.pathname}${nextLocation.search}` : nextLocation.pathname;
 		if (fullPath === window.location.pathname + window.location.search) return;

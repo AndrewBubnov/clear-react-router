@@ -1,7 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
-import { useLoaderState } from '../hooks/useLoaderState';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
@@ -40,7 +39,8 @@ export const Router = ({
 	const { useRouteItemData, useStatus } = router.hooks;
 	const [routeItemData] = useRouteItemData();
 	const [status] = useStatus();
-	const loaderState = useLoaderState();
+
+	const isError = status === 'error';
 	const isLoading = status === 'pending';
 	const isOptimistic = status === 'optimistic';
 
@@ -64,15 +64,13 @@ export const Router = ({
 
 	const { routeItem, location } = routeItemData;
 
-	const showErrorElement = !isLoading && Boolean(loaderState.loaderError || loaderState.beforeLoadError);
-
-	const loadingContent = !showErrorElement && isLoading;
+	const loadingContent = isLoading && !isError;
 
 	if (loadingContent) return renderElement(routeItemData?.routeItem?.loaderFallback || defaultLoaderFallback);
 
 	if (!routeItem) return null;
 
-	if (showErrorElement) return renderElement(routeItem.errorElement || defaultErrorElement);
+	if (isError) return renderElement(routeItem.errorElement || defaultErrorElement);
 
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
