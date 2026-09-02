@@ -159,7 +159,12 @@ export type RouterType = {
 	};
 };
 
-export type InvalidateOptions = { withChildren?: boolean; withBeforeLoad?: boolean; force?: boolean };
+export type InvalidateOptions = {
+	withChildren?: boolean;
+	withBeforeLoad?: boolean;
+	force?: boolean;
+	staleOnly?: boolean;
+};
 export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
 export type Options =
 	| Partial<{

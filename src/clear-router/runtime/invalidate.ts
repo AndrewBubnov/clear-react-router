@@ -14,10 +14,10 @@ export const createInvalidate = (
 		options?: InvalidateOptions
 	): Promise<InvalidateResult> => {
 		const routePathname = routeItemDataState.getState().location.pathname;
-		loaderMap.delete(pathname);
+		if (!options?.staleOnly) loaderMap.delete(pathname);
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
-		if (routeItem?.beforeLoad && options?.withBeforeLoad) {
+		if (routeItem?.beforeLoad && options?.withBeforeLoad && !options?.staleOnly) {
 			try {
 				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(contextState, location, routeItem) });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
