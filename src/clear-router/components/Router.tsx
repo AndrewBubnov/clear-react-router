@@ -31,6 +31,8 @@ export const Router = ({
 	isAnimated = false,
 	optimisticSpinner = true,
 	defaultMinLoaderDuration = 0,
+	revalidateOnFocus = false,
+	revalidateOnReconnect = false,
 	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
 	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
@@ -57,6 +59,8 @@ export const Router = ({
 		defaultStaleTime,
 		defaultMinLoaderDuration,
 		maxCacheSize,
+		revalidateOnFocus,
+		revalidateOnReconnect,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);

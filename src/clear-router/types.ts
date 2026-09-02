@@ -60,8 +60,6 @@ export type ClientRouteItem = {
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
 	actions?: (arg: LoaderArgs) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
-	revalidateOnFocus?: boolean;
-	revalidateOnReconnect?: boolean;
 };
 
 export type RouteItem = ClientRouteItem & {
@@ -118,6 +116,8 @@ export type RouterProps = {
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	defaultScrollRestorationBehavior?: ScrollRestorationBehavior;
+	revalidateOnFocus?: boolean;
+	revalidateOnReconnect?: boolean;
 	context?: Record<string, unknown>;
 };
 

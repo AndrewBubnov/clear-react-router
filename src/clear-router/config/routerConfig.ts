@@ -6,12 +6,15 @@ class RouterConfig {
 	maxCacheSize: number = 0;
 	defaultPrefetch: RouterProps['defaultPrefetch'] = 'hover';
 	isAnimated: RouterProps['isAnimated'] = false;
+	revalidateOnFocus = false;
+	revalidateOnReconnect = false;
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	defaultRetry?: RouterProps['defaultRetry'];
 	defaultStaleTime?: RouterProps['defaultStaleTime'];
 	defaultMinLoaderDuration?: RouterProps['defaultMinLoaderDuration'];
+
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);
 	}
