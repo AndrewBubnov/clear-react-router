@@ -65,7 +65,7 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(defaultScrollRestorationBehavior);
-	useReload(routeItem);
+	useReload();
 
 	const loadingContent = isLoading && !isError;
 
