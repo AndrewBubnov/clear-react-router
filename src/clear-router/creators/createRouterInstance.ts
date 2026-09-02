@@ -36,8 +36,8 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
-	const invalidate = createInvalidate(routerState, revalidateCache);
 	const navigate = createNavigate(routerState, revalidateCache);
+	const invalidate = createInvalidate(routerState, revalidateCache, navigate);
 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 

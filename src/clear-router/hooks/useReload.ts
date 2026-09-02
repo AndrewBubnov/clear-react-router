@@ -18,6 +18,6 @@ export const useReload = () => {
 		if (!routerConfig.revalidateOnReconnect) return;
 		const handler = () => invalidate('', { staleOnly: true });
 		window.addEventListener('online', handler);
-		return () => document.removeEventListener('online', handler);
+		return () => window.removeEventListener('online', handler);
 	}, [invalidate]);
 };

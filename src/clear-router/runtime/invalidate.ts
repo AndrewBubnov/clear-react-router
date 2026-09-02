@@ -1,14 +1,13 @@
 import { comparePaths, getPartialLoaderArgs } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
-import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
-
-const redirect = Promise.resolve;
+import { type InvalidateOptions, InvalidateResult, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 const separatePathname = (text: string) => text.split('?')[0];
 
 export const createInvalidate = (
 	{ routeItemDataState, loaderState, loaderMap, contextState }: RouterState,
-	revalidateCache: RevalidateCache
+	revalidateCache: RevalidateCache,
+	navigate: (rawLocation: Location) => Promise<void>
 ) => {
 	const invalidatePath = async (
 		routeItem: RouteItem,
@@ -20,6 +19,8 @@ export const createInvalidate = (
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
 		if (routeItem?.beforeLoad && options?.withBeforeLoad && !options?.staleOnly) {
+			const redirect = async (redirected: Location | string) =>
+				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
 				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(contextState, location, routeItem) });
 				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
@@ -55,8 +56,9 @@ export const createInvalidate = (
 
 		if (!options?.withChildren || !routeItem.children?.length) return currentResults;
 
+		const [parentPath] = pathname.split('?');
 		const childResults = await Promise.all(
-			routeItem.children.map(child => invalidateItem(`${pathname}${child.path}`, options))
+			routeItem.children.map(child => invalidateItem(`${parentPath}${child.path}`, options))
 		);
 
 		return [...currentResults, ...childResults.flat()];
