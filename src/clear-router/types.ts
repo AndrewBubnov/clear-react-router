@@ -92,6 +92,7 @@ export type LoaderState<T = unknown> = {
 export type RouteItemData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
+	status: 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
 };
 
 type ObjectRetry = { count: number; delay: number };
@@ -122,13 +123,10 @@ export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
-export type Status = 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
-
 export type ScrollMap = Record<string, [string, number][]>;
 
 export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
-	statusState: Store<Status>;
 	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
 	blockedRouteState: Store<{ from: string; to: string }>;
@@ -149,7 +147,6 @@ export type RouterType = {
 		useBlockedRoute(): ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
 		useRouteItemData(): ReturnType<typeof useGlobalState<RouteItemData>>;
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
-		useStatus(): ReturnType<typeof useGlobalState<Status>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useLoaderState<T>(): LoaderState<T>;
 		useParams<T>(): T;

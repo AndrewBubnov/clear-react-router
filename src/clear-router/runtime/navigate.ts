@@ -12,8 +12,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let interval = 0;
 	let abortController: AbortController | null = null;
 
-	const { loaderState, loaderStateRef, statusState, contextState, loaderMap, routeItemDataState, scrollMapState } =
-		routerState;
+	const { loaderState, loaderStateRef, contextState, loaderMap, routeItemDataState, scrollMapState } = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -52,15 +51,16 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
 		updateScrollMap(routeItemDataState, scrollMapState);
-		if (routeItem?.loader) routeItemDataState.setState({ routeItem, location });
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
-			statusState.setState('optimistic');
+			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'optimistic' }));
 			const currentLoaderState = loaderMap.get(path)?.state;
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 			return;
 		}
-		if (routeItem?.loader && !isCacheItemFresh(path)) statusState.setState('pending');
+		if (routeItem?.loader && !isCacheItemFresh(path)) {
+			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'pending' }));
+		}
 	};
 
 	const polling = (routeItem: RouteItem | undefined, nextLocation: Location) => {

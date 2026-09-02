@@ -36,9 +36,8 @@ export const Router = ({
 	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const { useRouteItemData, useStatus } = router.hooks;
-	const [routeItemData] = useRouteItemData();
-	const [status] = useStatus();
+	const { useRouteItemData } = router.hooks;
+	const [{ routeItem, status, location }] = useRouteItemData();
 
 	const isError = status === 'error';
 	const isLoading = status === 'pending';
@@ -62,11 +61,9 @@ export const Router = ({
 	useSetInitialContext(initialContext);
 	usePreserveScroll(defaultScrollRestorationBehavior);
 
-	const { routeItem, location } = routeItemData;
-
 	const loadingContent = isLoading && !isError;
 
-	if (loadingContent) return renderElement(routeItemData?.routeItem?.loaderFallback || defaultLoaderFallback);
+	if (loadingContent) return renderElement(routeItem?.loaderFallback || defaultLoaderFallback);
 
 	if (!routeItem) return null;
 

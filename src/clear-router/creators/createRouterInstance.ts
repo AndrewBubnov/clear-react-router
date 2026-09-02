@@ -17,7 +17,6 @@ import {
 	RouterType,
 	ScrollMap,
 	ScrollRestorationBehavior,
-	Status,
 } from '../types';
 
 export const createRouterInstance = (): RouterType => {
@@ -25,8 +24,8 @@ export const createRouterInstance = (): RouterType => {
 		routeItemDataState: create<RouteItemData>({
 			routeItem: undefined,
 			location: {} as Location,
+			status: 'idle',
 		}),
-		statusState: create<Status>('idle'),
 		scrollMapState: create<ScrollMap>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
@@ -62,7 +61,6 @@ export const createRouterInstance = (): RouterType => {
 			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
-			useStatus: () => useGlobalState(routerState.statusState),
 			useContextState: () => useGlobalState(routerState.contextState),
 			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
 			useParams: <T>() => {
