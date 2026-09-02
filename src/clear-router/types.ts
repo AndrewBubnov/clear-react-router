@@ -60,6 +60,8 @@ export type ClientRouteItem = {
 		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
 	}) => Promise<void>;
 	actions?: (arg: LoaderArgs) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
+	revalidateOnFocus?: boolean;
+	revalidateOnReconnect?: boolean;
 };
 
 export type RouteItem = ClientRouteItem & {

@@ -10,6 +10,7 @@ import { renderElement } from '../utils/renderElement';
 import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
+import { useReload } from '../hooks/useReload.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
@@ -60,6 +61,7 @@ export const Router = ({
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
 	usePreserveScroll(defaultScrollRestorationBehavior);
+	useReload(routeItem);
 
 	const loadingContent = isLoading && !isError;
 
