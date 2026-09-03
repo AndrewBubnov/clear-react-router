@@ -5,12 +5,12 @@ import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
 import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
+import { useReload } from '../hooks/useReload';
 import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
 import { RouterProps } from '../types';
-import { useReload } from '../hooks/useReload.ts';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
