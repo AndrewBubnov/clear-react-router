@@ -1,13 +1,12 @@
-import { comparePaths, getPartialLoaderArgs } from '../utils/utils';
+import { comparePaths } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
-import { type InvalidateOptions, InvalidateResult, Location, RevalidateCache, RouteItem, RouterState } from '../types';
+import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
 const separatePathname = (text: string) => text.split('?')[0];
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderState, loaderMap, contextState }: RouterState,
-	revalidateCache: RevalidateCache,
-	navigate: (rawLocation: Location) => Promise<void>
+	{ routeItemDataState, loaderState, loaderMap }: RouterState,
+	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
 		routeItem: RouteItem,
@@ -18,16 +17,6 @@ export const createInvalidate = (
 		if (!options?.staleOnly) loaderMap.delete(pathname);
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
-		if (routeItem?.beforeLoad && options?.withBeforeLoad && !options?.staleOnly) {
-			const redirect = async (redirected: Location | string) =>
-				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
-			try {
-				await routeItem.beforeLoad({ redirect, ...getPartialLoaderArgs(contextState, location, routeItem) });
-				loaderState.setState(prev => ({ ...prev, beforeLoadError: null }));
-			} catch (error) {
-				loaderState.setState(prev => ({ ...prev, beforeLoadError: error as Error }));
-			}
-		}
 
 		const result = await revalidateCache({ routeItem, location });
 

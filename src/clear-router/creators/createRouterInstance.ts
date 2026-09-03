@@ -37,7 +37,7 @@ export const createRouterInstance = (): RouterType => {
 
 	const revalidateCache = createRevalidateCache(routerState);
 	const navigate = createNavigate(routerState, revalidateCache);
-	const invalidate = createInvalidate(routerState, revalidateCache, navigate);
+	const invalidate = createInvalidate(routerState, revalidateCache);
 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 
@@ -89,7 +89,7 @@ export const createRouterInstance = (): RouterType => {
 				return async (formData: FormData) => {
 					try {
 						const data = await currentAction(formData);
-						await invalidate('', { withBeforeLoad: options.withBeforeLoad });
+						await invalidate();
 						options.onSuccess?.(data);
 						return { data, error: null };
 					} catch (error) {

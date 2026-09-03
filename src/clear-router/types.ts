@@ -163,7 +163,6 @@ export type RouterType = {
 
 export type InvalidateOptions = {
 	withChildren?: boolean;
-	withBeforeLoad?: boolean;
 	force?: boolean;
 	staleOnly?: boolean;
 };
