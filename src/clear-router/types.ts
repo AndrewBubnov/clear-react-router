@@ -167,13 +167,7 @@ export type InvalidateOptions = {
 	staleOnly?: boolean;
 };
 export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
-export type Options =
-	| Partial<{
-			onSuccess: (args: unknown) => void;
-			onError: (args: unknown) => void;
-			withBeforeLoad?: boolean;
-	  }>
-	| undefined;
+export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (args: unknown) => void }> | undefined;
 
 export type InvalidateResult = { path: string; data: unknown };
 
