@@ -60,7 +60,8 @@ It provides first-class support for:
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
 | `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
-
+| `revalidateOnFocus` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser tab regains focus |
+| `revalidateOnReconnect` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser regains an internet connection |
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
@@ -499,14 +500,10 @@ Return value:
 | Argument | Type | Description |
 |----------|------|-------------|
 | `action` | `string` | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
-| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails and `withBeforeLoad` value to set route's `beforeLoad` to run. |
+| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails. |
 
 ```ts
-type Options = Partial<{
-			onSuccess: (args: unknown) => void;
-			onError: (args: unknown) => void;
-			withBeforeLoad?: boolean;
-	  }> | undefined;
+type Options = { onSuccess?: (args: unknown) => void; onError?: (args: unknown) => void }> | undefined;
 ```
 
 ```tsx
@@ -621,7 +618,7 @@ const UserProfile = () => {
 
 ### `useInvalidate()`
 
-Returns a function that revalidates **cached** route data. Calling `invalidate()` clears cached route data and immediately runs the corresponding route loader again.
+Returns a function that revalidates **cached** route data. Calling `invalidate()` clears cached route data and immediately runs the corresponding route `loader` again.
 
 #### Current route
 
@@ -682,6 +679,13 @@ await invalidate('/about', { force: true });
 await invalidate(['/about', '/post/10'], { force: true });
 ```
 
+#### Stale-only revalidation
+By default, `invalidate` deletes matching cache entries and refetches them.
+Pass `{ staleOnly: true }` to only revalidate entries that are already stale, leaving fresh ones untouched:
+```tsx
+await invalidate('/notes', { staleOnly: true });
+```
+
 #### Including child routes
 
 To revalidate routes together with their cached child routes, pass the `withChildren` option:
@@ -715,15 +719,6 @@ will revalidate the cached child routes:
 /post/23
 /post/42/comments
 ```
-#### Including `beforeLoad`
-
-To include the `beforeLoad` function in the revalidation process, pass the `withBeforeLoad` option:
-
-```tsx
-await invalidate('/posts', { withBeforeLoad: true });
-await invalidate(['/posts', '/users'], { withBeforeLoad: true });
-```
-
 #### Returns
 
 An array of objects with the following structure:
