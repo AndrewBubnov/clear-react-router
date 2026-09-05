@@ -743,30 +743,41 @@ Passing `invalidate` directly (`onClick={invalidate}`) is not supported because 
 
 ### `useBlocker(callback)`
 
-Blocks navigation when callback returns `true`.
+Blocks navigation — including the browser's Back/Forward buttons — while `callback` returns `true`.
+
+The library calls `callback` on every navigation attempt with the current and target location, so you can decide whether to block based on where the user is headed, not just your app's internal state:
+
+```ts
+callback: (arg: { location: Location; nextLocation: Location | null }) => boolean
+```
+
+- `location` — the route the user is currently on.
+- `nextLocation` — where they're trying to go. `null` when nothing is blocked yet.
 
 **Returns:**
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `state` | `'unblocked' \| 'charged' \| 'blocked'` | Current blocker state |
-| `process()` | `() => void` | Confirm navigation and proceed |
-| `reset()` | `() => void` | Cancel navigation |
+| `state` | `'unblocked' \| 'charged' \| 'blocked'` | `'unblocked'` — `callback` returns `false`, navigation isn't intercepted. `'charged'` — `callback` returns `true`, blocking is armed, but no navigation has been attempted yet. `'blocked'` — a navigation attempt was just intercepted; `nextLocation` inside `callback` now points to the attempted target. |
+| `process()` | `() => void` | Confirm and complete the blocked navigation |
+| `reset()` | `() => void` | Cancel the blocked navigation and stay on the current route |
 
 ```tsx
-const { state, process, reset } = useBlocker(() => hasUnsavedChanges);
+const { state, process, reset } = useBlocker(({ nextLocation }) => hasUnsavedChanges);
 
 useEffect(() => {
-  if (state === 'blocked') {
-    // Show your custom modal
-    if (confirm('Leave without saving?')) {
-      process();
-    } else {
-      reset();
-    }
-  }
+   if (state === 'blocked') {
+      // Show your custom modal
+      if (confirm('Leave without saving?')) {
+         process();
+      } else {
+         reset();
+      }
+   }
 }, [state, process, reset]);
 ```
+
+> Works for programmatic navigation and browser Back/Forward alike — including the case where the URL already changed via Back/Forward, which the library reverts until `process()` or `reset()` is called.
 
 ### `useIsDataLoading()`
 
