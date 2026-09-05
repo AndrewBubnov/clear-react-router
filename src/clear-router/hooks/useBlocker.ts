@@ -31,7 +31,10 @@ export const useBlocker = (
 		blockedRouteTargetRef.set(null);
 	}, [blockedRouteTargetRef, navigate, setBlockerState]);
 
-	const resetHandler = useCallback(() => setBlockerState('unblocked'), [setBlockerState]);
+	const resetHandler = useCallback(() => {
+		setBlockerState('charged');
+		blockedRouteTargetRef.set(null);
+	}, [setBlockerState, blockedRouteTargetRef]);
 
 	return {
 		state: blockerState,
