@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { router } from '../instance';
-import { BlockerState } from '../types';
+import { useLocation } from './useLocation';
+import { BlockerState, Location } from '../types';
 
 type UseBlockerReturnValue = {
 	state: BlockerState;
@@ -8,7 +9,9 @@ type UseBlockerReturnValue = {
 	reset(): void;
 };
 
-export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
+export const useBlocker = (
+	blockerFn: ({ location, nextLocation }: { location: Location; nextLocation: Location | null }) => boolean
+): UseBlockerReturnValue => {
 	const {
 		hooks: { useBlockerState },
 		runtime: { navigate },
@@ -16,8 +19,9 @@ export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 	} = router;
 
 	const [blockerState, setBlockerState] = useBlockerState();
+	const location = useLocation();
 
-	const shouldBlock = blockerFn();
+	const shouldBlock = blockerFn({ location, nextLocation: blockedRouteTargetRef.value });
 
 	useEffect(() => setBlockerState(shouldBlock ? 'charged' : 'unblocked'), [setBlockerState, shouldBlock]);
 
