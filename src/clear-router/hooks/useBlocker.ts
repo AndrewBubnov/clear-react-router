@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { router } from '../instance';
 import { BlockerState } from '../types';
 
@@ -8,50 +8,30 @@ type UseBlockerReturnValue = {
 	reset(): void;
 };
 
-type UpdateBlockedRouteProps = { type: 'process' | 'reset' | 'charge' | 'unblock'; payload?: string };
-
 export const useBlocker = (blockerFn: () => boolean): UseBlockerReturnValue => {
 	const {
-		hooks: { useBlockedRoute, useRouteItemData },
+		hooks: { useBlockerState },
 		runtime: { navigate },
+		state: { blockedRouteTargetRef },
 	} = router;
 
-	const [blockedRoute, setBlockedRoute] = useBlockedRoute();
-	const [routeItemData] = useRouteItemData();
-
-	const {
-		location: { pathname },
-	} = routeItemData;
-
-	const updateBlockedRoute = useCallback(
-		({ type, payload = '' }: UpdateBlockedRouteProps) =>
-			setBlockedRoute(prevState => {
-				if (prevState.from === payload && type === 'charge') return prevState;
-				if (payload && prevState.from !== payload && type === 'charge') return { ...prevState, from: payload };
-				if (type === 'reset') return { ...prevState, to: '' };
-				if (type === 'process') navigate({ pathname: prevState.to });
-				if (!prevState.from && !prevState.to) return prevState;
-				return { from: '', to: '' };
-			}),
-		[navigate, setBlockedRoute]
-	);
-
-	const blockerState: BlockerState = useMemo(() => {
-		if (blockedRoute.from && blockedRoute.to) return 'blocked';
-		if (blockedRoute.from) return 'charged';
-		return 'unblocked';
-	}, [blockedRoute]);
+	const [blockerState, setBlockerState] = useBlockerState();
 
 	const shouldBlock = blockerFn();
 
-	useEffect(
-		() => updateBlockedRoute(shouldBlock ? { type: 'charge', payload: pathname } : { type: 'unblock' }),
-		[shouldBlock, pathname, updateBlockedRoute]
-	);
+	useEffect(() => setBlockerState(shouldBlock ? 'charged' : 'unblocked'), [setBlockerState, shouldBlock]);
+
+	const processHandler = useCallback(async () => {
+		setBlockerState('unblocked');
+		if (blockedRouteTargetRef.value) await navigate(blockedRouteTargetRef.value);
+		blockedRouteTargetRef.set(null);
+	}, [blockedRouteTargetRef, navigate, setBlockerState]);
+
+	const resetHandler = useCallback(() => setBlockerState('unblocked'), [setBlockerState]);
 
 	return {
 		state: blockerState,
-		process: () => updateBlockedRoute({ type: 'process' }),
-		reset: () => updateBlockedRoute({ type: 'reset' }),
+		process: processHandler,
+		reset: resetHandler,
 	};
 };

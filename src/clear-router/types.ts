@@ -131,9 +131,10 @@ export type RouterState = {
 	routeItemDataState: Store<RouteItemData>;
 	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
-	blockedRouteState: Store<{ from: string; to: string }>;
+	blockerState: Store<BlockerState>;
 	loaderState: Store<LoaderState>;
 	loaderStateRef: Cell<LoaderState>;
+	blockedRouteTargetRef: Cell<Location | null>;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
 };
@@ -146,7 +147,7 @@ export type RouterType = {
 		prefetch(location: Location): Promise<void>;
 	};
 	hooks: {
-		useBlockedRoute(): ReturnType<typeof useGlobalState<{ from: string; to: string }>>;
+		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
 		useRouteItemData(): ReturnType<typeof useGlobalState<RouteItemData>>;
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;

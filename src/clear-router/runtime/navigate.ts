@@ -12,7 +12,16 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let interval = 0;
 	let abortController: AbortController | null = null;
 
-	const { loaderState, loaderStateRef, contextState, loaderMap, routeItemDataState, scrollMapState } = routerState;
+	const {
+		loaderState,
+		loaderStateRef,
+		contextState,
+		loaderMap,
+		routeItemDataState,
+		scrollMapState,
+		blockerState,
+		blockedRouteTargetRef,
+	} = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -98,8 +107,19 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (defaultAfterLoad) await defaultAfterLoad({ ...getContext(), params });
 	};
 
+	const checkBlocked = (nextLocation: Location) => {
+		if (blockerState.getState() === 'charged') {
+			blockerState.setState('blocked');
+			blockedRouteTargetRef.set(nextLocation);
+			history.replaceState(null, '', routeItemDataState.getState().location.pathname);
+			return true;
+		}
+		return false;
+	};
+
 	const navigate = async (rawLocation: Location) => {
 		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
+		if (checkBlocked(nextLocation)) return;
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);

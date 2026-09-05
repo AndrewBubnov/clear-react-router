@@ -7,6 +7,7 @@ import { getParams, restoreScroll } from '../utils/utils';
 import { Cell } from '../cell';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
+	BlockerState,
 	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
@@ -28,9 +29,10 @@ export const createRouterInstance = (): RouterType => {
 		}),
 		scrollMapState: create<ScrollMap>({}),
 		contextState: create<Record<string, unknown>>({}),
-		blockedRouteState: create<{ from: string; to: string }>({ from: '', to: '' }),
+		blockerState: create<BlockerState>('unblocked'),
 		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 		loaderStateRef: new Cell<LoaderState>(EMPTY_LOADER_STATE),
+		blockedRouteTargetRef: new Cell<Location | null>(null),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
 	};
@@ -58,7 +60,7 @@ export const createRouterInstance = (): RouterType => {
 		state: routerState,
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
-			useBlockedRoute: () => useGlobalState(routerState.blockedRouteState),
+			useBlockerState: () => useGlobalState(routerState.blockerState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
@@ -68,14 +70,8 @@ export const createRouterInstance = (): RouterType => {
 				return getParams(location, routeItem) as T;
 			},
 			useNavigate: () => {
-				const { blockedRouteState } = routerState;
 				const { location } = routerState.routeItemDataState.getState();
 				return async (arg: Location | string | -1) => {
-					if (arg !== -1 && blockedRouteState.getState().from) {
-						const to = typeof arg === 'object' ? arg.pathname : arg;
-						blockedRouteState.setState(prevState => ({ ...prevState, to }));
-						return;
-					}
 					if (arg === -1) return history.go(arg);
 					if (typeof arg === 'string') {
 						if (arg !== location.pathname) await navigate({ pathname: arg });
