@@ -111,7 +111,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (blockerState.getState() === 'charged') {
 			blockerState.setState('blocked');
 			blockedRouteTargetRef.set(nextLocation);
-			history.replaceState(null, '', routeItemDataState.getState().location.pathname);
+			history.pushState(null, '', routeItemDataState.getState().location.pathname);
 			return true;
 		}
 		return false;
