@@ -28,7 +28,7 @@ export const useBlocker = (
 	const [blockerState, setBlockerState] = useBlockerState();
 	const location = useLocation();
 	const [context] = useContextState();
-	const [nextLocation] = useGlobalState(blockedTargetState);
+	const [nextLocation, setNextLocation] = useGlobalState(blockedTargetState);
 
 	const args = useMemo(() => ({ location, nextLocation, context }), [context, location, nextLocation]);
 
@@ -38,15 +38,14 @@ export const useBlocker = (
 
 	const processHandler = useCallback(async () => {
 		setBlockerState('unblocked');
-		const target = blockedTargetState.getState();
-		if (target) await navigate(target);
-		blockedTargetState.setState(null);
-	}, [blockedTargetState, navigate, setBlockerState]);
+		if (nextLocation) await navigate(nextLocation);
+		setNextLocation(null);
+	}, [navigate, nextLocation, setBlockerState, setNextLocation]);
 
 	const resetHandler = useCallback(() => {
 		setBlockerState('charged');
-		blockedTargetState.setState(null);
-	}, [setBlockerState, blockedTargetState]);
+		setNextLocation(null);
+	}, [setBlockerState, setNextLocation]);
 
 	return {
 		state: blockerState,
