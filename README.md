@@ -743,7 +743,7 @@ Passing `invalidate` directly (`onClick={invalidate}`) is not supported because 
 
 ### `useBlocker(callback)`
 
-Blocks navigation — including the browser's Back/Forward buttons — while `callback` returns `true`.
+Blocks navigation - including the browser's Back/Forward buttons - while `callback` returns `true`.
 
 The library calls `callback` on every navigation attempt with the current, target location and router context, so you can decide whether to block based on where the user is headed, not just your app's internal state:
 
