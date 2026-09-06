@@ -743,16 +743,17 @@ Passing `invalidate` directly (`onClick={invalidate}`) is not supported because 
 
 ### `useBlocker(callback)`
 
-Blocks navigation — including the browser's Back/Forward buttons — while `callback` returns `true`.
+Blocks navigation - including the browser's Back/Forward buttons - while `callback` returns `true`.
 
-The library calls `callback` on every navigation attempt with the current and target location, so you can decide whether to block based on where the user is headed, not just your app's internal state:
+The library calls `callback` on every navigation attempt with the current, target location and router context, so you can decide whether to block based on where the user is headed, not just your app's internal state:
 
 ```ts
-callback: (arg: { location: Location; nextLocation: Location | null }) => boolean
+callback: (arg: { location: Location; nextLocation: Location | null; context: Record<string, unknown> }) => boolean
 ```
 
-- `location` — the route the user is currently on.
-- `nextLocation` — where they're trying to go. `null` when nothing is blocked yet.
+- `location` - the route the user is currently on.
+- `nextLocation` - where they're trying to go. `null` when nothing is blocked yet.
+- `context` - router context.
 
 **Returns:**
 
