@@ -782,7 +782,7 @@ useEffect(() => {
 
 ### Custom Blocker component
 
-If you'd rather not manage the `useEffect` yourself, you can wrap `useBlocker` in a small render-prop component:
+If you'd rather not manage the `useEffect` or conditional rendering yourself, you can wrap `useBlocker` in a small render-prop component:
 
 ```tsx
 type BlockerProps = {
