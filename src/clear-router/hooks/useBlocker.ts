@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useGlobalState } from '../create';
 import { router } from '../instance';
 import { useLocation } from './useLocation';
 import { BlockerState, Location } from '../types';
@@ -9,32 +10,43 @@ type UseBlockerReturnValue = {
 	reset(): void;
 };
 
+type BlockerCallback = {
+	location: Location;
+	nextLocation: Location | null;
+	context: Record<string, unknown>;
+};
+
 export const useBlocker = (
-	blockerFn: ({ location, nextLocation }: { location: Location; nextLocation: Location | null }) => boolean
+	blockerFn: ({ location, nextLocation }: BlockerCallback) => boolean
 ): UseBlockerReturnValue => {
 	const {
-		hooks: { useBlockerState },
+		hooks: { useBlockerState, useContextState },
 		runtime: { navigate },
-		state: { blockedRouteTargetRef },
+		state: { blockedTargetState },
 	} = router;
 
 	const [blockerState, setBlockerState] = useBlockerState();
 	const location = useLocation();
+	const [context] = useContextState();
+	const [nextLocation] = useGlobalState(blockedTargetState);
 
-	const shouldBlock = blockerFn({ location, nextLocation: blockedRouteTargetRef.value });
+	const args = useMemo(() => ({ location, nextLocation, context }), [context, location, nextLocation]);
+
+	const shouldBlock = blockerFn(args);
 
 	useEffect(() => setBlockerState(shouldBlock ? 'charged' : 'unblocked'), [setBlockerState, shouldBlock]);
 
 	const processHandler = useCallback(async () => {
 		setBlockerState('unblocked');
-		if (blockedRouteTargetRef.value) await navigate(blockedRouteTargetRef.value);
-		blockedRouteTargetRef.set(null);
-	}, [blockedRouteTargetRef, navigate, setBlockerState]);
+		const target = blockedTargetState.getState();
+		if (target) await navigate(target);
+		blockedTargetState.setState(null);
+	}, [blockedTargetState, navigate, setBlockerState]);
 
 	const resetHandler = useCallback(() => {
 		setBlockerState('charged');
-		blockedRouteTargetRef.set(null);
-	}, [setBlockerState, blockedRouteTargetRef]);
+		blockedTargetState.setState(null);
+	}, [setBlockerState, blockedTargetState]);
 
 	return {
 		state: blockerState,
