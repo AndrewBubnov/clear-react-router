@@ -780,6 +780,28 @@ useEffect(() => {
 
 > Works for programmatic navigation and browser Back/Forward alike — including the case where the URL already changed via Back/Forward, which the library reverts until `process()` or `reset()` is called.
 
+### Custom Blocker component
+
+If you'd rather not manage the `useEffect` yourself, you can wrap `useBlocker` in a small render-prop component:
+
+```tsx
+type BlockerProps = {
+    children: (blocker: ReturnType<typeof useBlocker>) => ReactNode;
+    callback: (args: BlockerCallback) => boolean;
+};
+
+const Blocker = ({ callback, children }: BlockerProps) => {
+    const blocker = useBlocker(callback);
+    return blocker.state === 'blocked' ? children(blocker) : null;
+};
+```
+
+```tsx
+<Blocker callback={() => formState.isDirty}>
+    {({ process, reset }) => <Dialog onConfirm={process} onClose={reset} />}
+</Blocker>
+```
+
 ### `useIsDataLoading()`
 
 Returns a boolean indicating whether any route loader is currently fetching data. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
