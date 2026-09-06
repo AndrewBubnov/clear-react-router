@@ -25,10 +25,10 @@ export const useBlocker = (
 		state: { blockedTargetState },
 	} = router;
 
-	const [blockerState, setBlockerState] = useBlockerState();
-	const location = useLocation();
-	const [context] = useContextState();
 	const [nextLocation, setNextLocation] = useGlobalState(blockedTargetState);
+	const [blockerState, setBlockerState] = useBlockerState();
+	const [context] = useContextState();
+	const location = useLocation();
 
 	const args = useMemo(() => ({ location, nextLocation, context }), [context, location, nextLocation]);
 
