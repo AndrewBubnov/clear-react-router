@@ -32,7 +32,7 @@ export const createRouterInstance = (): RouterType => {
 		blockerState: create<BlockerState>('unblocked'),
 		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 		loaderStateRef: new Cell<LoaderState>(EMPTY_LOADER_STATE),
-		blockedRouteTargetRef: new Cell<Location | null>(null),
+		blockedTargetState: create<Location | null>(null),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
 	};

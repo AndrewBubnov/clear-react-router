@@ -133,8 +133,8 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockerState: Store<BlockerState>;
 	loaderState: Store<LoaderState>;
+	blockedTargetState: Store<Location | null>;
 	loaderStateRef: Cell<LoaderState>;
-	blockedRouteTargetRef: Cell<Location | null>;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
 };

@@ -20,7 +20,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		routeItemDataState,
 		scrollMapState,
 		blockerState,
-		blockedRouteTargetRef,
+		blockedTargetState,
 	} = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
@@ -110,7 +110,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const checkBlocked = (nextLocation: Location) => {
 		if (blockerState.getState() === 'charged') {
 			blockerState.setState('blocked');
-			blockedRouteTargetRef.set(nextLocation);
+			blockedTargetState.setState(nextLocation);
 			return true;
 		}
 		return false;
