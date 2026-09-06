@@ -16,9 +16,7 @@ type BlockerCallback = {
 	context: Record<string, unknown>;
 };
 
-export const useBlocker = (
-	blockerFn: ({ location, nextLocation }: BlockerCallback) => boolean
-): UseBlockerReturnValue => {
+export const useBlocker = (blockerFn: (args: BlockerCallback) => boolean): UseBlockerReturnValue => {
 	const {
 		hooks: { useBlockerState, useContextState },
 		runtime: { navigate },
