@@ -540,7 +540,7 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 
 ### `useNavigate()`
 
-Returns function to navigate programmatically. Accepts a string (pathname), an object of type NavigationLocation, or `-1` to go back.
+Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object, or `-1` to go back.
 
 ```tsx
 type NavigationLocation = { pathname: string;	search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
