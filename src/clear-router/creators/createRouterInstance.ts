@@ -3,7 +3,7 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
-import { getParams, restoreScroll } from '../utils/utils';
+import { formatSearchObject, getParams, restoreScroll } from '../utils/utils';
 import { Cell } from '../cell';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
@@ -12,6 +12,7 @@ import {
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
+	NavigationLocation,
 	Options,
 	RouteItemData,
 	RouterState,
@@ -71,13 +72,17 @@ export const createRouterInstance = (): RouterType => {
 			},
 			useNavigate: () => {
 				const { location } = routerState.routeItemDataState.getState();
-				return async (arg: Location | string | -1) => {
+				return async (arg: NavigationLocation | string | -1) => {
 					if (arg === -1) return history.go(arg);
 					if (typeof arg === 'string') {
-						if (arg !== location.pathname) await navigate({ pathname: arg });
-					} else if (JSON.stringify(arg) !== JSON.stringify(location)) {
-						await navigate(arg);
+						const [pathname, search = ''] = arg.split('?');
+						if (pathname !== location.pathname || search !== location.search) {
+							await navigate({ pathname, search });
+						}
+						return;
 					}
+					const search = typeof arg.search === 'object' ? formatSearchObject(arg.search) : arg.search;
+					await navigate({ ...arg, search });
 				};
 			},
 			useAction: (action: string, options: Options = {}) => {

@@ -153,7 +153,7 @@ export type RouterType = {
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useLoaderState<T>(): LoaderState<T>;
 		useParams<T>(): T;
-		useNavigate(): (arg: Location | string | -1) => Promise<void>;
+		useNavigate(): (arg: NavigationLocation | string | -1) => Promise<void>;
 		useAction(
 			action: string,
 			options?: Options
@@ -182,3 +182,6 @@ export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	onMouseLeave(event: MouseEvent): void;
 	children?: ReactNode;
 };
+
+export type SearchObject = Record<string, string | number | boolean | null | undefined>;
+export type NavigationLocation = Omit<Location, 'search'> & { search?: string | SearchObject };

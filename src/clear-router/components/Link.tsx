@@ -14,13 +14,14 @@ import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
-import { ElementProps, RouterProps, Location } from '../types';
+import { ElementProps, RouterProps, Location, SearchObject } from '../types';
+import { formatSearchObject } from '../utils/utils.ts';
 
 type ElementState = { isActive: boolean; isPending: boolean };
 
 type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;
-	search?: string;
+	search?: string | SearchObject;
 	state?: unknown;
 	children?: ReactNode;
 	as?: (props: ElementProps<T>, state: ElementState) => ReactElement;
@@ -63,7 +64,12 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 
 	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
 
-	const location: Location = useMemo(() => ({ pathname: to, search, state }), [search, state, to]);
+	const searchString = typeof search === 'object' ? formatSearchObject(search) : search;
+
+	const location: Omit<Location, 'search'> & { search: string } = useMemo(
+		() => ({ pathname: to, search: searchString, state }),
+		[searchString, state, to]
+	);
 
 	const onMouseEnter = useCallback(() => {
 		if (prefetch !== 'hover' || !prefetchDelay) return;
