@@ -14,8 +14,8 @@ import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
+import { formatSearchObject } from '../utils/utils';
 import { ElementProps, RouterProps, Location, SearchObject } from '../types';
-import { formatSearchObject } from '../utils/utils.ts';
 
 type ElementState = { isActive: boolean; isPending: boolean };
 
