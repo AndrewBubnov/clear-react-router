@@ -123,7 +123,7 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
-| `search` | `string \| undefined` | `undefined` | Query string appended to the target path |
+| `search` | | `search` | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined` | `undefined` | Query string or object appended to the target path |
 | `state` | `unknown` | `undefined` | Arbitrary value attached to the navigation entry |
 | `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
 | `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
@@ -237,8 +237,8 @@ import { Button } from '@mui/material';
   Dashboard
 </Link>
 
-// With dynamic style
-<Link to="/profile" style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
+// With dynamic style and search object
+<Link to={{ pathname: '/profile', search: { user: 'John Doe' } }} style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
   Profile
 </Link>
 
@@ -540,16 +540,16 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 
 ### `useNavigate()`
 
-Returns function to navigate programmatically. Accepts a string (pathname), an object of type Location, or `-1` to go back.
+Returns function to navigate programmatically. Accepts a string (pathname), an object of type NavigationLocation, or `-1` to go back.
 
 ```tsx
-type Location = { pathname: string;	search?: string; state?: unknown }
+type NavigationLocation = { pathname: string;	search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
 
 const navigate = useNavigate();
 
-navigate('/about');                                           // string
-navigate({ pathname: '/user/123', state: { from: 'home' } }); // Location
-navigate(-1);                                                 // go back
+navigate('/about');                                                                            // string
+navigate({ pathname: '/user/123', search: { user: 'Jane Doe' }, state: { from: 'home' } });    // NavigationLocation
+navigate(-1);                                                                                  // go back
 ```
 
 **Note:** Navigation state can be accessed via `useLocation()`:
