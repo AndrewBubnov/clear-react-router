@@ -123,7 +123,7 @@ Component for client-side navigation with prefetch support, active state detecti
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `to` | `string` | required | Target path |
-| `search` | | `search` | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined` | `undefined` | Query string or object appended to the target path |
+| `search` | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined` | `undefined` | Query string or object appended to the target path |
 | `state` | `unknown` | `undefined` | Arbitrary value attached to the navigation entry |
 | `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
 | `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
