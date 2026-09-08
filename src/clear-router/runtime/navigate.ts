@@ -58,8 +58,20 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (routeItem?.beforeLoad) await runBeforeLoad(routeItem?.beforeLoad);
 	};
 
+	const createGcTimeout = () => {
+		const { routeItem, location } = routeItemDataState.getState();
+		if (!routeItem?.gcTime) return;
+		const path = `${location.pathname}${location.search}`;
+		const currentLoaderEntry = loaderMap.get(path);
+		if (!currentLoaderEntry) return;
+		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
+		const gcTimeout = window.setTimeout(() => loaderMap.delete(path), routeItem.gcTime);
+		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout });
+	};
+
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
 		updateScrollMap(routeItemDataState, scrollMapState);
+		createGcTimeout();
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'optimistic' }));
@@ -85,7 +97,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const minLoaderDuration = routeItem?.minLoaderDuration ?? routerConfig.defaultMinLoaderDuration ?? 0;
 		return minLoaderDuration && !isCacheItemFresh(getPath(nextLocation))
 			? sleep(minLoaderDuration)
-			: Promise.resolve;
+			: Promise.resolve();
 	};
 
 	const loader = async (routeItem: RouteItem | undefined, nextLocation: Location, seq: number) => {
@@ -116,21 +128,18 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return false;
 	};
 
-	const createGcTimeout = () => {
-		const { routeItem, location } = routeItemDataState.getState();
-		if (!routeItem?.gcTime) return;
+	const clearGcTimeout = (routeItem: RouteItem | undefined, location: Location) => {
 		const path = `${location.pathname}${location.search}`;
+		if (!routeItem?.gcTime) return;
 		const currentLoaderEntry = loaderMap.get(path);
-		if (!currentLoaderEntry) return;
-		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
-		const gcTimeout = window.setTimeout(() => loaderMap.delete(path), routeItem.gcTime);
-		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout });
+		if (!currentLoaderEntry?.gcTimeout) return;
+		window.clearTimeout(currentLoaderEntry.gcTimeout);
+		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout: undefined });
 	};
 
 	const navigate = async (rawLocation: Location) => {
 		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		if (checkBlocked(nextLocation)) return;
-		createGcTimeout();
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
@@ -140,6 +149,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
 		commitNavigation(() => commitState(nextLocation, nextItem));
+		clearGcTimeout(nextItem, nextLocation);
 		await afterLoad(nextItem, params);
 	};
 
