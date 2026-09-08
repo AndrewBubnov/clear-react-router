@@ -117,7 +117,6 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
 }
 ```
 > **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
-
 If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
 
 ### `Link`
