@@ -128,7 +128,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return false;
 	};
 
-	const clearGcTimeout = (routeItem: RouteItem | undefined, location: Location) => {
+	const clearCurrentGcTimeout = (routeItem: RouteItem | undefined, location: Location) => {
 		const path = `${location.pathname}${location.search}`;
 		if (!routeItem?.gcTime) return;
 		const currentLoaderEntry = loaderMap.get(path);
@@ -149,7 +149,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
 		commitNavigation(() => commitState(nextLocation, nextItem));
-		clearGcTimeout(nextItem, nextLocation);
+		clearCurrentGcTimeout(nextItem, nextLocation);
 		await afterLoad(nextItem, params);
 	};
 
