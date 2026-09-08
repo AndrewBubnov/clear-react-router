@@ -113,7 +113,7 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
 `loader` additionally receives:
 ```ts
 {
-  signal: AbortSignal;                                           // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
+  signal: AbortSignal; // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
 }
 ```
 > **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
