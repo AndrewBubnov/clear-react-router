@@ -116,9 +116,21 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return false;
 	};
 
+	const createGcTimeout = () => {
+		const { routeItem, location } = routeItemDataState.getState();
+		if (!routeItem?.gcTime) return;
+		const path = `${location.pathname}${location.search}`;
+		const currentLoaderEntry = loaderMap.get(path);
+		if (!currentLoaderEntry) return;
+		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
+		const gcTimeout = window.setTimeout(() => loaderMap.delete(path), routeItem.gcTime);
+		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout });
+	};
+
 	const navigate = async (rawLocation: Location) => {
 		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		if (checkBlocked(nextLocation)) return;
+		createGcTimeout();
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);

@@ -47,6 +47,7 @@ export type ClientRouteItem = {
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	gcTime?: number;
 	optimistic?: boolean;
 	pollingInterval?: number;
 	retry?: Retry;
@@ -121,7 +122,12 @@ export type RouterProps = {
 	context?: Record<string, unknown>;
 };
 
-export type LoaderStateItem = { state: LoaderState; timestamp: number; staleTime: number | undefined };
+export type LoaderStateItem = {
+	state: LoaderState;
+	timestamp: number;
+	staleTime: number | undefined;
+	gcTimeout?: number;
+};
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 

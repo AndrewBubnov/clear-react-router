@@ -36,6 +36,13 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		}
 		return item;
 	};
+	const clearGcTimeout = (routeItem: RouteItem, path: string) => {
+		if (!routeItem?.gcTime) return;
+		const currentLoaderEntry = loaderMap.get(path);
+		if (!currentLoaderEntry?.gcTimeout) return;
+		window.clearTimeout(currentLoaderEntry.gcTimeout);
+		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout: undefined });
+	};
 	const revalidateCache = async (
 		{ routeItem, location, signal }: RevalidateCacheArgs,
 		retried = 0
@@ -46,6 +53,8 @@ export const createRevalidateCache = (routerState: RouterState) => {
 
 		const { pathname, search = '' } = location;
 		const path = `${pathname}${search}`;
+
+		clearGcTimeout(routeItem, path);
 
 		if (loadingPromises.has(path)) {
 			// NB: if this in-flight promise originated from a prefetch (no signal),
