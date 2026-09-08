@@ -83,6 +83,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
 | `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
+| `gcTime` | `number \| undefined` | `undefined` | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected |
 | `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
@@ -115,6 +116,9 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
   signal: AbortSignal;                                           // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
 }
 ```
+> **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
+
+If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
 
 ### `Link`
 
