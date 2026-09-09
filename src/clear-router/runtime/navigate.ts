@@ -4,8 +4,7 @@ import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
-import { EMPTY_LOADER_STATE } from '../constants';
-import { BeforeLoad, Location, RevalidateCache, RouteItem, RouterState } from '../types';
+import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	let navigationSeq = 0;
@@ -14,7 +13,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const {
 		loaderState,
-		loaderStateRef,
 		contextState,
 		loaderMap,
 		routeItemDataState,
@@ -36,7 +34,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
 
 	const routeResolve = (location: Location) => {
-		loaderStateRef.set(EMPTY_LOADER_STATE);
 		const nextItem = findRoute(location.pathname, true);
 		const params = getParams(location, nextItem);
 		return { nextItem, params };
@@ -49,13 +46,15 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
 			try {
 				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem) });
-				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: null }));
+				return null;
 			} catch (error) {
-				loaderStateRef.set(prev => ({ ...prev, beforeLoadError: error as Error }));
+				return error as Error;
 			}
 		};
-		if (defaultBeforeLoad) await runBeforeLoad(defaultBeforeLoad);
-		if (routeItem?.beforeLoad) await runBeforeLoad(routeItem?.beforeLoad);
+		let error = null;
+		if (defaultBeforeLoad) error = await runBeforeLoad(defaultBeforeLoad);
+		if (routeItem?.beforeLoad && !error) error = await runBeforeLoad(routeItem?.beforeLoad);
+		return error;
 	};
 
 	const createGcTimeout = () => {
@@ -69,9 +68,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout });
 	};
 
-	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location) => {
+	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location, hasError: boolean) => {
 		updateScrollMap(routeItemDataState, scrollMapState);
 		createGcTimeout();
+		if (hasError) return;
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'optimistic' }));
@@ -108,9 +108,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			revalidateCache({ routeItem, location: nextLocation, signal }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
-		if (result) loaderStateRef.set(prev => ({ ...prev, data: result.data, loaderError: result.error as Error }));
 		if (seq !== navigationSeq) return;
 		polling(routeItem, nextLocation);
+		return result;
 	};
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
@@ -143,12 +143,19 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
-		await beforeLoad(nextItem, nextLocation);
+		const beforeLoadError = await beforeLoad(nextItem, nextLocation);
 		if (seq !== navigationSeq) return;
-		prepareNavigation(nextItem, nextLocation);
-		await loader(nextItem, nextLocation, seq);
+		prepareNavigation(nextItem, nextLocation, !!beforeLoadError);
+		const result = beforeLoadError
+			? { data: null, error: null, beforeLoadError }
+			: await loader(nextItem, nextLocation, seq);
 		if (seq !== navigationSeq) return;
-		commitNavigation(() => commitState(nextLocation, nextItem));
+		const loaderStateValue: LoaderState = {
+			data: result?.data,
+			loaderError: (result?.error as Error | null) ?? null,
+			beforeLoadError,
+		};
+		commitNavigation(() => commitState({ nextLocation, routeItem: nextItem, loaderStateValue }));
 		clearCurrentGcTimeout(nextItem, nextLocation);
 		await afterLoad(nextItem, params);
 	};
