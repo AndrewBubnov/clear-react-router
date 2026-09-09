@@ -875,6 +875,42 @@ import { lazy } from 'clear-react-router';
   fallback: () => <div>Loading...</div>,
 }
 ```
+
+## Deferred data (React 19 `use()`)
+
+`loader` can return a value containing unresolved promises — the router doesn't await
+anything beyond what your `loader` itself awaits. This lets you unblock navigation on
+fast data while slow data streams in separately:
+
+```tsx
+{
+  path: '/about',
+  loader: async () => {
+     const fast = await fetchFast();
+     const slow = fetchSlow(); // not awaited — passed through as a promise
+     return { fast, slow };
+  },
+}
+```
+
+```tsx
+const Slow = () => {
+   const { data } = useLoaderState<{ slow: Promise<string> }>();
+   return use(data.slow);
+};
+
+const About = () => (
+   <Suspense fallback={<Skeleton />}>
+      <Slow />
+   </Suspense>
+);
+```
+
+> Wrap deferred parts in their own `ErrorBoundary` — a rejected promise passed to `use()`
+> is not caught by the route's `errorElement`. Also set `staleTime` generously enough to
+> outlast your slowest deferred request, or a fast repeat visit may trigger a redundant
+> refetch while the previous one is still resolving.
+
 ## Animations
 
 Clear Router supports smooth page transitions using the native View Transitions API. When animations are enabled, the router waits for all data to load before starting the transition, ensuring a jank-free experience.
