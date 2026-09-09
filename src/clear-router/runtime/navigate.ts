@@ -155,7 +155,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			loaderError: (result?.error as Error | null) ?? null,
 			beforeLoadError,
 		};
-		commitNavigation(() => commitState({ nextLocation, routeItem: nextItem, loaderStateValue }));
+		commitNavigation(() => commitState({ location: nextLocation, routeItem: nextItem, loaderStateValue }));
 		clearCurrentGcTimeout(nextItem, nextLocation);
 		await afterLoad(nextItem, params);
 	};
