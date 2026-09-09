@@ -4,7 +4,6 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
 import { formatSearchObject, getParams, restoreScroll } from '../utils/utils';
-import { Cell } from '../cell';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
 	BlockerState,
@@ -32,7 +31,6 @@ export const createRouterInstance = (): RouterType => {
 		contextState: create<Record<string, unknown>>({}),
 		blockerState: create<BlockerState>('unblocked'),
 		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
-		loaderStateRef: new Cell<LoaderState>(EMPTY_LOADER_STATE),
 		blockedTargetState: create<Location | null>(null),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
