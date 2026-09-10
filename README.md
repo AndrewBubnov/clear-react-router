@@ -100,7 +100,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
   location: Location;                                            // Route location
 }
 ```
-see [`Location`](#uselocation) for type details
+see [`Location`](#uselocation) and [`Where you came from`](#where-you-came-from) for type details
  
 `beforeLoad` additionally receives:
 ```ts
