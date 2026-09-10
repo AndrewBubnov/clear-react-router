@@ -73,7 +73,7 @@ export type Location = {
 	pathname: string;
 	search?: string;
 	state?: unknown;
-	prevLocation?: Omit<Location, 'state'>;
+	prevLocation?: Omit<Location, 'state' | 'prevLocation'>;
 };
 
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
