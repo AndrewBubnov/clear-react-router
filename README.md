@@ -99,7 +99,7 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
   context: Record<string, unknown>;                              // Router context
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
   searchParams: Record<string, string>;                          // URL search parameters
-  location: Location;                                            // Route location
+  location: Location;                                            // Route location (see [`Location`](#uselocation))
 }
 ```
 
