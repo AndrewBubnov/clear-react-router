@@ -54,11 +54,7 @@ export type ClientRouteItem = {
 	scrollRestoration?: boolean | string[];
 	scrollRestorationBehavior?: ScrollRestorationBehavior;
 	beforeLoad?: BeforeLoad;
-	afterLoad?: (arg: {
-		context: Record<string, unknown>;
-		params: Record<string, string>;
-		setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
-	}) => Promise<void>;
+	afterLoad?: (arg: { context: Record<string, unknown>; params: Record<string, string> }) => Promise<void> | void;
 	actions?: (arg: LoaderArgs) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 

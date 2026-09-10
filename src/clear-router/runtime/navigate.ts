@@ -31,8 +31,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search}`;
 
-	const getContext = () => ({ context: contextState.getState(), setContext: contextState.setState });
-
 	const routeResolve = (location: Location) => {
 		const nextItem = findRoute(location.pathname, true);
 		const params = getParams(location, nextItem);
@@ -115,8 +113,8 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
 		const { defaultAfterLoad } = routerConfig;
-		if (routeItem?.afterLoad) await routeItem.afterLoad({ ...getContext(), params });
-		if (defaultAfterLoad) await defaultAfterLoad({ ...getContext(), params });
+		if (routeItem?.afterLoad) await routeItem.afterLoad({ context: contextState.getState(), params });
+		if (defaultAfterLoad) await defaultAfterLoad({ context: contextState.getState(), params });
 	};
 
 	const checkBlocked = (nextLocation: Location) => {
@@ -157,7 +155,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		};
 		commitNavigation(() => commitState({ location: nextLocation, routeItem: nextItem, loaderStateValue }));
 		clearCurrentGcTimeout(nextItem, nextLocation);
-		await afterLoad(nextItem, params);
+		void afterLoad(nextItem, params);
 	};
 
 	return navigate;
