@@ -113,8 +113,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
 		const { defaultAfterLoad } = routerConfig;
-		if (routeItem?.afterLoad) await routeItem.afterLoad({ context: contextState.getState(), params });
-		if (defaultAfterLoad) await defaultAfterLoad({ context: contextState.getState(), params });
+		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
+		const args = { context: contextState.getState(), params, searchParams };
+		if (routeItem?.afterLoad) await routeItem.afterLoad(args);
+		if (defaultAfterLoad) await defaultAfterLoad(args);
 	};
 
 	const checkBlocked = (nextLocation: Location) => {
