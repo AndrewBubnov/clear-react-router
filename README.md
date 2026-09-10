@@ -546,7 +546,7 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object, or `-1` to go back.
 
 ```tsx
-type NavigationLocation = { pathname: string;	search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
+type NavigationLocation = { pathname: string; search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
 
 const navigate = useNavigate();
 
@@ -555,7 +555,7 @@ navigate({ pathname: '/user/123', search: { user: 'Jane Doe' }, state: { from: '
 navigate(-1);                                                                                  // go back
 ```
 
-**Note:** Navigation state can be accessed via `useLocation()`:
+**Note:** Navigation state can be accessed via [`useLocation()`](#uselocation):
 
 ```tsx
 const navigate = useNavigate();
