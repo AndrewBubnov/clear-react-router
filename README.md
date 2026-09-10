@@ -75,7 +75,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
 | `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
-| `afterLoad` | `({ params, context, setContext }) => Promise<void>` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
+| `afterLoad` | `({ params, context, searchParams }) => Promise<void> \| void` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `minLoaderDuration` | `number \| undefined` | `undefined` | Minimum time the loader fallback stays visible, to avoid flickering |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
 | `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
@@ -89,8 +89,6 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
 | `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
-Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
-
 `beforeLoad` and `loader` both receive:
 
 ```ts
@@ -102,13 +100,15 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
   location: Location;                                            // Route location
 }
 ```
-
+see [`Location`](#uselocation) and [`Where you came from`](#where-you-came-from) for type details
+ 
 `beforeLoad` additionally receives:
 ```ts
 {
   redirect: (arg: Location | string) => Promise<void>;           // Programmatic redirection, see [redirect](#redirect)
 }
 ```
+see [`redirect`](#redirect) for details on programmatic redirects
 
 `loader` additionally receives:
 ```ts
@@ -546,7 +546,7 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object, or `-1` to go back.
 
 ```tsx
-type NavigationLocation = { pathname: string;	search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
+type NavigationLocation = { pathname: string; search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
 
 const navigate = useNavigate();
 
@@ -555,7 +555,7 @@ navigate({ pathname: '/user/123', search: { user: 'Jane Doe' }, state: { from: '
 navigate(-1);                                                                                  // go back
 ```
 
-**Note:** Navigation state can be accessed via `useLocation()`:
+**Note:** Navigation state can be accessed via [`useLocation()`](#uselocation):
 
 ```tsx
 const navigate = useNavigate();
@@ -579,8 +579,39 @@ const params = useParams<{ userId: string }>();
 
 Returns current location `{ pathname, search, state }`.
 ```tsx
+type Location = {
+	pathname: string;
+	search?: string;
+	state?: unknown;
+	prevLocation?: Omit<Location, 'state' | 'prevLocation'>;
+}
+
 const { pathname, search, state } = useLocation();
 ```
+### Where you came from
+
+Every `location` carries `prevLocation` — the pathname and search of the route you
+navigated away from. Useful for a contextual "Back" link, or for redirect logic in
+`beforeLoad`:
+
+```tsx
+const location = useLocation();
+
+<Link to={location.prevLocation?.pathname ?? '/'}>← Back</Link>
+```
+
+```tsx
+// beforeLoad
+beforeLoad: async ({ location, redirect }) => {
+   if (!isAuthenticated && location.prevLocation?.pathname !== '/login') {
+      await redirect('/login');
+   }
+}
+```
+
+> `prevLocation` reflects only the immediately preceding route — it doesn't accumulate
+> a full navigation history, and it's `undefined` on the very first render (nothing to
+> navigate away from yet).
 
 ### `useLoaderState<T>()`
 
