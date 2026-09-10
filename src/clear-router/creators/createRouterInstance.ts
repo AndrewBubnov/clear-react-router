@@ -68,20 +68,19 @@ export const createRouterInstance = (): RouterType => {
 				const { routeItem, location } = routerState.routeItemDataState.getState();
 				return getParams(location, routeItem) as T;
 			},
-			useNavigate: () => {
+			useNavigate: () => async (arg: NavigationLocation | string | -1) => {
 				const { location } = routerState.routeItemDataState.getState();
-				return async (arg: NavigationLocation | string | -1) => {
-					if (arg === -1) return history.go(arg);
-					if (typeof arg === 'string') {
-						const [pathname, search = ''] = arg.split('?');
-						if (pathname !== location.pathname || search !== location.search) {
-							await navigate({ pathname, search });
-						}
-						return;
+				const prevLocation = { pathname: location.pathname, search: location.search };
+				if (arg === -1) return history.go(arg);
+				if (typeof arg === 'string') {
+					const [pathname, search = ''] = arg.split('?');
+					if (pathname !== location.pathname || search !== location.search) {
+						await navigate({ pathname, search, prevLocation });
 					}
-					const search = typeof arg.search === 'object' ? formatSearchObject(arg.search) : arg.search;
-					await navigate({ ...arg, search });
-				};
+					return;
+				}
+				const search = typeof arg.search === 'object' ? formatSearchObject(arg.search) : arg.search;
+				await navigate({ ...arg, search, prevLocation });
 			},
 			useAction: (action: string, options: Options = {}) => {
 				const currentAction = getCurrentAction(action);

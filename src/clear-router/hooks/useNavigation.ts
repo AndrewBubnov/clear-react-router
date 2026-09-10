@@ -9,10 +9,12 @@ export const useNavigation = () => {
 	useEffect(() => {
 		const handler = async (event: PopStateEvent) => {
 			const newLocation = parseWindowLocation((event.target as Window).location);
+			const { location } = routeItemDataState.getState();
+			const prevLocation = { pathname: location.pathname, search: location.search };
 			if (blockerState.getState() === 'charged') {
 				history.pushState(null, '', routeItemDataState.getState().location.pathname);
 			}
-			await navigate(newLocation);
+			await navigate({ ...newLocation, prevLocation });
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);

@@ -40,8 +40,15 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const beforeLoad = async (routeItem: RouteItem | undefined, nextLocation: Location) => {
 		const { defaultBeforeLoad } = routerConfig;
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
-			const redirect = async (redirected: Location | string) =>
-				await navigate(typeof redirected === 'string' ? { pathname: redirected } : redirected);
+			const redirect = async (redirected: Location | string) => {
+				const { location } = routeItemDataState.getState();
+				const prevLocation = { pathname: location.pathname, search: location.search };
+				return await navigate(
+					typeof redirected === 'string'
+						? { pathname: redirected, prevLocation }
+						: { ...redirected, prevLocation }
+				);
+			};
 			try {
 				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem) });
 				return null;

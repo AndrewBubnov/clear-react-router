@@ -1,5 +1,5 @@
 import { findRoute } from '../utils/findRoute';
-import { RevalidateCache, RouterState } from '../types';
+import { RevalidateCache, RouterState, Location } from '../types';
 
 export const createPrefetch =
 	({ routeItemDataState }: RouterState, revalidateCache: RevalidateCache) =>
