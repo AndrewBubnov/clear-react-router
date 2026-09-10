@@ -1,5 +1,6 @@
 import { SubmitEvent, useCallback, useState } from 'react';
 import { router } from '../instance';
+import { FormValues } from '../types.ts';
 
 type Options = {
 	onSuccess?(arg: unknown): void;
@@ -15,9 +16,9 @@ export const useSubmitAction = (action: string, options?: Options) => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const submit = useCallback(
-		async (formData: FormData) => {
+		async (data: FormValues) => {
 			setIsSubmitting(true);
-			const result = await currentAction(formData);
+			const result = await currentAction(data);
 			setIsSubmitting(false);
 			setData(result.data);
 			setError(result.error);
@@ -30,7 +31,7 @@ export const useSubmitAction = (action: string, options?: Options) => {
 		async (evt: SubmitEvent<HTMLFormElement>) => {
 			evt.preventDefault();
 			const target = evt.target as HTMLFormElement;
-			const { error } = await submit(new FormData(target));
+			const { error } = await submit(Object.fromEntries(new FormData(target)));
 			const preventReset = options?.autoReset === false;
 			if (!preventReset && !error) target.reset();
 		},

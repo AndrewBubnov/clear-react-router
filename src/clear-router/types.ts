@@ -33,6 +33,8 @@ export type BeforeLoad = (
 
 export type ScrollRestorationBehavior = 'auto' | 'smooth' | 'instant';
 
+export type FormValues = Record<string, unknown>;
+
 export type ClientRouteItem = {
 	path: string;
 	element: RenderElement | LazyComponent;
@@ -59,7 +61,9 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		searchParams: Record<string, string>;
 	}) => Promise<void> | void;
-	actions?: (arg: LoaderArgs) => Record<string, (arg: FormData) => Promise<unknown> | Promise<void> | void | unknown>;
+	actions?: (
+		arg: LoaderArgs
+	) => Record<string, (arg: FormValues) => Promise<unknown> | Promise<void> | void | unknown>;
 };
 
 export type RouteItem = ClientRouteItem & {
@@ -162,7 +166,7 @@ export type RouterType = {
 		useAction(
 			action: string,
 			options?: Options
-		): (arg: FormData) => Promise<{ data: unknown; error: Error | null }>;
+		): (arg: FormValues) => Promise<{ data: unknown; error: Error | null }>;
 		useRestoreScroll(restorationBehavior: ScrollRestorationBehavior): (() => void) | undefined;
 	};
 };

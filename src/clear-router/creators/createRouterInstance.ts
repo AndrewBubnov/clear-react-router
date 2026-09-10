@@ -7,6 +7,7 @@ import { formatSearchObject, getParams, restoreScroll } from '../utils/utils';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
 	BlockerState,
+	FormValues,
 	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
@@ -84,9 +85,9 @@ export const createRouterInstance = (): RouterType => {
 			},
 			useAction: (action: string, options: Options = {}) => {
 				const currentAction = getCurrentAction(action);
-				return async (formData: FormData) => {
+				return async (input: FormValues) => {
 					try {
-						const data = await currentAction(formData);
+						const data = await currentAction(input);
 						await invalidate();
 						options.onSuccess?.(data);
 						return { data, error: null };
