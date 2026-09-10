@@ -89,8 +89,6 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
 | `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
-Before load arguments (see [`redirect`](#redirect) for details on programmatic redirects):
-
 `beforeLoad` and `loader` both receive:
 
 ```ts
@@ -99,16 +97,18 @@ Before load arguments (see [`redirect`](#redirect) for details on programmatic r
   context: Record<string, unknown>;                              // Router context
   setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
   searchParams: Record<string, string>;                          // URL search parameters
-  location: Location;                                            // Route location (see [`Location`](#uselocation))
+  location: Location;                                            // Route location
 }
 ```
-
+see [`Location`](#uselocation) for type details
+ 
 `beforeLoad` additionally receives:
 ```ts
 {
   redirect: (arg: Location | string) => Promise<void>;           // Programmatic redirection, see [redirect](#redirect)
 }
 ```
+see [`redirect`](#redirect) for details on programmatic redirects
 
 `loader` additionally receives:
 ```ts
