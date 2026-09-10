@@ -1,6 +1,5 @@
 import { SubmitEvent, useCallback, useState } from 'react';
 import { router } from '../instance';
-import { ActionFormValues } from '../types.ts';
 
 type Options = {
 	onSuccess?(arg: unknown): void;
@@ -16,7 +15,7 @@ export const useSubmitAction = (action: string, options?: Options) => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const submit = useCallback(
-		async (data: ActionFormValues) => {
+		async (data: Record<string, unknown>) => {
 			setIsSubmitting(true);
 			const result = await currentAction(data);
 			setIsSubmitting(false);

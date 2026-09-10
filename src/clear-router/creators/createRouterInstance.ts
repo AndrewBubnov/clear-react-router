@@ -7,7 +7,6 @@ import { formatSearchObject, getParams, restoreScroll } from '../utils/utils';
 import { EMPTY_LOADER_STATE } from '../constants';
 import {
 	BlockerState,
-	ActionFormValues,
 	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
@@ -85,7 +84,7 @@ export const createRouterInstance = (): RouterType => {
 			},
 			useAction: (action: string, options: Options = {}) => {
 				const currentAction = getCurrentAction(action);
-				return async (input: ActionFormValues) => {
+				return async (input: Record<string, unknown>) => {
 					try {
 						const data = await currentAction(input);
 						await invalidate();
