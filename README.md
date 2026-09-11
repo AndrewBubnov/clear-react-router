@@ -78,18 +78,18 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `afterLoad` | `({ params, context, searchParams }) => Promise<void> \| void` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
 | `minLoaderDuration` | `number \| undefined` | `undefined` | Minimum time the loader fallback stays visible, to avoid flickering |
 | `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
-| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `defaultLoaderFallback` set in `Router` |
+| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `Router.defaultLoaderFallback` |
 | `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
 | `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
-| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `defaultErrorElement` set in `Router` |
+| `errorElement` | `ReactElement \| () => ReactElement` | Error fallback for the route. Overrides the global `Router.defaultErrorElement` |
 | `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `gcTime` | `number \| undefined` | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected |
-| `actions` | `({ params, context, invalidate, setContext }) => Record<string, (formData: FormData) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. Actions receive `FormData`, can update context via `setContext`, and can invalidate cached loader data using the router-provided `invalidate` |
+| `actions` | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
 | `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
-`beforeLoad` and `loader` both receive:
+`beforeLoad`, `loader` and `actions` receive:
 
 ```ts
 {
@@ -407,14 +407,9 @@ Defines route-specific actions for handling data mutations such as creating, upd
 Actions are available through the `useSubmitAction` and `useAction` hooks. After a successful action, the current route is automatically invalidated, causing `loader` to run again in the background.
 
 ```tsx
-actions?: ({ context, params, invalidate, setContext }) => ({
-  save: async (formData) => {
-    await api.updatePost(params.id, formData);
-  },
-
-  remove: async () => {
-    await api.deletePost(params.id);
-  },
+actions?: ({ params, context, searchParams, setContext, location }) => ({
+  save: async (data: Record<string, unknown>) => await api.updatePost(params.id, data),
+  remove: async () => await api.deletePost(params.id),
 })
 ```
 
@@ -432,11 +427,11 @@ actions?: ({ context, params, invalidate, setContext }) => ({
 
 #### Returns
 
-A record where each key is an action name and each value is a function accepting a `FormData` instance.
+A record where each key is an action name and each value is a function accepting an object data argument.
 
 ## useSubmitAction()
 
-`useSubmitAction` wraps a route's `action` with submission state (`isSubmitting`, `data`, `error`) and gives you two ways to trigger it — a ready-made `onSubmit` for native forms, or a raw `submit(formData)` you can call from any form library.
+`useSubmitAction` wraps a route's `action` with submission state (`isSubmitting`, `data`, `error`) and gives you two ways to trigger it — a ready-made `onSubmit` for native forms, or a raw `submit(data)` you can call from any form library.
 
 ```tsx
 import { useSubmitAction } from 'clear-react-router';
@@ -454,8 +449,7 @@ const CreateUserForm = () => {
 };
 ```
 
-`submit(formData)` accepts a plain `FormData`, so it works with any form library that gives you
-validated values — not just native `<form>` submissions:
+`submit(data: Record<string, unknown>)` accepts a plain JS object, so it works with any form library that gives you validated values — not just native `<form>` submissions:
 
 ```tsx
 import { useForm } from 'react-hook-form';
@@ -463,13 +457,7 @@ import { useForm } from 'react-hook-form';
 const { register, handleSubmit } = useForm<FormValues>();
 const { submit, isSubmitting } = useSubmitAction('createUser');
 
-const onValid = (values: FormValues) => {
-    const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => formData.append(key, String(value)));
-    return submit(formData);
-};
-
-<form onSubmit={handleSubmit(onValid)}>
+<form onSubmit={handleSubmit(submit)}>
     <input {...register('email')} disabled={isSubmitting} />
 </form>
 ```
@@ -482,17 +470,21 @@ Arguments:
 | `options.onSuccess` | `(data: unknown) => void \| undefined` | `undefined` | Called after a successful submission |
 | `options.onError` | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws |
 | `options.autoReset` | `boolean \| undefined` | `true` | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
-| `options.withBeforeLoad` | `boolean \| undefined` | `false` |  Whether to run the `beforeLoad` hook on a successful action submit as well |
 
 Return value:
 
 | Field | Type | Description |
 |---|---|---|
-| `submit` | `(formData: FormData) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source |
+| `submit` | `(data: Record<string, unknown>) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source |
 | `onSubmit` | `(evt: SubmitEvent<HTMLFormElement>) => Promise<void>` | Ready-made handler for a native `<form onSubmit={...}>` |
 | `data` | `unknown` | Result of the last successful submission |
 | `error` | `Error \| null` | Error from the last failed submission |
 | `isSubmitting` | `boolean` | `true` while the action is in flight |
+
+> The native `onSubmit` handler converts the form via `Object.fromEntries(new FormData(...))` —
+> if your form has multiple fields sharing the same `name` (checkbox groups, `<select multiple>`),
+> only the last value survives. Use `submit(data)` with your own data source (e.g. React Hook Form)
+> if you need to preserve multiple values per field.
 
 ## useAction()
 
@@ -506,17 +498,12 @@ Return value:
 | `options` | `Options` | Optional callbacks invoked after the action succeeds or fails. |
 
 ```ts
-type Options = { onSuccess?: (args: unknown) => void; onError?: (args: unknown) => void }> | undefined;
+type Options = { onSuccess?: (args: unknown) => void; onError?: (args: unknown) => void };
 ```
 
 ```tsx
 const save = useAction('save');
-
-const handleClick = async () => {
-  const data = new FormData();
-  data.append('title', 'Hello');
-  await save(data);
-};
+const handleClick = async () => await save({ data: 'Hello world!' });
 
 <button onClick={handleClick}>Save</button>
 ```
