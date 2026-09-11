@@ -470,7 +470,6 @@ Arguments:
 | `options.onSuccess` | `(data: unknown) => void \| undefined` | `undefined` | Called after a successful submission |
 | `options.onError` | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws |
 | `options.autoReset` | `boolean \| undefined` | `true` | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
-| `options.withBeforeLoad` | `boolean \| undefined` | `false` |  Whether to run the `beforeLoad` hook on a successful action submit as well |
 
 Return value:
 
