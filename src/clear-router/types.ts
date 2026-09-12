@@ -147,7 +147,6 @@ export type RouterState = {
 };
 
 export type RouterType = {
-	state: Omit<RouterState, 'timestampMap'>;
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
@@ -158,6 +157,7 @@ export type RouterType = {
 		useRouteItemData(): ReturnType<typeof useGlobalState<RouteItemData>>;
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
+		useBlockedTargetState(): ReturnType<typeof useGlobalState<Location | null>>;
 		useLoaderState<T>(): LoaderState<T>;
 		useParams<T>(): T;
 		useNavigate(): (arg: NavigationLocation | string | -1) => Promise<void>;

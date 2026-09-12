@@ -56,13 +56,13 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	return {
-		state: routerState,
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useBlockerState: () => useGlobalState(routerState.blockerState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
 			useScrollMap: () => useGlobalState(routerState.scrollMapState),
 			useContextState: () => useGlobalState(routerState.contextState),
+			useBlockedTargetState: () => useGlobalState(routerState.blockedTargetState),
 			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
 			useParams: <T>() => {
 				const { routeItem, location } = routerState.routeItemDataState.getState();

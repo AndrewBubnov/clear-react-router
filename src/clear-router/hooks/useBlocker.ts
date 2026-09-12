@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useGlobalState } from '../create';
 import { router } from '../instance';
 import { useLocation } from './useLocation';
 import { BlockerState, Location } from '../types';
@@ -18,13 +17,12 @@ type BlockerCallback = {
 
 export const useBlocker = (blockerFn: (args: BlockerCallback) => boolean): UseBlockerReturnValue => {
 	const {
-		hooks: { useBlockerState, useContextState },
+		hooks: { useBlockerState, useContextState, useBlockedTargetState },
 		runtime: { navigate },
-		state: { blockedTargetState },
 	} = router;
 
-	const [nextLocation, setNextLocation] = useGlobalState(blockedTargetState);
 	const [blockerState, setBlockerState] = useBlockerState();
+	const [nextLocation, setNextLocation] = useBlockedTargetState();
 	const [context] = useContextState();
 	const location = useLocation();
 
@@ -36,9 +34,8 @@ export const useBlocker = (blockerFn: (args: BlockerCallback) => boolean): UseBl
 
 	const processHandler = useCallback(async () => {
 		if (nextLocation) await navigate(nextLocation);
-		setBlockerState('unblocked');
 		setNextLocation(null);
-	}, [navigate, nextLocation, setBlockerState, setNextLocation]);
+	}, [navigate, nextLocation, setNextLocation]);
 
 	const resetHandler = useCallback(() => {
 		setBlockerState('charged');
