@@ -85,8 +85,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				if (retry && retry.count > retried) {
 					loadingPromises.delete(path);
 					if (retry.delay) await sleep(retry.delay);
-					await revalidateCache({ routeItem, location, signal }, retried + 1);
-					return { data: null, error };
+					return revalidateCache({ routeItem, location, signal }, retried + 1);
 				} else {
 					return { data: null, error };
 				}

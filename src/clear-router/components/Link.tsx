@@ -135,14 +135,16 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		await navigate(location);
 	};
 
+	const href = `${to}${searchString}`;
+
 	return as(
 		// eslint-disable-next-line react-hooks/refs
 		{
 			ref: elementRef as Ref<T>,
-			href: to,
 			style: normalizedStyle,
 			className: resultClassName,
 			onClick: clickHandler,
+			href,
 			onMouseEnter,
 			onMouseLeave,
 			children,
