@@ -1,12 +1,52 @@
 import { createRouter } from '../creators/createRouter.ts';
-import { lazy } from '../utils/lazy';
+import { Link } from '../components/Link';
+import { loremIpsum } from 'lorem-ipsum';
 
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// eslint-disable-next-line react-refresh/only-export-components
+const Home = () => (
+	<div>
+		<h3>Home</h3>
+		<Link to="/about">
+			<span>To about page</span>
+		</Link>
+		<Link to="/user/10">
+			<span>To user page</span>
+		</Link>
+		<main>{loremIpsum({ count: 52, units: 'paragraph' })}</main>
+	</div>
+);
+
+// eslint-disable-next-line react-refresh/only-export-components
+const About = () => (
+	<div>
+		<h3>About</h3>
+		<Link to={`/post/10`}>
+			<span>To random post page</span>
+		</Link>
+	</div>
+);
+
+// eslint-disable-next-line react-refresh/only-export-components
+const Fallback = ({ title }: { title: string }) => <h2>{`Loading ${title}...`}</h2>;
+
+// eslint-disable-next-line react-refresh/only-export-components
+const Test = () => {
+	return (
+		<div>
+			<h3>Test</h3>
+			<Link to="/">
+				<span>To home page</span>
+			</Link>
+		</div>
+	);
+};
 
 export const routes = createRouter([
 	{
 		path: '/',
-		element: lazy(() => import('./components/Home.tsx')),
+		element: Home,
 		loader: async () => {
 			await sleep(1500);
 			return `Hello from home, ${new Date().getSeconds()}`;
@@ -14,7 +54,7 @@ export const routes = createRouter([
 	},
 	{
 		path: '/about',
-		element: lazy(() => import('./components/About.tsx')),
+		element: About,
 		loader: async () => {
 			await sleep(2000);
 			return `About page: , ${new Date().getSeconds()}`;
