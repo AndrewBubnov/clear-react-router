@@ -11,9 +11,9 @@ import {
 	updateScrollMap,
 	restoreScroll,
 } from '../utils/utils';
-import { create } from '../create';
+import { create, Store } from '../create';
 import { TestElement } from './common';
-import { Location, RouteItem } from '../types';
+import { Location, RouteItem, RouteItemData, ScrollMap } from '../types';
 
 describe('utils', () => {
 	describe('getParams', () => {
@@ -94,8 +94,6 @@ describe('utils', () => {
 	});
 
 	describe('isMobile', () => {
-		const originalMatchMedia = window.matchMedia;
-
 		beforeEach(() => {
 			vi.restoreAllMocks();
 		});
@@ -138,7 +136,7 @@ describe('utils', () => {
 
 	describe('getPartialLoaderArgs', () => {
 		it('returns correct loader args', () => {
-			const contextState = create({ foo: 'bar' });
+			const contextState = create({ foo: 'bar' } as Record<string, unknown>);
 			const location: Location = { pathname: '/user/123', search: '?q=test' };
 			const routeItem: RouteItem = {
 				path: '/user/:userId',
@@ -165,7 +163,6 @@ describe('utils', () => {
 			el.appendChild(child);
 			document.body.appendChild(el);
 
-			// jsdom doesn't compute layout, so we set scrollHeight directly
 			Object.defineProperty(el, 'scrollHeight', { value: 200, configurable: true });
 			Object.defineProperty(el, 'clientHeight', { value: 100, configurable: true });
 
@@ -205,9 +202,9 @@ describe('utils', () => {
 				writable: true,
 			});
 
-			updateScrollMap(routeItemDataState, scrollMapState);
+			updateScrollMap(routeItemDataState as Store<RouteItemData>, scrollMapState);
 
-			const map = scrollMapState.getState();
+			const map: ScrollMap = scrollMapState.getState();
 			expect(map['/test']).toEqual([
 				['__window_top__', 100],
 				['__window_left__', 50],
