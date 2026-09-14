@@ -233,7 +233,10 @@ const renderWithRouter = async (hookFn: () => unknown, path = '/', routes?: Retu
 		]);
 
 	window.history.pushState({}, '', path);
-	return render(<Router routes={testRoutes} />);
+	await act(async () => {
+		render(<Router routes={testRoutes} />);
+		await sleep(150);
+	});
 };
 
 const waitForReady = () =>
@@ -285,12 +288,12 @@ describe('Link component', () => {
 		);
 
 		it(
-			'search object prop does not affect href',
+			'search object prop appends to href',
 			async () => {
 				render(<Router routes={createTestRoutes()} />);
 				await waitForReady();
 				const link = screen.getByRole('link', { name: /with search object/i });
-				expect(link).toHaveAttribute('href', '/search');
+				expect(link).toHaveAttribute('href', '/search?q=hello&page=2');
 			},
 			TEST_TIMEOUT
 		);
@@ -588,6 +591,7 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+
 			},
 			TEST_TIMEOUT
 		);
@@ -628,6 +632,7 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+
 			},
 			TEST_TIMEOUT
 		);
@@ -648,6 +653,7 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+
 			},
 			TEST_TIMEOUT
 		);
@@ -668,6 +674,7 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+
 			},
 			TEST_TIMEOUT
 		);
@@ -877,6 +884,7 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+
 			},
 			TEST_TIMEOUT
 		);

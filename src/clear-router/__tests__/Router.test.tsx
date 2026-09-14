@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Router } from '..';
-import { routes } from './routes';
+import { routes } from './common';
 
 const TEST_TIMEOUT = 10000;
 
