@@ -1,10 +1,15 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
+let isPatched = false;
+
 const notify = () => {
 	window.dispatchEvent(new Event('locationChange'));
 };
 
 const patchHistory = () => {
+	if (isPatched) return;
+	isPatched = true;
+
 	const push = history.pushState;
 	const replace = history.replaceState;
 

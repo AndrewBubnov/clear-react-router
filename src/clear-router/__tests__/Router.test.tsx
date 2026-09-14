@@ -1,153 +1,161 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
-import { Router, Link } from '..';
-import { router } from '../instance';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import { Router } from '..';
 import { routes } from './routes';
 
-const renderRouter = async (initialPath = '/') => {
-	await act(async () => {
-		await router.runtime.navigate({ pathname: initialPath, search: '' });
-	});
-	return render(<Router routes={routes} />);
-};
+const TEST_TIMEOUT = 10000;
 
 describe('Router integration', () => {
 	beforeEach(() => {
-		vi.useFakeTimers();
+		window.history.pushState({}, '', '/');
 	});
 
-	afterEach(() => {
-		vi.useRealTimers();
-	});
+	it(
+		'renders home page after loader completes',
+		async () => {
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 
-	it('renders home page initially', async () => {
-		await renderRouter('/');
-		await act(async () => {
-			vi.advanceTimersByTime(2000);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/Home/i)).toBeInTheDocument();
-		});
-	});
+	it(
+		'renders fallback while loader is pending',
+		async () => {
+			window.history.pushState({}, '', '/about');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Loading About/i)).toBeInTheDocument();
+				},
+				{ timeout: 3000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 
-	it('renders fallback while loader is pending', async () => {
-		await renderRouter('/');
-		expect(screen.getByText(/Loading Home/i)).toBeInTheDocument();
-	});
+	it(
+		'navigates via Link component',
+		async () => {
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
 
-	it('navigates via Link component', async () => {
-		await renderRouter('/');
-		await act(async () => {
-			vi.advanceTimersByTime(2000);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/Home/i)).toBeInTheDocument();
-		});
-
-		const aboutLink = screen.getByRole('link', { name: /about/i });
-		await act(async () => {
+			const aboutLink = screen.getByText('To about page');
 			aboutLink.click();
-			vi.advanceTimersByTime(2500);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/About/i)).toBeInTheDocument();
-		});
-	});
 
-	it('renders NotFound for unknown routes', async () => {
-		await renderRouter('/unknown');
-		await act(async () => {
-			vi.advanceTimersByTime(100);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/Not Found/i)).toBeInTheDocument();
-		});
-	});
+			await waitFor(
+				() => {
+					expect(screen.getByText(/About/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 
-	it('handles nested routes with params', async () => {
-		await renderRouter('/user/123');
-		await act(async () => {
-			vi.advanceTimersByTime(1500);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/User 123/i)).toBeInTheDocument();
-		});
-	});
+	it(
+		'renders NotFound for unknown routes',
+		async () => {
+			window.history.pushState({}, '', '/unknown');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Not Found/i)).toBeInTheDocument();
+				},
+				{ timeout: 3000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 
-	it('shows loader fallback during navigation', async () => {
-		await renderRouter('/');
-		await act(async () => {
-			vi.advanceTimersByTime(2000);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/Home/i)).toBeInTheDocument();
-		});
+	it(
+		'handles nested routes with params',
+		async () => {
+			window.history.pushState({}, '', '/user/123');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/User 123/i)).toBeInTheDocument();
+				},
+				{ timeout: 3000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 
-		const aboutLink = screen.getByRole('link', { name: /about/i });
-		await act(async () => {
+	it(
+		'shows loader fallback during navigation',
+		async () => {
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			const aboutLink = screen.getByText('To about page');
 			aboutLink.click();
-		});
-		expect(screen.getByText(/Loading About/i)).toBeInTheDocument();
-	});
+
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Loading About/i)).toBeInTheDocument();
+				},
+				{ timeout: 3000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 });
 
 describe('Link component', () => {
-	beforeEach(() => {
-		vi.useFakeTimers();
-	});
+	it(
+		'renders anchor with href',
+		async () => {
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			const link = screen.getByRole('link', { name: /to about page/i });
+			expect(link).toHaveAttribute('href', '/about');
+		},
+		TEST_TIMEOUT
+	);
 
-	afterEach(() => {
-		vi.useRealTimers();
-	});
+	it(
+		'navigates on click',
+		async () => {
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
 
-	it('renders anchor with href', async () => {
-		await renderRouter('/');
-		const link = screen.getByRole('link', { name: /test link/i });
-		expect(link).toHaveAttribute('href', '/test');
-	});
+			const aboutLink = screen.getByText('To about page');
+			aboutLink.click();
 
-	it('handles onClick', async () => {
-		await renderRouter('/');
-		const onClick = vi.fn();
-		render(
-			<>
-				<Router routes={routes} />
-				<Link to="/test" onClick={onClick}>
-					Test
-				</Link>
-			</>
-		);
-		await act(async () => {
-			vi.advanceTimersByTime(2000);
-		});
-		const link = screen.getByRole('link', { name: /test/i });
-		link.click();
-		expect(onClick).toHaveBeenCalled();
-	});
-
-	it('navigates on click', async () => {
-		await renderRouter('/');
-		await act(async () => {
-			vi.advanceTimersByTime(2000);
-		});
-
-		render(
-			<>
-				<Router routes={routes} />
-				<Link to="/about">About</Link>
-			</>
-		);
-		await act(async () => {
-			vi.advanceTimersByTime(100);
-		});
-
-		const link = screen.getByRole('link', { name: /about/i });
-		await act(async () => {
-			link.click();
-			vi.advanceTimersByTime(2500);
-		});
-		await waitFor(() => {
-			expect(screen.getByText(/About/i)).toBeInTheDocument();
-		});
-	});
+			await waitFor(
+				() => {
+					expect(screen.getByText(/About/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
 });

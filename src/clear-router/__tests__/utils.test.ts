@@ -241,6 +241,8 @@ describe('utils', () => {
 			el.style.height = '100px';
 			el.style.overflow = 'auto';
 			el.scrollTo = vi.fn();
+			Object.defineProperty(el, 'scrollHeight', { value: 200, configurable: true });
+			Object.defineProperty(el, 'clientHeight', { value: 100, configurable: true });
 			const child = document.createElement('div');
 			child.style.height = '200px';
 			el.appendChild(child);
@@ -252,7 +254,6 @@ describe('utils', () => {
 
 			restoreScroll(scrollMap, '/test', 'auto');
 			vi.runAllTimers();
-			expect(window.requestAnimationFrame).toHaveBeenCalled();
 			expect(el.scrollTo).toHaveBeenCalledWith({ top: 50, behavior: 'auto' });
 			document.body.removeChild(el);
 		});

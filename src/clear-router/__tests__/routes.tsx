@@ -1,5 +1,6 @@
 import { createRouter } from '../creators/createRouter.ts';
 import { Link } from '../components/Link';
+import { useParams } from '../hooks/useParams';
 import { loremIpsum } from 'lorem-ipsum';
 
 const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -43,6 +44,31 @@ const Test = () => {
 	);
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
+const User = () => {
+	const { userId } = useParams<{ userId: string }>();
+	return (
+		<div>
+			<h3>User {userId}</h3>
+		</div>
+	);
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+const UserList = () => (
+	<div>
+		<h3>User List</h3>
+	</div>
+);
+
+// eslint-disable-next-line react-refresh/only-export-components
+const NotFound = () => (
+	<div>
+		<h1>404</h1>
+		<h3>Not Found</h3>
+	</div>
+);
+
 export const routes = createRouter([
 	{
 		path: '/',
@@ -63,4 +89,15 @@ export const routes = createRouter([
 		loaderFallback: <Fallback title="About" />,
 	},
 	{ path: '/test', element: Test },
+	{
+		path: '/user',
+		element: UserList,
+		children: [
+			{
+				path: '/:userId',
+				element: User,
+			},
+		],
+	},
+	{ path: '*', element: NotFound },
 ]);
