@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/clear-react-router.svg)](https://www.npmjs.com/package/clear-react-router)
+[![CI](https://github.com/AndrewBubnov/clear-react-router/actions/workflows/ci.yml/badge.svg)](https://github.com/AndrewBubnov/clear-react-router/actions/workflows/ci.yml)
 
 # Clear Router
 
