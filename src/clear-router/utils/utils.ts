@@ -30,6 +30,7 @@ export const getParams = (location: Location, routeItem?: RouteItem) => {
 export const parseWindowLocation = (location: typeof window.location): Location => ({
 	pathname: location.pathname,
 	search: location.search,
+	state: history.state ?? undefined,
 });
 
 export const comparePaths = (route: RouteItem, pathname: string) => {

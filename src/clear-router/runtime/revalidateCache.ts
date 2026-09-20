@@ -23,6 +23,11 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 
 export const createRevalidateCache = (routerState: RouterState) => {
 	const { loaderMap, loadingPromises, contextState } = routerState;
+	// Owner token of each in-flight fetch, keyed by cache path. Prefetch-originated
+	// fetches (started without a navigation signal) store their AbortController so
+	// a later navigation can cancel them; navigation-owned entries store the
+	// passed `signal` (abort owned by navigate.ts via that signal).
+	const flightOwners = new Map<string, AbortController | AbortSignal>();
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const oldestKey = loaderMap.keys().next().value;
@@ -49,11 +54,19 @@ export const createRevalidateCache = (routerState: RouterState) => {
 		const path = `${pathname}${search}`;
 
 		if (loadingPromises.has(path)) {
-			// NB: if this in-flight promise originated from a prefetch (no signal),
-			// a subsequent navigation's AbortSignal is discarded here — the prefetch
-			// request will complete regardless of later navigation changes.
-			moveItemToLastPosition(path);
-			return loadingPromises.get(path);
+			const owner = flightOwners.get(path);
+			if (signal && owner instanceof AbortController) {
+				// A navigation arrived while a prefetch for the same path is still
+				// in flight. The prefetch promise is not abortable via the
+				// navigation signal, so cancel it and fall through to a fresh
+				// abortable fetch instead of making navigation wait on it.
+				owner.abort();
+				loadingPromises.delete(path);
+				flightOwners.delete(path);
+			} else {
+				moveItemToLastPosition(path);
+				return loadingPromises.get(path);
+			}
 		}
 
 		if (isCacheItemFresh(path)) {
@@ -64,9 +77,15 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				: { data: item.state.data, error: null };
 		}
 
-		const promise = (async (): LoadingPromise => {
+		const promise: LoadingPromise = (async (): LoadingPromise => {
 			if (!routeItem?.loader) return;
-			const effectiveSignal = signal ?? new AbortController().signal;
+			// Prefetch (no signal) gets its own controller so a later navigation
+			// can cancel it. Navigation/invalidate signals are owned by the caller.
+			const prefetchController = signal ? null : new AbortController();
+			const effectiveSignal = signal ?? prefetchController!.signal;
+			const ownerToken: AbortController | AbortSignal = prefetchController ?? signal!;
+			flightOwners.set(path, ownerToken);
+			const isOwner = () => flightOwners.get(path) === ownerToken;
 			try {
 				const result = await routeItem?.loader({
 					...getPartialLoaderArgs(contextState, location, routeItem),
@@ -83,14 +102,20 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				if (effectiveSignal.aborted) return { data: null, error: null };
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
-					loadingPromises.delete(path);
+					if (isOwner()) {
+						loadingPromises.delete(path);
+						flightOwners.delete(path);
+					}
 					if (retry.delay) await sleep(retry.delay);
 					return revalidateCache({ routeItem, location, signal }, retried + 1);
 				} else {
 					return { data: null, error };
 				}
 			} finally {
-				loadingPromises.delete(path);
+				if (isOwner()) {
+					loadingPromises.delete(path);
+					flightOwners.delete(path);
+				}
 			}
 		})();
 

@@ -303,4 +303,100 @@ describe('revalidateCache', () => {
 
 		expect(loader).toHaveBeenCalledTimes(2);
 	});
+
+	it('navigation cancels in-flight prefetch for the same path', async () => {
+		const loader = vi
+			.fn()
+			.mockImplementationOnce(
+				(args: { signal: AbortSignal }) =>
+					new Promise<string>((_resolve, reject) => {
+						args.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+					})
+			)
+			.mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state);
+		const routeItem = createMockRouteItem({ loader });
+
+		// Prefetch without a navigation signal hangs in flight
+		const prefetchPromise = revalidateCache({ routeItem, location: { pathname: '/test' } });
+		const controller = new AbortController();
+		const navPromise = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			signal: controller.signal,
+		});
+
+		const [prefetchResult, navResult] = await Promise.all([prefetchPromise, navPromise]);
+
+		expect(prefetchResult).toEqual({ data: null, error: null });
+		expect(navResult).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('deduplicates concurrent navigations with different signals', async () => {
+		let resolveLoader!: (value: string) => void;
+		const loader = vi.fn(
+			() =>
+				new Promise<string>(r => {
+					resolveLoader = r;
+				})
+		);
+		revalidateCache = createRevalidateCache(state);
+		const routeItem = createMockRouteItem({ loader });
+
+		const p1 = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			signal: new AbortController().signal,
+		});
+		const p2 = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			signal: new AbortController().signal,
+		});
+
+		resolveLoader('data');
+		const [r1, r2] = await Promise.all([p1, p2]);
+
+		expect(r1).toEqual({ data: 'data', error: null });
+		expect(r1).toEqual(r2);
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
+	it('aborted prefetch cleanup does not remove the navigation entry', async () => {
+		let resolveNav!: (value: string) => void;
+		const loader = vi
+			.fn()
+			.mockImplementationOnce(
+				(args: { signal: AbortSignal }) =>
+					new Promise<string>((_resolve, reject) => {
+						args.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+					})
+			)
+			.mockImplementationOnce(
+				() =>
+					new Promise<string>(r => {
+						resolveNav = r;
+					})
+			);
+		revalidateCache = createRevalidateCache(state);
+		const routeItem = createMockRouteItem({ loader });
+
+		const prefetchPromise = revalidateCache({ routeItem, location: { pathname: '/test' } });
+		const navPromise = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			signal: new AbortController().signal,
+		});
+
+		// Let the aborted prefetch settle (including its finally block)
+		await prefetchPromise;
+		expect(state.loadingPromises.has('/test')).toBe(true);
+
+		resolveNav('nav data');
+		const navResult = await navPromise;
+
+		expect(navResult).toEqual({ data: 'nav data', error: null });
+		expect(state.loadingPromises.has('/test')).toBe(false);
+	});
 });

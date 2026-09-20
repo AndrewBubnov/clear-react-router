@@ -13,13 +13,13 @@ export const useNavigation = () => {
 			const newLocation = parseWindowLocation((event.target as Window).location);
 			const prevLocation = { pathname: location.pathname, search: location.search };
 			if (blockerState === 'charged') {
-				history.pushState(null, '', location.pathname);
+				history.pushState(location.state ?? null, '', `${location.pathname}${location.search}`);
 			}
 			await navigate({ ...newLocation, prevLocation });
 		};
 		window.addEventListener('popstate', handler);
 		return () => window.removeEventListener('popstate', handler);
-	}, [blockerState, location.pathname, location.search, navigate]);
+	}, [blockerState, location.pathname, location.search, location.state, navigate]);
 
 	useEffect(() => {
 		navigate(parseWindowLocation(window.location));

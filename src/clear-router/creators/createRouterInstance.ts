@@ -56,7 +56,20 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	return {
-		runtime: { navigate, invalidate, prefetch },
+		runtime: {
+			navigate,
+			invalidate,
+			prefetch,
+			syncSearch: (search: string) => {
+				const current = routerState.routeItemDataState.getState();
+				if (!current.location?.pathname) return;
+				if (current.location.search === search) return;
+				routerState.routeItemDataState.setState({
+					...current,
+					location: { ...current.location, search },
+				});
+			},
+		},
 		hooks: {
 			useBlockerState: () => useGlobalState(routerState.blockerState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
@@ -83,9 +96,9 @@ export const createRouterInstance = (): RouterType => {
 				await navigate({ ...arg, search, prevLocation });
 			},
 			useAction: (action: string, options: Options = {}) => {
-				const currentAction = getCurrentAction(action);
 				return async (input: Record<string, unknown>) => {
 					try {
+						const currentAction = getCurrentAction(action);
 						const data = await currentAction(input);
 						await invalidate();
 						options.onSuccess?.(data);

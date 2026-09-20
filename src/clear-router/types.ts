@@ -151,6 +151,7 @@ export type RouterType = {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
 		prefetch(location: Location): Promise<void>;
+		syncSearch(search: string): void;
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
@@ -177,7 +178,7 @@ export type InvalidateOptions = {
 export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
 export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (args: unknown) => void }> | undefined;
 
-export type InvalidateResult = { path: string; data: unknown };
+export type InvalidateResult = { path: string; data: unknown; error: unknown };
 
 export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	ref: Ref<T>;

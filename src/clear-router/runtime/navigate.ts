@@ -10,6 +10,14 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	let navigationSeq = 0;
 	let interval = 0;
 	let abortController: AbortController | null = null;
+	let pollingController: AbortController | null = null;
+
+	const stopPolling = () => {
+		window.clearInterval(interval);
+		interval = 0;
+		pollingController?.abort();
+		pollingController = null;
+	};
 
 	const {
 		loaderState,
@@ -91,7 +99,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const polling = (routeItem: RouteItem | undefined, nextLocation: Location) => {
 		if (!routeItem?.pollingInterval) return;
-		const signal = createSignal();
+		pollingController?.abort();
+		pollingController = new AbortController();
+		const signal = pollingController.signal;
 		interval = window.setInterval(
 			() => revalidateCache({ routeItem, location: nextLocation, signal }),
 			routeItem.pollingInterval
@@ -107,7 +117,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 
 	const loader = async (routeItem: RouteItem | undefined, nextLocation: Location, seq: number) => {
 		if (!routeItem?.loader) return;
-		window.clearInterval(interval);
 		const signal = createSignal();
 		const [result] = await Promise.all([
 			revalidateCache({ routeItem, location: nextLocation, signal }),
@@ -118,7 +127,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		return result;
 	};
 
-	const afterLoad = async (routeItem: RouteItem | undefined, params: Record<string, string>) => {
+	const afterLoad = async (routeItem: RouteItem | undefined, location: Location, params: Record<string, string>) => {
 		const { defaultAfterLoad } = routerConfig;
 		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
 		const args = { context: contextState.getState(), params, searchParams };
@@ -147,6 +156,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const navigate = async (rawLocation: Location) => {
 		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		if (checkBlocked(nextLocation)) return;
+		// Stop the previous route's polling on every navigation — including
+		// transitions to routes without a loader (loader() early-returns there
+		// and would otherwise leak the old interval).
+		stopPolling();
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
 		const { nextItem, params } = routeResolve(nextLocation);
@@ -164,7 +177,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		};
 		commitNavigation(() => commitState({ location: nextLocation, routeItem: nextItem, loaderStateValue }));
 		clearCurrentGcTimeout(nextItem, nextLocation);
-		void afterLoad(nextItem, params);
+		void afterLoad(nextItem, nextLocation, params);
 	};
 
 	return navigate;

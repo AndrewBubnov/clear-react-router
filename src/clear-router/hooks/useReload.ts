@@ -8,7 +8,7 @@ export const useReload = () => {
 	useEffect(() => {
 		if (!routerConfig.revalidateOnFocus) return;
 		const handler = () => {
-			if (document.visibilityState === 'visible') invalidate('', { staleOnly: true });
+			if (document.visibilityState === 'visible') invalidate(undefined, { staleOnly: true });
 		};
 		document.addEventListener('visibilitychange', handler);
 		return () => document.removeEventListener('visibilitychange', handler);
@@ -16,7 +16,7 @@ export const useReload = () => {
 
 	useEffect(() => {
 		if (!routerConfig.revalidateOnReconnect) return;
-		const handler = () => invalidate('', { staleOnly: true });
+		const handler = () => invalidate(undefined, { staleOnly: true });
 		window.addEventListener('online', handler);
 		return () => window.removeEventListener('online', handler);
 	}, [invalidate]);

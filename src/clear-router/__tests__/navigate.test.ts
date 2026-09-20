@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { createRevalidateCache } from '../runtime/revalidateCache';
 import { createNavigate } from '../runtime/navigate';
+import { createRouterInstance } from '../creators/createRouterInstance';
 import { create } from '../create';
 import { routerConfig } from '../config/routerConfig';
 import { createMockRouteItem, EMPTY_LOADER_STATE } from './common';
@@ -349,4 +351,106 @@ describe('navigate', () => {
 		expect(loader).not.toHaveBeenCalled();
 		expect(state.loaderState.getState().data).toBe('fresh');
 	}, 10000);
+});
+
+describe('useAction', () => {
+	beforeEach(() => {
+		routerConfig.configure({
+			routes: [],
+			maxCacheSize: 10,
+			isAnimated: false,
+		});
+		vi.spyOn(history, 'pushState').mockImplementation(() => {});
+		// The outer suite stubs `document` with a plain object (startViewTransition mock),
+		// which breaks @testing-library/react rendering — restore the real jsdom document.
+		vi.unstubAllGlobals();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('calls the current route action after navigation', async () => {
+		const actionA = vi.fn(async () => 'saved-a');
+		const actionB = vi.fn(async () => 'saved-b');
+		const routeA = createMockRouteItem({
+			path: '/a',
+			pattern: '/a',
+			actions: () => ({ save: actionA }),
+		});
+		const routeB = createMockRouteItem({
+			path: '/b',
+			pattern: '/b',
+			actions: () => ({ save: actionB }),
+		});
+		routerConfig.configure({ routes: [routeA, routeB] });
+		const instance = createRouterInstance();
+
+		await instance.runtime.navigate({ pathname: '/a' });
+		const { result } = renderHook(() => instance.hooks.useAction('save'));
+		await instance.runtime.navigate({ pathname: '/b' });
+
+		let submitResult: unknown;
+		await act(async () => {
+			submitResult = await result.current({ title: 'hello' });
+		});
+
+		expect(actionB).toHaveBeenCalledWith({ title: 'hello' });
+		expect(actionA).not.toHaveBeenCalled();
+		expect(submitResult).toEqual({ data: 'saved-b', error: null });
+	});
+
+	it('returns error instead of crashing render when action is missing', async () => {
+		const route = createMockRouteItem({
+			path: '/a',
+			pattern: '/a',
+			actions: () => ({}),
+		});
+		routerConfig.configure({ routes: [route] });
+		const instance = createRouterInstance();
+
+		await instance.runtime.navigate({ pathname: '/a' });
+
+		let submit!: (input: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+		expect(() => {
+			const { result } = renderHook(() => instance.hooks.useAction('missing'));
+			submit = result.current;
+		}).not.toThrow();
+
+		let submitResult: { data: unknown; error: unknown } | undefined;
+		await act(async () => {
+			submitResult = await submit({});
+		});
+
+		expect(submitResult?.data).toBeNull();
+		expect(submitResult?.error).toBeInstanceOf(Error);
+	});
+
+	it('invalidates current route and calls onSuccess after submit', async () => {
+		const loader = vi.fn(async () => 'v1');
+		const action = vi.fn(async () => 'saved');
+		const onSuccess = vi.fn();
+		const route = createMockRouteItem({
+			path: '/a',
+			pattern: '/a',
+			loader,
+			actions: () => ({ save: action }),
+		});
+		routerConfig.configure({ routes: [route] });
+		const instance = createRouterInstance();
+
+		await instance.runtime.navigate({ pathname: '/a' });
+		expect(loader).toHaveBeenCalledTimes(1);
+
+		const { result } = renderHook(() => instance.hooks.useAction('save', { onSuccess }));
+
+		let submitResult: unknown;
+		await act(async () => {
+			submitResult = await result.current({});
+		});
+
+		expect(submitResult).toEqual({ data: 'saved', error: null });
+		expect(onSuccess).toHaveBeenCalledWith('saved');
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
 });

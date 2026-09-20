@@ -15,5 +15,5 @@ export const createCommitState =
 		if (blockerState.getState() === 'blocked') blockerState.setState('unblocked');
 		const fullPath = location.search ? `${location.pathname}${location.search}` : location.pathname;
 		if (fullPath === window.location.pathname + window.location.search) return;
-		history.pushState(null, '', `${location.pathname}${location.search}`);
+		history.pushState(location.state ?? null, '', `${location.pathname}${location.search}`);
 	};

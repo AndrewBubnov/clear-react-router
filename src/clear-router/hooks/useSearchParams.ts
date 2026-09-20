@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSearch } from './useSearch';
+import { router } from '../instance';
 
 type UseSearchParamsReturn = {
 	searchParams: URLSearchParams;
@@ -13,7 +14,7 @@ type UseSearchParamsReturn = {
 export const useSearchParams = (): UseSearchParamsReturn => {
 	const search = useSearch();
 
-	const searchString = search ? search.replace('?', '') : (window.location.pathname.split('?')?.[1] ?? '');
+	const searchString = search ? search.replace('?', '') : window.location.search;
 
 	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
 
@@ -30,6 +31,10 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		const { pathname } = window.location;
 		const search = newSearch ? `?${newSearch}` : '';
 		history.replaceState(null, '', pathname + search);
+		// Keep router state consistent with the URL without triggering a loader
+		// refetch or navigation status change — otherwise useLocation().search
+		// goes stale and diverges from window.location.search.
+		router.runtime.syncSearch(search);
 	}, []);
 
 	const setSearchParams = useCallback(
