@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { create, useGlobalState } from '../create';
+import { create, useGlobalState } from '../../create';
 import { act, renderHook } from '@testing-library/react';
 
 describe('create store', () => {

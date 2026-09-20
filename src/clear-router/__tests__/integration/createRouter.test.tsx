@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { createRouter } from '../creators/createRouter';
-import { lazy } from '../utils/lazy';
-import { Link } from '../components/Link';
-import { TestElement } from './common';
-import { ClientRouteItem } from '../types';
+import { createRouter } from '../../creators/createRouter';
+import { lazy } from '../../utils/lazy';
+import { Link } from '../../components/Link';
+import { TestElement } from '../common';
+import { ClientRouteItem } from '../../types';
 
 const Test = () => {
 	return (

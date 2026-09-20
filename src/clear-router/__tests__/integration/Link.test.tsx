@@ -12,10 +12,10 @@ import {
 	useIsDataLoading,
 	useInvalidate,
 	useNavigate,
-} from '..';
-import { useSearch } from '../hooks/useSearch';
-import { useIsRoutePending } from '../hooks/useIsRoutePending';
-import { createRouter } from '../creators/createRouter';
+} from '../..';
+import { useSearch } from '../../hooks/useSearch';
+import { useIsRoutePending } from '../../hooks/useIsRoutePending';
+import { createRouter } from '../../creators/createRouter';
 
 const TEST_TIMEOUT = 10000;
 

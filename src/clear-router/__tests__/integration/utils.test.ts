@@ -10,10 +10,10 @@ import {
 	isVerticalScroll,
 	updateScrollMap,
 	restoreScroll,
-} from '../utils/utils';
-import { create, Store } from '../create';
-import { TestElement } from './common';
-import { Location, RouteItem, RouteItemData, ScrollMap } from '../types';
+} from '../../utils/utils';
+import { create, Store } from '../../create';
+import { TestElement } from '../common';
+import { Location, RouteItem, RouteItemData, ScrollMap } from '../../types';
 
 describe('utils', () => {
 	describe('getParams', () => {

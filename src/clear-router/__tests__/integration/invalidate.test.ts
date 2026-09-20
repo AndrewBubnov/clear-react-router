@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createRevalidateCache } from '../runtime/revalidateCache';
-import { createInvalidate } from '../runtime/invalidate';
-import { create } from '../create';
-import { routerConfig } from '../config/routerConfig';
-import { createMockRouteItem, EMPTY_LOADER_STATE } from './common';
+import { createRevalidateCache } from '../../runtime/revalidateCache';
+import { createInvalidate } from '../../runtime/invalidate';
+import { create } from '../../create';
+import { routerConfig } from '../../config/routerConfig';
+import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common';
 import {
 	LoaderState,
 	LoaderStateItem,
@@ -14,7 +14,7 @@ import {
 	ScrollMap,
 	BlockerState,
 	ClientRouteItem,
-} from '../types';
+} from '../../types';
 
 const createMockRouterState = (): RouterState => ({
 	routeItemDataState: create<RouteItemData>({

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { createRevalidateCache } from '../runtime/revalidateCache';
-import { createNavigate } from '../runtime/navigate';
-import { createRouterInstance } from '../creators/createRouterInstance';
-import { create } from '../create';
-import { routerConfig } from '../config/routerConfig';
-import { createMockRouteItem, EMPTY_LOADER_STATE } from './common';
+import { createRevalidateCache } from '../../runtime/revalidateCache';
+import { createNavigate } from '../../runtime/navigate';
+import { createRouterInstance } from '../../creators/createRouterInstance';
+import { create } from '../../create';
+import { routerConfig } from '../../config/routerConfig';
+import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common';
 import {
 	LoaderState,
 	LoaderStateItem,
@@ -15,7 +15,7 @@ import {
 	RouterState,
 	ScrollMap,
 	BlockerState,
-} from '../types';
+} from '../../types';
 
 const createMockRouterState = (): RouterState => ({
 	routeItemDataState: create<RouteItemData>({

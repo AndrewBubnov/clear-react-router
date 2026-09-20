@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createRevalidateCache } from '../runtime/revalidateCache';
-import { create } from '../create';
-import { routerConfig } from '../config/routerConfig';
+import { createRevalidateCache } from '../../runtime/revalidateCache';
+import { create } from '../../create';
+import { routerConfig } from '../../config/routerConfig';
 import {
 	LoaderState,
 	LoaderStateItem,
@@ -11,8 +11,8 @@ import {
 	RouterState,
 	ScrollMap,
 	BlockerState,
-} from '../types';
-import { createMockRouteItem, EMPTY_LOADER_STATE } from './common.tsx';
+} from '../../types';
+import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common.tsx';
 
 const createMockRouterState = (): RouterState => ({
 	routeItemDataState: create<RouteItemData>({
