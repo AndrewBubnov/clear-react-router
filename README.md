@@ -55,8 +55,7 @@ It provides first-class support for:
 | `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
 | `defaultStaleTime` | `number` | `optional` | Default time in milliseconds before cached loader data is considered stale |
 | `defaultBeforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
-| `defaultAfterLoad`  | `({ params, context, setContext }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
-| `defaultPreserveScroll` | `boolean \| undefined` | `true` | Default value for save and restore scroll position when navigating between pages |
+| `defaultAfterLoad`  | `({ params, context, searchParams }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
 | `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
@@ -218,7 +217,7 @@ import { Button } from '@mui/material';
 ```
 ```tsx
 // Global prefetch: hover with 100ms delay
-<Router routes={routes} prefetch="hover" hoverPrefetchDelay={100} />
+<Router routes={routes} defaultPrefetchh="hover" defaultHoverPrefetchDelay={100} />
 
 // Override for a specific link
 <Link to="/heavy-page" prefetch="viewport">
@@ -241,7 +240,7 @@ import { Button } from '@mui/material';
 </Link>
 
 // With dynamic style and search object
-<Link to={{ pathname: '/profile', search: { user: 'John Doe' } }} style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
+<Link to='/profile' search={{ user: 'John Doe' }} style={({ isActive }) => ({ fontWeight: isActive ? 'bold' : 'normal' })}>
   Profile
 </Link>
 
