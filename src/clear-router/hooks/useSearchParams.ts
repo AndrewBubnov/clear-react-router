@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearch } from './useSearch';
 
 type UseSearchParamsReturn = {
@@ -10,10 +10,20 @@ type UseSearchParamsReturn = {
 	};
 };
 
+const useLatest = <T>(value: T) => {
+	const ref = useRef(value);
+	useEffect(() => {
+		ref.current = value;
+	}, [value]);
+	return ref;
+};
+
 export const useSearchParams = (): UseSearchParamsReturn => {
 	const search = useSearch();
 
 	const searchString = search ? search.replace('?', '') : (window.location.pathname.split('?')?.[1] ?? '');
+
+	const searchStringRef = useLatest(searchString);
 
 	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
 
@@ -34,7 +44,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 
 	const setSearchParams = useCallback(
 		(param: string | ((prevState: URLSearchParams) => URLSearchParams), value?: string | string[]) => {
-			const currentParams = new URLSearchParams(search);
+			const currentParams = new URLSearchParams(searchStringRef.current);
 
 			if (typeof param === 'string' && value !== undefined) {
 				currentParams.delete(param);
@@ -48,7 +58,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 				throw new Error('useSearchParams first argument must be either function or string');
 			}
 		},
-		[navigateWithSearchParams, search]
+		[navigateWithSearchParams, searchStringRef]
 	);
 
 	return { searchParams, getSearchParams, setSearchParams };
