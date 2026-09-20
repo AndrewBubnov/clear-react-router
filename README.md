@@ -948,7 +948,7 @@ View Transitions API requires modern browsers:
 For older browsers, the router gracefully falls back to regular navigation without animation.
 
 ## Requirements
-- React 16.6+ (for React.lazy and Suspense)
+- React 16.8+ (for React.lazy and Suspense)
 - Use `default` export for your lazy-loaded components
 
  ## License
