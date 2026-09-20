@@ -189,7 +189,9 @@ export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	onMouseEnter(event: MouseEvent): void;
 	onMouseLeave(event: MouseEvent): void;
 	children?: ReactNode;
-};
+	'aria-current'?: 'page';
+	'aria-busy'?: boolean;
+} & Record<`data-${string}` | `aria-${string}`, unknown>;
 
 export type SearchObject = Record<string, string | number | boolean | null | undefined>;
 export type NavigationLocation = Omit<Location, 'search'> & { search?: string | SearchObject };

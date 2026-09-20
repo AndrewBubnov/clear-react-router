@@ -146,6 +146,20 @@ Component for client-side navigation with prefetch support, active state detecti
 | `isActive` | `boolean` | `true` when the link's `to` matches the current URL considering `exact` value |
 | `isPending` | `boolean` | `true` when the target route is currently loading (loader is running) |
 
+### Accessibility
+
+Active links expose `aria-current="page"` so screen readers announce the current page, and links whose target is loading expose `aria-busy="true"` while the loader runs. Both attributes are omitted when inactive, keeping the DOM clean.
+
+Extra `data-*` and `aria-*` props passed to `<Link>` (e.g. `data-testid`, `aria-label`) are forwarded to the rendered element:
+
+```tsx
+<Link to="/about" aria-label="About section" data-testid="about-link">
+  About
+</Link>
+```
+
+When using a custom element via `as`, these attributes arrive in `props` together with everything else — spread them onto the host element as usual.
+
 ### Prefetch Strategies
 
 | Strategy | Behavior |

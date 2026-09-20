@@ -395,6 +395,106 @@ describe('Link component', () => {
 		);
 	});
 
+	describe('accessibility', () => {
+		const renderA11yRoutes = async () => {
+			const routes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>A11y Home</h3>
+							<Link to="/" data-testid="a11y-home">
+								A11y Home Link
+							</Link>
+							<Link to="/about" aria-label="About section" data-testid="a11y-about">
+								A11y About
+							</Link>
+						</div>
+					),
+				},
+				{ path: '/about', element: <div>About Page</div> },
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('a11y-home')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		};
+
+		it(
+			'sets aria-current="page" on the active link only',
+			async () => {
+				await renderA11yRoutes();
+				expect(screen.getByTestId('a11y-home')).toHaveAttribute('aria-current', 'page');
+				expect(screen.getByTestId('a11y-about')).not.toHaveAttribute('aria-current');
+			},
+			TEST_TIMEOUT
+		);
+
+		it(
+			'forwards data-* and aria-* props to the anchor',
+			async () => {
+				await renderA11yRoutes();
+				const aboutLink = screen.getByTestId('a11y-about');
+				expect(aboutLink.tagName).toBe('A');
+				expect(aboutLink).toHaveAttribute('aria-label', 'About section');
+			},
+			TEST_TIMEOUT
+		);
+
+		it(
+			'sets aria-busy while the link target is loading',
+			async () => {
+				const routes = createRouter([
+					{ path: '/', element: <div>Busy Home</div> },
+					{
+						path: '/slow',
+						element: <div>Slow Page</div>,
+						loader: async () => {
+							await sleep(500);
+							return 'slow data';
+						},
+					},
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				render(
+					<div>
+						<Link to="/slow" data-testid="a11y-slow">
+							Slow
+						</Link>
+						<Router routes={routes} />
+					</div>
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Busy Home')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				const link = screen.getByTestId('a11y-slow');
+				expect(link).not.toHaveAttribute('aria-busy');
+				link.click();
+				await waitFor(
+					() => {
+						expect(link).toHaveAttribute('aria-busy', 'true');
+					},
+					{ timeout: 5000 }
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Slow Page')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				expect(link).not.toHaveAttribute('aria-busy');
+			},
+			TEST_TIMEOUT
+		);
+	});
+
 	describe('click behavior', () => {
 		it(
 			'navigates on click',

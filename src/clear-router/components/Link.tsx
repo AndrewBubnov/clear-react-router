@@ -33,7 +33,7 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	beforeNavigate?(): Promise<void>;
 	style?: CSSProperties | ((arg: ElementState) => CSSProperties);
 	exact?: boolean;
-};
+} & Record<`data-${string}` | `aria-${string}`, unknown>;
 
 const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 
@@ -51,6 +51,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	exact = false,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
+	...rest
 }: LinkProps<T>) => {
 	const isPending = useIsRoutePending(to);
 	const { pathname } = useLocation();
@@ -148,6 +149,9 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 			onMouseEnter,
 			onMouseLeave,
 			children,
+			...rest,
+			'aria-current': isActive ? 'page' : undefined,
+			'aria-busy': isPending || undefined,
 		},
 		{ isActive, isPending }
 	);
