@@ -31,9 +31,6 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		const { pathname } = window.location;
 		const search = newSearch ? `?${newSearch}` : '';
 		history.replaceState(null, '', pathname + search);
-		// Keep router state consistent with the URL without triggering a loader
-		// refetch or navigation status change — otherwise useLocation().search
-		// goes stale and diverges from window.location.search.
 		router.runtime.syncSearch(search);
 	}, []);
 

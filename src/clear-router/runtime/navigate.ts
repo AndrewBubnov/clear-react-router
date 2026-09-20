@@ -156,9 +156,6 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const navigate = async (rawLocation: Location) => {
 		const nextLocation = { ...rawLocation, search: rawLocation.search ?? '' };
 		if (checkBlocked(nextLocation)) return;
-		// Stop the previous route's polling on every navigation — including
-		// transitions to routes without a loader (loader() early-returns there
-		// and would otherwise leak the old interval).
 		stopPolling();
 		navigationSeq = navigationSeq + 1;
 		const seq = navigationSeq;
