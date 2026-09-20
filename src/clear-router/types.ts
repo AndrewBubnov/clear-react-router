@@ -178,7 +178,7 @@ export type InvalidateOptions = {
 export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
 export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (args: unknown) => void }> | undefined;
 
-export type InvalidateResult = { path: string; data: unknown; error: unknown };
+export type InvalidateResult = { path: string; data: unknown; error: Error | null };
 
 export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	ref: Ref<T>;
