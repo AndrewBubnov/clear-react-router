@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useSearch } from './useSearch';
 import { router } from '../instance';
 
 type UseSearchParamsReturn = {
@@ -20,13 +19,12 @@ const useLatest = <T>(value: T) => {
 };
 
 export const useSearchParams = (): UseSearchParamsReturn => {
-	const search = useSearch();
+	const [{ location }, setRouteItemData] = router.hooks.useRouteItemData();
+	const { search = window.location.search, pathname = window.location.pathname } = location;
 
-	const searchString = search ? search.replace('?', '') : window.location.search;
+	const searchRef = useLatest(search);
 
-	const searchStringRef = useLatest(searchString);
-
-	const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+	const searchParams = useMemo(() => new URLSearchParams(search), [search]);
 
 	const getSearchParams = useCallback(
 		(param: string) => {
@@ -36,17 +34,19 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		[searchParams]
 	);
 
-	const navigateWithSearchParams = useCallback((params: URLSearchParams) => {
-		const newSearch = params.toString();
-		const { pathname } = window.location;
-		const search = newSearch ? `?${newSearch}` : '';
-		history.replaceState(null, '', pathname + search);
-		router.runtime.syncSearch(search);
-	}, []);
+	const navigateWithSearchParams = useCallback(
+		(params: URLSearchParams) => {
+			const newSearch = params.toString();
+			const search = newSearch ? `?${newSearch}` : '';
+			history.replaceState(history.state, '', pathname + search);
+			setRouteItemData(prevState => ({ ...prevState, location: { ...prevState.location, search } }));
+		},
+		[pathname, setRouteItemData]
+	);
 
 	const setSearchParams = useCallback(
 		(param: string | ((prevState: URLSearchParams) => URLSearchParams), value?: string | string[]) => {
-			const currentParams = new URLSearchParams(searchStringRef.current);
+			const currentParams = new URLSearchParams(searchRef.current);
 
 			if (typeof param === 'string' && value !== undefined) {
 				currentParams.delete(param);
@@ -60,7 +60,7 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 				throw new Error('useSearchParams first argument must be either function or string');
 			}
 		},
-		[navigateWithSearchParams, searchStringRef]
+		[navigateWithSearchParams, searchRef]
 	);
 
 	return { searchParams, getSearchParams, setSearchParams };

@@ -13,7 +13,6 @@ import {
 	useInvalidate,
 	useNavigate,
 } from '../..';
-import { useSearch } from '../../hooks/useSearch';
 import { useIsRoutePending } from '../../hooks/useIsRoutePending';
 import { createRouter } from '../../creators/createRouter';
 
@@ -691,7 +690,6 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
-
 			},
 			TEST_TIMEOUT
 		);
@@ -732,28 +730,6 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
-
-			},
-			TEST_TIMEOUT
-		);
-	});
-
-	describe('useSearch', () => {
-		it(
-			'returns search string',
-			async () => {
-				await renderWithRouter(() => {
-					const search = useSearch();
-					return search;
-				}, '/about?foo=bar');
-
-				await waitFor(
-					() => {
-						expect(screen.getByTestId('hook-value')).toHaveTextContent('"?foo=bar"');
-					},
-					{ timeout: 5000 }
-				);
-
 			},
 			TEST_TIMEOUT
 		);
@@ -774,7 +750,6 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
-
 			},
 			TEST_TIMEOUT
 		);
@@ -984,7 +959,6 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
-
 			},
 			TEST_TIMEOUT
 		);

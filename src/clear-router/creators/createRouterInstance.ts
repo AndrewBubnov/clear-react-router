@@ -56,20 +56,7 @@ export const createRouterInstance = (): RouterType => {
 	};
 
 	return {
-		runtime: {
-			navigate,
-			invalidate,
-			prefetch,
-			syncSearch: (search: string) => {
-				const current = routerState.routeItemDataState.getState();
-				if (!current.location?.pathname) return;
-				if (current.location.search === search) return;
-				routerState.routeItemDataState.setState({
-					...current,
-					location: { ...current.location, search },
-				});
-			},
-		},
+		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useBlockerState: () => useGlobalState(routerState.blockerState),
 			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),

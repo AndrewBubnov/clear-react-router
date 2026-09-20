@@ -151,7 +151,6 @@ export type RouterType = {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
 		prefetch(location: Location): Promise<void>;
-		syncSearch(search: string): void;
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
@@ -181,14 +180,14 @@ export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (ar
 export type InvalidateResult = { path: string; data: unknown; error: Error | null };
 
 export type ElementProps<T extends HTMLElement = HTMLElement> = {
-	ref: Ref<T>;
-	href: string;
-	className?: string;
-	style?: CSSProperties;
+	'ref': Ref<T>;
+	'href': string;
+	'className'?: string;
+	'style'?: CSSProperties;
 	onClick(event: MouseEvent): void;
 	onMouseEnter(event: MouseEvent): void;
 	onMouseLeave(event: MouseEvent): void;
-	children?: ReactNode;
+	'children'?: ReactNode;
 	'aria-current'?: 'page';
 	'aria-busy'?: boolean;
 } & Record<`data-${string}` | `aria-${string}`, unknown>;
