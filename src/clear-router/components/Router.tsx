@@ -61,6 +61,7 @@ export const Router = ({
 		maxCacheSize,
 		revalidateOnFocus,
 		revalidateOnReconnect,
+		defaultScrollRestorationBehavior,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);

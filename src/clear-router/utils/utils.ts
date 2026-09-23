@@ -1,14 +1,6 @@
 import { Store } from '../create';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
-import {
-	Location,
-	RouteItem,
-	RouteItemData,
-	RouterState,
-	ScrollMap,
-	ScrollRestorationBehavior,
-	SearchObject,
-} from '../types';
+import { Location, RouteItem, RouteItemData, RouterState, ScrollMap, SearchObject } from '../types';
 
 export const getParams = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
@@ -91,25 +83,6 @@ export const updateScrollMap = (routeItemDataState: Store<RouteItemData>, scroll
 	});
 };
 
-export const restoreScroll = (scrollMap: ScrollMap, pathname: string, behavior: ScrollRestorationBehavior) => {
-	scrollMap[pathname].forEach(([key, scrollPosition]) => {
-		if (key === WINDOW_TOP || key === WINDOW_LEFT) {
-			requestAnimationFrame(() => {
-				window.scrollTo({
-					[key === WINDOW_TOP ? 'top' : 'left']: scrollPosition,
-					behavior,
-				});
-			});
-			return;
-		}
-		const element = document.getElementById(key);
-		if (!element) return;
-		const axis = isVerticalScroll(element) ? 'top' : 'left';
-		requestAnimationFrame(() => {
-			element.scrollTo({ [axis]: scrollPosition, behavior });
-		});
-	});
-};
 export const formatSearchObject = (searchObject: SearchObject) => {
 	const params = new URLSearchParams();
 	Object.entries(searchObject).forEach(([key, value]) => {

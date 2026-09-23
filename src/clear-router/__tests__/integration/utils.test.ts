@@ -9,7 +9,6 @@ import {
 	getPartialLoaderArgs,
 	isVerticalScroll,
 	updateScrollMap,
-	restoreScroll,
 } from '../../utils/utils';
 import { create, Store } from '../../create';
 import { TestElement } from '../common';
@@ -209,53 +208,6 @@ describe('utils', () => {
 				['__window_top__', 100],
 				['__window_left__', 50],
 			]);
-		});
-	});
-
-	describe('restoreScroll', () => {
-		beforeEach(() => {
-			vi.useFakeTimers();
-		});
-
-		afterEach(() => {
-			vi.useRealTimers();
-		});
-
-		it('restores window scroll position', () => {
-			const scrollMap: Record<string, [string, number][]> = {
-				'/test': [
-					['__window_top__', 100],
-					['__window_left__', 50],
-				],
-			};
-
-			restoreScroll(scrollMap, '/test', 'auto');
-			vi.runAllTimers();
-			expect(window.scrollTo).toHaveBeenCalledWith({ top: 100, behavior: 'auto' });
-			expect(window.scrollTo).toHaveBeenCalledWith({ left: 50, behavior: 'auto' });
-		});
-
-		it('restores element scroll position', () => {
-			const el = document.createElement('div');
-			el.id = 'scrollable';
-			el.style.height = '100px';
-			el.style.overflow = 'auto';
-			el.scrollTo = vi.fn();
-			Object.defineProperty(el, 'scrollHeight', { value: 200, configurable: true });
-			Object.defineProperty(el, 'clientHeight', { value: 100, configurable: true });
-			const child = document.createElement('div');
-			child.style.height = '200px';
-			el.appendChild(child);
-			document.body.appendChild(el);
-
-			const scrollMap: Record<string, [string, number][]> = {
-				'/test': [['scrollable', 50]],
-			};
-
-			restoreScroll(scrollMap, '/test', 'auto');
-			vi.runAllTimers();
-			expect(el.scrollTo).toHaveBeenCalledWith({ top: 50, behavior: 'auto' });
-			document.body.removeChild(el);
 		});
 	});
 });

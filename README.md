@@ -837,6 +837,57 @@ const Blocker = ({ callback, children }: BlockerProps) => {
 </Blocker>
 ```
 
+### `useRestoreScroll()`
+
+Returns a callback that restores the saved scroll position for the current route — the same restoration the router performs automatically after every navigation, but triggered manually whenever you need it.
+
+The automatic restore covers content that is ready when navigation finishes (including route `loader` data). Call the callback yourself for content that arrives later:
+
+* deferred data streamed via React 19 `use()`,
+* lazily loaded route chunks,
+* any container that mounts after the initial render.
+
+```tsx
+import { useRestoreScroll, useLoaderState } from 'clear-react-router';
+
+const SlowTable = () => {
+    const restoreScroll = useRestoreScroll();
+    const { data } = useLoaderState<{ rows: Promise<Row[]> }>();
+
+    return (
+        <Suspense fallback={<Skeleton />}>
+            <Table rows={data.rows} onReady={restoreScroll} />
+        </Suspense>
+    );
+};
+```
+
+Data fetched outside the route `loader` (e.g. a `useEffect` fetch inside the component) is invisible to the router, so the automatic restore can't account for it either. The rule of thumb is simple: whenever *your* data arrives and the scrollable content is in place, call the callback:
+
+```tsx
+const Dashboard = () => {
+    const restoreScroll = useRestoreScroll();
+    const [rows, setRows] = useState<Row[] | null>(null);
+
+    useEffect(() => {
+        fetchRows().then(data => {
+            setRows(data);
+            // DOM updates after setState — wait a frame so the container exists
+            requestAnimationFrame(() => restoreScroll());
+        });
+    }, [restoreScroll]);
+
+    return rows ? <Table rows={rows} /> : <Skeleton />;
+};
+```
+
+Details worth knowing:
+
+* The callback reads the latest saved positions at call time, not at render time — so it stays correct even if called long after mount, and repeated calls pick up the newest data. It also works from components outside `<Router>` (e.g. a static navbar), since it doesn't depend on the render tree.
+* Calling it is always safe: it silently does nothing when there is nothing saved for the current route, or when the route opted out with `scrollRestoration: false`.
+* An optional behavior argument on the hook overrides the scroll behavior for these calls (`useRestoreScroll('smooth')`); by default the route's `scrollRestorationBehavior`, then the router's `defaultScrollRestorationBehavior`, applies.
+* For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` simply skips that container without an error.
+
 ### `useIsDataLoading()`
 
 Returns a boolean indicating whether any route loader is currently fetching data. Useful for global loading indicators (progress bar, spinner in the layout, etc.).

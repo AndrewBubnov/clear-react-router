@@ -3,8 +3,8 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
-import { formatSearchObject, getParams, restoreScroll } from '../utils/utils';
-import { EMPTY_LOADER_STATE } from '../constants';
+import { formatSearchObject, getParams, isVerticalScroll } from '../utils/utils';
+import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import {
 	BlockerState,
 	LoaderState,
@@ -98,15 +98,33 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					}
 				};
 			},
-			useRestoreScroll: (restorationBehavior: ScrollRestorationBehavior) => {
+			useScrollRestoration: (restorationBehavior: ScrollRestorationBehavior) => () => {
 				const {
 					routeItem,
 					location: { pathname },
 				} = routerState.routeItemDataState.getState();
 				const scrollMap = routerState.scrollMapState.getState();
+
 				if (!routeItem || routeItem.scrollRestoration === false || !scrollMap[pathname]) return;
-				return () =>
-					restoreScroll(scrollMap, pathname, routeItem.scrollRestorationBehavior ?? restorationBehavior);
+
+				const behavior = routeItem.scrollRestorationBehavior ?? restorationBehavior;
+				scrollMap[pathname].forEach(([key, scrollPosition]) => {
+					if (key === WINDOW_TOP || key === WINDOW_LEFT) {
+						requestAnimationFrame(() => {
+							window.scrollTo({
+								[key === WINDOW_TOP ? 'top' : 'left']: scrollPosition,
+								behavior,
+							});
+						});
+						return;
+					}
+					const element = document.getElementById(key);
+					if (!element) return;
+					const axis = isVerticalScroll(element) ? 'top' : 'left';
+					requestAnimationFrame(() => {
+						element.scrollTo({ [axis]: scrollPosition, behavior });
+					});
+				});
 			},
 		},
 	};

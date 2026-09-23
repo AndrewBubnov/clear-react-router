@@ -1,11 +1,8 @@
 import { useEffect } from 'react';
-import { router } from '../instance';
+import { useRestoreScroll } from './useRestoreScroll';
 import { ScrollRestorationBehavior } from '../types';
 
-export const usePreserveScroll = (restorationBehavior: ScrollRestorationBehavior) => {
-	const { useRestoreScroll } = router.hooks;
-	const restoreScroll = useRestoreScroll(restorationBehavior);
-	useEffect(() => {
-		restoreScroll?.();
-	}, [restoreScroll]);
+export const usePreserveScroll = (behavior?: ScrollRestorationBehavior) => {
+	const restoreScroll = useRestoreScroll(behavior);
+	useEffect(() => restoreScroll?.(), [restoreScroll]);
 };
