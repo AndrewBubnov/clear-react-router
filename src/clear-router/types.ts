@@ -157,7 +157,7 @@ export type RouterType = {
 			action: string,
 			options?: Options
 		): (arg: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
-		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): (() => void) | undefined;
+		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
 	};
 };
 
