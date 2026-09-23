@@ -121,7 +121,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					const element = document.getElementById(key);
 					if (!element) {
 						if (process.env.NODE_ENV !== 'production')
-							console.warn(`Could not find element with ID "${key}"`);
+							console.warn(`Could not find element with ID "${key}" for scroll restoration.`);
 						return;
 					}
 					const axis = isVerticalScroll(element) ? 'top' : 'left';
