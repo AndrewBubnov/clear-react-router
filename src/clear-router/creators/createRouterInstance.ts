@@ -18,9 +18,10 @@ import {
 	RouterType,
 	ScrollMap,
 	ScrollRestorationBehavior,
+	Synchronizer,
 } from '../types';
 
-export const createRouterInstance = (): RouterType => {
+export const createRouterInstance = (synchronizer: Synchronizer): RouterType => {
 	const routerState: RouterState = {
 		routeItemDataState: create<RouteItemData>({
 			routeItem: undefined,
@@ -58,12 +59,13 @@ export const createRouterInstance = (): RouterType => {
 	return {
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
-			useBlockerState: () => useGlobalState(routerState.blockerState),
-			useRouteItemData: () => useGlobalState(routerState.routeItemDataState),
-			useScrollMap: () => useGlobalState(routerState.scrollMapState),
-			useContextState: () => useGlobalState(routerState.contextState),
-			useBlockedTargetState: () => useGlobalState(routerState.blockedTargetState),
-			useLoaderState: <T = unknown>() => useGlobalState(routerState.loaderState)[0] as LoaderState<T>,
+			useBlockerState: () => useGlobalState<BlockerState>(routerState.blockerState, synchronizer),
+			useRouteItemData: () => useGlobalState<RouteItemData>(routerState.routeItemDataState, synchronizer),
+			useScrollMap: () => useGlobalState<ScrollMap>(routerState.scrollMapState, synchronizer),
+			useContextState: () => useGlobalState<Record<string, unknown>>(routerState.contextState, synchronizer),
+			useBlockedTargetState: () => useGlobalState<Location | null>(routerState.blockedTargetState, synchronizer),
+			useLoaderState: <T = unknown>() =>
+				useGlobalState<LoaderState<unknown>>(routerState.loaderState, synchronizer)[0] as LoaderState<T>,
 			useParams: <T>() => {
 				const { routeItem, location } = routerState.routeItemDataState.getState();
 				return getParams(location, routeItem) as T;

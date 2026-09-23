@@ -1,12 +1,11 @@
-import { useSyncExternalStore } from 'react';
+import type { SetStateFn, Synchronizer } from './types';
 
-type SetStateAction<T> = ((prevState: T) => T) | T;
 type Listener<T> = (state: T, prevState: T) => void;
 
 export type Store<T> = {
 	subscribe: (listener: Listener<T>) => () => void;
 	getState: () => T;
-	setState: (action: SetStateAction<T>) => void;
+	setState: SetStateFn<T>;
 };
 
 export const create = <T>(initialState: T): Store<T> => {
@@ -14,7 +13,7 @@ export const create = <T>(initialState: T): Store<T> => {
 	const subscribers = new Set<Listener<T>>();
 
 	const getState = () => state;
-	const setState = (action: SetStateAction<T>) => {
+	const setState: SetStateFn<T> = action => {
 		const prevState = state;
 		const nextState = typeof action === 'function' ? (action as (prev: T) => T)(state) : action;
 		if (!Object.is(state, nextState)) {
@@ -31,7 +30,7 @@ export const create = <T>(initialState: T): Store<T> => {
 	return { subscribe, getState, setState };
 };
 
-export const useGlobalState = <T>({ subscribe, getState, setState }: Store<T>) => {
-	const state = useSyncExternalStore(subscribe, getState);
+export const useGlobalState = <T>({ subscribe, getState, setState }: Store<T>, synchronizer: Synchronizer) => {
+	const state = synchronizer(subscribe, getState);
 	return [state, setState] as const;
 };

@@ -1,6 +1,9 @@
-import { RenderElement } from '../types';
+import type { ComponentType, ReactElement } from 'react';
+import type { RenderElement } from '../types';
 
-export const renderElement = (Component?: RenderElement) => {
+export const renderElement = (Component?: RenderElement): ReactElement | null => {
 	if (!Component) return null;
-	return typeof Component === 'function' ? <Component /> : Component;
+	if (typeof Component !== 'function') return Component as ReactElement;
+	const C = Component as ComponentType;
+	return <C />;
 };

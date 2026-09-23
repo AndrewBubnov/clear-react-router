@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { useSyncExternalStore } from 'react';
 import { create, useGlobalState } from '../../create';
 import { act, renderHook } from '@testing-library/react';
 
@@ -75,7 +76,7 @@ describe('create store', () => {
 describe('useGlobalState hook', () => {
 	it('returns current state and setState', () => {
 		const store = create({ count: 0 });
-		const { result } = renderHook(() => useGlobalState(store));
+		const { result } = renderHook(() => useGlobalState(store, useSyncExternalStore));
 
 		expect(result.current[0]).toEqual({ count: 0 });
 		expect(typeof result.current[1]).toBe('function');
@@ -83,7 +84,7 @@ describe('useGlobalState hook', () => {
 
 	it('updates state via setState from hook', () => {
 		const store = create({ count: 0 });
-		const { result } = renderHook(() => useGlobalState(store));
+		const { result } = renderHook(() => useGlobalState(store, useSyncExternalStore));
 
 		act(() => {
 			result.current[1]({ count: 5 });
@@ -94,7 +95,7 @@ describe('useGlobalState hook', () => {
 
 	it('reacts to external store updates', () => {
 		const store = create({ count: 0 });
-		const { result } = renderHook(() => useGlobalState(store));
+		const { result } = renderHook(() => useGlobalState(store, useSyncExternalStore));
 
 		act(() => {
 			store.setState({ count: 10 });

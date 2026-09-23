@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useSyncExternalStore } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createRevalidateCache } from '../../runtime/revalidateCache';
 import { createNavigate } from '../../runtime/navigate';
@@ -384,7 +385,7 @@ describe('useAction', () => {
 			actions: () => ({ save: actionB }),
 		});
 		routerConfig.configure({ routes: [routeA, routeB] });
-		const instance = createRouterInstance();
+		const instance = createRouterInstance(useSyncExternalStore);
 
 		await instance.runtime.navigate({ pathname: '/a' });
 		const { result } = renderHook(() => instance.hooks.useAction('save'));
@@ -407,7 +408,7 @@ describe('useAction', () => {
 			actions: () => ({}),
 		});
 		routerConfig.configure({ routes: [route] });
-		const instance = createRouterInstance();
+		const instance = createRouterInstance(useSyncExternalStore);
 
 		await instance.runtime.navigate({ pathname: '/a' });
 
@@ -437,7 +438,7 @@ describe('useAction', () => {
 			actions: () => ({ save: action }),
 		});
 		routerConfig.configure({ routes: [route] });
-		const instance = createRouterInstance();
+		const instance = createRouterInstance(useSyncExternalStore);
 
 		await instance.runtime.navigate({ pathname: '/a' });
 		expect(loader).toHaveBeenCalledTimes(1);

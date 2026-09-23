@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, type ComponentType, type ReactNode } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
@@ -75,9 +75,11 @@ export const Router = ({
 
 	if (isError) return renderElement(routeItem.errorElement || defaultErrorElement);
 
+	const Boundary = ErrorBoundary as ComponentType<{ children: ReactNode }>;
+
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			<ErrorBoundary key={location.pathname}>{renderElement(routeItem.element)}</ErrorBoundary>
+			<Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>
 			{optimisticSpinner && isOptimistic && <Spinner />}
 		</div>
 	);

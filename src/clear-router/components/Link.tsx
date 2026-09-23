@@ -15,9 +15,22 @@ import { useNavigate } from '../hooks/useNavigate';
 import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { formatSearchObject } from '../utils/utils';
-import { ElementProps, RouterProps, Location, SearchObject } from '../types';
+import { RouterProps, Location, SearchObject } from '../types';
 
 type ElementState = { isActive: boolean; isPending: boolean };
+
+export type ElementProps<T extends HTMLElement = HTMLElement> = {
+	'ref': Ref<T>;
+	'href': string;
+	'className'?: string;
+	'style'?: CSSProperties;
+	onClick(event: MouseEvent): void;
+	onMouseEnter(event: MouseEvent): void;
+	onMouseLeave(event: MouseEvent): void;
+	'children'?: ReactNode;
+	'aria-current'?: 'page';
+	'aria-busy'?: boolean;
+} & Record<`data-${string}` | `aria-${string}`, unknown>;
 
 type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	to: string;

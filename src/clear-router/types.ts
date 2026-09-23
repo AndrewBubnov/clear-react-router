@@ -1,28 +1,20 @@
-import {
-	ComponentType,
-	type CSSProperties,
-	Dispatch,
-	MouseEvent,
-	ReactElement,
-	ReactNode,
-	Ref,
-	SetStateAction,
-} from 'react';
-import { Store, useGlobalState } from './create';
+import type { Store, useGlobalState } from './create';
 
 export const LAZY_MARKER = Symbol('clear-router-lazy');
 
+export type SetStateFn<T> = (action: T | ((prevState: T) => T)) => void;
+
 export type LazyComponent = {
 	readonly [LAZY_MARKER]: true;
-	importFn: () => Promise<{ default: ComponentType<unknown> }>;
+	importFn: () => Promise<{ default: unknown }>;
 };
 
-export type RenderElement = (() => ReactElement) | ReactElement;
+export type RenderElement = unknown;
 
 type LoaderArgs = {
 	context: Record<string, unknown>;
 	params: Record<string, string>;
-	setContext: Dispatch<SetStateAction<Record<string, unknown>>>;
+	setContext: SetStateFn<Record<string, unknown>>;
 	searchParams: Record<string, string>;
 	location: Location;
 };
@@ -68,7 +60,7 @@ export type RouteItem = ClientRouteItem & {
 	element: RenderElement;
 	pattern: string;
 	cacheTimestamp?: number;
-	preloadElement?(): Promise<{ default: ComponentType<unknown> }>;
+	preloadElement?(): Promise<{ default: unknown }>;
 };
 
 export type Location = {
@@ -115,7 +107,7 @@ export type RouterProps = {
 	defaultHoverPrefetchDelay?: number;
 	defaultMinLoaderDuration?: number;
 	maxCacheSize?: number;
-	errorBoundary?: ComponentType<{ children: ReactNode }>;
+	errorBoundary?: unknown;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	defaultScrollRestorationBehavior?: ScrollRestorationBehavior;
@@ -179,18 +171,10 @@ export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (ar
 
 export type InvalidateResult = { path: string; data: unknown; error: Error | null };
 
-export type ElementProps<T extends HTMLElement = HTMLElement> = {
-	'ref': Ref<T>;
-	'href': string;
-	'className'?: string;
-	'style'?: CSSProperties;
-	onClick(event: MouseEvent): void;
-	onMouseEnter(event: MouseEvent): void;
-	onMouseLeave(event: MouseEvent): void;
-	'children'?: ReactNode;
-	'aria-current'?: 'page';
-	'aria-busy'?: boolean;
-} & Record<`data-${string}` | `aria-${string}`, unknown>;
-
 export type SearchObject = Record<string, string | number | boolean | null | undefined>;
 export type NavigationLocation = Omit<Location, 'search'> & { search?: string | SearchObject };
+export type Synchronizer = <T>(
+	subscribe: (updater: () => void) => () => void,
+	getSnapshot: () => T,
+	getServerSnapshot?: () => T
+) => T;
