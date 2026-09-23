@@ -20,21 +20,8 @@ export default defineConfig([
     },
   },
   {
-    // Framework-free core: these modules must never import React directly.
-    // React code lives in components/, hooks/, instance.ts and the lazy/renderElement utils.
-    files: [
-      'src/clear-router/create.ts',
-      'src/clear-router/types.ts',
-      'src/clear-router/constants.ts',
-      'src/clear-router/runtime/**/*.ts',
-      'src/clear-router/config/**/*.ts',
-      'src/clear-router/creators/**/*.ts',
-      'src/clear-router/utils/utils.ts',
-      'src/clear-router/utils/isCacheItemFresh.ts',
-      'src/clear-router/utils/findRoute.ts',
-      'src/clear-router/utils/commitState.ts',
-      'src/clear-router/utils/commitNavigation.ts',
-    ],
+    // Framework-free core: React is banned across the package by default...
+    files: ['src/clear-router/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', {
         paths: [{
@@ -43,5 +30,19 @@ export default defineConfig([
         }],
       }],
     },
+  },
+  {
+    // ...except the React side, where it is explicitly allowed (later block wins).
+    files: [
+      'src/clear-router/components/**/*.{ts,tsx}',
+      'src/clear-router/hooks/**/*.ts',
+      'src/clear-router/index.ts',
+      'src/clear-router/instance.ts',
+      'src/clear-router/utils/lazy.ts',
+      'src/clear-router/utils/createLazyComponent.tsx',
+      'src/clear-router/utils/renderElement.tsx',
+      'src/clear-router/__tests__/**/*.{ts,tsx}',
+    ],
+    rules: { 'no-restricted-imports': 'off' },
   },
 ])
