@@ -119,7 +119,11 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 						return;
 					}
 					const element = document.getElementById(key);
-					if (!element) return;
+					if (!element) {
+						if (process.env.NODE_ENV !== 'production')
+							console.warn(`Could not find element with ID "${key}"`);
+						return;
+					}
 					const axis = isVerticalScroll(element) ? 'top' : 'left';
 					requestAnimationFrame(() => {
 						element.scrollTo({ [axis]: scrollPosition, behavior });

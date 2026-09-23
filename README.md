@@ -886,7 +886,7 @@ Details worth knowing:
 * The callback reads the latest saved positions at call time, not at render time — so it stays correct even if called long after mount, and repeated calls pick up the newest data. It also works from components outside `<Router>` (e.g. a static navbar), since it doesn't depend on the render tree.
 * Calling it is always safe: it silently does nothing when there is nothing saved for the current route, or when the route opted out with `scrollRestoration: false`.
 * An optional behavior argument on the hook overrides the scroll behavior for these calls (`useRestoreScroll('smooth')`); by default the route's `scrollRestorationBehavior`, then the router's `defaultScrollRestorationBehavior`, applies.
-* For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` simply skips that container without an error.
+* For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` logs a warning and skips that container.
 
 ### `useIsDataLoading()`
 
