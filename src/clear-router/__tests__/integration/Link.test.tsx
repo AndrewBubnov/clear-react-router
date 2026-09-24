@@ -12,6 +12,7 @@ import {
 	useIsDataLoading,
 	useInvalidate,
 	useNavigate,
+	ElementProps,
 } from '../..';
 import { useIsRoutePending } from '../../hooks/useIsRoutePending';
 import { createRouter } from '../../creators/createRouter';
@@ -997,6 +998,80 @@ describe('hooks', () => {
 					},
 					{ timeout: 5000 }
 				);
+			},
+			TEST_TIMEOUT
+		);
+	});
+
+	describe('render optimization', () => {
+		const renderCounts: Record<string, number> = {};
+
+		const CountingAnchor = (props: ElementProps<HTMLAnchorElement>) => {
+			// Test-only measurement: counts how many times each Link renders.
+			// eslint-disable-next-line react-hooks/immutability
+			renderCounts[props.href] = (renderCounts[props.href] ?? 0) + 1;
+			return <a {...props} />;
+		};
+
+		const resetCounts = () => {
+			Object.keys(renderCounts).forEach(key => {
+				renderCounts[key] = 0;
+			});
+		};
+
+		it(
+			're-renders only links whose active state flips',
+			async () => {
+				const routes = createRouter([
+					{ path: '/rc-a', element: <div>Page A</div> },
+					{
+						path: '/rc-b',
+						element: <div>Page B</div>,
+						loader: async () => {
+							await sleep(300);
+							return 'b data';
+						},
+					},
+					{ path: '/rc-c', element: <div>Page C</div> },
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				window.history.pushState({}, '', '/rc-a');
+				render(
+					<div>
+						<Link to="/rc-a" as={CountingAnchor}>
+							A
+						</Link>
+						<Link to="/rc-b" as={CountingAnchor}>
+							B
+						</Link>
+						<Link to="/rc-c" as={CountingAnchor}>
+							C
+						</Link>
+						<Router routes={routes} />
+					</div>
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Page A')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				resetCounts();
+
+				screen.getByText('B').click();
+				await waitFor(
+					() => {
+						expect(screen.getByText('Page B')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				// The two flipped links re-rendered (possibly several times
+				// across pending/active states — hence greater-than, not exact).
+				expect(renderCounts['/rc-a']).toBeGreaterThan(0);
+				expect(renderCounts['/rc-b']).toBeGreaterThan(0);
+				// The untouched link never woke up.
+				expect(renderCounts['/rc-c']).toBe(0);
 			},
 			TEST_TIMEOUT
 		);
