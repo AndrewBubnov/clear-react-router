@@ -130,6 +130,10 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					});
 				});
 			},
+			useRouteItemDataSelector: (callback: (arg: RouteItemData) => boolean) => {
+				const state = routerState.routeItemDataState;
+				return synchronizer(state.subscribe, () => callback(state.getState()));
+			},
 		},
 	};
 };

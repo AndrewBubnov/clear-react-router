@@ -1,7 +1,8 @@
 import { router } from '../instance';
 
 export const useIsRoutePending = (routePath: string) => {
-	const { useRouteItemData } = router.hooks;
-	const [routeItemData] = useRouteItemData();
-	return routeItemData.status === 'pending' && routeItemData?.location.pathname === routePath;
+	const { useRouteItemDataSelector } = router.hooks;
+	return useRouteItemDataSelector(
+		({ location: { pathname }, status }) => pathname === routePath && status === 'pending'
+	);
 };

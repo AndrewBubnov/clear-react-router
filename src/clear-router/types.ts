@@ -158,6 +158,7 @@ export type RouterType = {
 			options?: Options
 		): (arg: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
 		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
+		useRouteItemDataSelector<T>(callback: (arg: RouteItemData) => T): T;
 	};
 };
 

@@ -12,7 +12,6 @@ import {
 import { router } from '../instance';
 import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
-import { useLocation } from '../hooks/useLocation';
 import { routerConfig } from '../config/routerConfig';
 import { formatSearchObject } from '../utils/utils';
 import { RouterProps, Location, SearchObject } from '../types';
@@ -49,6 +48,8 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 } & Record<`data-${string}` | `aria-${string}`, unknown>;
 
 const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
+const comparator = (to: string, pathname: string, exact: boolean) =>
+	to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 
 export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	children,
@@ -66,9 +67,10 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	pendingClassName = 'pending-link',
 	...rest
 }: LinkProps<T>) => {
+	const { useRouteItemDataSelector } = router.hooks;
 	const isPending = useIsRoutePending(to);
-	const { pathname } = useLocation();
 	const navigate = useNavigate();
+	const isActive = useRouteItemDataSelector(({ location: { pathname } }) => comparator(to, pathname, exact));
 
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);
@@ -125,8 +127,6 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		},
 		[]
 	);
-	const isActive =
-		to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
 	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
@@ -154,10 +154,10 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	return as(
 		// eslint-disable-next-line react-hooks/refs
 		{
-			ref: elementRef as Ref<T>,
-			style: normalizedStyle,
-			className: resultClassName,
-			onClick: clickHandler,
+			'ref': elementRef as Ref<T>,
+			'style': normalizedStyle,
+			'className': resultClassName,
+			'onClick': clickHandler,
 			href,
 			onMouseEnter,
 			onMouseLeave,
