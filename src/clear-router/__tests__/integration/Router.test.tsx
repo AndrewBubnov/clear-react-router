@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { Router, Link, createRouter } from '../..';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { Router, Link, createRouter, useLoaderState } from '../..';
 import { routes } from '../common';
 
 const TEST_TIMEOUT = 10000;
@@ -202,6 +202,165 @@ describe('Link component', () => {
 			await waitFor(
 				() => {
 					expect(screen.getByText(/About/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
+});
+
+describe('fresh cache revisit', () => {
+	const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+	beforeEach(() => {
+		window.history.pushState({}, '', '/');
+	});
+
+	it(
+		'renders cached data instantly without flashing stale loader state',
+		async () => {
+			const FreshLive = () => {
+				const { data } = useLoaderState<string>();
+				return (
+					<div>
+						Live: {data.toUpperCase()}
+						<Link to="/boom">
+							<span>To boom</span>
+						</Link>
+					</div>
+				);
+			};
+			const localRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Fresh Home</h3>
+							<Link to="/live">
+								<span>To live</span>
+							</Link>
+							<Link to="/boom">
+								<span>To boom</span>
+							</Link>
+						</div>
+					),
+				},
+				{
+					path: '/live',
+					element: <FreshLive />,
+					loader: async () => {
+						await sleep(150);
+						return 'live data';
+					},
+				},
+				{
+					path: '/boom',
+					element: <div>Boom</div>,
+					errorElement: (
+						<div>
+							Boom error
+							<Link to="/live">
+								<span>Back to live</span>
+							</Link>
+						</div>
+					),
+					loader: async () => {
+						throw new Error('boom');
+					},
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={localRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Fresh Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To live').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Live: LIVE DATA/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To boom').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Boom error/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			// Second visit hits the fresh cache: the route renders immediately,
+			// so the loader state must already match — no flash of the error
+			// page's stale { data: null } (which would crash on toUpperCase).
+			screen.getByText('Back to live').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Live: LIVE DATA/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'renders prefetched data on first visit without flashing empty loader state',
+		async () => {
+			const PrefetchLive = () => {
+				const { data } = useLoaderState<string>();
+				return <div>Prefetched: {data.toUpperCase()}</div>;
+			};
+			const prefetchRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Prefetch Home</h3>
+							<Link to="/plive">
+								<span>To live</span>
+							</Link>
+						</div>
+					),
+				},
+				{
+					path: '/plive',
+					element: <PrefetchLive />,
+					loader: async () => {
+						await sleep(50);
+						return 'prefetched data';
+					},
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={prefetchRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Prefetch Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			// Hover fills the cache before the click (150ms hover delay), so the
+			// click lands on the fresh-cache path and renders instantly.
+			fireEvent.mouseEnter(screen.getByText('To live'));
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Prefetch Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			screen.getByText('To live').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Prefetched: PREFETCHED DATA/i)).toBeInTheDocument();
 				},
 				{ timeout: 5000 }
 			);

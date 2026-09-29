@@ -9,17 +9,17 @@ import { Loading } from './Loading';
 import { addNote, fetchDoomed, fetchNotes, fetchQuotes, fetchUnstable } from './api';
 
 export const playgroundRoutes = createRouter([
-	{ path: '/', element: <PlaygroundHome /> },
-	{ path: '/playground', element: <PlaygroundHome /> },
+	{ path: '/', element: PlaygroundHome },
+	{ path: '/playground', element: PlaygroundHome },
 	{
 		path: '/playground/scroll',
-		element: <ScrollPage />,
+		element: ScrollPage,
 		scrollRestoration: ['feed', 'gallery'],
 		scrollRestorationBehavior: 'smooth',
 	},
 	{
 		path: '/playground/retry',
-		element: <RetryPage />,
+		element: RetryPage,
 		loader: fetchUnstable,
 		retry: { count: 3, delay: 400 },
 		loaderFallback: <Loading title="retry demo" />,
@@ -34,14 +34,14 @@ export const playgroundRoutes = createRouter([
 	},
 	{
 		path: '/playground/live',
-		element: <LivePage />,
+		element: LivePage,
 		loader: fetchQuotes,
 		pollingInterval: 2000,
 		loaderFallback: <Loading title="live quotes" />,
 	},
 	{
 		path: '/playground/actions',
-		element: <ActionsPage />,
+		element: ActionsPage,
 		loader: fetchNotes,
 		loaderFallback: <Loading title="notes" />,
 		actions: () => ({
