@@ -145,6 +145,34 @@ describe('navigate', () => {
 
 		expect(state.loaderState.getState().beforeLoadError).toBe(beforeLoadError);
 		expect(state.routeItemDataState.getState().status).toBe('error');
+		expect(state.routeItemDataState.getState().routeItem).toBe(routeItem);
+		expect(state.routeItemDataState.getState().location.pathname).toBe('/test');
+	});
+
+	it('shows error state of the target route when leaving an active page', async () => {
+		const beforeLoadError = new Error('auth failed');
+		const routeA = createMockRouteItem({ path: '/a', pattern: '/a' });
+		const routeB = createMockRouteItem({
+			path: '/b',
+			pattern: '/b',
+			beforeLoad: vi.fn().mockRejectedValue(beforeLoadError),
+		});
+		routerConfig.configure({ routes: [routeA, routeB] });
+
+		revalidateCache = createRevalidateCache(state);
+		navigate = createNavigate(state, revalidateCache);
+
+		await navigate({ pathname: '/a' });
+		expect(state.routeItemDataState.getState().status).toBe('active');
+
+		await navigate({ pathname: '/b' });
+
+		const routeData = state.routeItemDataState.getState();
+		expect(routeData.status).toBe('error');
+		expect(routeData.routeItem).toBe(routeB);
+		expect(routeData.location.pathname).toBe('/b');
+		expect(state.loaderState.getState().beforeLoadError).toBe(beforeLoadError);
+		expect(history.pushState).toHaveBeenCalledWith(null, '', '/b');
 	});
 
 	it('runs defaultBeforeLoad', async () => {

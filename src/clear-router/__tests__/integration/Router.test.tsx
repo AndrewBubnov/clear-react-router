@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Router } from '../..';
+import { Router, Link, createRouter } from '../..';
 import { routes } from '../common';
 
 const TEST_TIMEOUT = 10000;
@@ -116,9 +116,59 @@ describe('Router integration', () => {
 		},
 		TEST_TIMEOUT
 	);
+
+	it(
+		'renders the target route errorElement when beforeLoad fails',
+		async () => {
+			const errorRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Error Home</h3>
+							<Link to="/guarded">
+								<span>To guarded page</span>
+							</Link>
+						</div>
+					),
+				},
+				{
+					path: '/guarded',
+					element: <div>Guarded Page</div>,
+					errorElement: <div>Guarded error occurred</div>,
+					beforeLoad: async () => {
+						throw new Error('not allowed');
+					},
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={errorRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Error Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To guarded page').click();
+
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Guarded error occurred/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.queryByText(/Error Home/i)).not.toBeInTheDocument();
+		},
+		TEST_TIMEOUT
+	);
 });
 
 describe('Link component', () => {
+	beforeEach(() => {
+		window.history.pushState({}, '', '/');
+	});
+
 	it(
 		'renders anchor with href',
 		async () => {

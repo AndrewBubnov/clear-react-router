@@ -84,7 +84,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location, hasError: boolean) => {
 		updateScrollMap(routeItemDataState, scrollMapState);
 		createGcTimeout();
-		if (hasError) return;
+		if (hasError) {
+			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'error' }));
+			return;
+		}
 		const path = getPath(location);
 		if (routeItem?.optimistic && loaderMap.has(path)) {
 			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'optimistic' }));
@@ -94,7 +97,9 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		}
 		if (routeItem?.loader && !isCacheItemFresh(path)) {
 			commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'pending' }));
+			return;
 		}
+		commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'active' }));
 	};
 
 	const polling = (routeItem: RouteItem | undefined, nextLocation: Location) => {
@@ -172,7 +177,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			loaderError: (result?.error as Error | null) ?? null,
 			beforeLoadError,
 		};
-		commitNavigation(() => commitState({ location: nextLocation, routeItem: nextItem, loaderStateValue }));
+		commitNavigation(() => commitState({ location: nextLocation, loaderStateValue }));
 		clearCurrentGcTimeout(nextItem, nextLocation);
 		void afterLoad(nextItem, nextLocation, params);
 	};

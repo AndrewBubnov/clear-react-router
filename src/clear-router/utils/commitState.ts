@@ -1,16 +1,18 @@
-import { LoaderState, Location, RouteItem, RouterState } from '../types';
+import { LoaderState, Location, RouterState } from '../types';
 
 type CommitState = {
 	location: Location;
 	loaderStateValue: LoaderState;
-	routeItem?: RouteItem;
 };
 
 export const createCommitState =
 	({ loaderState, routeItemDataState, blockerState }: RouterState) =>
-	({ routeItem, loaderStateValue, location }: CommitState) => {
+	({ loaderStateValue, location }: CommitState) => {
 		const isError = loaderStateValue.loaderError || loaderStateValue.beforeLoadError;
-		routeItemDataState.setState({ routeItem, location, status: isError ? 'error' : 'active' });
+		routeItemDataState.setState(prevState => {
+			if (prevState.status === 'active') return prevState;
+			return { ...prevState, location, status: isError ? 'error' : 'active' };
+		});
 		loaderState.setState(loaderStateValue);
 		if (blockerState.getState() === 'blocked') blockerState.setState('unblocked');
 		const fullPath = location.search ? `${location.pathname}${location.search}` : location.pathname;
