@@ -1017,5 +1017,11 @@ For older browsers, the router gracefully falls back to regular navigation witho
 - React 16.8+ (for React.lazy and Suspense)
 - Use `default` export for your lazy-loaded components
 
+## Playground
+
+Try it live — no setup: **[clear-router playground](https://clear-react-router.vercel.app/playground)**.
+Scroll restoration, retry, polling, actions with invalidation and navigation blocking,
+all running against a fake in-browser server. Open devtools and click around.
+
  ## License
  MIT
