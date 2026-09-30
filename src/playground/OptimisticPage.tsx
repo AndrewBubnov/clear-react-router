@@ -8,9 +8,11 @@ export const OptimisticPage = () => {
 			<h1>Optimistic navigation</h1>
 			<p className="pg-hint">
 				This route is <code>optimistic</code> with a short <code>staleTime</code>: leave and
-				come back after a second — the stale value renders instantly (watch the spinner in
-				the corner), then updates once fresh data arrives. The generation counter proves the
-				refetch happened.
+				come straight back after a second — the stale value renders instantly (watch the
+				spinner in the bottom-right corner), then updates once fresh data arrives after ~1s.
+				The generation counter proves the refetch happened. Note: wander across 5+ other
+				data pages and the tiny demo cache evicts this entry — then you get a regular
+				loading fallback instead (that&apos;s the <Link to="/playground/cache">cache lab</Link>).
 			</p>
 			<div className="pg-card">
 				<p>

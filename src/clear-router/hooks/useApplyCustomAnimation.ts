@@ -12,8 +12,8 @@ export const useApplyCustomAnimation = (animationDuration?: number) => {
 	
 	.cr-spinner {
 	  position: fixed;
-	  top: 5px;
-	  left: 5px;
+	  right: 16px;
+	  bottom: 16px;
 	  z-index: 9999;
 	  width: 1rem;
 	  height: 1rem;
