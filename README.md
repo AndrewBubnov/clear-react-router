@@ -47,7 +47,6 @@ It provides first-class support for:
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
-| `optimisticSpinner` | `boolean \| undefined` | `true` | Show a small spinner in the corner while optimistic route data revalidates in the background |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
 | `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
 | `defaultMinLoaderDuration` | `number \| undefined` | `0` | Default minimum time the loader fallback stays visible, to avoid flickering |
@@ -909,7 +908,25 @@ Details worth knowing:
 
 ### `useIsDataLoading()`
 
-Returns a boolean indicating whether any route loader is currently fetching data. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
+Returns a boolean indicating whether any route loader is currently fetching data — including background revalidation of `optimistic` routes. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
+
+To render your own loading indicator (for example next to a link while its target revalidates), combine it with the link state:
+
+```tsx
+import { Link, useIsDataLoading } from 'clear-react-router';
+
+const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
+  const isLoading = useIsDataLoading();
+  return (
+    <Link to={to} className={({ isPending }) => (isPending ? 'link-pending' : '')}>
+      {children}
+      {isLoading && <span aria-hidden="true"> •••</span>}
+    </Link>
+  );
+};
+```
+
+For per-link pending styling without custom components, `pendingClassName` and the `className`/`style` functions (which receive `{ isActive, isPending }`) cover most cases with no extra code.
 
 ### `useRouterContext()`
 

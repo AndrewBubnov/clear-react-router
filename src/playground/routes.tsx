@@ -32,6 +32,7 @@ export const playgroundRoutes = createRouter([
 		element: ScrollPage,
 		scrollRestoration: ['feed', 'gallery'],
 		scrollRestorationBehavior: 'smooth',
+		optimistic: true,
 	},
 	{
 		path: '/playground/retry',

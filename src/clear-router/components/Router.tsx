@@ -6,7 +6,6 @@ import { usePreserveScroll } from '../hooks/usePreserveScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { useReload } from '../hooks/useReload';
-import { Spinner } from './Spinner';
 import { renderElement } from '../utils/renderElement';
 import { isMobile } from '../utils/utils';
 import { STANDARD_PREFETCH_DELAY } from '../constants';
@@ -29,7 +28,6 @@ export const Router = ({
 	defaultStaleTime,
 	context: initialContext,
 	isAnimated = false,
-	optimisticSpinner = true,
 	defaultMinLoaderDuration = 0,
 	revalidateOnFocus = false,
 	revalidateOnReconnect = false,
@@ -44,7 +42,6 @@ export const Router = ({
 
 	const isError = status === 'error';
 	const isLoading = status === 'pending';
-	const isOptimistic = status === 'optimistic';
 
 	useNavigation();
 
@@ -81,7 +78,6 @@ export const Router = ({
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
 			<Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>
-			{optimisticSpinner && isOptimistic && <Spinner />}
 		</div>
 	);
 };

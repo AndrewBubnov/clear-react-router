@@ -98,7 +98,6 @@ export type RouterProps = {
 	routes: RouteItem[];
 	isAnimated?: boolean;
 	animationDuration?: number;
-	optimisticSpinner?: boolean;
 	defaultRetry?: Retry;
 	defaultStaleTime?: number;
 	defaultLoaderFallback?: RenderElement;

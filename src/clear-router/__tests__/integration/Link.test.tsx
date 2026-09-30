@@ -943,6 +943,95 @@ describe('hooks', () => {
 			},
 			TEST_TIMEOUT
 		);
+
+		it(
+			'returns true while optimistic revalidation runs',
+			async () => {
+				let resolveLoader!: (value: string) => void;
+				const routes = createRouter([
+					{ path: '/', element: <div>Loading Home</div> },
+					{
+						path: '/opt',
+						element: <div>Opt Page</div>,
+						loader: () => new Promise<string>(resolve => (resolveLoader = resolve)),
+						staleTime: 0,
+						optimistic: true,
+					},
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				const Probe = () => {
+					const isLoading = useIsDataLoading();
+					const navigate = useNavigate();
+					return (
+						<div>
+							<button data-testid="go-opt" onClick={() => navigate('/opt')}>
+								{isLoading ? 'yes' : 'no'}
+							</button>
+							<button data-testid="go-home" onClick={() => navigate('/')}>
+								home
+							</button>
+						</div>
+					);
+				};
+				window.history.pushState({}, '', '/');
+				render(
+					<div>
+						<Probe />
+						<Router routes={routes} />
+					</div>
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Loading Home')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				expect(screen.getByTestId('go-opt')).toHaveTextContent('no');
+
+				// First visit fills the cache.
+				screen.getByTestId('go-opt').click();
+				await waitFor(
+					() => {
+						expect(resolveLoader).toBeDefined();
+					},
+					{ timeout: 5000 }
+				);
+				resolveLoader('v1');
+				await waitFor(
+					() => {
+						expect(screen.getByText('Opt Page')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				expect(screen.getByTestId('go-opt')).toHaveTextContent('no');
+
+				// Away and back on stale cache: instant optimistic render, and the
+				// background revalidation reports loading until resolved.
+				screen.getByTestId('go-home').click();
+				await waitFor(
+					() => {
+						expect(screen.getByText('Loading Home')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+				screen.getByTestId('go-opt').click();
+				await waitFor(
+					() => {
+						expect(screen.getByTestId('go-opt')).toHaveTextContent('yes');
+					},
+					{ timeout: 5000 }
+				);
+
+				resolveLoader('v2');
+				await waitFor(
+					() => {
+						expect(screen.getByTestId('go-opt')).toHaveTextContent('no');
+					},
+					{ timeout: 5000 }
+				);
+			},
+			TEST_TIMEOUT
+		);
 	});
 
 	describe('useIsRoutePending', () => {
@@ -1076,4 +1165,5 @@ describe('hooks', () => {
 			TEST_TIMEOUT
 		);
 	});
+
 });

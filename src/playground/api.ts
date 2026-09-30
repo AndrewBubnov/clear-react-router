@@ -52,7 +52,7 @@ export const fetchSlow = async () => {
 	return `Slow payload (call ${n})`;
 };
 
-/** Incrementing value for the optimistic demo (slow on purpose so the spinner is visible). */
+/** Incrementing value for the optimistic demo (slow on purpose so revalidation is visible). */
 export const fetchOptimisticValue = async () => {
 	const generation = trackCall('optimistic');
 	await delay(1200);
