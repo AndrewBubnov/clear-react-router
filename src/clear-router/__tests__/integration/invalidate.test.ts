@@ -185,4 +185,107 @@ describe('invalidate', () => {
 		expect(result).toHaveLength(1);
 		expect(result[0].path).toBe('/users?page=1');
 	});
+
+	it('fetches uncached path by default (implicit force)', async () => {
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+		});
+
+		const result = await invalidate('/users');
+
+		expect(result).toHaveLength(1);
+		expect(result[0].data).toBe('fresh data');
+		expect(loader).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not fetch uncached path with explicit force: false', async () => {
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+		});
+
+		const result = await invalidate('/users', { force: false });
+
+		expect(result).toEqual([]);
+		expect(loader).not.toHaveBeenCalled();
+	});
+
+	it('does not fetch uncached path with staleOnly', async () => {
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+		});
+
+		const result = await invalidate('/users', { staleOnly: true });
+
+		expect(result).toEqual([]);
+		expect(loader).not.toHaveBeenCalled();
+	});
+
+	it('recovers error page without cache and sets status to active', async () => {
+		const loadError = new Error('first load failed');
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader }),
+			location: { pathname: '/users', search: '' },
+			status: 'error',
+		});
+		state.loaderState.setState({ data: null, loaderError: loadError, beforeLoadError: null });
+
+		const result = await invalidate();
+
+		expect(result).toHaveLength(1);
+		expect(result[0].data).toBe('fresh data');
+		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.loaderState.getState()).toEqual({ data: 'fresh data', loaderError: null, beforeLoadError: null });
+	});
+
+	it('sets status to error when revalidation of the working page fails', async () => {
+		const loadError = new Error('refetch failed');
+		const failingLoader = vi.fn().mockRejectedValueOnce(loadError).mockResolvedValue('fresh data');
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: failingLoader })],
+			maxCacheSize: 10,
+		});
+		state.loaderMap.set('/users', {
+			state: { data: 'old data', loaderError: null, beforeLoadError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+		});
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader: failingLoader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+		});
+
+		const result = await invalidate('/users');
+
+		expect(result).toHaveLength(1);
+		expect(result[0].error).toBe(loadError);
+		expect(state.routeItemDataState.getState().status).toBe('error');
+		expect(state.loaderState.getState().loaderError).toBe(loadError);
+	});
+
+	it('does not touch current status when revalidating another route', async () => {
+		state.loaderMap.set('/posts', {
+			state: { data: 'old', loaderError: null, beforeLoadError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+		});
+		state.routeItemDataState.setState({
+			routeItem: createMockRouteItem({ loader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+		});
+		state.loaderState.setState({ data: 'users data', loaderError: null, beforeLoadError: null });
+
+		const result = await invalidate('/posts');
+
+		expect(result).toHaveLength(1);
+		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.loaderState.getState().data).toBe('users data');
+	});
 });
