@@ -2,7 +2,14 @@ import { Link } from '../clear-router';
 
 export const PlaygroundNav = () => (
 	<nav className="pg-nav" aria-label="Playground">
-		<span className="pg-brand">Clear Router playground</span>
+		<a
+			href="https://www.npmjs.com/package/clear-react-router"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="Clear Router playground — npm package (opens in new tab)"
+		>
+			<span className="pg-brand">Clear Router playground</span>
+		</a>
 		<Link to="/playground" exact>
 			Home
 		</Link>
