@@ -86,7 +86,8 @@ export const fetchHeavy = async () => {
 	return `Heavy payload (visit ${n})`;
 };
 
-export type Note = { id: number; text: string };let notes: Note[] = [
+export type Note = { id: number; text: string };
+let notes: Note[] = [
 	{ id: 1, text: 'Buy milk' },
 	{ id: 2, text: 'Try clear-react-router' },
 ];

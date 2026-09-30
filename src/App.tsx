@@ -6,8 +6,7 @@ import './playground/playground.css';
 const App = () => (
 	<div>
 		<PlaygroundNav />
-		{/* Tiny cache on purpose: the cache lab demonstrates LRU eviction with it. */}
-		<Router routes={playgroundRoutes} maxCacheSize={5} />
+		<Router routes={playgroundRoutes} maxCacheSize={3} />
 	</div>
 );
 

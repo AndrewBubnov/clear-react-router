@@ -11,19 +11,21 @@ const AddNoteForm = () => {
 			<form onSubmit={onSubmit}>
 				<div className="pg-row">
 					<input name="text" className="pg-input" placeholder="Note text" disabled={isSubmitting} />
-					<button className="pg-btn" disabled={isSubmitting}>
-						{isSubmitting ? 'Saving…' : 'Save'}
-					</button>
-					<button type="button" className="pg-btn" onClick={() => invalidate()}>
-						Refresh list (invalidate)
-					</button>
+					<div className="pg-row">
+						<button className="pg-btn" disabled={isSubmitting}>
+							{isSubmitting ? 'Saving…' : 'Save'}
+						</button>
+						<button type="button" className="pg-btn" onClick={() => invalidate()}>
+							Refresh list (invalidate)
+						</button>
+					</div>
 				</div>
 			</form>
 			{error && <div className="pg-error">{error.message}</div>}
 			<p className="pg-hint">
-				After a successful action the current route is invalidated automatically — the list
-				below refreshes without a full reload. The Refresh button calls{' '}
-				<code>invalidate()</code> manually and does the same on demand.
+				After a successful action the current route is invalidated automatically — the list below refreshes
+				without a full reload. The Refresh button calls <code>invalidate()</code> manually and does the same on
+				demand.
 			</p>
 		</div>
 	);

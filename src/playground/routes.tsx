@@ -90,7 +90,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/heavy',
 		element: <HeavyPage />,
 		loader: fetchHeavy,
-		gcTime: 8000,
+		gcTime: 5000,
 		loaderFallback: <Loading title="heavy payload" />,
 	},
 	{
