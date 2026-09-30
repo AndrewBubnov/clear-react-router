@@ -104,7 +104,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/dashboard',
 		element: <DashboardPage />,
 		beforeLoad: ({ context, redirect }) => {
-			if ((context as { isAuthorized?: boolean }).isAuthorized !== true)
+			if (!context.isAuthorized)
 				return redirect({ pathname: '/playground/login', state: { from: '/playground/dashboard' } });
 		},
 	},

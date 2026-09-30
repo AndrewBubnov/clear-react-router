@@ -1,16 +1,10 @@
-import { Link, useLocation, useNavigate, useRouterContext } from '../clear-router';
+import { Link, useLocation, useRouterContext } from '../clear-router';
 
 export const LoginPage = () => {
 	const { context, setContext } = useRouterContext();
 	const { state } = useLocation();
 	const from = (state as { from?: string } | undefined)?.from;
-	const navigate = useNavigate();
-	const isAuthorized = (context as { isAuthorized?: boolean }).isAuthorized === true;
-
-	const toggle = async () => {
-		setContext({ ...context, isAuthorized: !isAuthorized });
-		if (!isAuthorized) await navigate('/playground/dashboard');
-	};
+	const isAuthorized = context.isAuthorized;
 
 	return (
 		<div className="pg-wrap">
@@ -33,8 +27,8 @@ export const LoginPage = () => {
 					</span>
 				</p>
 				<div className="pg-row">
-					<button className="pg-btn" onClick={toggle}>
-						{isAuthorized ? 'Log out' : 'Log in (and go to dashboard)'}
+					<button className="pg-btn" onClick={() => setContext({ ...context, isAuthorized: !isAuthorized })}>
+						{isAuthorized ? 'Log out' : 'Log in'}
 					</button>
 					<Link to="/playground/dashboard">Try opening dashboard →</Link>
 				</div>
