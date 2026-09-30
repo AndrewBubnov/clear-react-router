@@ -19,6 +19,8 @@ It provides first-class support for:
 * Simple, provider-free architecture
 * Small, explicit API
 
+> 👉 TL;DR? **[Try the live playground](https://clear-react-router.vercel.app/playground)** — no setup, click around.
+
 
 ## Features
 
