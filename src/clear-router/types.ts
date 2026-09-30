@@ -84,10 +84,12 @@ export type LoaderState<T = unknown> = {
 	beforeLoadError: Error | null;
 };
 
+export type Status = 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
+
 export type RouteItemData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
-	status: 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
+	status: Status;
 };
 
 type ObjectRetry = { count: number; delay: number };

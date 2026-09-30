@@ -9,7 +9,7 @@ import {
 	useLoaderState,
 	useSearchParams,
 	useRouterContext,
-	useIsDataLoading,
+	useRouteStatus,
 	useInvalidate,
 	useNavigate,
 	ElementProps,
@@ -925,12 +925,12 @@ describe('hooks', () => {
 		);
 	});
 
-	describe('useIsDataLoading', () => {
+	describe('useRouteStatus', () => {
 		it(
 			'returns false after loading completes',
 			async () => {
 				await renderWithRouter(() => {
-					const isLoading = useIsDataLoading();
+					const isLoading = useRouteStatus(status => status === 'pending');
 					return isLoading;
 				});
 
@@ -960,7 +960,7 @@ describe('hooks', () => {
 					{ path: '*', element: <div>Not Found</div> },
 				]);
 				const Probe = () => {
-					const isLoading = useIsDataLoading();
+					const isLoading = useRouteStatus(status => status === 'pending' || status === 'optimistic');
 					const navigate = useNavigate();
 					return (
 						<div>
@@ -1165,5 +1165,4 @@ describe('hooks', () => {
 			TEST_TIMEOUT
 		);
 	});
-
 });

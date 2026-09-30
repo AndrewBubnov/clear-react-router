@@ -906,17 +906,24 @@ Details worth knowing:
 * An optional behavior argument on the hook overrides the scroll behavior for these calls (`useRestoreScroll('smooth')`); by default the route's `scrollRestorationBehavior`, then the router's `defaultScrollRestorationBehavior`, applies.
 * For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` logs a warning and skips that container.
 
-### `useIsDataLoading()`
+### `useRouteStatus()`
 
-Returns a boolean indicating whether any route loader is currently fetching data — including background revalidation of `optimistic` routes. Useful for global loading indicators (progress bar, spinner in the layout, etc.).
+Returns the current route status (`'idle' | 'pending' | 'active' | 'optimistic' | 'error'`), or — when called with a predicate — whether it matches. Useful for global loading indicators (progress bar, spinner in the layout, etc.) and for reacting to specific states.
+
+```tsx
+import { useRouteStatus } from 'clear-react-router';
+
+const isLoading = useRouteStatus(status => status === 'pending' || status === 'optimistic');
+const isOptimistic = useRouteStatus(status => status === 'optimistic');
+```
 
 To render your own loading indicator (for example next to a link while its target revalidates), combine it with the link state:
 
 ```tsx
-import { Link, useIsDataLoading } from 'clear-react-router';
+import { Link, useRouteStatus } from 'clear-react-router';
 
 const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
-  const isLoading = useIsDataLoading();
+  const isLoading = useRouteStatus(status => status === 'pending' || status === 'optimistic');
   return (
     <Link to={to} className={({ isPending }) => (isPending ? 'link-pending' : '')}>
       {children}
@@ -927,6 +934,8 @@ const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
 ```
 
 For per-link pending styling without custom components, `pendingClassName` and the `className`/`style` functions (which receive `{ isActive, isPending }`) cover most cases with no extra code.
+
+> **Migration note:** `useIsDataLoading()` is removed — it is exactly `useRouteStatus(status => status === 'pending' || status === 'optimistic')`.
 
 ### `useRouterContext()`
 
