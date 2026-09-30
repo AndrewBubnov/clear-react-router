@@ -1039,8 +1039,12 @@ For older browsers, the router gracefully falls back to regular navigation witho
 ## Playground
 
 Try it live — no setup: **[clear-router playground](https://clear-react-router.vercel.app/playground)**.
-Scroll restoration, retry, polling, actions with invalidation and navigation blocking,
-all running against a fake in-browser server. Open devtools and click around.
+
+Scroll restoration (window + named containers), retry with attempt counts, live polling,
+actions with invalidation, navigation blocking, hover prefetch, optimistic navigation,
+LRU eviction with a tiny cache, gcTime cleanup, an invalidation lab, search params,
+and a context-based auth guard — all running against a fake in-browser server.
+Open devtools and click around.
 
  ## License
  MIT

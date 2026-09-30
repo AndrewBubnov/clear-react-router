@@ -43,6 +43,7 @@
 	margin: 16px 0;
 	background: var(--bg);
 	box-shadow: var(--shadow);
+	min-height: 170px;
 }
 
 .pg-hint {
@@ -64,7 +65,7 @@
 
 .pg-badge {
 	display: inline-block;
-	font-family: var(--mono);
+	font-family: var(--mono), sans-serif;
 	font-size: 14px;
 	padding: 3px 10px;
 	border-radius: 20px;
@@ -148,7 +149,7 @@
 	background: var(--accent-bg);
 	border: 1px solid var(--accent-border);
 	color: var(--text-h);
-	font-family: var(--mono);
+	font-family: var(--mono), sans-serif;
 }
 
 .pg-table {
@@ -167,7 +168,7 @@
 .pg-table td.num,
 .pg-table th.num {
 	text-align: right;
-	font-family: var(--mono);
+	font-family: var(--mono), sans-serif;
 }
 
 .pg-dialog {
@@ -211,4 +212,14 @@
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 12px;
 	margin-top: 16px;
+}
+
+.pg-card-link {
+	display: block;
+	color: inherit;
+}
+
+.pg-card-link:hover .pg-card {
+	border-color: steelblue;
+	transition: border-color ease-in-out .3s;
 }

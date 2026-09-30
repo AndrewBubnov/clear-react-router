@@ -12,5 +12,10 @@ export const PlaygroundNav = () => (
 		<Link to="/playground/live">Live</Link>
 		<Link to="/playground/actions">Actions</Link>
 		<Link to="/playground/blocker">Blocker</Link>
+		<Link to="/playground/prefetch">Prefetch</Link>
+		<Link to="/playground/optimistic">Optimistic</Link>
+		<Link to="/playground/cache">Cache</Link>
+		<Link to="/playground/search">Search</Link>
+		<Link to="/playground/login">Login</Link>
 	</nav>
 );

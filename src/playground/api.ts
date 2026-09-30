@@ -13,22 +13,24 @@ const PRICES: Record<string, number> = {
 };
 
 let tick = 0;
-let loaderCalls = 0;
+const loaderCalls: Record<string, number> = {};
 
-export const getLoaderStats = () => ({ calls: loaderCalls });
+export const getCallCount = (key: string) => loaderCalls[key] ?? 0;
 
-export const resetLoaderStats = () => {
-	loaderCalls = 0;
+export const resetCallCounts = () => {
+	Object.keys(loaderCalls).forEach(key => {
+		delete loaderCalls[key];
+	});
 };
 
-const trackCall = () => {
-	loaderCalls += 1;
-	return loaderCalls;
+const trackCall = (key: string) => {
+	loaderCalls[key] = (loaderCalls[key] ?? 0) + 1;
+	return loaderCalls[key];
 };
 
 /** Fails randomly (~50%) after a short delay. Powers the retry demo. */
 export const fetchUnstable = async () => {
-	const attempt = trackCall();
+	const attempt = trackCall('about');
 	await delay(400);
 	if (Math.random() < 0.5) {
 		throw new Error(`Random server hiccup on attempt ${attempt} — retry should kick in`);
@@ -38,14 +40,28 @@ export const fetchUnstable = async () => {
 
 /** Always-failing twin for the errorElement demo (no retry configured). */
 export const fetchDoomed = async () => {
-	trackCall();
+	trackCall('about');
 	await delay(400);
 	throw new Error('Server is having a bad day (no retry on this route)');
 };
 
+/** Slow loader for the prefetch demo. */
+export const fetchSlow = async () => {
+	const n = trackCall('slow');
+	await delay(800);
+	return `Slow payload (call ${n})`;
+};
+
+/** Incrementing value for the optimistic demo. */
+export const fetchOptimisticValue = async () => {
+	const generation = trackCall('optimistic');
+	await delay(300);
+	return { value: 100 + generation, generation };
+};
+
 /** Random-walking quotes. Powers the polling demo. */
 export const fetchQuotes = async (): Promise<{ tick: number; quotes: Quote[] }> => {
-	trackCall();
+	trackCall('live');
 	await delay(200);
 	tick += 1;
 	const quotes = Object.entries(PRICES).map(([symbol, base]) => {
@@ -56,9 +72,21 @@ export const fetchQuotes = async (): Promise<{ tick: number; quotes: Quote[] }> 
 	return { tick, quotes };
 };
 
-export type Note = { id: number; text: string };
+/** Per-product loader for the cache eviction demo. */
+export const fetchProduct = async (id: string) => {
+	const n = trackCall(`product-${id}`);
+	await delay(400);
+	return { id, description: `Product ${id} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
+};
 
-let notes: Note[] = [
+/** Heavy loader for the gcTime demo. */
+export const fetchHeavy = async () => {
+	const n = trackCall('heavy');
+	await delay(500);
+	return `Heavy payload (visit ${n})`;
+};
+
+export type Note = { id: number; text: string };let notes: Note[] = [
 	{ id: 1, text: 'Buy milk' },
 	{ id: 2, text: 'Try clear-react-router' },
 ];
