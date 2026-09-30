@@ -20,12 +20,14 @@ export const createInvalidate = (
 
 		const result = await revalidateCache({ routeItem, location });
 
-		if (result && path === routePathname)
+		if (result && path === routePathname) {
 			loaderState.setState({
 				data: result.data,
 				loaderError: result.error as Error | null,
 				beforeLoadError: null,
 			});
+			routeItemDataState.setState(prevState => ({ ...prevState, status: result.error ? 'error' : 'active' }));
+		}
 
 		return { path: pathname, ...result } as InvalidateResult;
 	};
@@ -37,7 +39,7 @@ export const createInvalidate = (
 
 		const pathnameSet = new Set<string>();
 		for (const [key] of loaderMap) if (comparePaths(routeItem, separatePathname(key))) pathnameSet.add(key);
-		if (options?.force) pathnameSet.add(pathname);
+		if (options?.force === true || (options?.force === undefined && !options?.staleOnly)) pathnameSet.add(pathname);
 
 		const currentResults = await Promise.all(
 			[...pathnameSet].map(pathname => invalidatePath(routeItem, pathname, options))

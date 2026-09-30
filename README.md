@@ -706,13 +706,16 @@ await invalidate('/post/[id]/comment/[id]');
 ```
 
 #### Force revalidation
-By default only paths that already exist in the cache are revalidated.
-Pass `{ force: true }` to also revalidate the exact path(s) you passed, even if they were never cached:
+By default the exact path(s) you pass are always revalidated, even if they were never cached
+— this also makes `invalidate()` work on an error page with an empty cache.
+Pass `{ force: false }` to go back to cache-only revalidation:
 
 ```tsx
-await invalidate('/about', { force: true });
-await invalidate(['/about', '/post/10'], { force: true });
+await invalidate('/about', { force: false });
 ```
+
+Explicit `{ force: true }` behaves the same as the default; it exists for readability
+and for combining with other options (see below).
 
 #### Stale-only revalidation
 By default, `invalidate` deletes matching cache entries and refetches them.
@@ -720,6 +723,8 @@ Pass `{ staleOnly: true }` to only revalidate entries that are already stale, le
 ```tsx
 await invalidate('/notes', { staleOnly: true });
 ```
+Note: `staleOnly` disables the default force — uncached paths are left alone, so no new
+network requests are started for routes you never visited.
 
 #### Including child routes
 
@@ -754,6 +759,20 @@ will revalidate the cached child routes:
 /post/23
 /post/42/comments
 ```
+#### Status transitions
+
+When the revalidated path is the currently active route, a successful revalidation also
+resets its status to `active`, while a failed one sets it to `error` — so recovering from
+an error page is just `await invalidate()`:
+
+```tsx
+// On an errorElement: refetch, and show the page again on success
+await invalidate();
+```
+
+Revalidating any other route never touches the current page status — background refreshes
+stay invisible.
+
 #### Returns
 
 An array of objects with the following structure:
@@ -764,8 +783,8 @@ Each object represents a revalidated route, where `path` is the route pathname, 
 
 #### Notes
 
-* Without `force` option, **only routes that already have cached data** are revalidated.
-* With `force: true`, the exact pathnames you pass are always revalidated (and stored in the cache).
+* Without `force: false`, the exact pathnames you pass are always revalidated (and stored in the cache), even if they were never cached. Pass `{ force: false }` to revalidate **only routes that already have cached data**.
+* With `{ staleOnly: true }`, uncached paths are never fetched — the default force does not apply.
 * Cached data is cleared before the new loader starts.
 * When used as an event handler, wrap the call in an arrow function:
 
