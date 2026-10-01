@@ -252,10 +252,11 @@
 	gap: 1.5rem;
 }
 
-.active-link {
+.pg-nav .active-link {
 	text-decoration: underline;
 	color: steelblue;
 	font-weight: 500;
+	background: var(--accent-bg);
 }
 
 @media (width <= 1024px) {
