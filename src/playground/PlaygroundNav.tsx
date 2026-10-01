@@ -1,5 +1,6 @@
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
+import { Switch } from './Switch';
 
 export const PlaygroundNav = () => {
 	const { isAnimated, setIsAnimated } = usePlaygroundSettings();
@@ -14,15 +15,9 @@ export const PlaygroundNav = () => {
 				>
 					<div className="pg-brand">Clear Router playground</div>
 				</a>
-				<label className="pg-switch">
-					<input
-						type="checkbox"
-						className="pg-checkbox"
-						checked={isAnimated}
-						onChange={e => setIsAnimated(e.target.checked)}
-					/>
-					animations
-				</label>
+				<Switch checked={isAnimated} onCheckedChange={setIsAnimated}>
+					<span>animated</span>
+				</Switch>
 			</div>
 			<nav className="pg-nav" aria-label="Playground">
 				<Link to="/playground" exact>

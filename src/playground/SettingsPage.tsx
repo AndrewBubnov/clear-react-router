@@ -1,5 +1,6 @@
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
+import { Switch } from './Switch';
 
 const CACHE_PRESETS = [
 	{ value: 3, label: '3 (lab)' },
@@ -21,15 +22,9 @@ export const SettingsPage = () => {
 			<div className="pg-card">
 				<h2>Page transitions</h2>
 				<div className="pg-row">
-					<label className="pg-switch">
-						<input
-							type="checkbox"
-							className="pg-checkbox"
-							checked={isAnimated}
-							onChange={e => setIsAnimated(e.target.checked)}
-						/>
-						animated transitions
-					</label>
+					<Switch checked={isAnimated} onCheckedChange={setIsAnimated}>
+						<span>animated transitions</span>
+					</Switch>
 				</div>
 				<div className="pg-row">
 					<label>
