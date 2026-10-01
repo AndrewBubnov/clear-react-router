@@ -41,7 +41,7 @@
 	margin: 16px 0;
 	background: var(--bg);
 	box-shadow: var(--shadow);
-	min-height: 170px;
+	min-height: 185px;
 }
 
 .pg-hint {
@@ -256,6 +256,12 @@
 	text-decoration: underline;
 	color: steelblue;
 	font-weight: 500;
+}
+
+@media (width <= 1024px) {
+	.pg-card {
+		min-height: 165px;
+	}
 }
 
 @media (width <= 600px) {
