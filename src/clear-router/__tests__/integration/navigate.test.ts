@@ -381,6 +381,73 @@ describe('navigate', () => {
 		expect(state.loaderState.getState().data).toBe('fresh');
 	}, 10000);
 
+	it('pairs optimistic route and loader commits inside a single view transition', async () => {
+		// Regression: commitOptimisticState used to set loaderState synchronously while the route
+		// change went through a deferred view transition. With animation enabled the new loader
+		// data (object) landed while the old route (string page) still rendered — React crashed
+		// on `<p>{data}</p>`. Both updates must share one transition callback.
+		let transitionCb: (() => void) | null = null;
+		vi.stubGlobal('document', {
+			...document,
+			startViewTransition: (cb: () => void) => {
+				transitionCb = cb;
+				return { ready: Promise.resolve(), finished: Promise.resolve() } as unknown as ViewTransition;
+			},
+		});
+		const flushTransition = () => {
+			transitionCb?.();
+			transitionCb = null;
+		};
+
+		let resolveRevalidation!: (value: { value: number }) => void;
+		const optimisticLoader = vi
+			.fn()
+			.mockResolvedValueOnce({ value: 1 })
+			.mockImplementationOnce(
+				() =>
+					new Promise<{ value: number }>(resolve => {
+						resolveRevalidation = resolve;
+					})
+			);
+		const slowLoader = vi.fn().mockResolvedValue('slow payload');
+		const slowRoute = createMockRouteItem({ path: '/slow', pattern: '/slow', loader: slowLoader });
+		const optimisticRoute = createMockRouteItem({
+			path: '/fast',
+			pattern: '/fast',
+			loader: optimisticLoader,
+			staleTime: 100,
+			optimistic: true,
+		});
+		routerConfig.configure({ routes: [slowRoute, optimisticRoute], isAnimated: true });
+
+		revalidateCache = createRevalidateCache(state);
+		navigate = createNavigate(state, revalidateCache);
+
+		await navigate({ pathname: '/fast' });
+		flushTransition();
+		await navigate({ pathname: '/slow' });
+		flushTransition();
+		expect(state.routeItemDataState.getState().location.pathname).toBe('/slow');
+		expect(state.loaderState.getState().data).toBe('slow payload');
+
+		vi.advanceTimersByTime(200);
+		const revisit = navigate({ pathname: '/fast' });
+		await vi.advanceTimersByTimeAsync(0);
+		// The view transition is still deferred: the old route must still see its own data.
+		expect(state.routeItemDataState.getState().location.pathname).toBe('/slow');
+		expect(state.loaderState.getState().data).toBe('slow payload');
+
+		flushTransition();
+		expect(state.routeItemDataState.getState().status).toBe('optimistic');
+		expect(state.loaderState.getState().data).toEqual({ value: 1 });
+
+		resolveRevalidation({ value: 2 });
+		await revisit;
+		flushTransition();
+		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.loaderState.getState().data).toEqual({ value: 2 });
+	});
+
 	describe('polling', () => {
 		it('updates loader data on every polling tick while the route is active', async () => {
 			const loader = vi.fn().mockResolvedValueOnce('v1').mockResolvedValue('v2');

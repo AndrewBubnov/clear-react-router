@@ -82,9 +82,11 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const commitOptimisticState = (routeItem: RouteItem | undefined, location: Location, path: string) => {
-		commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'optimistic' }));
 		const currentLoaderState = loaderMap.get(path)?.state;
-		if (currentLoaderState) loaderState.setState(currentLoaderState);
+		commitNavigation(() => {
+			routeItemDataState.setState({ routeItem, location, status: 'optimistic' });
+			if (currentLoaderState) loaderState.setState(currentLoaderState);
+		});
 	};
 
 	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) => {
