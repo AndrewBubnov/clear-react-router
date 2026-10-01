@@ -380,6 +380,42 @@ describe('navigate', () => {
 		expect(loader).not.toHaveBeenCalled();
 		expect(state.loaderState.getState().data).toBe('fresh');
 	}, 10000);
+
+	describe('polling', () => {
+		it('updates loader data on every polling tick while the route is active', async () => {
+			const loader = vi.fn().mockResolvedValueOnce('v1').mockResolvedValue('v2');
+			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000, staleTime: 500 });
+			routerConfig.configure({ routes: [routeItem] });
+
+			revalidateCache = createRevalidateCache(state);
+			navigate = createNavigate(state, revalidateCache);
+
+			await navigate({ pathname: '/test' });
+			expect(state.loaderState.getState().data).toBe('v1');
+			expect(loader).toHaveBeenCalledTimes(1);
+
+			await vi.advanceTimersByTimeAsync(1000);
+			expect(loader).toHaveBeenCalledTimes(2);
+			expect(state.loaderState.getState().data).toBe('v2');
+		});
+
+		it('stops polling after leaving the route', async () => {
+			const loader = vi.fn().mockResolvedValue('v1');
+			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000, staleTime: 500 });
+			const plainItem = createMockRouteItem({ path: '/other', pattern: '/other' });
+			routerConfig.configure({ routes: [routeItem, plainItem] });
+
+			revalidateCache = createRevalidateCache(state);
+			navigate = createNavigate(state, revalidateCache);
+
+			await navigate({ pathname: '/test' });
+			expect(loader).toHaveBeenCalledTimes(1);
+
+			await navigate({ pathname: '/other' });
+			await vi.advanceTimersByTimeAsync(5000);
+			expect(loader).toHaveBeenCalledTimes(1);
+		});
+	});
 });
 
 describe('useAction', () => {

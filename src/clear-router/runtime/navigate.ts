@@ -111,10 +111,18 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController?.abort();
 		pollingController = new AbortController();
 		const signal = pollingController.signal;
-		interval = window.setInterval(
-			() => revalidateCache({ routeItem, location: nextLocation, signal }),
-			routeItem.pollingInterval
-		);
+		interval = window.setInterval(async () => {
+			const result = await revalidateCache({ routeItem, location: nextLocation, signal });
+			if (!result || signal.aborted) return;
+			const { location: currentLocation } = routeItemDataState.getState();
+			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;
+			if (currentPath !== getPath(nextLocation)) return;
+			loaderState.setState({
+				data: result.data,
+				loaderError: result.error as Error | null,
+				beforeLoadError: null,
+			});
+		}, routeItem.pollingInterval);
 	};
 
 	const getLoaderDurationPromise = (routeItem: RouteItem | undefined, nextLocation: Location) => {
