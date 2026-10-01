@@ -4,12 +4,11 @@ const feedRows = Array.from({ length: 60 }, (_, i) => `Feed row ${i + 1}`);
 const galleryCards = Array.from({ length: 30 }, (_, i) => `Card ${i + 1}`);
 
 export const ScrollPage = () => (
-	<div className="pg-wrap">
+	<div className="pg-wrap pg-wrapper">
 		<h1>Scroll restoration</h1>
 		<p className="pg-hint">
-			Scroll the feed and the gallery below, then go <Link to="/playground">home</Link> and
-			come back (or use the browser Back button). Both containers restore their positions
-			with smooth scrolling.
+			Scroll the feed and the gallery below, then go <Link to="/playground">home</Link> and come back (or use the
+			browser Back button). Both containers restore their positions with smooth scrolling.
 		</p>
 		<p>
 			<Link to="/playground">← Back to playground home</Link>

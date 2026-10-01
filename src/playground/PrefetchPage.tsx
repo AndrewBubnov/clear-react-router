@@ -7,8 +7,11 @@ export const PrefetchPage = () => {
 		<div className="pg-wrap">
 			<h1>Prefetch</h1>
 			<p className="pg-hint">
-				This loader takes ~800ms. Hover the link below, wait a beat, then click — navigation
-				is instant and the loader ran exactly once (hover prefetched the data).
+				This loader takes ~800ms. On desktop, hover the Prefetch link in the navigation bar
+				above, wait a beat, then click it — navigation is instant and the loader ran exactly
+				once (the hover prefetched the data, check the counter below). On mobile the default
+				strategy is <code>viewport</code> instead of <code>hover</code>, so menu links
+				prefetch as soon as they mount.
 			</p>
 			<div className="pg-card">
 				<p>{data}</p>

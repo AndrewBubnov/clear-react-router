@@ -3,15 +3,15 @@ import { Link, useBlocker } from '../clear-router';
 
 export const BlockerPage = () => {
 	const [value, setValue] = useState('');
-	const dirty = value.length > 0;
+	const dirty = !!value.length;
 	const { state, process, reset } = useBlocker(() => dirty);
 
 	return (
 		<div className="pg-wrap">
 			<h1>Navigation blocking</h1>
 			<p className="pg-hint">
-				Type something to make the form dirty — navigation (links <em>and</em> the browser
-				Back button) gets intercepted until you confirm or cancel.
+				Type something to make the form dirty — navigation (links <em>and</em> the browser Back button) gets
+				intercepted until you confirm or cancel.
 			</p>
 			<div className="pg-card">
 				<div className="pg-row">

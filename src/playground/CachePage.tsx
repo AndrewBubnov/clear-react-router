@@ -92,7 +92,7 @@ export const CachePage = () => (
 				Open products 1 – 4 in order, then go back to 1. Product 1 was evicted (reloads with a fallback flash),
 				product 3 is still cached (instant).
 			</p>
-			<div className="pg-row">
+			<div className="pg-row pg-items-row">
 				{PRODUCT_IDS.map(id => (
 					<Link key={id} to={`/playground/product/${id}`} prefetch="none">
 						#{id}
