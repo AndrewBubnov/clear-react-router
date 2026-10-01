@@ -16,7 +16,7 @@
 }
 
 .pg-nav a {
-	padding: 6px 10px;
+	padding: 6px 12px;
 	border-radius: 6px;
 	font-size: 15px;
 }
@@ -31,6 +31,16 @@
 	font-weight: 600;
 	margin-right: 8px;
 	color: var(--text-h);
+	text-align: left;
+}
+
+.pg-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 15px;
+	cursor: pointer;
+	white-space: nowrap;
 }
 
 .pg-card {
@@ -228,6 +238,12 @@
 	text-decoration: none;
 }
 
+.pg-checkbox {
+	width: 0.8rem;
+	height: 0.8rem;
+	margin-bottom: 0;
+}
+
 @media (hover: hover) {
 	.pg-wrap a.pg-card-link:hover {
 		color: inherit;
@@ -269,6 +285,13 @@
 	color: steelblue;
 	font-weight: 500;
 	background: var(--accent-bg);
+}
+
+.pg-brand-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 16px 10px 16px;
 }
 
 @media (width <= 1024px) {

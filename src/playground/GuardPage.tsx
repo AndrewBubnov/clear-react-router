@@ -1,6 +1,6 @@
 import { Link, useLocation, useRouterContext } from '../clear-router';
 
-export const LoginPage = () => {
+export const GuardPage = () => {
 	const { context, setContext } = useRouterContext();
 	const { state } = useLocation();
 	const from = (state as { from?: string } | undefined)?.from;
@@ -8,15 +8,16 @@ export const LoginPage = () => {
 
 	return (
 		<div className="pg-wrap">
-			<h1>Login</h1>
+			<h1>Route guards</h1>
 			<p className="pg-hint">
-				Auth state lives in the router context. The dashboard route guards itself in <code>beforeLoad</code> and
-				redirects here when unauthorized.
+				<code>beforeLoad</code> runs before every navigation and can redirect elsewhere — for
+				auth checks, validation, feature flags. Below, authorization is faked with a context
+				toggle; the dashboard route guards itself and redirects here when unauthorized.
 			</p>
 			{from && !isAuthorized && (
 				<div className="pg-error">
-					<code>{from}</code> requires login — you were redirected here by the route guard, with the origin
-					passed via navigation <code>state</code>.
+					<code>{from}</code> requires login — you were redirected here by the route guard,
+					with the origin passed via navigation <code>state</code>.
 				</div>
 			)}
 			<div className="pg-card">

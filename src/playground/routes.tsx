@@ -11,7 +11,8 @@ import { PrefetchPage } from './PrefetchPage';
 import { OptimisticPage } from './OptimisticPage';
 import { CachePage, HeavyPage, ProductPage } from './CachePage';
 import { SearchPage } from './SearchPage';
-import { DashboardPage, LoginPage } from './LoginPage';
+import { DashboardPage, GuardPage } from './GuardPage';
+import { SettingsPage } from './SettingsPage';
 import {
 	addNote,
 	fetchDoomed,
@@ -98,17 +99,18 @@ export const playgroundRoutes = createRouter([
 		element: <SearchPage />,
 	},
 	{
-		path: '/playground/login',
-		element: <LoginPage />,
+		path: '/playground/guard',
+		element: <GuardPage />,
 	},
 	{
 		path: '/playground/dashboard',
 		element: <DashboardPage />,
 		beforeLoad: ({ context, redirect }) => {
 			if (!context.isAuthorized)
-				return redirect({ pathname: '/playground/login', state: { from: '/playground/dashboard' } });
+				return redirect({ pathname: '/playground/guard', state: { from: '/playground/dashboard' } });
 		},
 	},
 	{ path: '/playground/blocker', element: <BlockerPage /> },
+	{ path: '/playground/settings', element: <SettingsPage /> },
 	{ path: '*', element: <PlaygroundNotFound /> },
 ]);
