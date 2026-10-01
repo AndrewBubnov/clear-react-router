@@ -6,7 +6,7 @@ import './playground/playground.css';
 const App = () => (
 	<div>
 		<PlaygroundNav />
-		<Router routes={playgroundRoutes} maxCacheSize={3} />
+		<Router routes={playgroundRoutes} isAnimated maxCacheSize={3} />
 	</div>
 );
 
