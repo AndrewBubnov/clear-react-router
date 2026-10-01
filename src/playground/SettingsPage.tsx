@@ -39,6 +39,7 @@ export const SettingsPage = () => {
 				<div className="pg-row">
 					<input
 						type="range"
+						className="pg-range"
 						min={100}
 						max={2000}
 						step={50}

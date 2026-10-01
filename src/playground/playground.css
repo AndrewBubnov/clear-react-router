@@ -242,6 +242,11 @@
 	width: 0.8rem;
 	height: 0.8rem;
 	margin-bottom: 0;
+	accent-color: steelblue;
+}
+
+.pg-range {
+	accent-color: steelblue;
 }
 
 @media (hover: hover) {
