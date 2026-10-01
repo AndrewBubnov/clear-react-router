@@ -29,7 +29,6 @@
 
 .pg-brand {
 	font-weight: 600;
-	margin-right: 8px;
 	color: var(--text-h);
 	text-align: left;
 }
@@ -296,7 +295,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 16px 16px 10px 16px;
+	padding: 16px 16px 10px 28px;
 }
 
 @media (width <= 1024px) {
