@@ -76,6 +76,7 @@ export type RevalidateCacheArgs = {
 	location: Location;
 	routeItem?: RouteItem;
 	signal?: AbortSignal;
+	force?: boolean;
 };
 
 export type LoaderState<T = unknown> = {

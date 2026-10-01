@@ -466,6 +466,26 @@ describe('navigate', () => {
 			expect(state.loaderState.getState().data).toBe('v2');
 		});
 
+		it('refetches on every polling tick even without staleTime', async () => {
+			// Regression (playground Live page): without staleTime the cache is perpetually
+			// fresh, so polling ticks kept returning the cached value and the loader was never
+			// called again. Polling is an explicit refetch signal and must bypass freshness.
+			const loader = vi.fn().mockResolvedValueOnce('v1').mockResolvedValue('v2');
+			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000 });
+			routerConfig.configure({ routes: [routeItem] });
+
+			revalidateCache = createRevalidateCache(state);
+			navigate = createNavigate(state, revalidateCache);
+
+			await navigate({ pathname: '/test' });
+			expect(state.loaderState.getState().data).toBe('v1');
+			expect(loader).toHaveBeenCalledTimes(1);
+
+			await vi.advanceTimersByTimeAsync(1000);
+			expect(loader).toHaveBeenCalledTimes(2);
+			expect(state.loaderState.getState().data).toBe('v2');
+		});
+
 		it('stops polling after leaving the route', async () => {
 			const loader = vi.fn().mockResolvedValue('v1');
 			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000, staleTime: 500 });

@@ -114,7 +114,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = new AbortController();
 		const signal = pollingController.signal;
 		interval = window.setInterval(async () => {
-			const result = await revalidateCache({ routeItem, location: nextLocation, signal });
+			const result = await revalidateCache({ routeItem, location: nextLocation, signal, force: true });
 			if (!result || signal.aborted) return;
 			const { location: currentLocation } = routeItemDataState.getState();
 			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;

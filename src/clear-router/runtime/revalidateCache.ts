@@ -39,7 +39,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 	};
 
 	const revalidateCache = async (
-		{ routeItem, location, signal }: RevalidateCacheArgs,
+		{ routeItem, location, signal, force }: RevalidateCacheArgs,
 		retried = 0
 	): LoadingPromise => {
 		if (!routeItem?.loader) return;
@@ -61,7 +61,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			}
 		}
 
-		if (isCacheItemFresh(path)) {
+		if (!force && isCacheItemFresh(path)) {
 			const item = moveItemToLastPosition(path);
 			if (!item?.state) return undefined;
 			return item.state.loaderError
@@ -97,7 +97,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 						flightOwners.delete(path);
 					}
 					if (retry.delay) await sleep(retry.delay);
-					return revalidateCache({ routeItem, location, signal }, retried + 1);
+					return revalidateCache({ routeItem, location, signal, force }, retried + 1);
 				} else {
 					return { data: null, error };
 				}

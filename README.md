@@ -86,7 +86,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
 | `gcTime` | `number \| undefined` | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected |
 | `actions` | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. |
-| `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active |
+| `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active. Each tick refetches unconditionally, ignoring `staleTime` |
 | `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
 | `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
 
