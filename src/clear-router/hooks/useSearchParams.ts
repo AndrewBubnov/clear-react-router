@@ -19,8 +19,10 @@ const useLatest = <T>(value: T) => {
 };
 
 export const useSearchParams = (): UseSearchParamsReturn => {
-	const [{ location }, setRouteItemData] = router.hooks.useRouteData();
-	const { search = window.location.search, pathname = window.location.pathname } = location;
+	const { useRouteDataSelector, useSetLocation } = router.hooks;
+	const location = useRouteDataSelector(state => state.location);
+	const { search = window.location.search } = location;
+	const setLocation = useSetLocation();
 
 	const searchRef = useLatest(search);
 
@@ -38,10 +40,10 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		(params: URLSearchParams) => {
 			const newSearch = params.toString();
 			const search = newSearch ? `?${newSearch}` : '';
-			history.replaceState(history.state, '', pathname + search);
-			setRouteItemData(prevState => ({ ...prevState, location: { ...prevState.location, search } }));
+			history.replaceState(history.state, '', (location ?? window.location).pathname + search);
+			setLocation({ ...location, search });
 		},
-		[pathname, setRouteItemData]
+		[location, setLocation]
 	);
 
 	const setSearchParams = useCallback(
