@@ -8,7 +8,7 @@ const CACHE_PRESETS = [
 	{ value: 150, label: '150 (desktop default)' },
 ];
 
-export const SettingsPage = () => {
+const SettingsPage = () => {
 	const {
 		isAnimated,
 		setIsAnimated,
@@ -88,3 +88,5 @@ export const SettingsPage = () => {
 		</div>
 	);
 };
+
+export default SettingsPage;

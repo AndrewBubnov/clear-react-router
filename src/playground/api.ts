@@ -1,7 +1,3 @@
-// Fake in-browser "server" for the playground. No backend: latency, random
-// failures and changing data are simulated here so every router feature can
-// be tried live (retry, polling, invalidation, actions).
-
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Quote = { symbol: string; price: number };
@@ -16,12 +12,6 @@ let tick = 0;
 const loaderCalls: Record<string, number> = {};
 
 export const getCallCount = (key: string) => loaderCalls[key] ?? 0;
-
-export const resetCallCounts = () => {
-	Object.keys(loaderCalls).forEach(key => {
-		delete loaderCalls[key];
-	});
-};
 
 const trackCall = (key: string) => {
 	loaderCalls[key] = (loaderCalls[key] ?? 0) + 1;
@@ -130,4 +120,10 @@ export const addNote = async (text: string): Promise<Note> => {
 	const note = { id: nextId++, text: text.trim() };
 	notes = [...notes, note];
 	return note;
+};
+
+export const randomIds = (prefix: string) => {
+	const ids = new Set<number>();
+	while (ids.size < 3) ids.add(Math.floor(Math.random() * 90) + 10);
+	return [...ids].map(n => `${prefix}-${n}`);
 };

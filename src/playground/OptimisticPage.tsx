@@ -1,7 +1,7 @@
 import { Link, useRouteStatus, useLoaderState } from '../clear-router';
 import { getCallCount } from './api';
 
-export const OptimisticPage = () => {
+const OptimisticPage = () => {
 	const { data } = useLoaderState<{ value: number; generation: number }>();
 	const revalidating = useRouteStatus(status => status === 'optimistic');
 	return (
@@ -31,3 +31,5 @@ export const OptimisticPage = () => {
 		</div>
 	);
 };
+
+export default OptimisticPage;

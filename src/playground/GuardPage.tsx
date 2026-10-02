@@ -1,6 +1,6 @@
 import { Link, useLocation, useRouterContext } from '../clear-router';
 
-export const GuardPage = () => {
+const GuardPage = () => {
 	const { context, setContext } = useRouterContext();
 	const { state } = useLocation();
 	const from = (state as { from?: string } | undefined)?.from;
@@ -10,14 +10,14 @@ export const GuardPage = () => {
 		<div className="pg-wrap">
 			<h1>Route guards</h1>
 			<p className="pg-hint">
-				<code>beforeLoad</code> runs before every navigation and can redirect elsewhere — for
-				auth checks, validation, feature flags. Below, authorization is faked with a context
-				toggle; the dashboard route guards itself and redirects here when unauthorized.
+				<code>beforeLoad</code> runs before every navigation and can redirect elsewhere — for auth checks,
+				validation, feature flags. Below, authorization is faked with a context toggle; the dashboard route
+				guards itself and redirects here when unauthorized.
 			</p>
 			{from && !isAuthorized && (
 				<div className="pg-error">
-					<code>{from}</code> requires login — you were redirected here by the route guard,
-					with the origin passed via navigation <code>state</code>.
+					<code>{from}</code> requires login — you were redirected here by the route guard, with the origin
+					passed via navigation <code>state</code>.
 				</div>
 			)}
 			<div className="pg-card">
@@ -41,17 +41,4 @@ export const GuardPage = () => {
 	);
 };
 
-export const DashboardPage = () => (
-	<div className="pg-wrap">
-		<h1>Dashboard</h1>
-		<div className="pg-card">
-			<p>
-				<span className="pg-badge ok">authorized area</span>
-			</p>
-			<p>You only see this because `beforeLoad` let you through.</p>
-		</div>
-		<p>
-			<Link to="/playground">← Back to playground home</Link>
-		</p>
-	</div>
-);
+export default GuardPage;

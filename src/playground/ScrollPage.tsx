@@ -3,7 +3,7 @@ import { Link } from '../clear-router';
 const feedRows = Array.from({ length: 60 }, (_, i) => `Feed row ${i + 1}`);
 const galleryCards = Array.from({ length: 30 }, (_, i) => `Card ${i + 1}`);
 
-export const ScrollPage = () => (
+const ScrollPage = () => (
 	<div className="pg-wrap pg-wrapper">
 		<h1>Scroll restoration</h1>
 		<p className="pg-hint">
@@ -29,3 +29,5 @@ export const ScrollPage = () => (
 		</div>
 	</div>
 );
+
+export default ScrollPage;

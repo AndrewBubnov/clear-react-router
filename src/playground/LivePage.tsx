@@ -2,15 +2,15 @@ import { Link, useLoaderState } from '../clear-router';
 
 type QuotesData = { tick: number; quotes: { symbol: string; price: number }[] };
 
-export const LivePage = () => {
+const LivePage = () => {
 	const { data } = useLoaderState<QuotesData>();
 	return (
 		<div className="pg-wrap">
 			<h1>Polling</h1>
 			<p className="pg-hint">
-				Loader revalidates every 2 seconds (<code>pollingInterval: 2000</code>) while this
-				route is active. Watch the tick counter — then leave the page and come back: polling
-				restarts, and no requests fire while you are away (check the network tab).
+				Loader revalidates every 2 seconds (<code>pollingInterval: 2000</code>) while this route is active.
+				Watch the tick counter — then leave the page and come back: polling restarts, and no requests fire while
+				you are away (check the network tab).
 			</p>
 			<div className="pg-card">
 				<p>
@@ -39,3 +39,5 @@ export const LivePage = () => {
 		</div>
 	);
 };
+
+export default LivePage;

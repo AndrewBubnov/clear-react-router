@@ -2,7 +2,7 @@ import { Link, useSearchParams } from '../clear-router';
 
 const BRANDS = ['nike', 'reebok', 'adidas'];
 
-export const SearchPage = () => {
+const SearchPage = () => {
 	const { searchParams, getSearchParams, setSearchParams } = useSearchParams();
 	const active = getSearchParams('brand');
 
@@ -10,8 +10,8 @@ export const SearchPage = () => {
 		<div className="pg-wrap">
 			<h1>Search params</h1>
 			<p className="pg-hint">
-				The URL query string updates as you click — no navigation, no loader restart.
-				`getSearchParams` returns an array when a key has multiple values.
+				The URL query string updates as you click — no navigation, no loader restart. `getSearchParams` returns
+				an array when a key has multiple values.
 			</p>
 			<div className="pg-card">
 				<div className="pg-row">
@@ -39,8 +39,7 @@ export const SearchPage = () => {
 					URL query: <code>{searchParams.toString() || '(empty)'}</code>
 				</p>
 				<p>
-					<code>getSearchParams(&apos;brand&apos;)</code>:{' '}
-					<code>{JSON.stringify(active)}</code>
+					<code>getSearchParams(&apos;brand&apos;)</code>: <code>{JSON.stringify(active)}</code>
 				</p>
 			</div>
 			<p>
@@ -49,3 +48,5 @@ export const SearchPage = () => {
 		</div>
 	);
 };
+
+export default SearchPage;

@@ -9,7 +9,7 @@ export type PlaygroundSettings = {
 };
 
 export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }) => {
-	const [isAnimated, setIsAnimated] = useState(true);
+	const [isAnimated, setIsAnimated] = useState(false);
 	const [showStatusBadge, setShowStatusBadge] = useState(true);
 	const [animationDuration, setAnimationDuration] = useState<number | undefined>(undefined);
 	const [maxCacheSize, setMaxCacheSize] = useState(3);

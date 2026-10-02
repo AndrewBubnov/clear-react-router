@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useBlocker } from '../clear-router';
 
-export const BlockerPage = () => {
+const BlockerPage = () => {
 	const [value, setValue] = useState('');
 	const dirty = !!value.length;
 	const { state, process, reset } = useBlocker(() => dirty);
@@ -46,3 +46,4 @@ export const BlockerPage = () => {
 		</div>
 	);
 };
+export default BlockerPage;

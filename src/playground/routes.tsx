@@ -1,19 +1,6 @@
-import { createRouter } from '../clear-router';
+import { createRouter, lazy } from '../clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
-import { ScrollPage } from './ScrollPage';
-import { RetryPage, RetryErrorView } from './RetryPage';
-import { LivePage } from './LivePage';
-import { ActionsPage } from './ActionsPage';
-import { BlockerPage } from './BlockerPage';
 import { Loading } from './Loading';
-import { PlaygroundNotFound } from './NotFound';
-import { PrefetchPage } from './PrefetchPage';
-import { NestChildPage, NestItemPage, NestPage } from './NestPage';
-import { OptimisticPage } from './OptimisticPage';
-import { CachePage, HeavyPage, ProductPage } from './CachePage';
-import { SearchPage } from './SearchPage';
-import { DashboardPage, GuardPage } from './GuardPage';
-import { SettingsPage } from './SettingsPage';
 import {
 	addNote,
 	fetchCachePayload,
@@ -28,20 +15,21 @@ import {
 	fetchSlow,
 	fetchUnstable,
 } from './api';
+import RetryErrorView from './RetryErrorView.tsx';
 
 export const playgroundRoutes = createRouter([
 	{ path: '/', element: PlaygroundHome },
 	{ path: '/playground', element: PlaygroundHome },
 	{
 		path: '/playground/scroll',
-		element: ScrollPage,
+		element: lazy(() => import('./ScrollPage')),
 		scrollRestoration: ['feed', 'gallery'],
 		scrollRestorationBehavior: 'smooth',
 		optimistic: true,
 	},
 	{
 		path: '/playground/retry',
-		element: RetryPage,
+		element: lazy(() => import('./RetryPage')),
 		loader: fetchUnstable,
 		retry: { count: 3, delay: 400 },
 		loaderFallback: <Loading title="retry demo" />,
@@ -52,18 +40,18 @@ export const playgroundRoutes = createRouter([
 		loader: fetchDoomed,
 		retry: 0,
 		loaderFallback: <Loading title="doomed demo" />,
-		errorElement: <RetryErrorView />,
+		errorElement: RetryErrorView,
 	},
 	{
 		path: '/playground/live',
-		element: LivePage,
+		element: lazy(() => import('./LivePage')),
 		loader: fetchQuotes,
 		pollingInterval: 2000,
 		loaderFallback: <Loading title="live quotes" />,
 	},
 	{
 		path: '/playground/actions',
-		element: ActionsPage,
+		element: lazy(() => import('./ActionsPage')),
 		loader: fetchNotes,
 		loaderFallback: <Loading title="notes" />,
 		actions: () => ({
@@ -72,13 +60,13 @@ export const playgroundRoutes = createRouter([
 	},
 	{
 		path: '/playground/prefetch',
-		element: <PrefetchPage />,
+		element: lazy(() => import('./PrefetchPage')),
 		loader: fetchSlow,
 		loaderFallback: <Loading title="slow payload" />,
 	},
 	{
 		path: '/playground/optimistic',
-		element: <OptimisticPage />,
+		element: lazy(() => import('./OptimisticPage')),
 		loader: fetchOptimisticValue,
 		staleTime: 800,
 		optimistic: true,
@@ -86,17 +74,17 @@ export const playgroundRoutes = createRouter([
 	},
 	{
 		path: '/playground/nest',
-		element: <NestPage />,
+		element: lazy(() => import('./NestPage')),
 		children: [
 			{
 				path: '/:nestId',
-				element: <NestChildPage />,
+				element: lazy(() => import('./NestChildPage')),
 				loader: ({ params }) => fetchNest(params.nestId),
 				loaderFallback: <Loading title="nest" />,
 				children: [
 					{
 						path: '/item/:itemId',
-						element: <NestItemPage />,
+						element: lazy(() => import('./NestItemPage')),
 						loader: ({ params }) => fetchNestItem(params.nestId, params.itemId),
 						loaderFallback: <Loading title="nest item" />,
 					},
@@ -106,40 +94,40 @@ export const playgroundRoutes = createRouter([
 	},
 	{
 		path: '/playground/cache',
-		element: <CachePage />,
+		element: lazy(() => import('./CachePage')),
 		loader: fetchCachePayload,
 		loaderFallback: <Loading title="cache lab" />,
 	},
 	{
 		path: '/playground/product/:productId',
-		element: <ProductPage />,
+		element: lazy(() => import('./ProductPage')),
 		loader: ({ params }) => fetchProduct(params.productId),
 		loaderFallback: <Loading title="product" />,
 	},
 	{
 		path: '/playground/heavy',
-		element: <HeavyPage />,
+		element: lazy(() => import('./HeavyPage')),
 		loader: fetchHeavy,
 		gcTime: 5000,
 		loaderFallback: <Loading title="heavy payload" />,
 	},
 	{
 		path: '/playground/search',
-		element: <SearchPage />,
+		element: lazy(() => import('./SearchPage')),
 	},
 	{
 		path: '/playground/guard',
-		element: <GuardPage />,
+		element: lazy(() => import('./GuardPage')),
 	},
 	{
 		path: '/playground/dashboard',
-		element: <DashboardPage />,
+		element: lazy(() => import('./DashboardPage')),
 		beforeLoad: ({ context, redirect }) => {
 			if (!context.isAuthorized)
 				return redirect({ pathname: '/playground/guard', state: { from: '/playground/dashboard' } });
 		},
 	},
-	{ path: '/playground/blocker', element: <BlockerPage /> },
-	{ path: '/playground/settings', element: <SettingsPage /> },
-	{ path: '*', element: <PlaygroundNotFound /> },
+	{ path: '/playground/blocker', element: lazy(() => import('./BlockerPage')) },
+	{ path: '/playground/settings', element: lazy(() => import('./SettingsPage')) },
+	{ path: '*', element: lazy(() => import('./NotFound')) },
 ]);

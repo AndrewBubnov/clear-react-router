@@ -31,7 +31,7 @@ const AddNoteForm = () => {
 	);
 };
 
-export const ActionsPage = () => {
+const ActionsPage = () => {
 	const { data: notes } = useLoaderState<Note[]>();
 	return (
 		<div className="pg-wrap">
@@ -53,3 +53,5 @@ export const ActionsPage = () => {
 		</div>
 	);
 };
+
+export default ActionsPage;
