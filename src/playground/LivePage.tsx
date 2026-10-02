@@ -10,7 +10,7 @@ const LivePage = () => {
 			<p className="pg-hint">
 				Loader revalidates every 2 seconds (<code>pollingInterval: 2000</code>) while this route is active.
 				Watch the tick counter — then leave the page and come back: polling restarts, and no requests fire while
-				you are away (check the network tab).
+				you are away.
 			</p>
 			<div className="pg-card">
 				<p>
