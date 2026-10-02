@@ -8,7 +8,6 @@ import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
 import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common';
 import {
-	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -23,11 +22,11 @@ const createMockRouterState = (): RouterState => ({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
+		loaderState: EMPTY_LOADER_STATE,
 	}),
 	scrollMapState: create<ScrollMap>({}),
 	contextState: create<Record<string, unknown>>({}),
 	blockerState: create<BlockerState>('unblocked'),
-	loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 	blockedTargetState: create<Location | null>(null),
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
@@ -74,7 +73,7 @@ describe('navigate', () => {
 		await navigate({ pathname: '/test' });
 
 		expect(state.routeDataState.getState().location.pathname).toBe('/test');
-		expect(state.loaderState.getState().data).toBe('route data');
+		expect(state.routeDataState.getState().loaderState.data).toBe('route data');
 		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
@@ -143,7 +142,7 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test' });
 
-		expect(state.loaderState.getState().beforeLoadError).toBe(beforeLoadError);
+		expect(state.routeDataState.getState().loaderState.beforeLoadError).toBe(beforeLoadError);
 		expect(state.routeDataState.getState().status).toBe('error');
 		expect(state.routeDataState.getState().routeItem).toBe(routeItem);
 		expect(state.routeDataState.getState().location.pathname).toBe('/test');
@@ -171,7 +170,7 @@ describe('navigate', () => {
 		expect(routeData.status).toBe('error');
 		expect(routeData.routeItem).toBe(routeB);
 		expect(routeData.location.pathname).toBe('/b');
-		expect(state.loaderState.getState().beforeLoadError).toBe(beforeLoadError);
+		expect(state.routeDataState.getState().loaderState.beforeLoadError).toBe(beforeLoadError);
 		expect(history.pushState).toHaveBeenCalledWith(null, '', '/b');
 	});
 
@@ -200,7 +199,7 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test' });
 
-		expect(state.loaderState.getState().loaderError).toBe(loaderError);
+		expect(state.routeDataState.getState().loaderState.loaderError).toBe(loaderError);
 		expect(state.routeDataState.getState().status).toBe('error');
 	});
 
@@ -360,7 +359,7 @@ describe('navigate', () => {
 		await vi.advanceTimersByTimeAsync(500);
 		await navPromise;
 
-		expect(state.loaderState.getState().data).toBe('fast data');
+		expect(state.routeDataState.getState().loaderState.data).toBe('fast data');
 	});
 
 	it('does not apply minLoaderDuration when cache is fresh', async () => {
@@ -378,7 +377,7 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test' });
 		expect(loader).not.toHaveBeenCalled();
-		expect(state.loaderState.getState().data).toBe('fresh');
+		expect(state.routeDataState.getState().loaderState.data).toBe('fresh');
 	}, 10000);
 
 	it('pairs optimistic route and loader commits inside a single view transition', async () => {
@@ -428,24 +427,24 @@ describe('navigate', () => {
 		await navigate({ pathname: '/slow' });
 		flushTransition();
 		expect(state.routeDataState.getState().location.pathname).toBe('/slow');
-		expect(state.loaderState.getState().data).toBe('slow payload');
+		expect(state.routeDataState.getState().loaderState.data).toBe('slow payload');
 
 		vi.advanceTimersByTime(200);
 		const revisit = navigate({ pathname: '/fast' });
 		await vi.advanceTimersByTimeAsync(0);
 		// The view transition is still deferred: the old route must still see its own data.
 		expect(state.routeDataState.getState().location.pathname).toBe('/slow');
-		expect(state.loaderState.getState().data).toBe('slow payload');
+		expect(state.routeDataState.getState().loaderState.data).toBe('slow payload');
 
 		flushTransition();
 		expect(state.routeDataState.getState().status).toBe('optimistic');
-		expect(state.loaderState.getState().data).toEqual({ value: 1 });
+		expect(state.routeDataState.getState().loaderState.data).toEqual({ value: 1 });
 
 		resolveRevalidation({ value: 2 });
 		await revisit;
 		flushTransition();
 		expect(state.routeDataState.getState().status).toBe('active');
-		expect(state.loaderState.getState().data).toEqual({ value: 2 });
+		expect(state.routeDataState.getState().loaderState.data).toEqual({ value: 2 });
 	});
 
 	describe('polling', () => {
@@ -458,12 +457,12 @@ describe('navigate', () => {
 			navigate = createNavigate(state, revalidateCache);
 
 			await navigate({ pathname: '/test' });
-			expect(state.loaderState.getState().data).toBe('v1');
+			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
 			expect(loader).toHaveBeenCalledTimes(1);
 
 			await vi.advanceTimersByTimeAsync(1000);
 			expect(loader).toHaveBeenCalledTimes(2);
-			expect(state.loaderState.getState().data).toBe('v2');
+			expect(state.routeDataState.getState().loaderState.data).toBe('v2');
 		});
 
 		it('refetches on every polling tick even without staleTime', async () => {
@@ -478,12 +477,12 @@ describe('navigate', () => {
 			navigate = createNavigate(state, revalidateCache);
 
 			await navigate({ pathname: '/test' });
-			expect(state.loaderState.getState().data).toBe('v1');
+			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
 			expect(loader).toHaveBeenCalledTimes(1);
 
 			await vi.advanceTimersByTimeAsync(1000);
 			expect(loader).toHaveBeenCalledTimes(2);
-			expect(state.loaderState.getState().data).toBe('v2');
+			expect(state.routeDataState.getState().loaderState.data).toBe('v2');
 		});
 
 		it('stops polling after leaving the route', async () => {

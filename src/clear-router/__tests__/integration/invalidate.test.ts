@@ -5,7 +5,6 @@ import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
 import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common';
 import {
-	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -21,11 +20,11 @@ const createMockRouterState = (): RouterState => ({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
+		loaderState: EMPTY_LOADER_STATE,
 	}),
 	scrollMapState: create<ScrollMap>({}),
 	contextState: create<Record<string, unknown>>({}),
 	blockerState: create<BlockerState>('unblocked'),
-	loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 	blockedTargetState: create<Location | null>(null),
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
@@ -62,6 +61,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users');
@@ -81,6 +81,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		await invalidate('/users', { staleOnly: true });
@@ -93,6 +94,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users', { force: true });
@@ -106,6 +108,7 @@ describe('invalidate', () => {
 			routeItem: undefined,
 			location: { pathname: '/', search: '' },
 			status: 'idle',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/nonexistent');
@@ -127,6 +130,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate(['/users', '/posts']);
@@ -144,6 +148,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate();
@@ -161,11 +166,12 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		await invalidate('/users');
 
-		expect(state.loaderState.getState().data).toBe('fresh data');
+		expect(state.routeDataState.getState().loaderState.data).toBe('fresh data');
 	});
 
 	it('handles path with search params', async () => {
@@ -178,6 +184,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '?page=1' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users?page=1');
@@ -191,6 +198,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users');
@@ -205,6 +213,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users', { force: false });
@@ -218,6 +227,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users', { staleOnly: true });
@@ -232,15 +242,19 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'error',
+			loaderState: EMPTY_LOADER_STATE,
 		});
-		state.loaderState.setState({ data: null, loaderError: loadError, beforeLoadError: null });
+		state.routeDataState.setState(prevState => ({
+			...prevState,
+			loaderState: { data: null, loaderError: loadError, beforeLoadError: null },
+		}));
 
 		const result = await invalidate();
 
 		expect(result).toHaveLength(1);
 		expect(result[0].data).toBe('fresh data');
 		expect(state.routeDataState.getState().status).toBe('active');
-		expect(state.loaderState.getState()).toEqual({ data: 'fresh data', loaderError: null, beforeLoadError: null });
+		expect(state.routeDataState.getState().loaderState).toEqual({ data: 'fresh data', loaderError: null, beforeLoadError: null });
 	});
 
 	it('sets status to error when revalidation of the working page fails', async () => {
@@ -259,6 +273,7 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader: failingLoader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
 
 		const result = await invalidate('/users');
@@ -266,7 +281,7 @@ describe('invalidate', () => {
 		expect(result).toHaveLength(1);
 		expect(result[0].error).toBe(loadError);
 		expect(state.routeDataState.getState().status).toBe('error');
-		expect(state.loaderState.getState().loaderError).toBe(loadError);
+		expect(state.routeDataState.getState().loaderState.loaderError).toBe(loadError);
 	});
 
 	it('does not touch current status when revalidating another route', async () => {
@@ -279,13 +294,17 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
 		});
-		state.loaderState.setState({ data: 'users data', loaderError: null, beforeLoadError: null });
+		state.routeDataState.setState(prevState => ({
+			...prevState,
+			loaderState: { data: 'users data', loaderError: null, beforeLoadError: null },
+		}));
 
 		const result = await invalidate('/posts');
 
 		expect(result).toHaveLength(1);
 		expect(state.routeDataState.getState().status).toBe('active');
-		expect(state.loaderState.getState().data).toBe('users data');
+		expect(state.routeDataState.getState().loaderState.data).toBe('users data');
 	});
 });

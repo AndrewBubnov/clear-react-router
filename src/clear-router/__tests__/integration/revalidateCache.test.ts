@@ -3,7 +3,6 @@ import { createRevalidateCache } from '../../runtime/revalidateCache';
 import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
 import {
-	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -19,11 +18,11 @@ const createMockRouterState = (): RouterState => ({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
+		loaderState: EMPTY_LOADER_STATE,
 	}),
 	scrollMapState: create<ScrollMap>({}),
 	contextState: create<Record<string, unknown>>({}),
 	blockerState: create<BlockerState>('unblocked'),
-	loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 	blockedTargetState: create<Location | null>(null),
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),

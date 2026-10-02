@@ -10,8 +10,8 @@ import {
 	isVerticalScroll,
 	updateScrollMap,
 } from '../../utils/utils';
-import { create, Store } from '../../create';
-import { TestElement } from '../common';
+import { create } from '../../create';
+import { TestElement, EMPTY_LOADER_STATE } from '../common';
 import { Location, RouteItem, RouteData, ScrollMap } from '../../types';
 
 describe('utils', () => {
@@ -189,10 +189,11 @@ describe('utils', () => {
 
 	describe('updateScrollMap', () => {
 		it('updates scroll map with window scroll position', () => {
-			const routeItemDataState = create<{ routeItem?: RouteItem; location: Location; status: string }>({
+			const routeDataState = create<RouteData>({
 				routeItem: { scrollRestoration: true } as RouteItem,
 				location: { pathname: '/test' },
 				status: 'idle',
+				loaderState: EMPTY_LOADER_STATE,
 			});
 			const scrollMapState = create({});
 
@@ -201,7 +202,7 @@ describe('utils', () => {
 				writable: true,
 			});
 
-			updateScrollMap(routeItemDataState as Store<RouteData>, scrollMapState);
+			updateScrollMap(routeDataState, scrollMapState);
 
 			const map: ScrollMap = scrollMapState.getState();
 			expect(map['/test']).toEqual([
