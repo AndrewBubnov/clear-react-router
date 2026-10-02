@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { Router, Link, createRouter, useLoaderState } from '../..';
+import { Router, Link, createRouter, useLoaderState, useLocation, useRouteStatus } from '../..';
 import { routes } from '../common';
 
 const TEST_TIMEOUT = 10000;
@@ -364,6 +364,82 @@ describe('fresh cache revisit', () => {
 				},
 				{ timeout: 5000 }
 			);
+		},
+		TEST_TIMEOUT
+	);
+});
+
+describe('polling renders', () => {
+	beforeEach(() => {
+		window.history.pushState({}, '', '/');
+	});
+
+	it(
+		'does not re-render route subscribers on polling ticks',
+		async () => {
+			// Pins reference stability of the united store: a polling tick replaces only the
+			// loader slice, so route/location/status subscribers must not re-render while the
+			// loader subscriber does. (Passes on the old two-store design too — this is a
+			// behavior pin, not a red-phase regression test.)
+			let statusRenders = 0;
+			let locationRenders = 0;
+			let loaderRenders = 0;
+			const StatusProbe = () => {
+				statusRenders += 1;
+				useRouteStatus();
+				return null;
+			};
+			const LocationProbe = () => {
+				locationRenders += 1;
+				useLocation();
+				return null;
+			};
+			const LoaderProbe = () => {
+				loaderRenders += 1;
+				const { data } = useLoaderState<string>();
+				return <div>Live: {data}</div>;
+			};
+			const loader = vi.fn().mockResolvedValueOnce('v1').mockResolvedValue('v2');
+			const pollingRoutes = createRouter([
+				{ path: '/', element: <div>Home</div> },
+				{
+					path: '/live',
+					element: (
+						<div>
+							<StatusProbe />
+							<LocationProbe />
+							<LoaderProbe />
+						</div>
+					),
+					loader,
+					pollingInterval: 100,
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			window.history.pushState({}, '', '/live');
+			render(<Router routes={pollingRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Live: v1/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			statusRenders = 0;
+			locationRenders = 0;
+			loaderRenders = 0;
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Live: v2/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			await new Promise(resolve => setTimeout(resolve, 350));
+
+			expect(loader.mock.calls.length).toBeGreaterThan(2);
+			expect(loaderRenders).toBeGreaterThan(0);
+			expect(statusRenders).toBe(0);
+			expect(locationRenders).toBe(0);
 		},
 		TEST_TIMEOUT
 	);
