@@ -376,11 +376,9 @@ h1 {
 }
 
 .loader {
-	--size: 1px;
-
-	width: 48px;
-	height: 48px;
-	border: 5px solid;
+	width: 36px;
+	height: 36px;
+	border: 3px solid;
 	border-color: currentColor transparent;
 	border-radius: 50%;
 	display: inline-block;
