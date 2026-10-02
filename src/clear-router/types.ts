@@ -148,7 +148,7 @@ export type RouterType = {
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
-		useRouteItemData(): ReturnType<typeof useGlobalState<RouteData>>;
+		useRouteData(): ReturnType<typeof useGlobalState<RouteData>>;
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useBlockedTargetState(): ReturnType<typeof useGlobalState<Location | null>>;

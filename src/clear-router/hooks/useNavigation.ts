@@ -4,8 +4,9 @@ import { parseWindowLocation } from '../utils/utils';
 
 export const useNavigation = () => {
 	const { navigate } = router.runtime;
-	const { useRouteItemData, useBlockerState } = router.hooks;
-	const [{ location }] = useRouteItemData();
+	const { useRouteDataSelector, useBlockerState } = router.hooks;
+	const location = useRouteDataSelector(state => state.location);
+
 	const [blockerState] = useBlockerState();
 
 	useEffect(() => {

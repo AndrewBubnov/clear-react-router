@@ -59,7 +59,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useBlockerState: () => useGlobalState<BlockerState>(routerState.blockerState, synchronizer),
-			useRouteItemData: () => useGlobalState<RouteData>(routerState.routeDataState, synchronizer),
+			useRouteData: () => useGlobalState<RouteData>(routerState.routeDataState, synchronizer),
 			useScrollMap: () => useGlobalState<ScrollMap>(routerState.scrollMapState, synchronizer),
 			useContextState: () => useGlobalState<Record<string, unknown>>(routerState.contextState, synchronizer),
 			useBlockedTargetState: () => useGlobalState<Location | null>(routerState.blockedTargetState, synchronizer),

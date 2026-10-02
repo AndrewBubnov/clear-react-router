@@ -37,8 +37,10 @@ export const Router = ({
 	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 }: RouterProps) => {
-	const { useRouteItemData } = router.hooks;
-	const [{ routeItem, status, location }] = useRouteItemData();
+	const { useRouteDataSelector } = router.hooks;
+	const routeItem = useRouteDataSelector(state => state.routeItem);
+	const location = useRouteDataSelector(state => state.location);
+	const status = useRouteDataSelector(state => state.status);
 
 	const isError = status === 'error';
 	const isLoading = status === 'pending';

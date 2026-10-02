@@ -19,7 +19,7 @@ const useLatest = <T>(value: T) => {
 };
 
 export const useSearchParams = (): UseSearchParamsReturn => {
-	const [{ location }, setRouteItemData] = router.hooks.useRouteItemData();
+	const [{ location }, setRouteItemData] = router.hooks.useRouteData();
 	const { search = window.location.search, pathname = window.location.pathname } = location;
 
 	const searchRef = useLatest(search);
