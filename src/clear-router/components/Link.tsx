@@ -67,10 +67,10 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	pendingClassName = 'pending-link',
 	...rest
 }: LinkProps<T>) => {
-	const { useRouteItemDataSelector } = router.hooks;
+	const { useRouteDataSelector } = router.hooks;
 	const isPending = useIsRoutePending(to);
 	const navigate = useNavigate();
-	const isActive = useRouteItemDataSelector(({ location: { pathname } }) => comparator(to, pathname, exact));
+	const isActive = useRouteDataSelector(({ location: { pathname } }) => comparator(to, pathname, exact));
 
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);

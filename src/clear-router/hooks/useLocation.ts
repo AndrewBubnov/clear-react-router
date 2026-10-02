@@ -1,3 +1,3 @@
 import { router } from '../instance';
 
-export const useLocation = () => router.hooks.useRouteItemDataSelector(state => state.location);
+export const useLocation = () => router.hooks.useRouteDataSelector(state => state.location);
