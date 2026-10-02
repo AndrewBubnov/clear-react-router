@@ -25,8 +25,8 @@ export const createInvalidate = ({ routeDataState, loaderMap }: RouterState, rev
 					loaderError: result.error as Error | null,
 					beforeLoadError: null,
 				},
+				status: result.error ? 'error' : 'active',
 			}));
-			routeDataState.setState(prevState => ({ ...prevState, status: result.error ? 'error' : 'active' }));
 		}
 
 		return { path: pathname, ...result } as InvalidateResult;

@@ -55,11 +55,11 @@ export const getPartialLoaderArgs = (
 
 export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight > el.clientHeight;
 
-export const updateScrollMap = (routeItemDataState: Store<RouteData>, scrollMapState: Store<ScrollMap>) => {
+export const updateScrollMap = (routeDataState: Store<RouteData>, scrollMapState: Store<ScrollMap>) => {
 	const {
 		routeItem,
 		location: { pathname },
-	} = routeItemDataState.getState();
+	} = routeDataState.getState();
 	scrollMapState.setState(prevState => {
 		if (Array.isArray(routeItem?.scrollRestoration)) {
 			return {

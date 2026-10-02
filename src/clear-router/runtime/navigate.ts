@@ -5,7 +5,6 @@ import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
 import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
-import { EMPTY_LOADER_STATE } from '../constants.ts';
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	let navigationSeq = 0;
@@ -87,11 +86,10 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		});
 	};
 
-	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) => {
+	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) =>
 		commitNavigation(() =>
-			routeDataState.setState({ routeItem, location, status: 'pending', loaderState: EMPTY_LOADER_STATE })
+			routeDataState.setState(prevState => ({ ...prevState, routeItem, location, status: 'pending' }))
 		);
-	};
 
 	const isOptimisticHit = (routeItem: RouteItem | undefined, path: string) =>
 		!!routeItem?.optimistic && loaderMap.has(path);
