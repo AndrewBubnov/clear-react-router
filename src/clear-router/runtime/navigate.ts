@@ -19,15 +19,8 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = null;
 	};
 
-	const {
-		loaderState,
-		contextState,
-		loaderMap,
-		routeItemDataState,
-		scrollMapState,
-		blockerState,
-		blockedTargetState,
-	} = routerState;
+	const { loaderState, contextState, loaderMap, routeDataState, scrollMapState, blockerState, blockedTargetState } =
+		routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -49,7 +42,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const { defaultBeforeLoad } = routerConfig;
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) => {
-				const { location } = routeItemDataState.getState();
+				const { location } = routeDataState.getState();
 				const prevLocation = { pathname: location.pathname, search: location.search };
 				return await navigate(
 					typeof redirected === 'string'
@@ -71,7 +64,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	};
 
 	const createGcTimeout = () => {
-		const { routeItem, location } = routeItemDataState.getState();
+		const { routeItem, location } = routeDataState.getState();
 		if (!routeItem?.gcTime) return;
 		const path = `${location.pathname}${location.search}`;
 		const currentLoaderEntry = loaderMap.get(path);
@@ -84,13 +77,13 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const commitOptimisticState = (routeItem: RouteItem | undefined, location: Location, path: string) => {
 		const currentLoaderState = loaderMap.get(path)?.state;
 		commitNavigation(() => {
-			routeItemDataState.setState({ routeItem, location, status: 'optimistic' });
+			routeDataState.setState({ routeItem, location, status: 'optimistic' });
 			if (currentLoaderState) loaderState.setState(currentLoaderState);
 		});
 	};
 
 	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) => {
-		commitNavigation(() => routeItemDataState.setState({ routeItem, location, status: 'pending' }));
+		commitNavigation(() => routeDataState.setState({ routeItem, location, status: 'pending' }));
 	};
 
 	const isOptimisticHit = (routeItem: RouteItem | undefined, path: string) =>
@@ -100,7 +93,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		!!routeItem?.loader && !isCacheItemFresh(path);
 
 	const prepareNavigation = (routeItem: RouteItem | undefined, location: Location, hasError: boolean) => {
-		updateScrollMap(routeItemDataState, scrollMapState);
+		updateScrollMap(routeDataState, scrollMapState);
 		createGcTimeout();
 		if (hasError) return;
 		const path = getPath(location);
@@ -116,7 +109,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		interval = window.setInterval(async () => {
 			const result = await revalidateCache({ routeItem, location: nextLocation, signal, force: true });
 			if (!result || signal.aborted) return;
-			const { location: currentLocation } = routeItemDataState.getState();
+			const { location: currentLocation } = routeDataState.getState();
 			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;
 			if (currentPath !== getPath(nextLocation)) return;
 			loaderState.setState({

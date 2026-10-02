@@ -87,7 +87,7 @@ export type LoaderState<T = unknown> = {
 
 export type Status = 'idle' | 'pending' | 'active' | 'optimistic' | 'error';
 
-export type RouteItemData = {
+export type RouteData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
 	status: Status;
@@ -130,7 +130,7 @@ export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: nu
 export type ScrollMap = Record<string, [string, number][]>;
 
 export type RouterState = {
-	routeItemDataState: Store<RouteItemData>;
+	routeDataState: Store<RouteData>;
 	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
 	blockerState: Store<BlockerState>;
@@ -148,7 +148,7 @@ export type RouterType = {
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
-		useRouteItemData(): ReturnType<typeof useGlobalState<RouteItemData>>;
+		useRouteItemData(): ReturnType<typeof useGlobalState<RouteData>>;
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useBlockedTargetState(): ReturnType<typeof useGlobalState<Location | null>>;
@@ -160,7 +160,7 @@ export type RouterType = {
 			options?: Options
 		): (arg: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
 		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
-		useRouteItemDataSelector<T>(callback: (arg: RouteItemData) => T): T;
+		useRouteItemDataSelector<T>(callback: (arg: RouteData) => T): T;
 	};
 };
 

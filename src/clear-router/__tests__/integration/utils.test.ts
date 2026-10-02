@@ -12,7 +12,7 @@ import {
 } from '../../utils/utils';
 import { create, Store } from '../../create';
 import { TestElement } from '../common';
-import { Location, RouteItem, RouteItemData, ScrollMap } from '../../types';
+import { Location, RouteItem, RouteData, ScrollMap } from '../../types';
 
 describe('utils', () => {
 	describe('getParams', () => {
@@ -201,7 +201,7 @@ describe('utils', () => {
 				writable: true,
 			});
 
-			updateScrollMap(routeItemDataState as Store<RouteItemData>, scrollMapState);
+			updateScrollMap(routeItemDataState as Store<RouteData>, scrollMapState);
 
 			const map: ScrollMap = scrollMapState.getState();
 			expect(map['/test']).toEqual([

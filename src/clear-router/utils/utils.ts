@@ -1,6 +1,6 @@
 import { Store } from '../create';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
-import { Location, RouteItem, RouteItemData, RouterState, ScrollMap, SearchObject } from '../types';
+import { Location, RouteItem, RouteData, RouterState, ScrollMap, SearchObject } from '../types';
 
 export const getParams = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
@@ -55,7 +55,7 @@ export const getPartialLoaderArgs = (
 
 export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight > el.clientHeight;
 
-export const updateScrollMap = (routeItemDataState: Store<RouteItemData>, scrollMapState: Store<ScrollMap>) => {
+export const updateScrollMap = (routeItemDataState: Store<RouteData>, scrollMapState: Store<ScrollMap>) => {
 	const {
 		routeItem,
 		location: { pathname },

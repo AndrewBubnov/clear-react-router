@@ -9,7 +9,7 @@ import {
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
-	RouteItemData,
+	RouteData,
 	RouterState,
 	ScrollMap,
 	BlockerState,
@@ -17,7 +17,7 @@ import {
 } from '../../types';
 
 const createMockRouterState = (): RouterState => ({
-	routeItemDataState: create<RouteItemData>({
+	routeDataState: create<RouteData>({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
@@ -58,7 +58,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -77,7 +77,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -89,7 +89,7 @@ describe('invalidate', () => {
 	});
 
 	it('force adds path even if not in cache', async () => {
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -102,7 +102,7 @@ describe('invalidate', () => {
 	});
 
 	it('returns empty array for unknown path', async () => {
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: undefined,
 			location: { pathname: '/', search: '' },
 			status: 'idle',
@@ -123,7 +123,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -140,7 +140,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -157,7 +157,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -174,7 +174,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '?page=1' },
 			status: 'active',
@@ -187,7 +187,7 @@ describe('invalidate', () => {
 	});
 
 	it('fetches uncached path by default (implicit force)', async () => {
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -201,7 +201,7 @@ describe('invalidate', () => {
 	});
 
 	it('does not fetch uncached path with explicit force: false', async () => {
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -214,7 +214,7 @@ describe('invalidate', () => {
 	});
 
 	it('does not fetch uncached path with staleOnly', async () => {
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -228,7 +228,7 @@ describe('invalidate', () => {
 
 	it('recovers error page without cache and sets status to active', async () => {
 		const loadError = new Error('first load failed');
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'error',
@@ -239,7 +239,7 @@ describe('invalidate', () => {
 
 		expect(result).toHaveLength(1);
 		expect(result[0].data).toBe('fresh data');
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 		expect(state.loaderState.getState()).toEqual({ data: 'fresh data', loaderError: null, beforeLoadError: null });
 	});
 
@@ -255,7 +255,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader: failingLoader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -265,7 +265,7 @@ describe('invalidate', () => {
 
 		expect(result).toHaveLength(1);
 		expect(result[0].error).toBe(loadError);
-		expect(state.routeItemDataState.getState().status).toBe('error');
+		expect(state.routeDataState.getState().status).toBe('error');
 		expect(state.loaderState.getState().loaderError).toBe(loadError);
 	});
 
@@ -275,7 +275,7 @@ describe('invalidate', () => {
 			timestamp: Date.now(),
 			staleTime: 10000,
 		});
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
@@ -285,7 +285,7 @@ describe('invalidate', () => {
 		const result = await invalidate('/posts');
 
 		expect(result).toHaveLength(1);
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 		expect(state.loaderState.getState().data).toBe('users data');
 	});
 });

@@ -13,7 +13,7 @@ import {
 	Location,
 	NavigationLocation,
 	Options,
-	RouteItemData,
+	RouteData,
 	RouterState,
 	RouterType,
 	ScrollMap,
@@ -23,7 +23,7 @@ import {
 
 export const createRouterInstance = (synchronizer: Synchronizer): RouterType => {
 	const routerState: RouterState = {
-		routeItemDataState: create<RouteItemData>({
+		routeDataState: create<RouteData>({
 			routeItem: undefined,
 			location: {} as Location,
 			status: 'idle',
@@ -44,7 +44,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 
 	const getCurrentAction = (actionKey: string) => {
-		const { routeItem, location } = routerState.routeItemDataState.getState();
+		const { routeItem, location } = routerState.routeDataState.getState();
 		if (!routeItem) throw new Error('Route not found');
 		if (!routeItem.actions) throw new Error('Route action creator not found');
 		const context = routerState.contextState.getState();
@@ -60,18 +60,18 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 		runtime: { navigate, invalidate, prefetch },
 		hooks: {
 			useBlockerState: () => useGlobalState<BlockerState>(routerState.blockerState, synchronizer),
-			useRouteItemData: () => useGlobalState<RouteItemData>(routerState.routeItemDataState, synchronizer),
+			useRouteItemData: () => useGlobalState<RouteData>(routerState.routeDataState, synchronizer),
 			useScrollMap: () => useGlobalState<ScrollMap>(routerState.scrollMapState, synchronizer),
 			useContextState: () => useGlobalState<Record<string, unknown>>(routerState.contextState, synchronizer),
 			useBlockedTargetState: () => useGlobalState<Location | null>(routerState.blockedTargetState, synchronizer),
 			useLoaderState: <T = unknown>() =>
 				useGlobalState<LoaderState<unknown>>(routerState.loaderState, synchronizer)[0] as LoaderState<T>,
 			useParams: <T>() => {
-				const { routeItem, location } = routerState.routeItemDataState.getState();
+				const { routeItem, location } = routerState.routeDataState.getState();
 				return getParams(location, routeItem) as T;
 			},
 			useNavigate: () => async (arg: NavigationLocation | string | -1) => {
-				const { location } = routerState.routeItemDataState.getState();
+				const { location } = routerState.routeDataState.getState();
 				const prevLocation = { pathname: location.pathname, search: location.search };
 				if (arg === -1) return history.go(arg);
 				if (typeof arg === 'string') {
@@ -102,7 +102,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				const {
 					routeItem,
 					location: { pathname },
-				} = routerState.routeItemDataState.getState();
+				} = routerState.routeDataState.getState();
 				const scrollMap = routerState.scrollMapState.getState();
 
 				if (!routeItem || routeItem.scrollRestoration === false || !scrollMap[pathname]) return;
@@ -130,8 +130,8 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					});
 				});
 			},
-			useRouteItemDataSelector: <T>(callback: (arg: RouteItemData) => T): T => {
-				const state = routerState.routeItemDataState;
+			useRouteItemDataSelector: <T>(callback: (arg: RouteData) => T): T => {
+				const state = routerState.routeDataState;
 				return synchronizer(state.subscribe, () => callback(state.getState()));
 			},
 		},

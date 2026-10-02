@@ -5,7 +5,7 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 const separatePathname = (text: string) => text.split('?')[0];
 
 export const createInvalidate = (
-	{ routeItemDataState, loaderState, loaderMap }: RouterState,
+	{ routeDataState, loaderState, loaderMap }: RouterState,
 	revalidateCache: RevalidateCache
 ) => {
 	const invalidatePath = async (
@@ -13,7 +13,7 @@ export const createInvalidate = (
 		pathname: string,
 		options?: InvalidateOptions
 	): Promise<InvalidateResult> => {
-		const routePathname = routeItemDataState.getState().location.pathname;
+		const routePathname = routeDataState.getState().location.pathname;
 		if (!options?.staleOnly) loaderMap.delete(pathname);
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
@@ -26,7 +26,7 @@ export const createInvalidate = (
 				loaderError: result.error as Error | null,
 				beforeLoadError: null,
 			});
-			routeItemDataState.setState(prevState => ({ ...prevState, status: result.error ? 'error' : 'active' }));
+			routeDataState.setState(prevState => ({ ...prevState, status: result.error ? 'error' : 'active' }));
 		}
 
 		return { path: pathname, ...result } as InvalidateResult;
@@ -56,7 +56,7 @@ export const createInvalidate = (
 	};
 
 	return async (pathList?: string | string[], options?: InvalidateOptions) => {
-		const { pathname, search } = routeItemDataState.getState().location;
+		const { pathname, search } = routeDataState.getState().location;
 		const routePathname = `${pathname}${search}`;
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
 		const result = await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options)));

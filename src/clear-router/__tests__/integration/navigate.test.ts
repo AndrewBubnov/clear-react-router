@@ -12,14 +12,14 @@ import {
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
-	RouteItemData,
+	RouteData,
 	RouterState,
 	ScrollMap,
 	BlockerState,
 } from '../../types';
 
 const createMockRouterState = (): RouterState => ({
-	routeItemDataState: create<RouteItemData>({
+	routeDataState: create<RouteData>({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
@@ -73,9 +73,9 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test' });
 
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/test');
+		expect(state.routeDataState.getState().location.pathname).toBe('/test');
 		expect(state.loaderState.getState().data).toBe('route data');
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
 	it('sets pending status while loader is running', async () => {
@@ -95,11 +95,11 @@ describe('navigate', () => {
 		const navPromise = navigate({ pathname: '/test' });
 
 		await vi.advanceTimersByTimeAsync(0);
-		expect(state.routeItemDataState.getState().status).toBe('pending');
+		expect(state.routeDataState.getState().status).toBe('pending');
 
 		resolveLoader('data');
 		await navPromise;
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
 	it('skips navigation when blocked', async () => {
@@ -114,7 +114,7 @@ describe('navigate', () => {
 		await navigate({ pathname: '/test' });
 
 		expect(state.blockerState.getState()).toBe('blocked');
-		expect(state.routeItemDataState.getState().status).toBe('idle');
+		expect(state.routeDataState.getState().status).toBe('idle');
 	});
 
 	it('runs beforeLoad', async () => {
@@ -144,9 +144,9 @@ describe('navigate', () => {
 		await navigate({ pathname: '/test' });
 
 		expect(state.loaderState.getState().beforeLoadError).toBe(beforeLoadError);
-		expect(state.routeItemDataState.getState().status).toBe('error');
-		expect(state.routeItemDataState.getState().routeItem).toBe(routeItem);
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/test');
+		expect(state.routeDataState.getState().status).toBe('error');
+		expect(state.routeDataState.getState().routeItem).toBe(routeItem);
+		expect(state.routeDataState.getState().location.pathname).toBe('/test');
 	});
 
 	it('shows error state of the target route when leaving an active page', async () => {
@@ -163,11 +163,11 @@ describe('navigate', () => {
 		navigate = createNavigate(state, revalidateCache);
 
 		await navigate({ pathname: '/a' });
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 
 		await navigate({ pathname: '/b' });
 
-		const routeData = state.routeItemDataState.getState();
+		const routeData = state.routeDataState.getState();
 		expect(routeData.status).toBe('error');
 		expect(routeData.routeItem).toBe(routeB);
 		expect(routeData.location.pathname).toBe('/b');
@@ -201,7 +201,7 @@ describe('navigate', () => {
 		await navigate({ pathname: '/test' });
 
 		expect(state.loaderState.getState().loaderError).toBe(loaderError);
-		expect(state.routeItemDataState.getState().status).toBe('error');
+		expect(state.routeDataState.getState().status).toBe('error');
 	});
 
 	it('skips stale loader when cache is fresh', async () => {
@@ -245,7 +245,7 @@ describe('navigate', () => {
 		await p1;
 		await p2;
 
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/other');
+		expect(state.routeDataState.getState().location.pathname).toBe('/other');
 	});
 
 	it('navigates with search params', async () => {
@@ -258,7 +258,7 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test', search: '?foo=bar' });
 
-		expect(state.routeItemDataState.getState().location.search).toBe('?foo=bar');
+		expect(state.routeDataState.getState().location.search).toBe('?foo=bar');
 		expect(state.loaderMap.has('/test?foo=bar')).toBe(true);
 	});
 
@@ -312,7 +312,7 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/source' });
 
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/target');
+		expect(state.routeDataState.getState().location.pathname).toBe('/target');
 	});
 
 	it('sets GC timeout on previous route when navigating away', async () => {
@@ -343,8 +343,8 @@ describe('navigate', () => {
 
 		await navigate({ pathname: '/test' });
 
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/test');
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().location.pathname).toBe('/test');
+		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
 	it('minLoaderDuration delays response', async () => {
@@ -427,24 +427,24 @@ describe('navigate', () => {
 		flushTransition();
 		await navigate({ pathname: '/slow' });
 		flushTransition();
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/slow');
+		expect(state.routeDataState.getState().location.pathname).toBe('/slow');
 		expect(state.loaderState.getState().data).toBe('slow payload');
 
 		vi.advanceTimersByTime(200);
 		const revisit = navigate({ pathname: '/fast' });
 		await vi.advanceTimersByTimeAsync(0);
 		// The view transition is still deferred: the old route must still see its own data.
-		expect(state.routeItemDataState.getState().location.pathname).toBe('/slow');
+		expect(state.routeDataState.getState().location.pathname).toBe('/slow');
 		expect(state.loaderState.getState().data).toBe('slow payload');
 
 		flushTransition();
-		expect(state.routeItemDataState.getState().status).toBe('optimistic');
+		expect(state.routeDataState.getState().status).toBe('optimistic');
 		expect(state.loaderState.getState().data).toEqual({ value: 1 });
 
 		resolveRevalidation({ value: 2 });
 		await revisit;
 		flushTransition();
-		expect(state.routeItemDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().status).toBe('active');
 		expect(state.loaderState.getState().data).toEqual({ value: 2 });
 	});
 

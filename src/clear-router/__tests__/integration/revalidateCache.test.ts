@@ -7,7 +7,7 @@ import {
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
-	RouteItemData,
+	RouteData,
 	RouterState,
 	ScrollMap,
 	BlockerState,
@@ -15,7 +15,7 @@ import {
 import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common.tsx';
 
 const createMockRouterState = (): RouterState => ({
-	routeItemDataState: create<RouteItemData>({
+	routeDataState: create<RouteData>({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',

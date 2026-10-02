@@ -9,14 +9,14 @@ import {
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
-	RouteItemData,
+	RouteData,
 	RouterState,
 	ScrollMap,
 	BlockerState,
 } from '../../types';
 
 const createMockRouterState = (): RouterState => ({
-	routeItemDataState: create<RouteItemData>({
+	routeDataState: create<RouteData>({
 		routeItem: undefined,
 		location: { pathname: '/', search: '' },
 		status: 'idle',
@@ -51,7 +51,7 @@ describe('prefetch', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: undefined,
 			location: { pathname: '/', search: '' },
 			status: 'idle',
@@ -67,7 +67,7 @@ describe('prefetch', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem,
 			location: { pathname: '/test', search: '' },
 			status: 'active',
@@ -83,7 +83,7 @@ describe('prefetch', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem,
 			location: { pathname: '/test', search: '?a=1' },
 			status: 'active',
@@ -108,7 +108,7 @@ describe('prefetch', () => {
 		const routeItem = createMockRouteItem({ loader, preloadElement });
 		routerConfig.configure({ routes: [routeItem] });
 
-		state.routeItemDataState.setState({
+		state.routeDataState.setState({
 			routeItem: undefined,
 			location: { pathname: '/', search: '' },
 			status: 'idle',
