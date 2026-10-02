@@ -1,3 +1,6 @@
 import { router } from '../instance';
 
-export const useLoaderState = router.hooks.useLoaderState;
+export const useLoaderState = () => {
+	const { useRouteDataSelector } = router.hooks;
+	return useRouteDataSelector(state => state.loaderState);
+};

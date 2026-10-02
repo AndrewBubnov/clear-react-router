@@ -5,6 +5,7 @@ import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
 import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
 import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
+import { EMPTY_LOADER_STATE } from '../constants.ts';
 
 export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
 	let navigationSeq = 0;
@@ -19,8 +20,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = null;
 	};
 
-	const { loaderState, contextState, loaderMap, routeDataState, scrollMapState, blockerState, blockedTargetState } =
-		routerState;
+	const { contextState, loaderMap, routeDataState, scrollMapState, blockerState, blockedTargetState } = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -77,13 +77,20 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 	const commitOptimisticState = (routeItem: RouteItem | undefined, location: Location, path: string) => {
 		const currentLoaderState = loaderMap.get(path)?.state;
 		commitNavigation(() => {
-			routeDataState.setState({ routeItem, location, status: 'optimistic' });
-			if (currentLoaderState) loaderState.setState(currentLoaderState);
+			routeDataState.setState(prevState => ({
+				...prevState,
+				routeItem,
+				location,
+				status: 'optimistic',
+				...(currentLoaderState && { loaderState: currentLoaderState }),
+			}));
 		});
 	};
 
 	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) => {
-		commitNavigation(() => routeDataState.setState({ routeItem, location, status: 'pending' }));
+		commitNavigation(() =>
+			routeDataState.setState({ routeItem, location, status: 'pending', loaderState: EMPTY_LOADER_STATE })
+		);
 	};
 
 	const isOptimisticHit = (routeItem: RouteItem | undefined, path: string) =>
@@ -112,11 +119,14 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 			const { location: currentLocation } = routeDataState.getState();
 			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;
 			if (currentPath !== getPath(nextLocation)) return;
-			loaderState.setState({
-				data: result.data,
-				loaderError: result.error as Error | null,
-				beforeLoadError: null,
-			});
+			routeDataState.setState(prevState => ({
+				...prevState,
+				loaderState: {
+					data: result.data,
+					loaderError: result.error as Error | null,
+					beforeLoadError: null,
+				},
+			}));
 		}, routeItem.pollingInterval);
 	};
 

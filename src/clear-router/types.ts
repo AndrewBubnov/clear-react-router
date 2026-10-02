@@ -91,6 +91,7 @@ export type RouteData = {
 	location: Location;
 	routeItem: RouteItem | undefined;
 	status: Status;
+	loaderState: LoaderState;
 };
 
 type ObjectRetry = { count: number; delay: number };
@@ -134,7 +135,6 @@ export type RouterState = {
 	scrollMapState: Store<ScrollMap>;
 	contextState: Store<Record<string, unknown>>;
 	blockerState: Store<BlockerState>;
-	loaderState: Store<LoaderState>;
 	blockedTargetState: Store<Location | null>;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
@@ -152,7 +152,6 @@ export type RouterType = {
 		useScrollMap(): ReturnType<typeof useGlobalState<ScrollMap>>;
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useBlockedTargetState(): ReturnType<typeof useGlobalState<Location | null>>;
-		useLoaderState<T>(): LoaderState<T>;
 		useParams<T>(): T;
 		useNavigate(): (arg: NavigationLocation | string | -1) => Promise<void>;
 		useAction(

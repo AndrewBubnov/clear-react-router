@@ -4,10 +4,7 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 
 const separatePathname = (text: string) => text.split('?')[0];
 
-export const createInvalidate = (
-	{ routeDataState, loaderState, loaderMap }: RouterState,
-	revalidateCache: RevalidateCache
-) => {
+export const createInvalidate = ({ routeDataState, loaderMap }: RouterState, revalidateCache: RevalidateCache) => {
 	const invalidatePath = async (
 		routeItem: RouteItem,
 		pathname: string,
@@ -21,11 +18,14 @@ export const createInvalidate = (
 		const result = await revalidateCache({ routeItem, location });
 
 		if (result && path === routePathname) {
-			loaderState.setState({
-				data: result.data,
-				loaderError: result.error as Error | null,
-				beforeLoadError: null,
-			});
+			routeDataState.setState(prevState => ({
+				...prevState,
+				loaderState: {
+					data: result.data,
+					loaderError: result.error as Error | null,
+					beforeLoadError: null,
+				},
+			}));
 			routeDataState.setState(prevState => ({ ...prevState, status: result.error ? 'error' : 'active' }));
 		}
 

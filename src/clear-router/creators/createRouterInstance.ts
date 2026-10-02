@@ -7,7 +7,6 @@ import { formatSearchObject, getParams, isVerticalScroll } from '../utils/utils'
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import {
 	BlockerState,
-	LoaderState,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -27,11 +26,11 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 			routeItem: undefined,
 			location: {} as Location,
 			status: 'idle',
+			loaderState: EMPTY_LOADER_STATE,
 		}),
 		scrollMapState: create<ScrollMap>({}),
 		contextState: create<Record<string, unknown>>({}),
 		blockerState: create<BlockerState>('unblocked'),
-		loaderState: create<LoaderState>(EMPTY_LOADER_STATE),
 		blockedTargetState: create<Location | null>(null),
 		loaderMap: new Map<string, LoaderStateItem>(),
 		loadingPromises: new Map<string, LoadingPromise>(),
@@ -64,8 +63,6 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 			useScrollMap: () => useGlobalState<ScrollMap>(routerState.scrollMapState, synchronizer),
 			useContextState: () => useGlobalState<Record<string, unknown>>(routerState.contextState, synchronizer),
 			useBlockedTargetState: () => useGlobalState<Location | null>(routerState.blockedTargetState, synchronizer),
-			useLoaderState: <T = unknown>() =>
-				useGlobalState<LoaderState<unknown>>(routerState.loaderState, synchronizer)[0] as LoaderState<T>,
 			useParams: <T>() => {
 				const { routeItem, location } = routerState.routeDataState.getState();
 				return getParams(location, routeItem) as T;
