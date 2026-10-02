@@ -86,6 +86,25 @@ export const fetchCachePayload = async () => {
 	return `Cache lab payload (call ${n})`;
 };
 
+/** Nest demo: per-id payload with visible latency, cached separately per params. */
+export const fetchNest = async (nestId: string) => {
+	const n = trackCall(`nest-${nestId}`);
+	await delay(500);
+	return { nestId, description: `Nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
+};
+
+/** Grandchild demo: payload keyed by both nesting levels. */
+export const fetchNestItem = async (nestId: string, itemId: string) => {
+	const n = trackCall(`nest-${nestId}-${itemId}`);
+	await delay(500);
+	return {
+		nestId,
+		itemId,
+		description: `Item ${itemId} of nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'})`,
+		loads: n,
+	};
+};
+
 /** Heavy loader for the gcTime demo. */
 export const fetchHeavy = async () => {
 	const n = trackCall('heavy');

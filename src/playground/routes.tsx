@@ -8,6 +8,7 @@ import { BlockerPage } from './BlockerPage';
 import { Loading } from './Loading';
 import { PlaygroundNotFound } from './NotFound';
 import { PrefetchPage } from './PrefetchPage';
+import { NestChildPage, NestItemPage, NestPage } from './NestPage';
 import { OptimisticPage } from './OptimisticPage';
 import { CachePage, HeavyPage, ProductPage } from './CachePage';
 import { SearchPage } from './SearchPage';
@@ -18,6 +19,8 @@ import {
 	fetchCachePayload,
 	fetchDoomed,
 	fetchHeavy,
+	fetchNest,
+	fetchNestItem,
 	fetchNotes,
 	fetchOptimisticValue,
 	fetchProduct,
@@ -80,6 +83,26 @@ export const playgroundRoutes = createRouter([
 		staleTime: 800,
 		optimistic: true,
 		loaderFallback: <Loading title="optimistic value" />,
+	},
+	{
+		path: '/playground/nest',
+		element: <NestPage />,
+		children: [
+			{
+				path: '/:nestId',
+				element: <NestChildPage />,
+				loader: ({ params }) => fetchNest(params.nestId),
+				loaderFallback: <Loading title="nest" />,
+				children: [
+					{
+						path: '/item/:itemId',
+						element: <NestItemPage />,
+						loader: ({ params }) => fetchNestItem(params.nestId, params.itemId),
+						loaderFallback: <Loading title="nest item" />,
+					},
+				],
+			},
+		],
 	},
 	{
 		path: '/playground/cache',

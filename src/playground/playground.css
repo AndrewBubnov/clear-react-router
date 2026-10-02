@@ -31,6 +31,7 @@
 	font-weight: 600;
 	color: var(--text-h);
 	text-align: left;
+	padding-bottom: 3px;
 }
 
 button.pg-switch {
@@ -115,7 +116,7 @@ button.pg-switch:focus-visible {
 
 .pg-row {
 	display: flex;
-	gap: 12px;
+	gap: 16px;
 	align-items: center;
 	flex-wrap: wrap;
 	margin: 12px 0;

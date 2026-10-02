@@ -31,6 +31,7 @@ export const PlaygroundNav = () => {
 				<Link to="/playground/prefetch">Prefetch</Link>
 				<Link to="/playground/optimistic">Optimistic</Link>
 				<Link to="/playground/guard">Guards</Link>
+				<Link to="/playground/nest">Nested</Link>
 				<Link to="/playground/live">Live</Link>
 				<Link to="/playground/scroll">Scroll</Link>
 				<Link to="/playground/search">Search</Link>

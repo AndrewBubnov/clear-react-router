@@ -9,6 +9,7 @@ const demos = [
 	{ to: '/playground/prefetch', title: 'Prefetch', text: 'Slow loader + hover prefetch: load instantly on click, loader runs exactly once.' },
 	{ to: '/playground/optimistic', title: 'Optimistic navigation', text: 'Stale cached data renders instantly while fresh data revalidates in the background.' },
 	{ to: '/playground/cache', title: 'Cache: eviction, gcTime, invalidate', text: 'LRU eviction with tiny maxCacheSize, gcTime cleanup and an invalidation lab with live results.' },
+	{ to: '/playground/nest', title: 'Nested routes + params', text: 'Double-nested children with params at each level, random IDs, per-param loaders cached separately.' },
 	{ to: '/playground/search', title: 'Search params', text: 'Filter via useSearchParams — single values and arrays, URL updates as you type.' },
 	{ to: '/playground/guard', title: 'Route guards', text: 'beforeLoad checks with redirects — auth toggle as an example, origin passed via navigation state.' },
 	{ to: '/playground/scroll', title: 'Scroll restoration', text: 'Window + named scroll containers (#feed, #gallery), smooth behavior. Scroll, leave, come back.' },
