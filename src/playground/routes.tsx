@@ -15,6 +15,7 @@ import { DashboardPage, GuardPage } from './GuardPage';
 import { SettingsPage } from './SettingsPage';
 import {
 	addNote,
+	fetchCachePayload,
 	fetchDoomed,
 	fetchHeavy,
 	fetchNotes,
@@ -80,7 +81,12 @@ export const playgroundRoutes = createRouter([
 		optimistic: true,
 		loaderFallback: <Loading title="optimistic value" />,
 	},
-	{ path: '/playground/cache', element: <CachePage /> },
+	{
+		path: '/playground/cache',
+		element: <CachePage />,
+		loader: fetchCachePayload,
+		loaderFallback: <Loading title="cache lab" />,
+	},
 	{
 		path: '/playground/product/:productId',
 		element: <ProductPage />,

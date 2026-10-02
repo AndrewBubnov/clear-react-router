@@ -79,6 +79,13 @@ export const fetchProduct = async (id: string) => {
 	return { id, description: `Product ${id} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
 };
 
+/** Payload for the cache lab home page itself. Revisit renders instantly from cache. */
+export const fetchCachePayload = async () => {
+	const n = trackCall('cache');
+	await delay(600);
+	return `Cache lab payload (call ${n})`;
+};
+
 /** Heavy loader for the gcTime demo. */
 export const fetchHeavy = async () => {
 	const n = trackCall('heavy');

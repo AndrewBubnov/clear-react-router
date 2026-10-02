@@ -79,13 +79,26 @@ const InvalidateLab = () => {
 	);
 };
 
-export const CachePage = () => (
-	<div className="pg-wrap">
-		<h1>Cache: eviction, gcTime, invalidation</h1>
-		<p className="pg-hint">
-			This playground runs with a tiny <code>maxCacheSize: 3</code>, so eviction is easy to observe. For a
-			deterministic run, reload the page first, then follow the steps.
-		</p>
+export const CachePage = () => {
+	const { data } = useLoaderState<string>();
+	return (
+		<div className="pg-wrap">
+			<h1>Cache: eviction, gcTime, invalidation</h1>
+			<p className="pg-hint">
+				This playground runs with a tiny <code>maxCacheSize: 3</code>, so eviction is easy to observe. For
+				a deterministic run, reload the page first, then follow the steps.
+			</p>
+			<div className="pg-card">
+				<h2>This page itself is cached</h2>
+				<p>{data}</p>
+				<p>
+					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>
+				</p>
+				<p className="pg-hint">
+					First visit shows a loading fallback (~600ms). Leave and come back — instant render from
+					cache, the loader is not called again.
+				</p>
+			</div>
 		<div className="pg-card">
 			<h2>LRU eviction</h2>
 			<p>
@@ -113,5 +126,6 @@ export const CachePage = () => (
 		<p>
 			<Link to="/playground">← Back to playground home</Link>
 		</p>
-	</div>
-);
+		</div>
+	);
+};
