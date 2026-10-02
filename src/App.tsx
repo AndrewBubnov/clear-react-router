@@ -1,4 +1,4 @@
-import { Router } from './clear-router';
+import { Router, useRouteStatus } from './clear-router';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
@@ -20,10 +20,24 @@ const Shell = () => {
 	);
 };
 
-const App = () => (
-	<PlaygroundSettingsProvider>
-		<Shell />
-	</PlaygroundSettingsProvider>
-);
+const Status = () => {
+	const status = useRouteStatus();
+	const { showStatusBadge } = usePlaygroundSettings();
+	if (!showStatusBadge) return null;
+	return (
+		<div className="status-badge">
+			<div className="status-badge-text">{status}</div>
+		</div>
+	);
+};
+
+const App = () => {
+	return (
+		<PlaygroundSettingsProvider>
+			<Shell />
+			<Status />
+		</PlaygroundSettingsProvider>
+	);
+};
 
 export default App;

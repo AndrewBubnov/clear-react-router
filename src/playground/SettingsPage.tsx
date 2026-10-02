@@ -9,8 +9,16 @@ const CACHE_PRESETS = [
 ];
 
 export const SettingsPage = () => {
-	const { isAnimated, setIsAnimated, animationDuration, setAnimationDuration, maxCacheSize, setMaxCacheSize } =
-		usePlaygroundSettings();
+	const {
+		isAnimated,
+		setIsAnimated,
+		animationDuration,
+		setAnimationDuration,
+		maxCacheSize,
+		setMaxCacheSize,
+		showStatusBadge,
+		setShowStatusBadge,
+	} = usePlaygroundSettings();
 
 	return (
 		<div className="pg-wrap">
@@ -65,6 +73,14 @@ export const SettingsPage = () => {
 					Lowering the limit evicts old entries gradually as new data loads — it does not purge the cache
 					instantly. Current value: <span className="pg-badge">{maxCacheSize}</span>
 				</p>
+			</div>
+			<div className="pg-card pg-card-short">
+				<h2>Show status badge</h2>
+				<div className="pg-row">
+					<Switch checked={showStatusBadge} onCheckedChange={setShowStatusBadge}>
+						<span>show badge</span>
+					</Switch>
+				</div>
 			</div>
 			<p>
 				<Link to="/playground">← Back to playground home</Link>

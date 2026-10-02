@@ -105,6 +105,10 @@ button.pg-switch:focus-visible {
 	min-height: 185px;
 }
 
+.pg-card-short {
+	min-height: 85px;
+}
+
 .pg-hint {
 	border-left: 3px solid var(--accent-border);
 	padding: 8px 12px;
@@ -344,6 +348,9 @@ button.pg-switch:focus-visible {
 @media (width <= 1024px) {
 	.pg-card {
 		min-height: 165px;
+	}
+	.pg-card-short {
+		min-height: 85px;
 	}
 }
 
