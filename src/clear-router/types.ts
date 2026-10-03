@@ -34,7 +34,7 @@ export type ClientRouteItem = {
 		}
 	): Promise<unknown>;
 	loaderFallback?: RenderElement;
-	errorElement?: RenderElement;
+	errorElement?: RenderElement | LazyComponent;
 	fallback?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;

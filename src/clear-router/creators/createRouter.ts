@@ -1,19 +1,25 @@
 import { createLazyComponent } from '../utils/createLazyComponent';
 import { ClientRouteItem, LAZY_MARKER, LazyComponent, RenderElement, RouteItem } from '../types';
 
-const isLazy = (el: ClientRouteItem): el is ClientRouteItem & { element: LazyComponent } =>
-	typeof el.element === 'object' && el.element !== null && LAZY_MARKER in el.element;
+const isLazy = (value: unknown): value is LazyComponent =>
+	typeof value === 'object' && value !== null && LAZY_MARKER in value;
+
+const resolve = (
+	component: RenderElement | LazyComponent | undefined,
+	fallback: ClientRouteItem['fallback']
+): RenderElement | undefined =>
+	isLazy(component) ? createLazyComponent(component.importFn, fallback).Component : component;
 
 const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
-	const preloadElement = isLazy(el)
+	const preloadElement = isLazy(el.element)
 		? createLazyComponent(el.element.importFn, el.fallback).preloadElement
 		: undefined;
-	const resolvedElement = isLazy(el) ? createLazyComponent(el.element.importFn, el.fallback).Component : el.element;
 	const currentRoute: RouteItem = {
 		...el,
 		pattern,
-		element: resolvedElement as RenderElement,
+		element: resolve(el, 'element'),
+		errorElement: resolve(el, 'errorElement'),
 		preloadElement,
 	};
 

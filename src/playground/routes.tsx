@@ -15,7 +15,6 @@ import {
 	fetchSlow,
 	fetchUnstable,
 } from './api';
-import RetryErrorView from './RetryErrorView.tsx';
 
 export const playgroundRoutes = createRouter([
 	{ path: '/', element: PlaygroundHome },
@@ -40,7 +39,7 @@ export const playgroundRoutes = createRouter([
 		loader: fetchDoomed,
 		retry: 0,
 		loaderFallback: <Loading title="doomed demo" />,
-		errorElement: RetryErrorView,
+		errorElement: lazy(() => import('./RetryErrorView')),
 	},
 	{
 		path: '/playground/live',
