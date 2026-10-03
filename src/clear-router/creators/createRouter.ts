@@ -18,8 +18,8 @@ const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteIte
 	const currentRoute: RouteItem = {
 		...el,
 		pattern,
-		element: resolve(el.element, 'element'),
-		errorElement: resolve(el.errorElement, 'errorElement'),
+		element: resolve(el.element, el.fallback),
+		errorElement: resolve(el.errorElement, el.fallback),
 		preloadElement,
 	};
 
