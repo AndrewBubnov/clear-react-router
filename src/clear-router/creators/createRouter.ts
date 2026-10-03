@@ -1,13 +1,10 @@
 import { createLazyComponent } from '../utils/createLazyComponent';
 import { ClientRouteItem, LAZY_MARKER, LazyComponent, RenderElement, RouteItem } from '../types';
 
-const isLazy = (value: unknown): value is LazyComponent =>
-	typeof value === 'object' && value !== null && LAZY_MARKER in value;
+const isLazy = (component: unknown): component is LazyComponent =>
+	typeof component === 'object' && component !== null && LAZY_MARKER in component;
 
-const resolve = (
-	component: RenderElement | LazyComponent | undefined,
-	fallback: ClientRouteItem['fallback']
-): RenderElement | undefined =>
+const resolve = (component: RenderElement | LazyComponent | undefined, fallback: RenderElement): RenderElement =>
 	isLazy(component) ? createLazyComponent(component.importFn, fallback).Component : component;
 
 const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
