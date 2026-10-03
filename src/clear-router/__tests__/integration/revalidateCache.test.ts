@@ -162,6 +162,8 @@ describe('revalidateCache', () => {
 
 		expect(result).toEqual({ data: 'retry success', error: null });
 		expect(loader).toHaveBeenCalledTimes(2);
+		expect(loader.mock.calls[0][0]).toMatchObject({ attempt: 1 });
+		expect(loader.mock.calls[1][0]).toMatchObject({ attempt: 2 });
 	});
 
 	it('retries with delay', async () => {

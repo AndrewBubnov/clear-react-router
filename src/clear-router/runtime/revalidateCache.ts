@@ -77,10 +77,11 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			flightOwners.set(path, ownerToken);
 			const isOwner = () => flightOwners.get(path) === ownerToken;
 			try {
-				const result = await routeItem?.loader({
-					...getPartialLoaderArgs(contextState, location, routeItem),
-					signal: effectiveSignal,
-				});
+			const result = await routeItem?.loader({
+				...getPartialLoaderArgs(contextState, location, routeItem),
+				signal: effectiveSignal,
+				attempt: retried + 1,
+			});
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),

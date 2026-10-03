@@ -19,13 +19,12 @@ const trackCall = (key: string) => {
 };
 
 /** Fails randomly (~50%) after a short delay. Powers the retry demo. */
-export const fetchUnstable = async () => {
-	const attempt = trackCall('about');
+export const fetchUnstable = async ({ attempt }: { attempt: number }) => {
 	await delay(400);
 	if (Math.random() < 0.5) {
 		throw new Error(`Random server hiccup on attempt ${attempt} — retry should kick in`);
 	}
-	return { value: `Lucky payload (attempt ${attempt})`, attempt };
+	return { value: 'Lucky payload', attempt, fetchedAt: Date.now() };
 };
 
 /** Always-failing twin for the errorElement demo (no retry configured). */

@@ -31,6 +31,7 @@ export type ClientRouteItem = {
 	loader?(
 		arg: LoaderArgs & {
 			signal: AbortSignal;
+			attempt: number;
 		}
 	): Promise<unknown>;
 	loaderFallback?: RenderElement;

@@ -31,7 +31,9 @@ export const playgroundRoutes = createRouter([
 		element: lazy(() => import('./RetryPage')),
 		loader: fetchUnstable,
 		retry: { count: 3, delay: 400 },
+		staleTime: 10000,
 		loaderFallback: <Loading title="retry demo" />,
+		errorElement: lazy(() => import('./RetryErrorPage')),
 	},
 	{
 		path: '/playground/retry-raw',
