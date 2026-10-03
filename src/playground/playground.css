@@ -3,6 +3,7 @@
 	margin: 0 auto;
 	padding: 20px 20px 64px;
 	text-align: left;
+	perspective: 1000px;
 }
 
 .pg-nav {
@@ -103,6 +104,12 @@ button.pg-switch:focus-visible {
 	background: var(--bg);
 	box-shadow: var(--shadow);
 	min-height: 185px;
+	transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.pg-card:hover {
+	transform: translateY(-1px) translateZ(40px);
+	box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
 }
 
 .pg-card-short {
@@ -312,13 +319,6 @@ button.pg-switch:focus-visible {
 .pg-card-link {
 	display: block;
 	color: inherit;
-}
-
-@media (hover: hover) {
-	.pg-card-link:hover .pg-card {
-		border-color: steelblue;
-		transition: border-color ease-in-out .4s;
-	}
 }
 
 .pg-wrapper {
