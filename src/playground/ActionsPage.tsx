@@ -1,9 +1,19 @@
+import { useState } from 'react';
 import { Link, useInvalidate, useLoaderState, useSubmitAction } from '../clear-router';
 import type { Note } from './api';
 
 const AddNoteForm = () => {
 	const invalidate = useInvalidate();
 	const { onSubmit, isSubmitting, error } = useSubmitAction('addNote');
+	const [isRevalidating, setIsRevalidating] = useState(false);
+	const refresh = async () => {
+		setIsRevalidating(true);
+		try {
+			await invalidate();
+		} finally {
+			setIsRevalidating(false);
+		}
+	};
 
 	return (
 		<div className="pg-card">
@@ -15,8 +25,8 @@ const AddNoteForm = () => {
 						<button className="pg-btn" disabled={isSubmitting}>
 							{isSubmitting ? 'Saving…' : 'Save'}
 						</button>
-						<button type="button" className="pg-btn" onClick={() => invalidate()}>
-							Refresh list (invalidate)
+						<button type="button" className="pg-btn" disabled={isRevalidating} onClick={refresh}>
+							{isRevalidating ? 'Refreshing…' : 'Refresh list (invalidate)'}
 						</button>
 					</div>
 				</div>
@@ -25,7 +35,8 @@ const AddNoteForm = () => {
 			<p className="pg-hint">
 				After a successful action the current route is invalidated automatically — the list below refreshes
 				without a full reload. The Refresh button calls <code>invalidate()</code> manually and does the same on
-				demand.
+				demand. Invalidation is a background revalidation: no loading fallback appears, the list simply swaps
+				once fresh data arrives.
 			</p>
 		</div>
 	);
