@@ -20,15 +20,16 @@ const Shell = () => {
 	);
 };
 
+const STATUS_BADGE_MODIFIER: Record<string, string> = {
+	error: 'status-badge-error',
+	optimistic: 'status-badge-optimistic',
+};
+
 const Status = () => {
 	const status = useRouteStatus();
 	const { showStatusBadge } = usePlaygroundSettings();
 	if (!showStatusBadge) return null;
-	return (
-		<div className="status-badge">
-			<div className="status-badge-text">{status}</div>
-		</div>
-	);
+	return <div className={`status-badge ${STATUS_BADGE_MODIFIER[status] ?? ''}`}>{status}</div>;
 };
 
 const App = () => {
