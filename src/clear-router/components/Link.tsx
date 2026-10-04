@@ -10,7 +10,6 @@ import {
 	useMemo,
 } from 'react';
 import { router } from '../instance';
-import { useIsRoutePending } from '../hooks/useIsRoutePending';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
 import { formatSearchObject } from '../utils/utils';
@@ -68,7 +67,9 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	...rest
 }: LinkProps<T>) => {
 	const { useRouteDataSelector } = router.hooks;
-	const isPending = useIsRoutePending(to);
+	const isPending = useRouteDataSelector(
+		({ location: { pathname }, status }) => pathname === to && status === 'pending'
+	);
 	const navigate = useNavigate();
 	const isActive = useRouteDataSelector(({ location: { pathname } }) => comparator(to, pathname, exact));
 

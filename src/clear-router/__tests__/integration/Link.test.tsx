@@ -15,7 +15,6 @@ import {
 	useNavigate,
 	ElementProps,
 } from '../..';
-import { useIsRoutePending } from '../../hooks/useIsRoutePending';
 import { createRouter } from '../../creators/createRouter';
 
 const TEST_TIMEOUT = 10000;
@@ -1081,44 +1080,6 @@ describe('hooks', () => {
 				await waitFor(
 					() => {
 						expect(screen.getByTestId('go-opt')).toHaveTextContent('no');
-					},
-					{ timeout: 5000 }
-				);
-			},
-			TEST_TIMEOUT
-		);
-	});
-
-	describe('useIsRoutePending', () => {
-		it(
-			'returns false for completed route',
-			async () => {
-				await renderWithRouter(() => {
-					const isPending = useIsRoutePending('/about');
-					return isPending;
-				}, '/about');
-
-				await waitFor(
-					() => {
-						expect(screen.getByTestId('hook-value')).toHaveTextContent('false');
-					},
-					{ timeout: 5000 }
-				);
-			},
-			TEST_TIMEOUT
-		);
-
-		it(
-			'returns false for non-matching path',
-			async () => {
-				await renderWithRouter(() => {
-					const isPending = useIsRoutePending('/different');
-					return isPending;
-				});
-
-				await waitFor(
-					() => {
-						expect(screen.getByTestId('hook-value')).toHaveTextContent('false');
 					},
 					{ timeout: 5000 }
 				);
