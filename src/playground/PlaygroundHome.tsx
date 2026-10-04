@@ -63,14 +63,28 @@ const demos = [
 	},
 ];
 
-export const PlaygroundHome = () => (
-	<div className="pg-wrap">
-		<h1>Clear Router Playground</h1>
-		<p>
-			Live demo of data loading, cache and navigation features. Every card below is a working route — open
-			devtools network tab and click around. Router settings (transitions, animation duration, cache size) can be
-			tweaked live on the <Link to="/playground/settings">settings</Link> page.
-		</p>
+export const PlaygroundHome = () => {
+	// Mirrors the library's isMobile(): menu links prefetch on mount for these visitors,
+	// so loader counters below may grow before anything is tapped.
+	const isMobileViewport =
+		typeof window !== 'undefined' &&
+		window.matchMedia('(pointer: coarse)').matches &&
+		window.matchMedia('(max-width: 768px)').matches;
+	return (
+		<div className="pg-wrap">
+			<h1>Clear Router Playground</h1>
+			<p>
+				Live demo of data loading, cache and navigation features. Every card below is a working route — open
+				devtools network tab and click around. Router settings (transitions, animation duration, cache size) can
+				be tweaked live on the <Link to="/playground/settings">settings</Link> page.
+			</p>
+			{isMobileViewport && (
+				<p className="pg-hint">
+					You&apos;re browsing with a mobile viewport: menu links prefetch as soon as they appear (the{' '}
+					<code>viewport</code> strategy), so loader counters may grow before you tap anything. The strategy
+					can be switched live on the <Link to="/playground/settings">settings page</Link>.
+				</p>
+			)}
 		<div className="pg-home-grid">
 			{demos.map(d => (
 				<Link key={d.to} to={d.to} className="pg-card-link">
@@ -81,5 +95,6 @@ export const PlaygroundHome = () => (
 				</Link>
 			))}
 		</div>
-	</div>
-);
+		</div>
+	);
+};

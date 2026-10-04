@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import { routerConfig } from '../../config/routerConfig';
 import {
 	Router,
 	Link,
@@ -602,17 +603,71 @@ describe('Link component', () => {
 					{ timeout: 5000 }
 				);
 
-				screen.getByRole('link', { name: /guarded link/i }).click();
+			screen.getByRole('link', { name: /guarded link/i }).click();
+			await waitFor(
+				() => {
+					expect(beforeNavigate).toHaveBeenCalled();
+				},
+				{ timeout: 3000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
+});
+
+describe('prefetch', () => {
+	it(
+		'hover uses the prefetch strategy current at hover time',
+		async () => {
+			// Regression: Link pinned routerConfig.defaultPrefetch at render time while Router
+			// writes it in a layout effect, so a changed default (device default on mount,
+			// settings toggle later) stayed stale in hover closures until the next re-render.
+			const loader = vi.fn(async () => 'about data');
+			const hoverRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Hover Home</h3>
+							<Link to="/about" hoverPrefetchDelay={10}>
+								<span>About Hover</span>
+							</Link>
+						</div>
+					),
+				},
+				{ path: '/about', element: <div>About Page</div>, loader },
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={hoverRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText('Hover Home')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			try {
+				// Flip the default without re-rendering: hover must honor it anyway.
+				routerConfig.configure({ defaultPrefetch: 'none' });
+				fireEvent.mouseEnter(screen.getByText('About Hover'));
+				await sleep(100);
+				expect(loader).not.toHaveBeenCalled();
+
+				routerConfig.configure({ defaultPrefetch: 'hover' });
+				fireEvent.mouseEnter(screen.getByText('About Hover'));
 				await waitFor(
 					() => {
-						expect(beforeNavigate).toHaveBeenCalled();
+						expect(loader).toHaveBeenCalledTimes(1);
 					},
-					{ timeout: 3000 }
+					{ timeout: 5000 }
 				);
-			},
-			TEST_TIMEOUT
-		);
-	});
+			} finally {
+				routerConfig.configure({ defaultPrefetch: 'hover' });
+			}
+		},
+		TEST_TIMEOUT
+	);
+});
 });
 
 describe('hooks', () => {

@@ -305,6 +305,23 @@ button.pg-switch:focus-visible {
 	accent-color: steelblue;
 }
 
+.pg-radio {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 15px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.pg-radio input[type='radio'] {
+	accent-color: steelblue;
+	width: 1rem;
+	height: 1rem;
+	margin: 0;
+	cursor: pointer;
+}
+
 @media (hover: hover) {
 	.pg-wrap a.pg-card-link:hover {
 		color: inherit;

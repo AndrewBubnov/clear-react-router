@@ -1,11 +1,20 @@
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
+import type { PrefetchSetting } from './settings';
 
 const CACHE_PRESETS = [
 	{ value: 3, label: '3 (lab)' },
 	{ value: 60, label: '60 (mobile default)' },
 	{ value: 150, label: '150 (desktop default)' },
+];
+
+const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
+	{ value: 'auto', label: 'auto (device default)' },
+	{ value: 'hover', label: 'hover' },
+	{ value: 'viewport', label: 'viewport' },
+	{ value: 'render', label: 'render' },
+	{ value: 'none', label: 'none' },
 ];
 
 const SettingsPage = () => {
@@ -18,6 +27,8 @@ const SettingsPage = () => {
 		setMaxCacheSize,
 		showStatusBadge,
 		setShowStatusBadge,
+		defaultPrefetch,
+		setDefaultPrefetch,
 	} = usePlaygroundSettings();
 
 	return (
@@ -57,21 +68,43 @@ const SettingsPage = () => {
 			</div>
 			<div className="pg-card">
 				<h2>Loader cache size</h2>
-				<div className="pg-row">
+				<div className="pg-row" role="radiogroup" aria-label="Loader cache size">
 					{CACHE_PRESETS.map(preset => (
-						<button
-							key={preset.value}
-							className="pg-btn"
-							disabled={maxCacheSize === preset.value}
-							onClick={() => setMaxCacheSize(preset.value)}
-						>
+						<label key={preset.value} className="pg-radio">
+							<input
+								type="radio"
+								name="cache-size"
+								checked={maxCacheSize === preset.value}
+								onChange={() => setMaxCacheSize(preset.value)}
+							/>
 							{preset.label}
-						</button>
+						</label>
 					))}
 				</div>
 				<p className="pg-hint">
 					Lowering the limit evicts old entries gradually as new data loads — it does not purge the cache
 					instantly. Current value: <span className="pg-badge">{maxCacheSize}</span>
+				</p>
+			</div>
+			<div className="pg-card">
+				<h2>Link prefetch strategy</h2>
+				<div className="pg-row" role="radiogroup" aria-label="Link prefetch strategy">
+					{PREFETCH_PRESETS.map(preset => (
+						<label key={preset.value} className="pg-radio">
+							<input
+								type="radio"
+								name="prefetch-strategy"
+								checked={defaultPrefetch === preset.value}
+								onChange={() => setDefaultPrefetch(preset.value)}
+							/>
+							{preset.label}
+						</label>
+					))}
+				</div>
+				<p className="pg-hint">
+					Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
+					<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
+					<code>prefetch</code> prop (like the lab links) are unaffected.
 				</p>
 			</div>
 			<div className="pg-card pg-card-short">

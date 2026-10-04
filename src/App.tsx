@@ -6,15 +6,17 @@ import { usePlaygroundSettings } from './playground/usePlaygroundSettings';
 import './playground/playground.css';
 
 const Shell = () => {
-	const { isAnimated, animationDuration, maxCacheSize } = usePlaygroundSettings();
+	const { isAnimated, animationDuration, maxCacheSize, defaultPrefetch } = usePlaygroundSettings();
 	return (
 		<div>
-			<PlaygroundNav />
+			{/* Remount on strategy change: Link's viewport/render effects attach at mount time only. */}
+			<PlaygroundNav key={defaultPrefetch} />
 			<Router
 				routes={playgroundRoutes}
 				isAnimated={isAnimated}
 				animationDuration={animationDuration}
 				maxCacheSize={maxCacheSize}
+				defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
 			/>
 		</div>
 	);
