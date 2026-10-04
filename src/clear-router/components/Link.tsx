@@ -75,10 +75,11 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);
 
-	const { defaultPrefetch: configPrefetch, defaultHoverPrefetchDelay: configPrefetchDelay } = routerConfig;
-	const prefetch = linkPrefetch || configPrefetch;
-
-	const prefetchDelay = hoverPrefetchDelay ?? configPrefetchDelay;
+	const getPrefetchStrategy = useCallback(() => linkPrefetch || routerConfig.defaultPrefetch, [linkPrefetch]);
+	const getPrefetchDelay = useCallback(
+		() => hoverPrefetchDelay ?? routerConfig.defaultHoverPrefetchDelay,
+		[hoverPrefetchDelay]
+	);
 
 	const searchString = typeof search === 'object' ? formatSearchObject(search) : search;
 
@@ -88,28 +89,29 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	);
 
 	const onMouseEnter = useCallback(() => {
-		if (prefetch !== 'hover' || !prefetchDelay) return;
+		const prefetchDelay = getPrefetchDelay();
+		if (getPrefetchStrategy() !== 'hover' || !prefetchDelay) return;
 		if (timeout.current) clearTimeout(timeout.current);
 		timeout.current = window.setTimeout(() => router.runtime.prefetch(location), prefetchDelay);
-	}, [prefetch, prefetchDelay, location]);
+	}, [getPrefetchStrategy, getPrefetchDelay, location]);
 
 	const onMouseLeave = useCallback(() => {
-		if (prefetch !== 'hover' || !prefetchDelay) return;
+		if (getPrefetchStrategy() !== 'hover' || !getPrefetchDelay()) return;
 		if (timeout.current) {
 			clearTimeout(timeout.current);
 			timeout.current = 0;
 		}
-	}, [prefetch, prefetchDelay]);
+	}, [getPrefetchStrategy, getPrefetchDelay]);
 
 	useEffect(() => {
-		if (prefetch !== 'render') return;
+		if (getPrefetchStrategy() !== 'render') return;
 		(async () => {
 			await router.runtime.prefetch(location);
 		})();
-	}, [prefetch, location]);
+	}, [getPrefetchStrategy, location]);
 
 	useEffect(() => {
-		if (prefetch !== 'viewport') return;
+		if (getPrefetchStrategy() !== 'viewport') return;
 		const element = elementRef.current;
 		if (!element) return;
 		const observer = new IntersectionObserver(async ([entry]) => {
@@ -119,7 +121,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		});
 		observer.observe(element);
 		return () => observer.disconnect();
-	}, [prefetch, location]);
+	}, [getPrefetchStrategy, location]);
 
 	useEffect(
 		() => () => {
