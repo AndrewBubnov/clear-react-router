@@ -2,7 +2,7 @@ import { PropsWithChildren, type ComponentType, type ReactNode } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
-import { usePreserveScroll } from '../hooks/usePreserveScroll';
+import { useRestoreRouteScroll } from '../hooks/useRestoreRouteScroll.ts';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { useReload } from '../hooks/useReload';
@@ -64,7 +64,7 @@ export const Router = ({
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);
-	usePreserveScroll(defaultScrollRestorationBehavior);
+	useRestoreRouteScroll(defaultScrollRestorationBehavior);
 	useReload();
 
 	const loadingContent = isLoading && !isError;

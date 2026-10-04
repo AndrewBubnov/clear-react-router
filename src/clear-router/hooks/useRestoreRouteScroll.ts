@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRestoreScroll } from './useRestoreScroll';
 import { ScrollRestorationBehavior } from '../types';
 
-export const usePreserveScroll = (behavior?: ScrollRestorationBehavior) => {
+export const useRestoreRouteScroll = (behavior?: ScrollRestorationBehavior) => {
 	const restoreScroll = useRestoreScroll(behavior);
-	useEffect(() => restoreScroll?.(), [restoreScroll]);
+	useEffect(restoreScroll, [restoreScroll]);
 };
