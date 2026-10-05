@@ -2,7 +2,7 @@ import { PropsWithChildren, type ComponentType, type ReactNode } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
-import { useRestoreRouteScroll } from '../hooks/useRestoreRouteScroll.ts';
+import { useRestoreRouteScroll } from '../hooks/useRestoreRouteScroll';
 import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
 import { useSetInitialContext } from '../hooks/useSetInitialContext';
 import { useReload } from '../hooks/useReload';
