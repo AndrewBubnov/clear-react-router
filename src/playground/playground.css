@@ -420,8 +420,9 @@ h1 {
 	border-radius: 16px;
 	color: white;
 	background: rgb(70 130 180 / 0.4);
-	backdrop-filter: blur(6px);
+	/* Order matters: the minifier collapses this pair keeping the last declaration. */
 	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
 }
 
 .status-badge-error {
