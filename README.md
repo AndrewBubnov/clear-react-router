@@ -127,7 +127,9 @@ Component for client-side navigation with prefetch support, active state detecti
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `to` | `string` | required | Target path |
+| `to` | `string` | required (unless `path` is set) | Target path as a raw URL. Mutually exclusive with `path` |
+| `path` | `string` (route pattern) | required (unless `to` is set) | Route pattern with `:segments`, e.g. `/product/:productId`. Segments are filled from `params` |
+| `params` | `Record<string, string \| number>` | required if `path` has `:segments` | Values for the pattern segments (URL-encoded). A missing param throws at runtime |
 | `search` | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined` | `undefined` | Query string or object appended to the target path |
 | `state` | `unknown` | `undefined` | Arbitrary value attached to the navigation entry |
 | `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
@@ -596,34 +598,78 @@ interpolates the segments (values are URL-encoded, a missing param throws):
 navigate({ path: '/product/:productId', params: { productId: '7' } });
 ```
 
-Parameter names, presence and extraneous props are checked: a typo in the path (with a
-known union, see below), a missing `params` or a wrong param name is a compile error.
-`params` values accept `string | number`.
+Parameter names and presence are checked from the literal itself: a missing `params`
+or a wrong param name is a compile error. `params` values accept `string | number`.
 
-To also check path existence, bind the union once per app — e.g. via a thin wrapper:
+Declarative and imperative forms are equivalent — this link:
 
 ```tsx
-import { Link, type LinkProps } from 'clear-react-router';
-
-type AppPaths = '/cache' | '/product/:productId';
-
-export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T, AppPaths>) => (
-	<Link {...props} />
-);
-
-<AppLink path="/product/:productId" params={{ productId: '7' }} /> // ok
-<AppLink path="/playgroud/cache" /> // error: not in AppPaths
+<Link path="/nest/:nestId/item/:itemId" params={{ nestId, itemId }}>
+  {itemId}
+</Link>
 ```
 
-Without the union (plain `Link`), patterns are still shape-checked from the literal itself,
-but existence is unchecked. `to` always stays a plain string — existing code is unaffected.
+does the same as this button:
 
-The union can be generated from the route config instead of hand-written
-(`scripts/generate-app-paths.mjs`, `npm run generate:paths`). It parses `createRouter([...])`
-with the TypeScript compiler API — no new dependencies — and writes `AppPaths.gen.ts`;
-a tiny Vite plugin re-runs it on dev start, on build and whenever the routes file changes
-(failures only warn, the committed snapshot stays). A stale snapshot fails `tsc`, so drift
-is loud by construction. The playground wires it through an `AppLink` wrapper as above.
+```tsx
+const navigate = useNavigate();
+
+<button onClick={() => navigate({ path: '/nest/:nestId/item/:itemId', params: { nestId, itemId } })}>
+  {itemId}
+</button>
+```
+
+Same type-checking, same interpolation. Use links for navigation, buttons with `navigate`
+for actions that end in navigation (submit-then-go, confirm dialogs).
+
+The library's part ends here: generic types (`LinkProps<T, TPath>`, `NavigatePathArg`,
+`ParamsFor`) that pick up whatever union you give them. Everything above that is a
+userland pattern — adopt it ladder-style, each rung optional:
+
+- **Rung 0 — nothing.** Plain `<Link to="...">` works exactly as before, no unions,
+  no imports, no files. Proven by the library's own suite, which has no union anywhere.
+- **Rung 1 — `path` + `params` on plain `Link`.** No union, no wrapper, no setup:
+  TypeScript infers the pattern from the `path` literal itself and checks `params`
+  against it:
+  ```tsx
+  <Link path="/product/:productId" params={{ productId: '7' }} /> // ok
+  <Link path="/product/:productId" />                             // error: params missing
+  <Link path="/product/:productId" params={{ id: '7' }} />        // error: wrong param name
+  ```
+  But path *existence* is unchecked — there is no list to check against, so this
+  compiles silently:
+  ```tsx
+  <Link path="/playgroud/cache" /> // typo, no error (no union knows the routes)
+  ```
+  In other words: rung 1 checks internal consistency (`path` ↔ `params`), not the
+  outside world (path ↔ app routes). That half needs a union — rung 3.
+- **Rung 2 — thin wrapper, no union.** Gives the pattern a name without any type file:
+  ```tsx
+  import { Link, type LinkProps } from 'clear-react-router';
+
+  export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T>) => (
+  	<Link {...props} />
+  );
+  ```
+- **Rung 3 — wrapper + union.** Binds one union for existence checking:
+  ```tsx
+  type AppPaths = '/cache' | '/product/:productId';
+
+  export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T, AppPaths>) => (
+  	<Link {...props} />
+  );
+
+  <AppLink path="/product/:productId" params={{ productId: '7' }} /> // ok
+  <AppLink path="/playgroud/cache" /> // error: not in AppPaths
+  ```
+
+The union can be hand-written or generated from the route config
+(`scripts/generate-app-paths.mjs`, `npm run generate:paths`). The script parses
+`createRouter([...])` with the TypeScript compiler API — no new dependencies — and writes
+`AppPaths.gen.ts`; a tiny Vite plugin re-runs it on dev start, on build and whenever the
+routes file changes (failures only warn, the committed snapshot stays). A stale snapshot
+fails `tsc`, so drift is loud by construction. The playground wires the generated union
+through an `AppLink` wrapper as above.
 
 ### `useLocation()`
 
