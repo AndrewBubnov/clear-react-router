@@ -83,6 +83,13 @@ export const updateScrollMap = (routeDataState: Store<RouteData>, scrollMapState
 	});
 };
 
+export const interpolatePath = (pattern: string, params: Record<string, string | number> = {}) =>
+	pattern.replace(/:([^/]+)/g, (_, name: string) => {
+		const value = params[name];
+		if (value === undefined) throw new Error(`Missing param "${name}" for path "${pattern}"`);
+		return encodeURIComponent(String(value));
+	});
+
 export const formatSearchObject = (searchObject: SearchObject) => {
 	const params = new URLSearchParams();
 	Object.entries(searchObject).forEach(([key, value]) => {

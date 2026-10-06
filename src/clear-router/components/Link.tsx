@@ -12,8 +12,8 @@ import {
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
-import { formatSearchObject } from '../utils/utils';
-import { RouterProps, Location, SearchObject } from '../types';
+import { formatSearchObject, interpolatePath } from '../utils/utils';
+import { LinkDestination, RouterProps, Location, SearchObject } from '../types';
 
 type ElementState = { isActive: boolean; isPending: boolean };
 
@@ -30,8 +30,7 @@ export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	'aria-busy'?: boolean;
 } & Record<`data-${string}` | `aria-${string}`, unknown>;
 
-type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
-	to: string;
+export type LinkProps<T extends HTMLElement = HTMLAnchorElement, TPath extends string = string> = {
 	search?: string | SearchObject;
 	state?: unknown;
 	children?: ReactNode;
@@ -44,15 +43,18 @@ type LinkProps<T extends HTMLElement = HTMLAnchorElement> = {
 	beforeNavigate?(): Promise<void>;
 	style?: CSSProperties | ((arg: ElementState) => CSSProperties);
 	exact?: boolean;
-} & Record<`data-${string}` | `aria-${string}`, unknown>;
+} & LinkDestination<TPath> &
+	Record<`data-${string}` | `aria-${string}`, unknown>;
 
 const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 const comparator = (to: string, pathname: string, exact: boolean) =>
 	to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 
-export const Link = <T extends HTMLElement = HTMLAnchorElement>({
+export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath extends string = string>({
 	children,
 	to,
+	path,
+	params,
 	search = '',
 	state,
 	as = defaultAs as unknown as (props: ElementProps<T>) => ReactElement,
@@ -65,13 +67,16 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
 	...rest
-}: LinkProps<T>) => {
+}: LinkProps<T, TPath>) => {
+	const pathname = path !== undefined ? interpolatePath(path, params ?? {}) : (to ?? '');
 	const { useRouteDataSelector } = router.hooks;
 	const isPending = useRouteDataSelector(
-		({ location: { pathname }, status }) => pathname === to && status === 'pending'
+		({ location: { pathname: currentPathname }, status }) => currentPathname === pathname && status === 'pending'
 	);
 	const navigate = useNavigate();
-	const isActive = useRouteDataSelector(({ location: { pathname } }) => comparator(to, pathname, exact));
+	const isActive = useRouteDataSelector(({ location: { pathname: currentPathname } }) =>
+		comparator(pathname, currentPathname, exact)
+	);
 
 	const timeout = useRef<number>(0);
 	const elementRef = useRef<HTMLElement | null>(null);
@@ -85,8 +90,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 	const searchString = typeof search === 'object' ? formatSearchObject(search) : search;
 
 	const location: Omit<Location, 'search'> & { search: string } = useMemo(
-		() => ({ pathname: to, search: searchString, state }),
-		[searchString, state, to]
+		() => ({ pathname, search: searchString, state }),
+		[searchString, state, pathname]
 	);
 
 	const onMouseEnter = useCallback(() => {
@@ -152,7 +157,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement>({
 		await navigate(location);
 	};
 
-	const href = `${to}${searchString}`;
+	const href = `${pathname}${searchString}`;
 
 	return as(
 		// eslint-disable-next-line react-hooks/refs

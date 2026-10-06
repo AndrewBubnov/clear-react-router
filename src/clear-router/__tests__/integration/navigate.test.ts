@@ -605,3 +605,39 @@ describe('useAction', () => {
 		expect(loader).toHaveBeenCalledTimes(2);
 	});
 });
+
+describe('useNavigate path params', () => {
+	beforeEach(() => {
+		routerConfig.configure({
+			routes: [],
+			maxCacheSize: 10,
+			isAnimated: false,
+		});
+		vi.spyOn(history, 'pushState').mockImplementation(() => {});
+		vi.unstubAllGlobals();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('navigates by path template and params', async () => {
+		const loader = vi.fn(async () => 'user data');
+		const routeItem = createMockRouteItem({ path: '/user/:id', pattern: '/user/:id', loader });
+		routerConfig.configure({ routes: [routeItem] });
+		const instance = createRouterInstance(useSyncExternalStore);
+
+		const { result: navigateResult } = renderHook(() => instance.hooks.useNavigate());
+		await act(async () => {
+			await navigateResult.current({ path: '/user/:id', params: { id: '7' } });
+		});
+
+		const { result: locationResult } = renderHook(() =>
+			instance.hooks.useRouteDataSelector(state => state.location.pathname)
+		);
+		expect(locationResult.current).toBe('/user/7');
+		const { result: paramsResult } = renderHook(() => instance.hooks.useParams<{ id: string }>());
+		expect(paramsResult.current).toEqual({ id: '7' });
+		expect(history.pushState).toHaveBeenCalledWith(null, '', '/user/7');
+	});
+});

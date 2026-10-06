@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { Link, useLoaderState, useParams } from '../clear-router';
+import { useLoaderState, useParams } from '../clear-router';
+import { AppLink } from './AppLink';
 import { getCallCount, randomIds } from './api';
 
 const NestChildPage = () => {
-	const { nestId } = useParams<{ nestId: string }>();
+	const { nestId } = useParams();
 	const { data } = useLoaderState<{ description: string }>();
 	const itemIds = useMemo(() => randomIds('item'), []);
 	return (
@@ -17,13 +18,18 @@ const NestChildPage = () => {
 			</div>
 			<div className="pg-row">
 				{itemIds.map(itemId => (
-					<Link key={itemId} to={`/playground/nest/${nestId}/item/${itemId}`} prefetch="none">
+					<AppLink
+						key={itemId}
+						path="/playground/nest/:nestId/item/:itemId"
+						params={{ nestId, itemId }}
+						prefetch="none"
+					>
 						{itemId}
-					</Link>
+					</AppLink>
 				))}
 			</div>
 			<p>
-				<Link to="/playground/nest">← Back to nests</Link>
+				<AppLink path="/playground/nest">← Back to nests</AppLink>
 			</p>
 		</div>
 	);

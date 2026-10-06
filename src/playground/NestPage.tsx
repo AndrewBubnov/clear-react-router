@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link } from '../clear-router';
+import { AppLink } from './AppLink';
 import { randomIds } from './api';
 
 const NestPage = () => {
@@ -14,13 +14,13 @@ const NestPage = () => {
 			</p>
 			<div className="pg-row">
 				{nestIds.map(id => (
-					<Link key={id} to={`/playground/nest/${id}`} prefetch="none">
+					<AppLink key={id} path="/playground/nest/:nestId" params={{ nestId: id }} prefetch="none">
 						{id}
-					</Link>
+					</AppLink>
 				))}
 			</div>
 			<p>
-				<Link to="/playground">← Back to playground home</Link>
+				<AppLink path="/playground">← Back to playground home</AppLink>
 			</p>
 		</div>
 	);

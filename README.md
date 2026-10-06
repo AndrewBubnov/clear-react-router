@@ -578,6 +578,53 @@ const params = useParams<{ userId: string }>();
 // URL: /user/123 → params.userId === '123'
 ```
 
+Pass a path pattern instead of a shape to infer it — no manual type needed:
+
+```tsx
+const { productId } = useParams<'/product/:productId'>();
+// productId: string
+```
+
+### Typed paths with `path` + `params`
+
+`Link` and `useNavigate` accept raw URLs via `to` / `pathname` as usual. For type-checked
+navigation, pass a route pattern via `path` with matching `params` instead — the router
+interpolates the segments (values are URL-encoded, a missing param throws):
+
+```tsx
+<Link path="/product/:productId" params={{ productId: '7' }} />
+navigate({ path: '/product/:productId', params: { productId: '7' } });
+```
+
+Parameter names, presence and extraneous props are checked: a typo in the path (with a
+known union, see below), a missing `params` or a wrong param name is a compile error.
+`params` values accept `string | number`.
+
+To also check path existence, bind the union once per app — e.g. via a thin wrapper:
+
+```tsx
+import { Link, type LinkProps } from 'clear-react-router';
+
+type AppPaths = '/cache' | '/product/:productId';
+
+export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T, AppPaths>) => (
+	<Link {...props} />
+);
+
+<AppLink path="/product/:productId" params={{ productId: '7' }} /> // ok
+<AppLink path="/playgroud/cache" /> // error: not in AppPaths
+```
+
+Without the union (plain `Link`), patterns are still shape-checked from the literal itself,
+but existence is unchecked. `to` always stays a plain string — existing code is unaffected.
+
+The union can be generated from the route config instead of hand-written
+(`scripts/generate-app-paths.mjs`, `npm run generate:paths`). It parses `createRouter([...])`
+with the TypeScript compiler API — no new dependencies — and writes `AppPaths.gen.ts`;
+a tiny Vite plugin re-runs it on dev start, on build and whenever the routes file changes
+(failures only warn, the committed snapshot stays). A stale snapshot fails `tsc`, so drift
+is loud by construction. The playground wires it through an `AppLink` wrapper as above.
+
 ### `useLocation()`
 
 Returns current location `{ pathname, search, state }`.

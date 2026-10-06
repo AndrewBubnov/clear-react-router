@@ -7,6 +7,7 @@ import {
 	isMobile,
 	sleep,
 	getPartialLoaderArgs,
+	interpolatePath,
 	isVerticalScroll,
 	updateScrollMap,
 } from '../../utils/utils';
@@ -184,6 +185,35 @@ describe('utils', () => {
 
 		it('returns false for null', () => {
 			expect(isVerticalScroll(null)).toBe(false);
+		});
+	});
+
+	describe('interpolatePath', () => {
+		it('replaces a single param', () => {
+			expect(interpolatePath('/user/:id', { id: '42' })).toBe('/user/42');
+		});
+
+		it('replaces multiple params', () => {
+			expect(interpolatePath('/nest/:nestId/item/:itemId', { nestId: 'a', itemId: 'b' })).toBe(
+				'/nest/a/item/b'
+			);
+		});
+
+		it('returns the pattern untouched without segments', () => {
+			expect(interpolatePath('/about', { id: '42' })).toBe('/about');
+		});
+
+		it('encodes values and coerces numbers', () => {
+			expect(interpolatePath('/user/:id', { id: 'a b' })).toBe('/user/a%20b');
+			expect(interpolatePath('/user/:id', { id: 42 })).toBe('/user/42');
+		});
+
+		it('ignores extra params', () => {
+			expect(interpolatePath('/user/:id', { id: '42', tab: 'info' })).toBe('/user/42');
+		});
+
+		it('throws on missing params', () => {
+			expect(() => interpolatePath('/user/:id', {})).toThrow('Missing param "id" for path "/user/:id"');
 		});
 	});
 

@@ -3,13 +3,14 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
-import { formatSearchObject, getParams, isVerticalScroll } from '../utils/utils';
+import { formatSearchObject, getParams, interpolatePath, isVerticalScroll } from '../utils/utils';
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import {
 	BlockerState,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
+	NavigatePathInput,
 	NavigationLocation,
 	Options,
 	RouteData,
@@ -66,7 +67,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				const { routeItem, location } = routerState.routeDataState.getState();
 				return getParams(location, routeItem) as T;
 			},
-			useNavigate: () => async (arg: NavigationLocation | string | -1) => {
+			useNavigate: () => async (arg: NavigationLocation | NavigatePathInput | string | -1) => {
 				const { location } = routerState.routeDataState.getState();
 				const prevLocation = { pathname: location.pathname, search: location.search };
 				if (arg === -1) return history.go(arg);
@@ -77,8 +78,17 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					}
 					return;
 				}
-				const search = typeof arg.search === 'object' ? formatSearchObject(arg.search) : arg.search;
-				await navigate({ ...arg, search, prevLocation });
+				if (typeof arg === 'object' && arg !== null && 'path' in arg && arg.path !== undefined) {
+					const { path, params, ...rest } = arg;
+					const search =
+						typeof rest.search === 'object' ? formatSearchObject(rest.search) : (rest.search ?? '');
+					await navigate({ ...rest, pathname: interpolatePath(path, params ?? {}), search, prevLocation });
+					return;
+				}
+				if (typeof arg === 'object' && arg !== null && !('path' in arg)) {
+					const search = typeof arg.search === 'object' ? formatSearchObject(arg.search) : arg.search;
+					await navigate({ ...arg, search, prevLocation });
+				}
 			},
 			useAction: (action: string, options: Options = {}) => {
 				return async (input: Record<string, unknown>) => {
