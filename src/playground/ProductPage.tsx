@@ -1,5 +1,4 @@
-import { useLoaderState, useParams } from '../clear-router';
-import { AppLink } from './AppLink';
+import { Link, useLoaderState, useParams } from '../clear-router';
 import { getCallCount } from './api';
 
 const ProductPage = () => {
@@ -17,7 +16,7 @@ const ProductPage = () => {
 				</p>
 			</div>
 			<p>
-				<AppLink path="/playground/cache">← Back to cache lab</AppLink>
+				<Link to="/playground/cache">← Back to cache lab</Link>
 			</p>
 		</div>
 	);

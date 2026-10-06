@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useInvalidate, useLoaderState } from '../clear-router';
-import { AppLink } from './AppLink';
 import { getCallCount } from './api';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
@@ -67,23 +66,18 @@ const CachePage = () => {
 				</p>
 				<div className="pg-row pg-items-row">
 					{PRODUCT_IDS.map(id => (
-						<AppLink
-							key={id}
-							path="/playground/product/:productId"
-							params={{ productId: id }}
-							prefetch="none"
-						>
+						<Link key={id} to={`/playground/product/${id}`} prefetch="none">
 							#{id}
-						</AppLink>
+						</Link>
 					))}
 				</div>
 			</div>
 			<div className="pg-card">
 				<h2>gcTime</h2>
-				<p>
-					<AppLink path="/playground/heavy" prefetch="none">
-						Open the heavy page
-					</AppLink>
+			<p>
+				<Link to="/playground/heavy" prefetch="none">
+					Open the heavy page
+				</Link>
 					, then leave and come back — immediately (cached) and after 7 seconds (garbage-collected, reloads).
 				</p>
 			</div>

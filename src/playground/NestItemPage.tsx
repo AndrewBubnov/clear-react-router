@@ -1,5 +1,4 @@
-import { useLoaderState, useParams } from '../clear-router';
-import { AppLink } from './AppLink';
+import { Link, useLoaderState, useParams } from '../clear-router';
 import { getCallCount } from './api';
 
 const NestItemPage = () => {
@@ -17,9 +16,7 @@ const NestItemPage = () => {
 				</p>
 			</div>
 			<p>
-				<AppLink path="/playground/nest/:nestId" params={{ nestId }}>
-					← Back to nest {nestId}
-				</AppLink>
+				<Link to={`/playground/nest/${nestId}`}>← Back to nest {nestId}</Link>
 			</p>
 		</div>
 	);

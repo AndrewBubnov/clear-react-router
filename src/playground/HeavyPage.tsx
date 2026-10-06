@@ -1,5 +1,4 @@
-import { useLoaderState } from '../clear-router';
-import { AppLink } from './AppLink';
+import { Link, useLoaderState } from '../clear-router';
 
 const HeavyPage = () => {
 	const { data } = useLoaderState<string>();
@@ -15,7 +14,7 @@ const HeavyPage = () => {
 				again (watch the visit counter).
 			</p>
 			<p>
-				<AppLink path="/playground/cache">← Back to cache lab</AppLink>
+				<Link to="/playground/cache">← Back to cache lab</Link>
 			</p>
 		</div>
 	);
