@@ -153,7 +153,10 @@ export type RouterType = {
 		useContextState(): ReturnType<typeof useGlobalState<Record<string, unknown>>>;
 		useBlockedTargetState(): ReturnType<typeof useGlobalState<Location | null>>;
 		useParams<T>(): T;
-		useNavigate(): (arg: NavigationLocation | string | -1) => Promise<void>;
+		useNavigate(): {
+			(arg: NavigationLocation | string | -1): Promise<void>;
+			<const TPath extends string>(arg: NavigatePathArg<TPath>): Promise<void>;
+		};
 		useAction(
 			action: string,
 			options?: Options
@@ -176,6 +179,48 @@ export type InvalidateResult = { path: string; data: unknown; error: Error | nul
 
 export type SearchObject = Record<string, string | number | boolean | null | undefined>;
 export type NavigationLocation = Omit<Location, 'search'> & { search?: string | SearchObject };
+
+export type PathParams = Record<string, string | number>;
+
+export type ParamsFor<TPath extends string> = TPath extends `${string}:${infer Param}/${infer Rest}`
+	? { [K in Param | keyof ParamsFor<Rest> as K & string]: string }
+	: TPath extends `${string}:${infer Param}`
+		? { [K in Param]: string }
+		: Record<string, never>;
+
+export type ParamsInput<TPath extends string> = { [K in keyof ParamsFor<TPath>]: string | number };
+
+export type HasPathSegments<TPath extends string> = TPath extends `${string}:${string}` ? true : false;
+
+type StrictLinkDestination<TPath extends string> = TPath extends unknown
+	? HasPathSegments<TPath> extends true
+		? { to?: never; path: TPath; params: ParamsInput<TPath> }
+		: { to?: never; path: TPath; params?: never }
+	: never;
+
+export type LinkDestination<TPath extends string> =
+	| { to: string; path?: never; params?: never }
+	| (string extends TPath
+		? { to?: never; path: string; params?: PathParams }
+		: StrictLinkDestination<TPath>);
+
+type StrictNavigateArg<TPath extends string> = TPath extends unknown
+	? HasPathSegments<TPath> extends true
+		? { path: TPath; params: ParamsInput<TPath>; pathname?: never; search?: string | SearchObject; state?: unknown }
+		: { path: TPath; params?: never; pathname?: never; search?: string | SearchObject; state?: unknown }
+	: never;
+
+export type NavigatePathArg<TPath extends string> =
+	string extends TPath
+		? { path: string; params?: PathParams; search?: string | SearchObject; state?: unknown }
+		: StrictNavigateArg<TPath>;
+
+export type NavigatePathInput = {
+	path: string;
+	params?: PathParams;
+	search?: string | SearchObject;
+	state?: unknown;
+};
 export type Synchronizer = <T>(
 	subscribe: (updater: () => void) => () => void,
 	getSnapshot: () => T,

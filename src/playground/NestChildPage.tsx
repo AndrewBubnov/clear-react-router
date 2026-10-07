@@ -3,7 +3,7 @@ import { Link, useLoaderState, useParams } from '../clear-router';
 import { getCallCount, randomIds } from './api';
 
 const NestChildPage = () => {
-	const { nestId } = useParams<{ nestId: string }>();
+	const { nestId } = useParams();
 	const { data } = useLoaderState<{ description: string }>();
 	const itemIds = useMemo(() => randomIds('item'), []);
 	return (

@@ -14,5 +14,15 @@ export { useSubmitAction } from './hooks/useSubmitAction';
 export { useRestoreScroll } from './hooks/useRestoreScroll';
 export { createRouter } from './creators/createRouter';
 export { lazy } from './utils/lazy';
-export type { RouteItem, BlockerState, Location, RouterProps, NavigationLocation, Status } from './types';
-export type { ElementProps } from './components/Link';
+export type {
+	RouteItem,
+	BlockerState,
+	Location,
+	RouterProps,
+	NavigationLocation,
+	NavigatePathArg,
+	PathParams,
+	ParamsFor,
+	Status,
+} from './types';
+export type { ElementProps, LinkProps } from './components/Link';

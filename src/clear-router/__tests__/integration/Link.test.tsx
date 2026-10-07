@@ -667,6 +667,48 @@ describe('prefetch', () => {
 		TEST_TIMEOUT
 	);
 });
+
+describe('path params', () => {
+	it(
+		'builds href and navigates from path template and params',
+		async () => {
+			const userRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Path Home</h3>
+							<Link path="/user/:id" params={{ id: '42' }}>
+								<span>To user</span>
+							</Link>
+						</div>
+					),
+				},
+				{ path: '/user/:id', element: <ParamsDisplay /> },
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={userRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText('Path Home')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			const link = screen.getByRole('link', { name: /to user/i });
+			expect(link).toHaveAttribute('href', '/user/42');
+			link.click();
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('params')).toHaveTextContent('{"id":"42"}');
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
+
+});
 });
 
 describe('hooks', () => {
