@@ -74,10 +74,10 @@ const CachePage = () => {
 			</div>
 			<div className="pg-card">
 				<h2>gcTime</h2>
-			<p>
-				<Link to="/playground/heavy" prefetch="none">
-					Open the heavy page
-				</Link>
+				<p>
+					<Link to="/playground/heavy" prefetch="none">
+						Open the heavy page
+					</Link>
 					, then leave and come back — immediately (cached) and after 7 seconds (garbage-collected, reloads).
 				</p>
 			</div>
