@@ -663,13 +663,9 @@ userland pattern — adopt it ladder-style, each rung optional:
   <AppLink path="/playgroud/cache" /> // error: not in AppPaths
   ```
 
-The union can be hand-written or generated from the route config
-(`scripts/generate-app-paths.mjs`, `npm run generate:paths`). The script parses
-`createRouter([...])` with the TypeScript compiler API — no new dependencies — and writes
-`AppPaths.gen.ts`; a tiny Vite plugin re-runs it on dev start, on build and whenever the
-routes file changes (failures only warn, the committed snapshot stays). A stale snapshot
-fails `tsc`, so drift is loud by construction. The playground wires the generated union
-through an `AppLink` wrapper as above.
+The union is hand-written in userland — a few lines next to the wrapper above.
+Keep it next to the routes so drift is visible in review; a forgotten path fails
+compilation at usage (fail-closed), a leftover entry is harmless.
 
 ### `useLocation()`
 
