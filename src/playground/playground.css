@@ -354,8 +354,8 @@ button.pg-switch:focus-visible {
 .pg-nav .active-link {
 	text-decoration: underline;
 	color: steelblue;
-	font-weight: 500;
 	background: var(--accent-bg);
+	text-underline-offset: 3px;
 }
 
 .pg-brand-wrap {
