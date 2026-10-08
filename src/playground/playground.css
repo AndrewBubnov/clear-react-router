@@ -381,6 +381,7 @@ button.pg-switch:focus-visible {
 .pg-gear-link[aria-current='page'] {
 	color: steelblue;
 }
+.pg-gear-link[aria-current='page'] svg { fill: steelblue; stroke: steelblue; }
 
 .pg-gear-link:focus-visible {
 	outline: 2px solid steelblue;

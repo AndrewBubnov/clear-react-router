@@ -234,9 +234,44 @@ import { Button } from '@mui/material';
   To about page
 </Link>
 ```
+### Styling link states with CSS
+
+Before reaching for `as`, check whether CSS is enough: active and loading states are already
+in the DOM — `Link` sets `aria-current="page"` on the active link (plus your `activeClassName`)
+and `aria-busy="true"` while the target is loading. Attribute selectors cover most custom
+designs with zero JS, keeping the native `<a>` semantics (keyboard focus, right-click,
+screen readers) intact:
+
+```tsx
+<Link to="/playground/settings" aria-label="Settings" className="gear-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+    <path d="..." />
+  </svg>
+</Link>
+```
+
+```css
+/* Active page — no state plumbing needed */
+.gear-link[aria-current='page'] {
+  color: steelblue;
+}
+/* CSS beats SVG presentation attributes (fill="none"), so this fills the icon: */
+.gear-link[aria-current='page'] svg {
+  fill: steelblue;
+  stroke: steelblue;
+}
+/* Target is loading: */
+.gear-link[aria-busy='true'] {
+  opacity: 0.6;
+}
+```
+
+Reach for `as` only when the element itself must change (a `<button>`, a UI-kit component)
+— for looks alone, attributes + CSS are simpler and accessible by default.
+
 ```tsx
 // Global prefetch: hover with 100ms delay
-<Router routes={routes} defaultPrefetchh="hover" defaultHoverPrefetchDelay={100} />
+<Router routes={routes} defaultPrefetch="hover" defaultHoverPrefetchDelay={100} />
 
 // Override for a specific link
 <Link to="/heavy-page" prefetch="viewport">
