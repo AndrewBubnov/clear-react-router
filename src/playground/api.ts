@@ -75,11 +75,17 @@ export const fetchCachePayload = async () => {
 	return `Cache lab payload (call ${n})`;
 };
 
+const timeNow = () => new Date().toLocaleTimeString('en-GB');
+
 /** Nest demo: per-id payload with visible latency, cached separately per params. */
 export const fetchNest = async (nestId: string) => {
 	const n = trackCall(`nest-${nestId}`);
 	await delay(500);
-	return { nestId, description: `Nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
+	return {
+		nestId,
+		description: `Nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'} at ${timeNow()})`,
+		loads: n,
+	};
 };
 
 /** Grandchild demo: payload keyed by both nesting levels. */
@@ -89,7 +95,7 @@ export const fetchNestItem = async (nestId: string, itemId: string) => {
 	return {
 		nestId,
 		itemId,
-		description: `Item ${itemId} of nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'})`,
+		description: `Item ${itemId} of nest ${nestId} (loaded ${n} time${n === 1 ? '' : 's'} at ${timeNow()})`,
 		loads: n,
 	};
 };

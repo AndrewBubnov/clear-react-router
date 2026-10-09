@@ -33,14 +33,14 @@ const InvalidateLab = () => {
 		<div className="pg-card">
 			<h2>Invalidation lab</h2>
 			<p>
-				Each button revalidates and shows per-entry results. The counters below tell whether a fetch
-				actually ran. Watch the network tab too.
+				Each button revalidates and shows per-entry results. The counters below tell whether a fetch actually
+				ran. Watch the network tab too.
 			</p>
 			<p>
 				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
-			<div className="pg-row">
+			<div className="pg-btn-grid">
 				<button className="pg-btn" onClick={() => invalidate().then(setLastResult)}>
 					Refetch this page
 				</button>
@@ -62,33 +62,52 @@ const InvalidateLab = () => {
 				>
 					Skip uncached entries
 				</button>
+				<button
+					className="pg-btn"
+					onClick={() => invalidate('/playground/nest', { withChildren: true }).then(setLastResult)}
+				>
+					Refetch nest subtree
+				</button>
 			</div>
 			<p className="pg-hint">
 				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is
-				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached
-				paths — and the failing route is never cached (failures don&apos;t poison the cache), so it always
-				comes back empty. Compare with the plain refetch right above each of them.
+				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached paths —
+				and the failing route is never cached (failures don&apos;t poison the cache), so it always comes back
+				empty. Compare with the plain refetch right above each of them. <code>withChildren</code> revalidates
+				the route plus all nested children — open any nest and item first so there is something cached, then
+				watch both entries refresh at once.
 			</p>
 			{lastResult === null ? (
 				<p className="pg-hint">press a button</p>
 			) : lastResult.length === 0 ? (
 				<p className="pg-hint">no matching cache entries — nothing was revalidated</p>
 			) : (
-				<ul className="pg-list">
-					{lastResult.map(entry => (
-						<li key={entry.path}>
-							<span className="pg-badge">{entry.path}</span>{' '}
-							{entry.error ? (
-								<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
-							) : (
-								<>
-									<span className="pg-badge ok">ok</span>{' '}
-									<span className="pg-badge">{previewData(entry.data)}</span>
-								</>
-							)}
-						</li>
-					))}
-				</ul>
+				<>
+					<ul className="pg-list">
+						{lastResult.map(entry => (
+							<li key={entry.path}>
+								<span className="pg-badge">{entry.path}</span>{' '}
+								{entry.error ? (
+									<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
+								) : entry.data === undefined ? (
+									<span className="pg-badge">no loader</span>
+								) : (
+									<>
+										<span className="pg-badge ok">ok</span>{' '}
+										<span className="pg-badge">{previewData(entry.data)}</span>
+									</>
+								)}
+							</li>
+						))}
+					</ul>
+					{lastResult.every(entry => entry.data === undefined && !entry.error) && (
+						<p className="pg-hint">
+							Nothing cached under this route yet — open any nest and an item first (that fills the
+							cache), then press again. Note the tiny <code>maxCacheSize: 3</code>: hovering menu links
+							prefetches in the background and may evict entries before you press.
+						</p>
+					)}
+				</>
 			)}
 		</div>
 	);

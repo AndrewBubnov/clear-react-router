@@ -136,6 +136,17 @@ button.pg-switch:focus-visible {
 	margin: 12px 0;
 }
 
+.pg-btn-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 12px;
+	margin: 12px 0;
+}
+
+.pg-btn-grid .pg-btn {
+	width: 100%;
+}
+
 .pg-details {
 	display: block;
 	margin-top: 8px;

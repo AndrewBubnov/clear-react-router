@@ -39,7 +39,14 @@ export const createInvalidate = ({ routeDataState, loaderMap }: RouterState, rev
 
 		const pathnameSet = new Set<string>();
 		for (const [key] of loaderMap) if (comparePaths(routeItem, separatePathname(key))) pathnameSet.add(key);
-		if (options?.force === true || (options?.force === undefined && !options?.staleOnly)) pathnameSet.add(pathname);
+		// A path with unresolved :params (e.g. a child pattern expanded during withChildren
+		// recursion) addresses nothing fetchable — only already-cached entries make sense,
+		// unless fetching is explicitly forced.
+		const hasUnresolvedParams = separatePathname(pathname)
+			.split('/')
+			.some(segment => segment.startsWith(':'));
+		const implicitForce = options?.force === undefined && !options?.staleOnly;
+		if (options?.force === true || (implicitForce && !hasUnresolvedParams)) pathnameSet.add(pathname);
 
 		const currentResults = await Promise.all(
 			[...pathnameSet].map(pathname => invalidatePath(routeItem, pathname, options))
