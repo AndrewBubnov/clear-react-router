@@ -517,18 +517,18 @@ h1 {
 	line-height: 1;
 	border-radius: 16px;
 	color: white;
-	background: rgb(70 130 180 / 0.4);
+	background: rgb(70 130 180 / 0.5);
 	/* Order matters: the minifier collapses this pair keeping the last declaration. */
 	-webkit-backdrop-filter: blur(6px);
 	backdrop-filter: blur(6px);
 }
 
 .status-badge-error {
-	background: rgb(255 99 71 / 0.55);
+	background: rgb(255 99 71 / 0.5);
 }
 
 .status-badge-optimistic {
-	background: rgb(0 128 0 / 0.55);
+	background: rgb(0 128 0 / 0.5);
 }
 
 .pg-no-margin {
