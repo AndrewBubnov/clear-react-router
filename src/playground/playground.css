@@ -136,15 +136,67 @@ button.pg-switch:focus-visible {
 	margin: 12px 0;
 }
 
+.pg-details {
+	display: block;
+	margin-top: 8px;
+	font-size: 14px;
+	/* Allows block-size transitions to/from auto below. */
+	interpolate-size: allow-keywords;
+}
+
+/* Animated open/close. Progressive enhancement: browsers without
+   ::details-content or interpolate-size support simply snap open/closed. */
+.pg-details::details-content {
+	block-size: 0;
+	overflow: clip;
+	transition:
+		block-size 0.25s ease,
+		content-visibility 0.25s ease allow-discrete;
+}
+
+.pg-details[open]::details-content {
+	block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pg-details::details-content {
+		transition: none;
+	}
+}
+
+.pg-details > summary {
+	display: inline;
+	cursor: pointer;
+	color: var(--text-h);
+	text-decoration: underline;
+}
+
+.pg-details > pre {
+	font-family: var(--mono), sans-serif;
+	font-size: 13px;
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	padding: 10px 12px;
+	margin: 0;
+	overflow-x: auto;
+	max-width: 100%;
+	/* Wrap instead of scrolling: a scrollbar popping in at full height
+	   would jump the layout at the last animation frame. */
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
 .pg-badge {
 	display: inline-block;
 	font-family: var(--mono), sans-serif;
 	font-size: 14px;
-	padding: 3px 10px;
+	padding-inline: 10px;
 	border-radius: 20px;
 	border: 1px solid var(--border);
 	background: var(--code-bg);
 	color: var(--text-h);
+	white-space: pre-wrap;
 }
 
 .pg-badge.ok {
@@ -466,6 +518,10 @@ h1 {
 
 .status-badge-optimistic {
 	background: rgb(0 128 0 / 0.55);
+}
+
+.pg-no-margin {
+	margin: 0;
 }
 
 @keyframes rotation {

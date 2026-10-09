@@ -4,42 +4,83 @@ import { getCallCount } from './api';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
 
+type InvalidateEntry = { path: string; data: unknown; error: Error | null };
+
+const previewData = (data: unknown, limit = 80) => {
+	const text = typeof data === 'string' ? data : (JSON.stringify(data) ?? String(data));
+	return text.length > limit ? `${text.slice(0, limit)}…` : text;
+};
+
+const errorMessage = (error: Error | null) => (error instanceof Error ? error.message : String(error));
+
+// Errors don't survive JSON.stringify (they'd render as {}), so show their shape explicitly.
+const stringifyLoaderState = (data: unknown, loaderError: Error | null, beforeLoadError: Error | null) =>
+	JSON.stringify(
+		{
+			data,
+			loaderError: loaderError ? { message: loaderError.message } : null,
+			beforeLoadError: beforeLoadError ? { message: beforeLoadError.message } : null,
+		},
+		null,
+		2
+	);
+
 const InvalidateLab = () => {
 	const invalidate = useInvalidate();
-	const [lastResult, setLastResult] = useState('press a button');
-	const run = async (fn: () => Promise<unknown>) => {
-		const result = await fn();
-		setLastResult(JSON.stringify(result, null, 2));
-	};
+	const [lastResult, setLastResult] = useState<InvalidateEntry[] | null>(null);
 
 	return (
 		<div className="pg-card">
 			<h2>Invalidation lab</h2>
-			<p>Each button revalidates and shows the raw result array. Watch the network tab too.</p>
+			<p>Each button revalidates and shows per-entry results. Watch the network tab too.</p>
 			<div className="pg-row">
-				<button className="pg-btn" onClick={() => run(() => invalidate())}>
+				<button className="pg-btn" onClick={() => invalidate().then(setLastResult)}>
 					invalidate() current
 				</button>
-				<button className="pg-btn" onClick={() => run(() => invalidate('/playground/live'))}>
+				<button className="pg-btn" onClick={() => invalidate('/playground/live').then(setLastResult)}>
 					invalidate live
 				</button>
 				<button
 					className="pg-btn"
-					onClick={() => run(() => invalidate('/playground/live', { staleOnly: true }))}
+					onClick={() => invalidate('/playground/live', { staleOnly: true }).then(setLastResult)}
 				>
 					staleOnly live
 				</button>
-				<button className="pg-btn" onClick={() => run(() => invalidate('/playground/live', { force: false }))}>
+				<button
+					className="pg-btn"
+					onClick={() => invalidate('/playground/live', { force: false }).then(setLastResult)}
+				>
 					force: false live
 				</button>
 			</div>
-			<pre className="pg-badge">{lastResult}</pre>
+			{lastResult === null ? (
+				<p className="pg-hint">press a button</p>
+			) : lastResult.length === 0 ? (
+				<p className="pg-hint">no matching cache entries — nothing was revalidated</p>
+			) : (
+				<ul className="pg-list">
+					{lastResult.map(entry => (
+						<li key={entry.path}>
+							<span className="pg-badge">{entry.path}</span>{' '}
+							{entry.error ? (
+								<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
+							) : (
+								<>
+									<span className="pg-badge ok">ok</span>{' '}
+									<span className="pg-badge">{previewData(entry.data)}</span>
+								</>
+							)}
+						</li>
+					))}
+				</ul>
+			)}
 		</div>
 	);
 };
 
 const CachePage = () => {
-	const { data } = useLoaderState<string>();
+	const { data, loaderError, beforeLoadError } = useLoaderState<string>();
+	const loadError = loaderError ?? beforeLoadError;
 	return (
 		<div className="pg-wrap">
 			<h1>Cache: eviction, gcTime, invalidation</h1>
@@ -50,6 +91,18 @@ const CachePage = () => {
 			<div className="pg-card">
 				<h2>This page itself is cached</h2>
 				<p>{data}</p>
+				<p className="pg-row pg-no-margin">
+					Errors:
+					{loadError ? (
+						<span className="pg-badge err">{errorMessage(loadError)}</span>
+					) : (
+						<span className="pg-badge ok">none</span>
+					)}
+				</p>
+				<details className="pg-details">
+					<summary>Show raw JSON</summary>
+					<pre>{stringifyLoaderState(data, loaderError, beforeLoadError)}</pre>
+				</details>
 				<p>
 					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>
 				</p>
