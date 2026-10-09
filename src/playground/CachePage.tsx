@@ -32,27 +32,43 @@ const InvalidateLab = () => {
 	return (
 		<div className="pg-card">
 			<h2>Invalidation lab</h2>
-			<p>Each button revalidates and shows per-entry results. Watch the network tab too.</p>
+			<p>
+				Each button revalidates and shows per-entry results. The counters below tell whether a fetch
+				actually ran. Watch the network tab too.
+			</p>
+			<p>
+				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
+				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
+			</p>
 			<div className="pg-row">
 				<button className="pg-btn" onClick={() => invalidate().then(setLastResult)}>
-					invalidate() current
+					Refetch this page
 				</button>
-				<button className="pg-btn" onClick={() => invalidate('/playground/live').then(setLastResult)}>
-					invalidate live
-				</button>
-				<button
-					className="pg-btn"
-					onClick={() => invalidate('/playground/live', { staleOnly: true }).then(setLastResult)}
-				>
-					staleOnly live
+				<button className="pg-btn" onClick={() => invalidate('/playground/product/1').then(setLastResult)}>
+					Refetch product 1
 				</button>
 				<button
 					className="pg-btn"
-					onClick={() => invalidate('/playground/live', { force: false }).then(setLastResult)}
+					onClick={() => invalidate('/playground/cache', { staleOnly: true }).then(setLastResult)}
 				>
-					force: false live
+					Touch only stale entries
+				</button>
+				<button className="pg-btn" onClick={() => invalidate('/playground/retry-raw').then(setLastResult)}>
+					Refetch the failing route
+				</button>
+				<button
+					className="pg-btn"
+					onClick={() => invalidate('/playground/retry-raw', { force: false }).then(setLastResult)}
+				>
+					Skip uncached entries
 				</button>
 			</div>
+			<p className="pg-hint">
+				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is
+				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached
+				paths — and the failing route is never cached (failures don&apos;t poison the cache), so it always
+				comes back empty. Compare with the plain refetch right above each of them.
+			</p>
 			{lastResult === null ? (
 				<p className="pg-hint">press a button</p>
 			) : lastResult.length === 0 ? (
