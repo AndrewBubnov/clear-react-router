@@ -349,6 +349,10 @@ button.pg-switch:focus-visible {
 	transition: color ease-in-out 0.4s;
 }
 
+.pg-label-string {
+	padding-bottom: 3px;
+}
+
 @media (hover: hover) {
 	.pg-wrap a:hover {
 		color: darkslateblue;

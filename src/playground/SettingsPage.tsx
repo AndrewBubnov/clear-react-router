@@ -67,11 +67,6 @@ const SettingsPage = () => {
 					</Switch>
 				</div>
 				<div className="pg-row">
-					<label>
-						duration: <span className="pg-badge">{animationDuration ?? 'browser default'}</span>
-					</label>
-				</div>
-				<div className="pg-row">
 					<input
 						type="range"
 						className="pg-range"
@@ -83,6 +78,7 @@ const SettingsPage = () => {
 						onChange={e => setAnimationDuration(Number(e.target.value))}
 						aria-label="Animation duration in milliseconds"
 					/>
+					<span className="pg-label-string">{`${animationDuration ? animationDuration : 500}ms`}</span>
 					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)}>
 						Reset to browser default
 					</button>
@@ -142,7 +138,7 @@ const SettingsPage = () => {
 						onChange={e => setMinLoaderDuration(Number(e.target.value))}
 						aria-label="Min loader duration in milliseconds"
 					/>
-					{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}
+					<span className="pg-label-string">{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}</span>
 					<SettingsLoader duration={minLoaderDuration} />
 				</div>
 				<p className="pg-hint">
