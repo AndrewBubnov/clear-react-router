@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
@@ -17,6 +18,24 @@ const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'none', label: 'none' },
 ];
 
+const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
+	const [isLoading, setIsLoading] = useState(false);
+	const timeout = useRef<number | undefined>(undefined);
+	useEffect(() => {
+		window.clearTimeout(timeout.current);
+		// Timer side effect, intentionally not derived state: the spinner must restart on every change.
+		// eslint-disable-next-line react-hooks/set-state-in-effect
+		setIsLoading(true);
+		timeout.current = window.setTimeout(() => setIsLoading(false), duration);
+		return () => window.clearTimeout(timeout.current);
+	}, [duration]);
+	return isLoading ? (
+		<span className="loader" style={{ width: 24, height: 24, marginLeft: 50 }} />
+	) : (
+		<div style={{ width: 24, height: 24 }} />
+	);
+};
+
 const SettingsPage = () => {
 	const {
 		isAnimated,
@@ -29,6 +48,8 @@ const SettingsPage = () => {
 		setShowStatusBadge,
 		defaultPrefetch,
 		setDefaultPrefetch,
+		minLoaderDuration,
+		setMinLoaderDuration,
 	} = usePlaygroundSettings();
 
 	return (
@@ -58,6 +79,7 @@ const SettingsPage = () => {
 						max={2000}
 						step={50}
 						value={animationDuration ?? 500}
+						disabled={!isAnimated}
 						onChange={e => setAnimationDuration(Number(e.target.value))}
 						aria-label="Animation duration in milliseconds"
 					/>
@@ -105,6 +127,28 @@ const SettingsPage = () => {
 					Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
 					<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
 					<code>prefetch</code> prop (like the lab links) are unaffected.
+				</p>
+			</div>
+			<div className="pg-card pg-card-short">
+				<h2>Min loader duration</h2>
+				<div className="pg-row">
+					<input
+						type="range"
+						className="pg-range"
+						min={0}
+						max={2000}
+						step={50}
+						value={minLoaderDuration}
+						onChange={e => setMinLoaderDuration(Number(e.target.value))}
+						aria-label="Min loader duration in milliseconds"
+					/>
+					{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}
+					<SettingsLoader duration={minLoaderDuration} />
+				</div>
+				<p className="pg-hint">
+					Without it, a fast loader flashes its fallback for a split second — visible flicker on every
+					navigation. This setting holds the loading state for at least the given time, so the fallback never
+					blinks. Try a high value and navigate to a fast route: the spinner above previews the delay.
 				</p>
 			</div>
 			<div className="pg-card pg-card-short">

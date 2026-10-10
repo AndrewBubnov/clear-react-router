@@ -7,6 +7,7 @@ export type SettingsContextValue = PlaygroundSettings & {
 	setMaxCacheSize(value: number): void;
 	setShowStatusBadge(value: boolean): void;
 	setDefaultPrefetch(value: PrefetchSetting): void;
+	setMinLoaderDuration(value: number | undefined): void;
 };
 
 export const SettingsContext = createContext<SettingsContextValue | null>(null);
