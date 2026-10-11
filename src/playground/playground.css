@@ -353,6 +353,11 @@ button.pg-switch:focus-visible {
 	padding-bottom: 3px;
 }
 
+.pg-settings-loader-wrap {
+	width: 280px;
+	justify-content: space-between;
+}
+
 @media (hover: hover) {
 	.pg-wrap a:hover {
 		color: darkslateblue;

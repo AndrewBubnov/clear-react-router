@@ -30,7 +30,7 @@ const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
 		return () => window.clearTimeout(timeout.current);
 	}, [duration]);
 	return isLoading ? (
-		<span className="loader" style={{ width: 24, height: 24, marginLeft: 50 }} />
+		<span className="loader" style={{ width: 24, height: 24 }} />
 	) : (
 		<div style={{ width: 24, height: 24 }} />
 	);
@@ -127,18 +127,20 @@ const SettingsPage = () => {
 			</div>
 			<div className="pg-card pg-card-short">
 				<h2>Min loader duration</h2>
-				<div className="pg-row">
-					<input
-						type="range"
-						className="pg-range"
-						min={0}
-						max={2000}
-						step={50}
-						value={minLoaderDuration}
-						onChange={e => setMinLoaderDuration(Number(e.target.value))}
-						aria-label="Min loader duration in milliseconds"
-					/>
-					<span className="pg-label-string">{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}</span>
+				<div className="pg-row pg-settings-loader-wrap">
+					<div className="pg-row">
+						<input
+							type="range"
+							className="pg-range"
+							min={0}
+							max={2000}
+							step={50}
+							value={minLoaderDuration}
+							onChange={e => setMinLoaderDuration(Number(e.target.value))}
+							aria-label="Min loader duration in milliseconds"
+						/>
+						<span className="pg-label-string">{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}</span>
+					</div>
 					<SettingsLoader duration={minLoaderDuration} />
 				</div>
 				<p className="pg-hint">
