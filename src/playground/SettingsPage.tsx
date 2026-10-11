@@ -29,11 +29,7 @@ const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
 		timeout.current = window.setTimeout(() => setIsLoading(false), duration);
 		return () => window.clearTimeout(timeout.current);
 	}, [duration]);
-	return isLoading ? (
-		<span className="loader" style={{ width: 24, height: 24 }} />
-	) : (
-		<div style={{ width: 24, height: 24 }} />
-	);
+	return isLoading ? <span className="loader" /> : null;
 };
 
 const SettingsPage = () => {
