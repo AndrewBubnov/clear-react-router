@@ -294,6 +294,8 @@ screen readers) intact:
 Reach for `as` only when the element itself must change (a `<button>`, a UI-kit component)
 — for looks alone, attributes + CSS are simpler and accessible by default.
 
+### Prefetch examples
+
 ```tsx
 // Global prefetch: hover with 100ms delay
 <Router routes={routes} defaultPrefetch="hover" defaultHoverPrefetchDelay={100} />
@@ -307,7 +309,11 @@ Reach for `as` only when the element itself must change (a `<button>`, a UI-kit 
 <Link to="/admin" prefetch="none">
   Admin Panel
 </Link>
+```
 
+### Appearance and behavior examples
+
+```tsx
 // With custom active/pending classes
 <Link to="/settings" activeClassName="active-nav-link" pendingClassName="loading-nav-link">
   Settings
