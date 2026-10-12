@@ -19,7 +19,7 @@ It provides first-class support for:
 * Simple, provider-free architecture
 * Small, explicit API
 
-> 👉 TL;DR? **[Try the live playground](https://clear-react-router.vercel.app/playground)** — no setup, click around.
+> TL;DR? **[Try the live playground](https://clear-react-router.vercel.app/playground)** — no setup, click around.
 
 
 ## Features
@@ -38,6 +38,23 @@ It provides first-class support for:
 - **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
 - **Browser History** - Full support for browser back/forward buttons
 - **Context-aware** - Pass and update context through routes
+
+## Deployment (static hosting)
+
+The router uses the History API (`pushState` + `popstate`) exclusively — there is no hash mode.
+Deep links and page refreshes therefore need an SPA fallback on static hosts: every path must serve `index.html`, otherwise refreshing e.g. `/about` returns 404.
+
+Vercel (`vercel.json`):
+
+```json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+Netlify (`public/_redirects`):
+
+```text
+/*    /index.html   200
+```
 
 ## API
 
@@ -67,6 +84,8 @@ It provides first-class support for:
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
 ### `createRouter(routes)`
+
+Required: `<Router>` expects the output of `createRouter` (`RouteItem[]` with built `pattern`s and resolved lazy components), not the raw config you write. Skipping it breaks nested-path matching and lazy preloading.
 
 Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
@@ -124,6 +143,12 @@ If a route is both `optimistic` and has `gcTime` set, keep in mind the cached sn
 ### `Link`
 
 Component for client-side navigation with prefetch support, active state detection, and pending state styling. Prefetch includes lazy route component preload.
+
+`Link` (like every router hook) works outside `<Router>` — all state lives in a global store, there is no React context. Only back/forward-button handling needs a mounted `<Router>`.
+
+Rule of thumb: `to` for plain URLs, `path` + `params` when you want the pattern checked and segments URL-encoded.
+
+Active matching: `'/'` matches only exactly `'/'`; any other target is active on exact match or — with the default `exact={false}` — on nested URLs too (`/settings` is active at `/settings/profile`).
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -583,7 +608,7 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 
 ### `useNavigate()`
 
-Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object, or `-1` to go back.
+Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object (`pathname`, or typed `path` + `params` — see below), or `-1` to go back.
 
 ```tsx
 type NavigationLocation = { pathname: string; search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }

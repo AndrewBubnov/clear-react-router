@@ -16,6 +16,7 @@ export { createRouter } from './creators/createRouter';
 export { lazy } from './utils/lazy';
 export type {
 	RouteItem,
+	ClientRouteItem,
 	BlockerState,
 	Location,
 	RouterProps,
