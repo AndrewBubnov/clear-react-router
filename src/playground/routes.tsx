@@ -109,7 +109,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/heavy',
 		element: lazy(() => import('./HeavyPage')),
 		loader: fetchHeavy,
-		gcTime: 5000,
+		gcTime: 7000,
 		loaderFallback: <Loading title="heavy payload" />,
 	},
 	{

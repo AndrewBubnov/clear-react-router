@@ -167,7 +167,7 @@ const CachePage = () => {
 					<Link to="/playground/heavy" prefetch="none">
 						Open the heavy page
 					</Link>
-					, then leave and come back — immediately (cached) and after 5 seconds (garbage-collected, reloads).
+					, then leave and come back — immediately (cached) and after 7 seconds (garbage-collected, reloads).
 				</p>
 			</div>
 			<InvalidateLab />
