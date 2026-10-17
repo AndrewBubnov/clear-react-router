@@ -1,4 +1,36 @@
+import { Fragment } from 'react';
 import { Link } from '../clear-router';
+import { usePlaygroundSettings } from './usePlaygroundSettings';
+import type { NavLinkAs } from './NavLinkAs';
+
+const NAV_LINK_LABELS: Record<NavLinkAs, string> = {
+	link: 'Link',
+	mui: 'MUI',
+	mantine: 'Mantine',
+};
+
+const SettingsSummary = () => {
+	const s = usePlaygroundSettings();
+	const rows: [string, string][] = [
+		['Transitions', s.isAnimated ? 'on' : 'off'],
+		['Animation', s.animationDuration ? `${s.animationDuration}ms` : 'default'],
+		['Cache size', String(s.maxCacheSize)],
+		['Prefetch', s.defaultPrefetch],
+		['Nav link', NAV_LINK_LABELS[s.navLinkAs]],
+		['Min loader', s.minLoaderDuration ? `${s.minLoaderDuration}ms` : 'unset'],
+		['Status badge', s.showStatusBadge ? 'shown' : 'hidden'],
+	];
+	return (
+		<dl className="pg-settings-grid">
+			{rows.map(([label, value]) => (
+				<Fragment key={label}>
+					<dt>{label}</dt>
+					<dd>{value}</dd>
+				</Fragment>
+			))}
+		</dl>
+	);
+};
 
 const demos = [
 	{
@@ -85,16 +117,16 @@ export const PlaygroundHome = () => {
 					can be switched live on the <Link to="/playground/settings">settings page</Link>.
 				</p>
 			)}
-		<div className="pg-home-grid">
-			{demos.map(d => (
-				<Link key={d.to} to={d.to} className="pg-card-link">
-					<div className="pg-card pg-card-home">
-						<h2>{d.title}</h2>
-						<p>{d.text}</p>
-					</div>
-				</Link>
-			))}
-		</div>
+			<div className="pg-home-grid">
+				{demos.map(d => (
+					<Link key={d.to} to={d.to} className="pg-card-link">
+						<div className="pg-card pg-card-home">
+							<h2>{d.title}</h2>
+							{d.to === '/playground/settings' ? <SettingsSummary /> : <p>{d.text}</p>}
+						</div>
+					</Link>
+				))}
+			</div>
 		</div>
 	);
 };

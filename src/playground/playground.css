@@ -61,6 +61,19 @@
 	min-height: 85px;
 }
 
+.pg-settings-grid {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 6px 12px;
+	margin: 0;
+	color: var(--text-h);
+}
+
+.pg-settings-grid dd {
+	margin: 0;
+	text-align: right;
+}
+
 .pg-hint {
 	border-left: 3px solid var(--accent-border);
 	padding: 8px 12px;
