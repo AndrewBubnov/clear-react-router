@@ -107,8 +107,8 @@ export const PlaygroundHome = () => {
 			<h1>Clear Router Playground</h1>
 			<p>
 				Live demo of data loading, cache and navigation features. Every card below is a working route — open
-				devtools network tab and click around. Router settings (transitions, animation duration, cache size) can
-				be tweaked live on the <Link to="/playground/settings">settings</Link> page.
+				devtools network tab and click around. Router settings (transitions, animation duration, cache size,
+				etc.) can be tweaked live on the <Link to="/playground/settings">settings</Link> page.
 			</p>
 			{isMobileViewport && (
 				<p className="pg-hint">
