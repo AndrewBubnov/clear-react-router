@@ -2,6 +2,7 @@ import { createRouter, lazy } from '../clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
 import { Loading } from './Loading';
 import {
+	HEAVY_GC_TIME,
 	addNote,
 	fetchCachePayload,
 	fetchDoomed,
@@ -107,9 +108,9 @@ export const playgroundRoutes = createRouter([
 	},
 	{
 		path: '/playground/heavy',
-		element: lazy(() => import('./HeavyPage')),
-		loader: fetchHeavy,
-		gcTime: 7000,
+	element: lazy(() => import('./HeavyPage')),
+	loader: fetchHeavy,
+	gcTime: HEAVY_GC_TIME,
 		loaderFallback: <Loading title="heavy payload" />,
 	},
 	{

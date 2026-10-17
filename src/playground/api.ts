@@ -100,6 +100,9 @@ export const fetchNestItem = async (nestId: string, itemId: string) => {
 	};
 };
 
+/** gcTime for /playground/heavy — also drives the live countdown in the cache lab. */
+export const HEAVY_GC_TIME = 10000;
+
 /** Heavy loader for the gcTime demo. */
 export const fetchHeavy = async () => {
 	const n = trackCall('heavy');

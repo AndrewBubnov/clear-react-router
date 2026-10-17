@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Link, useInvalidate, useLoaderState } from '../clear-router';
-import { Button } from '@mantine/core';
-import { getCallCount } from './api';
+import { useEffect, useState } from 'react';
+import { Link, useInvalidate, useLoaderState, useRouterContext } from '../clear-router';
+import { Button, RingProgress, Stack, Text } from '@mantine/core';
+import { getCallCount, HEAVY_GC_TIME } from './api';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
 
@@ -114,6 +114,39 @@ const InvalidateLab = () => {
 	);
 };
 
+const GcCountdown = () => {
+	const { context } = useRouterContext();
+	const gcAt = typeof context.heavyGcAt === 'number' ? context.heavyGcAt : null;
+	const [now, setNow] = useState(() => Date.now());
+
+	useEffect(() => {
+		if (gcAt === null) return;
+		const id = window.setInterval(() => setNow(Date.now()), 100);
+		return () => window.clearInterval(id);
+	}, [gcAt]);
+
+	if (gcAt === null) return null;
+	const remaining = Math.max(0, gcAt - now);
+	return (
+		<Stack align="center" gap={4} my="sm">
+			<RingProgress
+				size={96}
+				thickness={8}
+				roundCaps
+				sections={[{ value: (remaining / HEAVY_GC_TIME) * 100, color: remaining > 0 ? 'teal' : 'gray' }]}
+				label={
+					<Text ta="center" size="sm" c={remaining > 0 ? undefined : 'dimmed'}>
+						{remaining > 0 ? `${(remaining / 1000).toFixed(1)}s` : '0s'}
+					</Text>
+				}
+			/>
+			<Text size="xs" c="dimmed">
+				{remaining > 0 ? 'left until the cache entry is garbage-collected' : 'entry garbage-collected'}
+			</Text>
+		</Stack>
+	);
+};
+
 const CachePage = () => {
 	const { data, loaderError, beforeLoadError } = useLoaderState<string>();
 	const loadError = loaderError ?? beforeLoadError;
@@ -167,8 +200,9 @@ const CachePage = () => {
 					<Link to="/playground/heavy" prefetch="none">
 						Open the heavy page
 					</Link>
-					, then leave and come back — immediately (cached) and after 7 seconds (garbage-collected, reloads).
+					, then leave and come back — immediately (cached) and after 10 seconds (garbage-collected, reloads).
 				</p>
+				<GcCountdown />
 			</div>
 			<InvalidateLab />
 			<p>
