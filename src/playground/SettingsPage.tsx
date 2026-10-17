@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader, Slider, Switch, Tooltip } from '@mantine/core';
+import { Loader, Slider, Switch, Tooltip, Button } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
@@ -89,9 +89,9 @@ const SettingsPage = () => {
 							/>
 						</div>
 					</Tooltip>
-					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated}>
+					<Button onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated} variant="light">
 						Reset to browser default
-					</button>
+					</Button>
 				</div>
 			</div>
 			<div className="pg-card">

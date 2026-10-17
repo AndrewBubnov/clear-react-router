@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useInvalidate, useLoaderState } from '../clear-router';
+import { Button } from '@mantine/core';
 import { getCallCount } from './api';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
@@ -41,33 +42,33 @@ const InvalidateLab = () => {
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
 			<div className="pg-btn-grid">
-				<button className="pg-btn" onClick={() => invalidate().then(setLastResult)}>
+				<Button onClick={() => invalidate().then(setLastResult)} variant="light">
 					Refetch this page
-				</button>
-				<button className="pg-btn" onClick={() => invalidate('/playground/product/1').then(setLastResult)}>
+				</Button>
+				<Button variant="light" onClick={() => invalidate('/playground/product/1').then(setLastResult)}>
 					Refetch product 1
-				</button>
-				<button
-					className="pg-btn"
+				</Button>
+				<Button
+					variant="light"
 					onClick={() => invalidate('/playground/cache', { staleOnly: true }).then(setLastResult)}
 				>
 					Touch only stale entries
-				</button>
-				<button className="pg-btn" onClick={() => invalidate('/playground/retry-raw').then(setLastResult)}>
+				</Button>
+				<Button variant="light" onClick={() => invalidate('/playground/retry-raw').then(setLastResult)}>
 					Refetch the failing route
-				</button>
-				<button
-					className="pg-btn"
+				</Button>
+				<Button
+					variant="light"
 					onClick={() => invalidate('/playground/retry-raw', { force: false }).then(setLastResult)}
 				>
 					Skip uncached entries
-				</button>
-				<button
-					className="pg-btn"
+				</Button>
+				<Button
+					variant="light"
 					onClick={() => invalidate('/playground/nest', { withChildren: true }).then(setLastResult)}
 				>
 					Refetch nest subtree
-				</button>
+				</Button>
 			</div>
 			<p className="pg-hint">
 				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is

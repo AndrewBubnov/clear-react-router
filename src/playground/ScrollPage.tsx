@@ -1,4 +1,5 @@
 import { Link, useRestoreScroll } from '../clear-router';
+import { Button } from '@mantine/core';
 
 const feedRows = Array.from({ length: 60 }, (_, i) => `Feed row ${i + 1}`);
 const galleryCards = Array.from({ length: 30 }, (_, i) => `Card ${i + 1}`);
@@ -6,9 +7,9 @@ const galleryCards = Array.from({ length: 30 }, (_, i) => `Card ${i + 1}`);
 const ManualRestore = () => {
 	const restoreScroll = useRestoreScroll();
 	return (
-		<button className="pg-btn" onClick={() => restoreScroll()}>
+		<Button variant="light" onClick={() => restoreScroll()}>
 			Restore saved positions
-		</button>
+		</Button>
 	);
 };
 

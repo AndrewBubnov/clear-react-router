@@ -1,4 +1,4 @@
-import { Alert } from '@mantine/core';
+import { Alert, Button } from '@mantine/core';
 import { Link, useLoaderState } from '../clear-router';
 
 const RetryErrorView = () => {
@@ -12,9 +12,9 @@ const RetryErrorView = () => {
 				<code>errorElement</code> instead of retrying.
 			</p>
 			<div className="pg-row">
-				<button className="pg-btn" onClick={() => window.location.reload()}>
+				<Button variant="light" onClick={() => window.location.reload()}>
 					Reload the page
-				</button>
+				</Button>
 				<Link to="/playground/retry">Go to the retrying version →</Link>
 			</div>
 			<p>

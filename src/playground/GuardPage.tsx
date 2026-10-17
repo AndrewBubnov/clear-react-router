@@ -1,4 +1,4 @@
-import { Alert } from '@mantine/core';
+import { Alert, Button } from '@mantine/core';
 import { Link, useLocation, useRouterContext } from '../clear-router';
 
 const GuardPage = () => {
@@ -29,9 +29,9 @@ const GuardPage = () => {
 					</span>
 				</p>
 				<div className="pg-row">
-					<button className="pg-btn" onClick={() => setContext({ ...context, isAuthorized: !isAuthorized })}>
+					<Button variant="light" onClick={() => setContext({ ...context, isAuthorized: !isAuthorized })}>
 						{isAuthorized ? 'Log out' : 'Log in'}
-					</button>
+					</Button>
 					<Link to="/playground/dashboard">Try opening dashboard →</Link>
 				</div>
 			</div>

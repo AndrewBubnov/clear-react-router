@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@mantine/core';
+import { Modal, Button } from '@mantine/core';
 import { Link, useBlocker } from '../clear-router';
 
 const BlockerPage = () => {
@@ -31,12 +31,12 @@ const BlockerPage = () => {
 			<Modal opened={state === 'blocked'} onClose={reset} title="Leave without saving?" centered>
 				<p>You have unsaved changes in the form.</p>
 				<div className="pg-row">
-					<button className="pg-btn" onClick={process}>
+					<Button variant="light" onClick={process}>
 						Leave
-					</button>
-					<button className="pg-btn" onClick={reset}>
+					</Button>
+					<Button variant="light" onClick={reset}>
 						Stay
-					</button>
+					</Button>
 				</div>
 			</Modal>
 		</div>

@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from '../clear-router';
+import { Button } from '@mantine/core';
 
 const BRANDS = ['nike', 'reebok', 'adidas'];
 
@@ -16,9 +17,9 @@ const SearchPage = () => {
 			<div className="pg-card">
 				<div className="pg-row">
 					{BRANDS.map(brand => (
-						<button
+						<Button
 							key={brand}
-							className="pg-btn"
+							variant="light"
 							onClick={() => {
 								const current = getSearchParams('brand');
 								const list = Array.isArray(current) ? current : current ? [current] : [];
@@ -29,11 +30,11 @@ const SearchPage = () => {
 							}}
 						>
 							{brand}
-						</button>
+						</Button>
 					))}
-					<button className="pg-btn" onClick={() => setSearchParams('page', '2')}>
+					<Button variant="light" onClick={() => setSearchParams('page', '2')}>
 						page=2
-					</button>
+					</Button>
 				</div>
 				<p>
 					URL query: <code>{searchParams.toString() || '(empty)'}</code>

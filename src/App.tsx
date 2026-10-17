@@ -48,8 +48,8 @@ const theme = createTheme({
 	colors: {
 		steelblue: [
 			'#f0f5f9',
-			'#dee9f2',
-			'#bdd3e5',
+			'#c7dbec',
+			'#abc8e3',
 			'#98bbd7',
 			'#73a2c9',
 			'#5a91bf',

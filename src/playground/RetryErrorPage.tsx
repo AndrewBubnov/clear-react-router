@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert } from '@mantine/core';
+import { Alert, Button } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState } from '../clear-router';
 
 const RetryErrorPage = () => {
@@ -24,9 +24,9 @@ const RetryErrorPage = () => {
 				page. Trying again runs a brand new fetch chain.
 			</p>
 			<div className="pg-row">
-				<button className="pg-btn" disabled={isRetrying} onClick={retry}>
+				<Button variant="light" disabled={isRetrying} onClick={retry}>
 					{isRetrying ? 'Retrying…' : 'Try again'}
-				</button>
+				</Button>
 				<Link to="/playground">← Back to playground home</Link>
 			</div>
 		</div>

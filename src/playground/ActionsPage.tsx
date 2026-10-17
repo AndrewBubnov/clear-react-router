@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert } from '@mantine/core';
+import { Alert, Button } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState, useSubmitAction } from '../clear-router';
 import type { Note } from './api';
 
@@ -23,12 +23,12 @@ const AddNoteForm = () => {
 				<div className="pg-row">
 					<input name="text" className="pg-input" placeholder="Note text" disabled={isSubmitting} />
 					<div className="pg-row">
-						<button className="pg-btn" disabled={isSubmitting}>
+						<Button variant="light" type="submit" disabled={isSubmitting}>
 							{isSubmitting ? 'Saving…' : 'Save'}
-						</button>
-						<button type="button" className="pg-btn" disabled={isRevalidating} onClick={refresh}>
+						</Button>
+						<Button variant="light" type="button" disabled={isRevalidating} onClick={refresh}>
 							{isRevalidating ? 'Refreshing…' : 'Refresh list (invalidate)'}
-						</button>
+						</Button>
 					</div>
 				</div>
 			</form>

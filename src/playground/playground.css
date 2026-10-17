@@ -98,10 +98,6 @@
 	margin: 12px 0;
 }
 
-.pg-btn-grid .pg-btn {
-	width: 100%;
-}
-
 .pg-details {
 	display: block;
 	margin-top: 8px;
@@ -178,22 +174,6 @@
 .pg-badge.err {
 	border-color: #d64545;
 	color: #d64545;
-}
-
-.pg-btn {
-	font: inherit;
-	font-size: 16px;
-	padding: 8px 16px;
-	border-radius: 8px;
-	border: 1px solid var(--accent-border);
-	background: var(--accent-bg);
-	color: var(--text-h);
-	cursor: pointer;
-}
-
-.pg-btn:disabled {
-	opacity: 0.5;
-	cursor: default;
 }
 
 .pg-input {
