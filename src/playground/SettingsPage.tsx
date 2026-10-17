@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader } from '@mantine/core';
+import { Loader, Slider } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
@@ -73,18 +73,19 @@ const SettingsPage = () => {
 					</Switch>
 				</div>
 				<div className="pg-row">
-					<input
-						type="range"
-						className="pg-range"
-						min={100}
-						max={2000}
-						step={50}
-						value={animationDuration ?? 500}
-						disabled={!isAnimated}
-						onChange={e => setAnimationDuration(Number(e.target.value))}
-						aria-label="Animation duration in milliseconds"
-					/>
-					<span className="pg-label-string">{`${animationDuration ? animationDuration : 500}ms`}</span>
+					<div className="pg-slider">
+						<Slider
+							min={100}
+							max={2000}
+							step={50}
+							value={animationDuration ?? 500}
+							disabled={!isAnimated}
+							onChange={setAnimationDuration}
+							label={v => `${v}ms`}
+							labelAlwaysOn
+							thumbLabel="Animation duration in milliseconds"
+						/>
+					</div>
 					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)}>
 						Reset to browser default
 					</button>
@@ -156,17 +157,18 @@ const SettingsPage = () => {
 				<h2>Min loader duration</h2>
 				<div className="pg-row pg-settings-loader-wrap">
 					<div className="pg-row">
-						<input
-							type="range"
-							className="pg-range"
-							min={0}
-							max={2000}
-							step={50}
-							value={minLoaderDuration}
-							onChange={e => setMinLoaderDuration(Number(e.target.value))}
-							aria-label="Min loader duration in milliseconds"
-						/>
-						<span className="pg-label-string">{`${minLoaderDuration ? minLoaderDuration : 'unset'}${minLoaderDuration ? 'ms' : ''}`}</span>
+						<div className="pg-slider">
+							<Slider
+								min={0}
+								max={2000}
+								step={50}
+								value={minLoaderDuration ?? 0}
+								onChange={setMinLoaderDuration}
+								label={v => (v ? `${v}ms` : 'unset')}
+								labelAlwaysOn
+								thumbLabel="Min loader duration in milliseconds"
+							/>
+						</div>
 					</div>
 					<SettingsLoader duration={minLoaderDuration} />
 				</div>

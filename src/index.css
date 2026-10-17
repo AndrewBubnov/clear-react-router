@@ -73,6 +73,8 @@
 
 body {
   margin: 0;
+  /* Mantine's layered baseline sets font-family/line-height on body; inherit keeps our :root typography. */
+  font: inherit;
 }
 
 h1,

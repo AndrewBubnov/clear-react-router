@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Alert } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState } from '../clear-router';
 
 const RetryErrorPage = () => {
@@ -17,7 +18,7 @@ const RetryErrorPage = () => {
 	return (
 		<div className="pg-wrap">
 			<h1>Retry</h1>
-			<div className="pg-error">{loaderError?.message ?? 'Load failed'}</div>
+			<Alert color="red">{loaderError?.message ?? 'Load failed'}</Alert>
 			<p className="pg-hint">
 				All attempts failed, retries included — so the router rendered <code>errorElement</code> instead of the
 				page. Trying again runs a brand new fetch chain.

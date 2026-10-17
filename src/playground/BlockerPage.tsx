@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Modal } from '@mantine/core';
 import { Link, useBlocker } from '../clear-router';
 
 const BlockerPage = () => {
@@ -27,22 +28,17 @@ const BlockerPage = () => {
 					<Link to="/playground">← Try leaving via this link</Link>
 				</p>
 			</div>
-			{state === 'blocked' && (
-				<div className="pg-dialog" role="alertdialog" aria-modal="true" aria-label="Unsaved changes">
-					<div className="pg-dialog-box">
-						<h2>Leave without saving?</h2>
-						<p>You have unsaved changes in the form.</p>
-						<div className="pg-row">
-							<button className="pg-btn" onClick={process}>
-								Leave
-							</button>
-							<button className="pg-btn" onClick={reset}>
-								Stay
-							</button>
-						</div>
-					</div>
+			<Modal opened={state === 'blocked'} onClose={reset} title="Leave without saving?" centered>
+				<p>You have unsaved changes in the form.</p>
+				<div className="pg-row">
+					<button className="pg-btn" onClick={process}>
+						Leave
+					</button>
+					<button className="pg-btn" onClick={reset}>
+						Stay
+					</button>
 				</div>
-			)}
+			</Modal>
 		</div>
 	);
 };

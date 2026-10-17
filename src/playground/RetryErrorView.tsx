@@ -1,3 +1,4 @@
+import { Alert } from '@mantine/core';
 import { Link, useLoaderState } from '../clear-router';
 
 const RetryErrorView = () => {
@@ -5,7 +6,7 @@ const RetryErrorView = () => {
 	return (
 		<div className="pg-wrap">
 			<h1>Retry</h1>
-			<div className="pg-error">{loaderError?.message ?? 'Load failed'}</div>
+			<Alert color="red">{loaderError?.message ?? 'Load failed'}</Alert>
 			<p className="pg-hint">
 				This twin route has <code>retry: 0</code>, so the failure above is final — the router rendered{' '}
 				<code>errorElement</code> instead of retrying.

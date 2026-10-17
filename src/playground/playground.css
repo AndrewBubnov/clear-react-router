@@ -306,34 +306,6 @@ button.pg-switch:focus-visible {
 	font-family: var(--mono), sans-serif;
 }
 
-.pg-dialog {
-	position: fixed;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(0, 0, 0, 0.4);
-	z-index: 100;
-}
-
-.pg-dialog-box {
-	background: var(--bg);
-	color: var(--text-h);
-	border: 1px solid var(--border);
-	border-radius: 12px;
-	padding: 24px 28px;
-	box-shadow: var(--shadow);
-	max-width: 380px;
-}
-
-.pg-error {
-	border: 1px solid #d64545;
-	color: #d64545;
-	border-radius: 8px;
-	padding: 10px 14px;
-	margin: 12px 0;
-}
-
 .pg-list {
 	padding-left: 20px;
 }
@@ -349,8 +321,13 @@ button.pg-switch:focus-visible {
 	transition: color ease-in-out 0.4s;
 }
 
-.pg-label-string {
-	padding-bottom: 3px;
+.pg-slider {
+	flex: 1;
+	min-width: 160px;
+}
+
+.pg-slider .mantine-Slider-label {
+	top: calc(-2.75rem * var(--mantine-scale));
 }
 
 .pg-settings-loader-wrap {
@@ -371,10 +348,6 @@ button.pg-switch:focus-visible {
 .pg-wrap a.pg-card-link {
 	color: inherit;
 	text-decoration: none;
-}
-
-.pg-range {
-	accent-color: steelblue;
 }
 
 .pg-radio {

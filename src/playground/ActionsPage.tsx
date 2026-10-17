@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Alert } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState, useSubmitAction } from '../clear-router';
 import type { Note } from './api';
 
@@ -31,7 +32,7 @@ const AddNoteForm = () => {
 					</div>
 				</div>
 			</form>
-			{error && <div className="pg-error">{error.message}</div>}
+			{error && <Alert color="red">{error.message}</Alert>}
 			<p className="pg-hint">
 				After a successful action the current route is invalidated automatically — the list below refreshes
 				without a full reload. The Refresh button calls <code>invalidate()</code> manually and does the same on

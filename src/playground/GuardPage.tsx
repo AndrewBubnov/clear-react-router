@@ -1,3 +1,4 @@
+import { Alert } from '@mantine/core';
 import { Link, useLocation, useRouterContext } from '../clear-router';
 
 const GuardPage = () => {
@@ -15,10 +16,10 @@ const GuardPage = () => {
 				guards itself and redirects here when unauthorized.
 			</p>
 			{from && !isAuthorized && (
-				<div className="pg-error">
+				<Alert color="red">
 					<code>{from}</code> requires login — you were redirected here by the route guard, with the origin
 					passed via navigation <code>state</code>.
-				</div>
+				</Alert>
 			)}
 			<div className="pg-card">
 				<p>

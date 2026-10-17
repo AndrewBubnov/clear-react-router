@@ -1,4 +1,4 @@
-import { Badge, MantineProvider } from '@mantine/core';
+import { Badge, MantineProvider, createTheme } from '@mantine/core';
 import { Router, useRouteStatus, type Status as RouteStatus } from './clear-router';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
@@ -43,9 +43,27 @@ const Status = () => {
 	);
 };
 
+const theme = createTheme({
+	primaryColor: 'steelblue',
+	colors: {
+		steelblue: [
+			'#f0f5f9',
+			'#dee9f2',
+			'#bdd3e5',
+			'#98bbd7',
+			'#73a2c9',
+			'#5a91bf',
+			'#4682b4',
+			'#3c709a',
+			'#336084',
+			'#294d6a',
+		],
+	},
+});
+
 const App = () => {
 	return (
-		<MantineProvider>
+		<MantineProvider theme={theme}>
 			<PlaygroundSettingsProvider>
 				<Shell />
 				<Status />
