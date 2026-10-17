@@ -1,5 +1,5 @@
-import { MantineProvider } from '@mantine/core';
-import { Router, useRouteStatus } from './clear-router';
+import { Badge, MantineProvider } from '@mantine/core';
+import { Router, useRouteStatus, type Status as RouteStatus } from './clear-router';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
@@ -24,16 +24,23 @@ const Shell = () => {
 	);
 };
 
-const STATUS_BADGE_MODIFIER: Record<string, string> = {
-	error: 'status-badge-error',
-	optimistic: 'status-badge-optimistic',
+const STATUS_COLOR: Record<RouteStatus, string> = {
+	idle: 'gray',
+	pending: 'blue',
+	active: 'teal',
+	optimistic: 'yellow',
+	error: 'red',
 };
 
 const Status = () => {
 	const status = useRouteStatus();
 	const { showStatusBadge } = usePlaygroundSettings();
 	if (!showStatusBadge) return null;
-	return <div className={`status-badge ${STATUS_BADGE_MODIFIER[status] ?? ''}`}>{status}</div>;
+	return (
+		<Badge className="status-badge" color={STATUS_COLOR[status]} size="lg" radius="xl">
+			{status}
+		</Badge>
+	);
 };
 
 const App = () => {

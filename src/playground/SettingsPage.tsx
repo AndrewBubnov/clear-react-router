@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Loader } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
@@ -36,7 +37,7 @@ const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
 		timeout.current = window.setTimeout(() => setIsLoading(false), duration);
 		return () => window.clearTimeout(timeout.current);
 	}, [duration]);
-	return isLoading ? <span className="loader" /> : null;
+	return isLoading ? <Loader size="sm" /> : null;
 };
 
 const SettingsPage = () => {
