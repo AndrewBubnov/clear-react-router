@@ -324,7 +324,7 @@
 }
 
 .pg-card-link {
-	display: block;
+	display: grid;
 	color: inherit;
 }
 
