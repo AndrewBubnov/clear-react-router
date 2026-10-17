@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader, Slider, Switch } from '@mantine/core';
+import { Loader, Slider, Switch, Tooltip } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
@@ -74,19 +74,21 @@ const SettingsPage = () => {
 					/>
 				</div>
 				<div className="pg-row">
-					<div className="pg-slider">
-						<Slider
-							min={100}
-							max={2000}
-							step={50}
-							value={animationDuration ?? 500}
-							disabled={!isAnimated}
-							onChange={setAnimationDuration}
-							label={v => `${v}ms`}
-							labelAlwaysOn
-							thumbLabel="Animation duration in milliseconds"
-						/>
-					</div>
+					<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
+						<div className="pg-slider">
+							<Slider
+								min={100}
+								max={2000}
+								step={50}
+								value={animationDuration ?? 500}
+								disabled={!isAnimated}
+								onChange={setAnimationDuration}
+								label={v => `${v}ms`}
+								labelAlwaysOn
+								thumbLabel="Animation duration in milliseconds"
+							/>
+						</div>
+					</Tooltip>
 					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)}>
 						Reset to browser default
 					</button>
