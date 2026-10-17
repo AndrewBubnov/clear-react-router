@@ -89,7 +89,7 @@ const SettingsPage = () => {
 							/>
 						</div>
 					</Tooltip>
-					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)}>
+					<button className="pg-btn" onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated}>
 						Reset to browser default
 					</button>
 				</div>
