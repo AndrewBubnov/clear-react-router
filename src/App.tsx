@@ -1,3 +1,4 @@
+import { MantineProvider } from '@mantine/core';
 import { Router, useRouteStatus } from './clear-router';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
@@ -37,10 +38,12 @@ const Status = () => {
 
 const App = () => {
 	return (
-		<PlaygroundSettingsProvider>
-			<Shell />
-			<Status />
-		</PlaygroundSettingsProvider>
+		<MantineProvider>
+			<PlaygroundSettingsProvider>
+				<Shell />
+				<Status />
+			</PlaygroundSettingsProvider>
+		</MantineProvider>
 	);
 };
 

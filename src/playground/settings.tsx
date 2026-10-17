@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import type { RouterProps } from '../clear-router';
 import { SettingsContext } from './settings-context';
+import type { NavLinkAs } from './NavLinkAs';
 
 export type PrefetchSetting = 'auto' | NonNullable<RouterProps['defaultPrefetch']>;
 
@@ -11,6 +12,7 @@ export type PlaygroundSettings = {
 	maxCacheSize: number;
 	defaultPrefetch: PrefetchSetting;
 	minLoaderDuration: number | undefined;
+	navLinkAs: NavLinkAs;
 };
 
 export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }) => {
@@ -20,6 +22,7 @@ export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }
 	const [maxCacheSize, setMaxCacheSize] = useState(3);
 	const [defaultPrefetch, setDefaultPrefetch] = useState<PrefetchSetting>('auto');
 	const [minLoaderDuration, setMinLoaderDuration] = useState<number | undefined>(0);
+	const [navLinkAs, setNavLinkAs] = useState<NavLinkAs>('link');
 	const value = useMemo(
 		() => ({
 			isAnimated,
@@ -34,8 +37,10 @@ export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }
 			setDefaultPrefetch,
 			minLoaderDuration,
 			setMinLoaderDuration,
+			navLinkAs,
+			setNavLinkAs,
 		}),
-		[isAnimated, animationDuration, maxCacheSize, showStatusBadge, defaultPrefetch, minLoaderDuration]
+		[isAnimated, animationDuration, maxCacheSize, showStatusBadge, defaultPrefetch, minLoaderDuration, navLinkAs]
 	);
 	return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

@@ -1,6 +1,17 @@
+import type { ReactNode } from 'react';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
+import { NAV_LINK_AS } from './NavLinkAs';
+
+const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; children: ReactNode }) => {
+	const { navLinkAs } = usePlaygroundSettings();
+	return (
+		<Link to={to} exact={exact} as={NAV_LINK_AS[navLinkAs]} className="pg-nav-link">
+			{children}
+		</Link>
+	);
+};
 
 export const PlaygroundNav = () => {
 	const { isAnimated, setIsAnimated } = usePlaygroundSettings();
@@ -34,21 +45,21 @@ export const PlaygroundNav = () => {
 				</div>
 			</div>
 			<nav className="pg-nav" aria-label="Playground">
-				<Link to="/playground" exact>
+				<NavLink to="/playground" exact>
 					Home
-				</Link>
-				<Link to="/playground/cache">Cache</Link>
-				<Link to="/playground/retry">Retry</Link>
-				<Link to="/playground/retry-raw">No-retry</Link>
-				<Link to="/playground/actions">Actions</Link>
-				<Link to="/playground/blocker">Blocker</Link>
-				<Link to="/playground/prefetch">Prefetch</Link>
-				<Link to="/playground/optimistic">Optimistic</Link>
-				<Link to="/playground/guard">Guards</Link>
-				<Link to="/playground/nest">Nested</Link>
-				<Link to="/playground/live">Live</Link>
-				<Link to="/playground/scroll">Scroll</Link>
-				<Link to="/playground/search">Search</Link>
+				</NavLink>
+				<NavLink to="/playground/cache">Cache</NavLink>
+				<NavLink to="/playground/retry">Retry</NavLink>
+				<NavLink to="/playground/retry-raw">No-retry</NavLink>
+				<NavLink to="/playground/actions">Actions</NavLink>
+				<NavLink to="/playground/blocker">Blocker</NavLink>
+				<NavLink to="/playground/prefetch">Prefetch</NavLink>
+				<NavLink to="/playground/optimistic">Optimistic</NavLink>
+				<NavLink to="/playground/guard">Guards</NavLink>
+				<NavLink to="/playground/nest">Nested</NavLink>
+				<NavLink to="/playground/live">Live</NavLink>
+				<NavLink to="/playground/scroll">Scroll</NavLink>
+				<NavLink to="/playground/search">Search</NavLink>
 			</nav>
 		</div>
 	);

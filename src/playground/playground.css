@@ -16,14 +16,14 @@
 	border-bottom: 1px solid var(--border);
 }
 
-.pg-nav a {
+.pg-nav-link {
 	padding: 6px 12px;
 	border-radius: 6px;
 	font-size: 15px;
 }
 
 @media (hover: hover) {
-	.pg-nav a:hover {
+	.pg-nav-link:hover {
 		background: var(--accent-bg);
 	}
 }

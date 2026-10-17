@@ -3,6 +3,7 @@ import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { Switch } from './Switch';
 import type { PrefetchSetting } from './settings';
+import type { NavLinkAs } from './NavLinkAs';
 
 const CACHE_PRESETS = [
 	{ value: 3, label: '3 (lab)' },
@@ -16,6 +17,12 @@ const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'viewport', label: 'viewport' },
 	{ value: 'render', label: 'render' },
 	{ value: 'none', label: 'none' },
+];
+
+const NAV_LINK_PRESETS: { value: NavLinkAs; label: string }[] = [
+	{ value: 'link', label: 'Link (plain <a>)' },
+	{ value: 'mui', label: 'MUI Button' },
+	{ value: 'mantine', label: 'Mantine Button' },
 ];
 
 const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
@@ -46,6 +53,8 @@ const SettingsPage = () => {
 		setDefaultPrefetch,
 		minLoaderDuration,
 		setMinLoaderDuration,
+		navLinkAs,
+		setNavLinkAs,
 	} = usePlaygroundSettings();
 
 	return (
@@ -119,6 +128,27 @@ const SettingsPage = () => {
 					Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
 					<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
 					<code>prefetch</code> prop (like the lab links) are unaffected.
+				</p>
+			</div>
+			<div className="pg-card">
+				<h2>Nav link element</h2>
+				<div className="pg-row" role="radiogroup" aria-label="Nav link element">
+					{NAV_LINK_PRESETS.map(preset => (
+						<label key={preset.value} className="pg-radio">
+							<input
+								type="radio"
+								name="nav-link-as"
+								checked={navLinkAs === preset.value}
+								onChange={() => setNavLinkAs(preset.value)}
+							/>
+							{preset.label}
+						</label>
+					))}
+				</div>
+				<p className="pg-hint">
+					Renders every menu link through Link's <code>as</code> prop: a plain <code>&lt;a&gt;</code>, a real
+					MUI <code>Button</code>, or a real Mantine <code>Button</code>. The router drives the same
+					navigation, active and pending states in all three.
 				</p>
 			</div>
 			<div className="pg-card pg-card-short">

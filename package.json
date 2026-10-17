@@ -15,6 +15,11 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mantine/core": "^9.7.2",
+    "@mantine/hooks": "^9.7.2",
+    "@mui/material": "^9.5.0",
     "lorem-ipsum": "^3.0.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
@@ -36,6 +41,9 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "postcss": "^8.5.30",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.8.3",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.59.2",
