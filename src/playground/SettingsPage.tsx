@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader, Slider } from '@mantine/core';
+import { Loader, Slider, Switch } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
-import { Switch } from './Switch';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';
 
@@ -68,9 +67,11 @@ const SettingsPage = () => {
 			<div className="pg-card">
 				<h2>Page transitions</h2>
 				<div className="pg-row">
-					<Switch checked={isAnimated} onCheckedChange={setIsAnimated}>
-						<span>animated transitions</span>
-					</Switch>
+					<Switch
+						label="animated transitions"
+						checked={isAnimated}
+						onChange={e => setIsAnimated(e.currentTarget.checked)}
+					/>
 				</div>
 				<div className="pg-row">
 					<div className="pg-slider">
@@ -181,9 +182,11 @@ const SettingsPage = () => {
 			<div className="pg-card pg-card-short">
 				<h2>Show status badge</h2>
 				<div className="pg-row">
-					<Switch checked={showStatusBadge} onCheckedChange={setShowStatusBadge}>
-						<span>show badge</span>
-					</Switch>
+					<Switch
+						label="show badge"
+						checked={showStatusBadge}
+						onChange={e => setShowStatusBadge(e.currentTarget.checked)}
+					/>
 				</div>
 			</div>
 			<p>

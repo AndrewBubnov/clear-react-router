@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
+import { Switch } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
-import { Switch } from './Switch';
 import { NAV_LINK_AS } from './NavLinkAs';
 
 const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; children: ReactNode }) => {
@@ -27,9 +27,12 @@ export const PlaygroundNav = () => {
 					<div className="pg-brand">Clear Router playground</div>
 				</a>
 				<div className="pg-brand-controls">
-					<Switch checked={isAnimated} onCheckedChange={setIsAnimated}>
-						<span>animated</span>
-					</Switch>
+					<Switch
+						size="sm"
+						label="animated"
+						checked={isAnimated}
+						onChange={e => setIsAnimated(e.currentTarget.checked)}
+					/>
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link">
 						<svg
 							className="pg-gear"
