@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { useEffect, type ReactNode } from 'react';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import { Router, Link, createRouter, useLoaderState, useLocation, useRouteStatus } from '../..';
 import { routes } from '../common';
 
@@ -440,6 +441,94 @@ describe('polling renders', () => {
 			expect(loaderRenders).toBeGreaterThan(0);
 			expect(statusRenders).toBe(0);
 			expect(locationRenders).toBe(0);
+		},
+		TEST_TIMEOUT
+	);
+});
+
+describe('layout rendering', () => {
+	beforeEach(() => {
+		window.history.pushState({}, '', '/');
+	});
+
+	it(
+		'wraps the matched element in the route layout',
+		async () => {
+			const Layout = ({ children }: { children: ReactNode }) => (
+				<div data-testid="layout">
+					<nav>Chrome</nav>
+					{children}
+				</div>
+			);
+			const localRoutes = createRouter([{ path: '/', element: <div>Layout Home</div>, layout: Layout }]);
+			render(<Router routes={localRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Layout Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			const layout = screen.getByTestId('layout');
+			expect(within(layout).getByText(/Chrome/i)).toBeInTheDocument();
+			expect(within(layout).getByText(/Layout Home/i)).toBeInTheDocument();
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'inherits layout to children and keeps it mounted across child navigation',
+		async () => {
+			let layoutMounts = 0;
+			const Layout = ({ children }: { children: ReactNode }) => {
+				useEffect(() => {
+					layoutMounts += 1;
+				}, []);
+				return <div data-testid="layout">{children}</div>;
+			};
+			const localRoutes = createRouter([
+				{
+					path: '/parent',
+					element: <div>Parent</div>,
+					layout: Layout,
+					children: [
+						{
+							path: '/a',
+							element: (
+								<div>
+									Child A
+									<Link to="/parent/b">
+										<span>To B</span>
+									</Link>
+								</div>
+							),
+						},
+						{ path: '/b', element: <div>Child B</div> },
+					],
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			window.history.pushState({}, '', '/parent/a');
+			render(<Router routes={localRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Child A/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			const mountsAfterInitialRender = layoutMounts;
+			expect(screen.getByTestId('layout')).toBeInTheDocument();
+			expect(layoutMounts).toBeGreaterThan(0);
+
+			screen.getByText('To B').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Child B/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			expect(layoutMounts).toBe(mountsAfterInitialRender);
 		},
 		TEST_TIMEOUT
 	);

@@ -7,20 +7,26 @@ const isLazy = (component: unknown): component is LazyComponent =>
 const resolve = (component: RenderElement | LazyComponent | undefined, fallback: RenderElement): RenderElement =>
 	isLazy(component) ? createLazyComponent(component.importFn, fallback).Component : component;
 
-const parseClientRouteItem = (el: ClientRouteItem, parentPattern = ''): RouteItem[] => {
+const parseClientRouteItem = (
+	el: ClientRouteItem,
+	parentPattern = '',
+	inheritedLayout?: RenderElement
+): RouteItem[] => {
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
 	const preloadElement = isLazy(el.element)
 		? createLazyComponent(el.element.importFn, el.fallback).preloadElement
 		: undefined;
+	const layout = el.layout ?? inheritedLayout;
 	const currentRoute: RouteItem = {
 		...el,
 		pattern,
 		element: resolve(el.element, el.fallback),
 		errorElement: resolve(el.errorElement, el.fallback),
 		preloadElement,
+		layout,
 	};
 
-	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, pattern)) ?? [];
+	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, pattern, layout)) ?? [];
 
 	return [currentRoute, ...childRoutes];
 };

@@ -37,6 +37,7 @@ export type ClientRouteItem = {
 	loaderFallback?: RenderElement;
 	errorElement?: RenderElement | LazyComponent;
 	fallback?: RenderElement;
+	layout?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
 	gcTime?: number;

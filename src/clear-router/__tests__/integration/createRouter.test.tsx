@@ -126,4 +126,56 @@ describe('createRouter', () => {
 		expect(result).toHaveLength(1);
 		expect(result[0].pattern).toBe('/parent');
 	});
+
+	it('inherits layout from parent to all descendants', () => {
+		const Layout = () => <div />;
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/parent',
+				element: TestElement,
+				layout: Layout,
+				children: [
+					{
+						path: '/child',
+						element: TestElement,
+						children: [{ path: '/grand', element: TestElement }],
+					},
+				],
+			},
+		];
+
+		const result = createRouter(routes);
+		expect(result[0].layout).toBe(Layout);
+		expect(result[1].layout).toBe(Layout);
+		expect(result[2].layout).toBe(Layout);
+	});
+
+	it('lets a child override the inherited layout', () => {
+		const ParentLayout = () => <div />;
+		const ChildLayout = () => <div />;
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/parent',
+				element: TestElement,
+				layout: ParentLayout,
+				children: [{ path: '/child', element: TestElement, layout: ChildLayout }],
+			},
+		];
+
+		const result = createRouter(routes);
+		expect(result[0].layout).toBe(ParentLayout);
+		expect(result[1].layout).toBe(ChildLayout);
+	});
+
+	it('does not leak layout to sibling top-level routes', () => {
+		const Layout = () => <div />;
+		const routes: ClientRouteItem[] = [
+			{ path: '/a', element: TestElement, layout: Layout },
+			{ path: '/b', element: TestElement },
+		];
+
+		const result = createRouter(routes);
+		expect(result[0].layout).toBe(Layout);
+		expect(result[1].layout).toBeUndefined();
+	});
 });
