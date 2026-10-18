@@ -69,20 +69,20 @@ export const Router = ({
 
 	const loadingContent = isLoading && !isError;
 
-	if (loadingContent) return renderElement(routeItem?.loaderFallback || defaultLoaderFallback);
-
-	if (!routeItem) return null;
-
-	if (isError) return renderElement(routeItem.errorElement || defaultErrorElement);
+	if (!routeItem) return renderElement(loadingContent ? defaultLoaderFallback : undefined);
 
 	const Boundary = ErrorBoundary as ComponentType<{ children: ReactNode }>;
 	const Layout = (routeItem.layout ?? Fragment) as ComponentType<{ children: ReactNode }>;
 
+	const content = loadingContent
+		? renderElement(routeItem.loaderFallback || defaultLoaderFallback)
+		: isError
+			? renderElement(routeItem.errorElement || defaultErrorElement)
+			: <Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>;
+
 	return (
 		<div style={{ viewTransitionName: 'page' }}>
-			<Layout>
-				<Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>
-			</Layout>
+			<Layout>{content}</Layout>
 		</div>
 	);
 };

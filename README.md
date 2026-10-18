@@ -25,6 +25,7 @@ It provides first-class support for:
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
+- **Route Layouts** - A `layout` declared on a route wraps it *and* every descendant, keeping shared chrome and state alive across nested navigation
 - **Data Loading** - Built-in loaders with TTL-based caching (`staleTime`)
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
@@ -93,6 +94,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
+| `layout` | Component that accepts `children` | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` replaces the inherited one (see [Layouts](#layouts)) |
 | `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
 | `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, searchParams }) => Promise<void> \| void` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
@@ -139,6 +141,39 @@ see [`redirect`](#redirect) for details on programmatic redirects
 ```
 > **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
 If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
+
+### Layouts
+
+A route can declare a `layout`: a component that wraps the route's element and is **inherited by every descendant route**. Use it for chrome and state that must survive navigation within a subtree — a section navbar, tabs, a scroll container, a wizard.
+
+```tsx
+const SectionLayout = ({ children }: { children: ReactNode }) => (
+  <div className="section">
+    <SectionNav />
+    {children}
+  </div>
+);
+
+const routes = createRouter([
+  {
+    path: '/settings',
+    element: <SettingsHome />,
+    layout: SectionLayout, // applies to /settings and everything under it
+    children: [
+      { path: '/profile', element: <Profile /> },
+      { path: '/billing', element: <Billing />, layout: BillingLayout }, // replaces the inherited layout
+    ],
+  },
+]);
+```
+
+Semantics to know:
+
+- **Inherited, not stacked.** Declare the layout once on the parent; it is passed down recursively to all descendants. A descendant that declares its own `layout` **replaces** the inherited one — layouts never nest automatically. If you need two wrappers, render both inside a single layout component.
+- **Survives child navigation**, including navigations that run a `loader` (the layout stays mounted, only the route element below it swaps). Its state and DOM identity are preserved.
+- **Pass a stable reference.** Define the layout at module scope (or keep it stable with `useCallback`). An inline component recreated on each render changes identity and remounts the layout on every navigation.
+- **It's a component, not an element** — it receives `children`, so pass `SectionLayout`, not `<SectionLayout />`. The `lazy()` wrapper is not resolved for layouts; use a plain component.
+- **First frame.** Until the initial route resolves there is no matched route yet, so the layout is not rendered on the very first loading frame (only the `defaultLoaderFallback` is).
 
 ### `Link`
 

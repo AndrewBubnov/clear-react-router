@@ -1,6 +1,7 @@
 import { createRouter, lazy } from '../clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
 import { Loading } from './Loading';
+import { NestLayout } from './NestLayout';
 import {
 	HEAVY_GC_TIME,
 	addNote,
@@ -77,6 +78,7 @@ export const playgroundRoutes = createRouter([
 	{
 		path: '/playground/nest',
 		element: lazy(() => import('./NestPage')),
+		layout: NestLayout,
 		children: [
 			{
 				path: '/:nestId',

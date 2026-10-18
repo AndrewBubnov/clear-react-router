@@ -532,4 +532,64 @@ describe('layout rendering', () => {
 		},
 		TEST_TIMEOUT
 	);
+
+	it(
+		'keeps the layout mounted across a loader navigation',
+		async () => {
+			const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+			let layoutMounts = 0;
+			const Layout = ({ children }: { children: ReactNode }) => {
+				useEffect(() => {
+					layoutMounts += 1;
+				}, []);
+				return <div data-testid="layout">{children}</div>;
+			};
+			const localRoutes = createRouter([
+				{
+					path: '/parent',
+					element: (
+						<div>
+							Parent
+							<Link to="/parent/b">
+								<span>To B</span>
+							</Link>
+						</div>
+					),
+					layout: Layout,
+					children: [
+						{
+							path: '/b',
+							element: <div>Child B</div>,
+							loader: async () => {
+								await sleep(200);
+								return 'b';
+							},
+						},
+					],
+				},
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			window.history.pushState({}, '', '/parent');
+			render(<Router routes={localRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Parent/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			const mountsBeforeNavigation = layoutMounts;
+			expect(mountsBeforeNavigation).toBeGreaterThan(0);
+
+			screen.getByText('To B').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Child B/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			expect(layoutMounts).toBe(mountsBeforeNavigation);
+		},
+		TEST_TIMEOUT
+	);
 });

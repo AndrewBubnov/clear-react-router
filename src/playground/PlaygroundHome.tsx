@@ -77,7 +77,7 @@ const demos = [
 	{
 		to: '/playground/nest',
 		title: 'Nested routes + params',
-		text: 'Double-nested children with params at each level, random IDs, per-param loaders cached separately.',
+		text: 'Double-nested children with params at each level, random IDs, per-param loaders cached separately, and a shared route layout that keeps its state across nested navigation.',
 	},
 	{
 		to: '/playground/guard',
