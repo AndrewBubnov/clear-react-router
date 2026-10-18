@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useInvalidate, useLoaderState, useRouterContext } from '../clear-router';
-import { Button, RingProgress, Stack, Text } from '@mantine/core';
+import { Button, Modal, RingProgress, Stack, Text } from '@mantine/core';
 import { getCallCount, HEAVY_GC_TIME } from './api';
+import { usePlaygroundSettings } from './usePlaygroundSettings';
+import { isMobileViewport } from './utils.ts';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
 
@@ -28,45 +30,44 @@ const stringifyLoaderState = (data: unknown, loaderError: Error | null, beforeLo
 
 const InvalidateLab = () => {
 	const invalidate = useInvalidate();
-	const [lastResult, setLastResult] = useState<InvalidateEntry[] | null>(null);
+	const { maxCacheSize } = usePlaygroundSettings();
+	const [opened, setOpened] = useState(false);
+	const [lastResult, setLastResult] = useState<InvalidateEntry[]>([]);
+
+	const run = (result: Promise<InvalidateEntry[]>) =>
+		result.then(entries => {
+			setLastResult(entries);
+			setOpened(true);
+		});
 
 	return (
 		<div className="pg-card">
 			<h2>Invalidation lab</h2>
 			<p>
-				Each button revalidates and shows per-entry results. The counters below tell whether a fetch actually
-				ran. Watch the network tab too.
+				Each button revalidates and opens a dialog with per-entry results. The counters below tell whether a
+				fetch actually ran. Watch the network tab too.
 			</p>
 			<p>
 				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
 			<div className="pg-btn-grid">
-				<Button onClick={() => invalidate().then(setLastResult)} variant="light">
+				<Button variant="light" onClick={() => run(invalidate())}>
 					Refetch this page
 				</Button>
-				<Button variant="light" onClick={() => invalidate('/playground/product/1').then(setLastResult)}>
+				<Button variant="light" onClick={() => run(invalidate('/playground/product/1'))}>
 					Refetch product 1
 				</Button>
-				<Button
-					variant="light"
-					onClick={() => invalidate('/playground/cache', { staleOnly: true }).then(setLastResult)}
-				>
+				<Button variant="light" onClick={() => run(invalidate('/playground/cache', { staleOnly: true }))}>
 					Touch only stale entries
 				</Button>
-				<Button variant="light" onClick={() => invalidate('/playground/retry-raw').then(setLastResult)}>
+				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw'))}>
 					Refetch the failing route
 				</Button>
-				<Button
-					variant="light"
-					onClick={() => invalidate('/playground/retry-raw', { force: false }).then(setLastResult)}
-				>
+				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw', { force: false }))}>
 					Skip uncached entries
 				</Button>
-				<Button
-					variant="light"
-					onClick={() => invalidate('/playground/nest', { withChildren: true }).then(setLastResult)}
-				>
+				<Button variant="light" onClick={() => run(invalidate('/playground/nest', { withChildren: true }))}>
 					Refetch nest subtree
 				</Button>
 			</div>
@@ -78,38 +79,38 @@ const InvalidateLab = () => {
 				the route plus all nested children — open any nest and item first so there is something cached, then
 				watch both entries refresh at once.
 			</p>
-			{lastResult === null ? (
-				<p className="pg-hint">press a button</p>
-			) : lastResult.length === 0 ? (
-				<p className="pg-hint">no matching cache entries — nothing was revalidated</p>
-			) : (
-				<>
-					<ul className="pg-list">
-						{lastResult.map(entry => (
-							<li key={entry.path}>
-								<span className="pg-badge">{entry.path}</span>{' '}
-								{entry.error ? (
-									<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
-								) : entry.data === undefined ? (
-									<span className="pg-badge">no loader</span>
-								) : (
-									<>
-										<span className="pg-badge ok">ok</span>{' '}
-										<span className="pg-badge">{previewData(entry.data)}</span>
-									</>
-								)}
-							</li>
-						))}
-					</ul>
-					{lastResult.every(entry => entry.data === undefined && !entry.error) && (
-						<p className="pg-hint">
-							Nothing cached under this route yet — open any nest and an item first (that fills the
-							cache), then press again. Note the tiny <code>maxCacheSize: 3</code>: hovering menu links
-							prefetches in the background and may evict entries before you press.
-						</p>
-					)}
-				</>
-			)}
+			<Modal opened={opened} onClose={() => setOpened(false)} title="Invalidation results" centered>
+				{lastResult.length === 0 ? (
+					<p className="pg-hint">no matching cache entries — nothing was revalidated</p>
+				) : (
+					<>
+						<ul className="pg-list">
+							{lastResult.map(entry => (
+								<li key={entry.path}>
+									<span className="pg-badge">{entry.path}</span>{' '}
+									{entry.error ? (
+										<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
+									) : entry.data === undefined ? (
+										<span className="pg-badge">no loader</span>
+									) : (
+										<>
+											<span className="pg-badge ok">ok</span>{' '}
+											<span className="pg-badge">{previewData(entry.data)}</span>
+										</>
+									)}
+								</li>
+							))}
+						</ul>
+						{lastResult.every(entry => entry.data === undefined && !entry.error) && (
+							<p className="pg-hint">
+								Nothing cached under this route yet — open any nest and an item first (that fills the
+								cache), then press again. Note <code>maxCacheSize: {maxCacheSize}</code>: hovering menu
+								links prefetches in the background and may evict entries before you press.
+							</p>
+						)}
+					</>
+				)}
+			</Modal>
 		</div>
 	);
 };
@@ -149,13 +150,20 @@ const GcCountdown = () => {
 
 const CachePage = () => {
 	const { data, loaderError, beforeLoadError } = useLoaderState<string>();
+	const { maxCacheSize, defaultPrefetch } = usePlaygroundSettings();
 	const loadError = loaderError ?? beforeLoadError;
+	// viewport/render prefetch the loader-backed menu links on mount, so the tiny cache is already full
+	// before the eviction steps below can be followed.
+	const prefetchFloodsCache =
+		defaultPrefetch === 'viewport' ||
+		defaultPrefetch === 'render' ||
+		(defaultPrefetch === 'auto' && isMobileViewport);
 	return (
 		<div className="pg-wrap">
 			<h1>Cache: eviction, gcTime, invalidation</h1>
 			<p className="pg-hint">
-				This playground runs with a tiny <code>maxCacheSize: 3</code>, so eviction is easy to observe. For a
-				deterministic run, reload the page first, then follow the steps.
+				This playground runs with <code>maxCacheSize: {maxCacheSize}</code> (change it on the settings page).
+				For a deterministic run, reload the page first, then follow the steps.
 			</p>
 			<div className="pg-card">
 				<h2>This page itself is cached</h2>
@@ -182,17 +190,44 @@ const CachePage = () => {
 			</div>
 			<div className="pg-card">
 				<h2>LRU eviction</h2>
-				<p>
-					Open products 1 – 4 in order, then go back to 1. Product 1 was evicted (reloads with a fallback
-					flash), product 3 is still cached (instant).
-				</p>
-				<div className="pg-row pg-items-row">
-					{PRODUCT_IDS.map(id => (
-						<Link key={id} to={`/playground/product/${id}`} prefetch="none">
-							#{id}
-						</Link>
-					))}
-				</div>
+				{prefetchFloodsCache ? (
+					<p className="pg-hint">
+						With the <code>{defaultPrefetch}</code> prefetch strategy, the loader-backed menu links prefetch
+						on mount and fill the tiny cache before you open anything — the eviction order below is not
+						observable. Switch the prefetch strategy to <code>none</code> (or <code>hover</code>) on the
+						settings page and come back.
+					</p>
+				) : (
+					<>
+						<p>
+							{maxCacheSize > 3 ? (
+								<>
+									Products share the cache with this page&apos;s own loader entry, and LRU only evicts
+									once every slot is taken — with <code>maxCacheSize: {maxCacheSize}</code> you would
+									need to open {maxCacheSize} distinct products before the oldest one drops out. Pick
+									the <code>3 (lab)</code> preset on the settings page to watch eviction in a few
+									clicks.
+								</>
+							) : (
+								<>
+									Open products #1 → #4 in order, returning to this page in between. Because this
+									page&apos;s own entry holds one slot, only the two most recent products stay cached:
+									#1 drops out as soon as you open #3, #2 when you open #4. Each visit back here also
+									refreshes this page&apos;s recency, so it never gets evicted first. Revisiting an
+									evicted product reloads it (fallback flash); the most recent one renders instantly
+									from cache.
+								</>
+							)}
+						</p>
+						<div className="pg-row pg-items-row">
+							{PRODUCT_IDS.map(id => (
+								<Link key={id} to={`/playground/product/${id}`} prefetch="none">
+									#{id}
+								</Link>
+							))}
+						</div>
+					</>
+				)}
 			</div>
 			<div className="pg-card">
 				<h2>gcTime</h2>

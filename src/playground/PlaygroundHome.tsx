@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { NavLinkAs } from './NavLinkAs';
+import { isMobileViewport } from './utils.ts';
 
 const NAV_LINK_LABELS: Record<NavLinkAs, string> = {
 	link: 'Link',
@@ -39,6 +40,11 @@ const demos = [
 		text: 'Router settings applied live: transitions, animation duration, cache size.',
 	},
 	{
+		to: '/playground/cache',
+		title: 'Cache: eviction, gcTime, invalidate',
+		text: 'LRU eviction with tiny maxCacheSize, gcTime cleanup and an invalidation lab with live results.',
+	},
+	{
 		to: '/playground/retry',
 		title: 'Retry',
 		text: 'Flaky loader (fails ~50%) with automatic retry + attempt counter. Compare with the no-retry twin.',
@@ -59,19 +65,14 @@ const demos = [
 		text: 'Dirty form + useBlocker dialog. Try links and the browser Back button.',
 	},
 	{
-		to: '/playground/prefetch',
-		title: 'Prefetch',
-		text: 'Slow loader + hover prefetch: load instantly on click, loader runs exactly once.',
-	},
-	{
 		to: '/playground/optimistic',
 		title: 'Optimistic navigation',
 		text: 'Stale cached data renders instantly while fresh data revalidates in the background.',
 	},
 	{
-		to: '/playground/cache',
-		title: 'Cache: eviction, gcTime, invalidate',
-		text: 'LRU eviction with tiny maxCacheSize, gcTime cleanup and an invalidation lab with live results.',
+		to: '/playground/prefetch',
+		title: 'Prefetch',
+		text: 'Slow loader + hover prefetch: load instantly on click, loader runs exactly once.',
 	},
 	{
 		to: '/playground/nest',
@@ -79,14 +80,14 @@ const demos = [
 		text: 'Double-nested children with params at each level, random IDs, per-param loaders cached separately.',
 	},
 	{
-		to: '/playground/search',
-		title: 'Search params',
-		text: 'Filter via useSearchParams — single values and arrays, URL updates as you type.',
-	},
-	{
 		to: '/playground/guard',
 		title: 'Route guards',
 		text: 'beforeLoad checks with redirects — auth toggle as an example, origin passed via navigation state.',
+	},
+	{
+		to: '/playground/search',
+		title: 'Search params',
+		text: 'Filter via useSearchParams — single values and arrays, URL updates as you type.',
 	},
 	{
 		to: '/playground/scroll',
@@ -95,38 +96,30 @@ const demos = [
 	},
 ];
 
-export const PlaygroundHome = () => {
-	// Mirrors the library's isMobile(): menu links prefetch on mount for these visitors,
-	// so loader counters below may grow before anything is tapped.
-	const isMobileViewport =
-		typeof window !== 'undefined' &&
-		window.matchMedia('(pointer: coarse)').matches &&
-		window.matchMedia('(max-width: 768px)').matches;
-	return (
-		<div className="pg-wrap">
-			<h1>Clear Router Playground</h1>
-			<p>
-				Live demo of data loading, cache and navigation features. Every card below is a working route — open
-				devtools network tab and click around. Router settings (transitions, animation duration, cache size,
-				etc.) can be tweaked live on the <Link to="/playground/settings">settings</Link> page.
+export const PlaygroundHome = () => (
+	<div className="pg-wrap">
+		<h1>Clear Router Playground</h1>
+		<p>
+			Live demo of data loading, cache and navigation features. Every card below is a working route — open
+			devtools network tab and click around. Router settings (transitions, animation duration, cache size, etc.)
+			can be tweaked live on the <Link to="/playground/settings">settings</Link> page.
+		</p>
+		{isMobileViewport && (
+			<p className="pg-hint">
+				You&apos;re browsing with a mobile viewport: menu links prefetch as soon as they appear (the{' '}
+				<code>viewport</code> strategy), so loader counters may grow before you tap anything. The strategy can
+				be switched live on the <Link to="/playground/settings">settings page</Link>.
 			</p>
-			{isMobileViewport && (
-				<p className="pg-hint">
-					You&apos;re browsing with a mobile viewport: menu links prefetch as soon as they appear (the{' '}
-					<code>viewport</code> strategy), so loader counters may grow before you tap anything. The strategy
-					can be switched live on the <Link to="/playground/settings">settings page</Link>.
-				</p>
-			)}
-			<div className="pg-home-grid">
-				{demos.map(d => (
-					<Link key={d.to} to={d.to} className="pg-card-link">
-						<div className="pg-card pg-card-home">
-							<h2>{d.title}</h2>
-							{d.to === '/playground/settings' ? <SettingsSummary /> : <p>{d.text}</p>}
-						</div>
-					</Link>
-				))}
-			</div>
+		)}
+		<div className="pg-home-grid">
+			{demos.map(d => (
+				<Link key={d.to} to={d.to} className="pg-card-link">
+					<div className="pg-card pg-card-home">
+						<h2>{d.title}</h2>
+						{d.to === '/playground/settings' ? <SettingsSummary /> : <p>{d.text}</p>}
+					</div>
+				</Link>
+			))}
 		</div>
-	);
-};
+	</div>
+);
