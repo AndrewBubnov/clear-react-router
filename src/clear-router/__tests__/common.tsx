@@ -11,6 +11,7 @@ export const createMockRouteItem = (overrides: Partial<RouteItem> = {}): RouteIt
 	path: '/test',
 	pattern: '/test',
 	element: TestElement,
+	layouts: [],
 	...overrides,
 });
 

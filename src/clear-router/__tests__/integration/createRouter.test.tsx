@@ -145,12 +145,12 @@ describe('createRouter', () => {
 		];
 
 		const result = createRouter(routes);
-		expect(result[0].layout).toBe(Layout);
-		expect(result[1].layout).toBe(Layout);
-		expect(result[2].layout).toBe(Layout);
+		expect(result[0].layouts).toEqual([Layout]);
+		expect(result[1].layouts).toEqual([Layout]);
+		expect(result[2].layouts).toEqual([Layout]);
 	});
 
-	it('lets a child override the inherited layout', () => {
+	it('stacks a child layout on top of the inherited ones', () => {
 		const ParentLayout = () => <div />;
 		const ChildLayout = () => <div />;
 		const routes: ClientRouteItem[] = [
@@ -163,8 +163,8 @@ describe('createRouter', () => {
 		];
 
 		const result = createRouter(routes);
-		expect(result[0].layout).toBe(ParentLayout);
-		expect(result[1].layout).toBe(ChildLayout);
+		expect(result[0].layouts).toEqual([ParentLayout]);
+		expect(result[1].layouts).toEqual([ParentLayout, ChildLayout]);
 	});
 
 	it('does not leak layout to sibling top-level routes', () => {
@@ -175,7 +175,7 @@ describe('createRouter', () => {
 		];
 
 		const result = createRouter(routes);
-		expect(result[0].layout).toBe(Layout);
-		expect(result[1].layout).toBeUndefined();
+		expect(result[0].layouts).toEqual([Layout]);
+		expect(result[1].layouts).toEqual([]);
 	});
 });

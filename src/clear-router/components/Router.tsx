@@ -1,4 +1,4 @@
-import { PropsWithChildren, type ComponentType, type ReactNode, Fragment } from 'react';
+import { PropsWithChildren, type ComponentType, type ReactNode } from 'react';
 import { router } from '../instance';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
@@ -72,7 +72,6 @@ export const Router = ({
 	if (!routeItem) return renderElement(loadingContent ? defaultLoaderFallback : undefined);
 
 	const Boundary = ErrorBoundary as ComponentType<{ children: ReactNode }>;
-	const Layout = (routeItem.layout ?? Fragment) as ComponentType<{ children: ReactNode }>;
 
 	const content = loadingContent
 		? renderElement(routeItem.loaderFallback || defaultLoaderFallback)
@@ -80,9 +79,11 @@ export const Router = ({
 			? renderElement(routeItem.errorElement || defaultErrorElement)
 			: <Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>;
 
-	return (
-		<div style={{ viewTransitionName: 'page' }}>
-			<Layout>{content}</Layout>
-		</div>
+	return routeItem.layouts.reduceRight<ReactNode>(
+		(acc, Layout) => {
+			const Wrapper = Layout as ComponentType<{ children: ReactNode }>;
+			return <Wrapper>{acc}</Wrapper>;
+		},
+		<div style={{ viewTransitionName: 'page' }}>{content}</div>
 	);
 };

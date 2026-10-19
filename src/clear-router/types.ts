@@ -61,6 +61,7 @@ export type ClientRouteItem = {
 export type RouteItem = ClientRouteItem & {
 	element: RenderElement;
 	pattern: string;
+	layouts: RenderElement[];
 	cacheTimestamp?: number;
 	preloadElement?(): Promise<{ default: unknown }>;
 };

@@ -477,6 +477,68 @@ describe('layout rendering', () => {
 	);
 
 	it(
+		'stacks nested layouts and keeps the outer shell mounted when entering a section',
+		async () => {
+			let shellMounts = 0;
+			const AppShell = ({ children }: { children: ReactNode }) => {
+				useEffect(() => {
+					shellMounts += 1;
+				}, []);
+				return <div data-testid="shell">{children}</div>;
+			};
+			const SectionLayout = ({ children }: { children: ReactNode }) => (
+				<div data-testid="section">{children}</div>
+			);
+			const localRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							Home
+							<Link to="/settings">
+								<span>To settings</span>
+							</Link>
+						</div>
+					),
+					layout: AppShell,
+					children: [
+						{
+							path: '/settings',
+							element: <div>Settings</div>,
+							layout: SectionLayout,
+							children: [{ path: '/profile', element: <div>Profile</div> }],
+						},
+					],
+				},
+			]);
+			window.history.pushState({}, '', '/');
+			render(<Router routes={localRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Home/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			const mountsAtStart = shellMounts;
+			expect(mountsAtStart).toBeGreaterThan(0);
+
+			screen.getByText('To settings').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText(/Settings/i)).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			const shell = screen.getByTestId('shell');
+			expect(within(shell).getByTestId('section')).toBeInTheDocument();
+			expect(within(shell).getByText(/Settings/i)).toBeInTheDocument();
+			expect(shellMounts).toBe(mountsAtStart);
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
 		'inherits layout to children and keeps it mounted across child navigation',
 		async () => {
 			let layoutMounts = 0;

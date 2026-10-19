@@ -25,7 +25,7 @@ It provides first-class support for:
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
-- **Route Layouts** - A `layout` declared on a route wraps it *and* every descendant, keeping shared chrome and state alive across nested navigation
+- **Route Layouts** - A `layout` declared on a route wraps it *and* every descendant (stacking outermost-first), keeping shared chrome and state alive across nested navigation
 - **Data Loading** - Built-in loaders with TTL-based caching (`staleTime`)
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
@@ -94,7 +94,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 |----------|------|-------------|
 | `path` | `string` | Route path, e.g., `/user/:userId` |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `layout` | Component that accepts `children` | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` replaces the inherited one (see [Layouts](#layouts)) |
+| `layout` | Component that accepts `children` | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` nests *inside* the inherited ones (see [Layouts](#layouts)) |
 | `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
 | `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
 | `afterLoad` | `({ params, context, searchParams }) => Promise<void> \| void` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
@@ -144,9 +144,16 @@ If a route is both `optimistic` and has `gcTime` set, keep in mind the cached sn
 
 ### Layouts
 
-A route can declare a `layout`: a component that wraps the route's element and is **inherited by every descendant route**. Use it for chrome and state that must survive navigation within a subtree — a section navbar, tabs, a scroll container, a wizard.
+A route can declare a `layout`: a component that wraps the route's element and is **inherited by every descendant route**. Layouts **stack**: a descendant's own `layout` nests *inside* the inherited ones, outermost first. Use it for chrome and state that must survive navigation within a subtree — an app shell, a section navbar, tabs, a scroll container, a wizard.
 
 ```tsx
+const AppShell = ({ children }: { children: ReactNode }) => (
+  <div className="shell">
+    <TopNav />
+    {children}
+  </div>
+);
+
 const SectionLayout = ({ children }: { children: ReactNode }) => (
   <div className="section">
     <SectionNav />
@@ -156,12 +163,19 @@ const SectionLayout = ({ children }: { children: ReactNode }) => (
 
 const routes = createRouter([
   {
-    path: '/settings',
-    element: <SettingsHome />,
-    layout: SectionLayout, // applies to /settings and everything under it
+    path: '/',
+    element: <Home />,
+    layout: AppShell, // outermost: wraps everything under /
     children: [
-      { path: '/profile', element: <Profile /> },
-      { path: '/billing', element: <Billing />, layout: BillingLayout }, // replaces the inherited layout
+      {
+        path: '/settings',
+        element: <SettingsHome />,
+        layout: SectionLayout, // nests inside AppShell
+        children: [
+          { path: '/profile', element: <Profile /> }, // AppShell ⊃ SectionLayout ⊃ Profile
+          { path: '/billing', element: <Billing />, layout: BillingLayout }, // AppShell ⊃ SectionLayout ⊃ BillingLayout ⊃ Billing
+        ],
+      },
     ],
   },
 ]);
@@ -169,11 +183,12 @@ const routes = createRouter([
 
 Semantics to know:
 
-- **Inherited, not stacked.** Declare the layout once on the parent; it is passed down recursively to all descendants. A descendant that declares its own `layout` **replaces** the inherited one — layouts never nest automatically. If you need two wrappers, render both inside a single layout component.
-- **Survives child navigation**, including navigations that run a `loader` (the layout stays mounted, only the route element below it swaps). Its state and DOM identity are preserved.
-- **Pass a stable reference.** Define the layout at module scope (or keep it stable with `useCallback`). An inline component recreated on each render changes identity and remounts the layout on every navigation.
+- **Stacked, outermost first.** A descendant's `layout` is added innermost; it never replaces an inherited one. Moving within a subtree keeps every outer layout mounted — entering `/settings` does not remount `AppShell`.
+- **No opt-out.** A descendant cannot remove an inherited layout. A full-screen page inside a section must render `{children}` outside the section chrome itself, or sit outside that section.
+- **Survives child navigation**, including navigations that run a `loader` (the layouts stay mounted, only the route element below the innermost one swaps). Their state and DOM identity are preserved.
+- **Pass a stable reference.** Define a layout at module scope (or keep it stable with `useCallback`). An inline component recreated on each render changes identity and remounts the layout on every navigation.
 - **It's a component, not an element** — it receives `children`, so pass `SectionLayout`, not `<SectionLayout />`. The `lazy()` wrapper is not resolved for layouts; use a plain component.
-- **First frame.** Until the initial route resolves there is no matched route yet, so the layout is not rendered on the very first loading frame (only the `defaultLoaderFallback` is).
+- **First frame.** Until the initial route resolves there is no matched route yet, so layouts are not rendered on the very first loading frame (only the `defaultLoaderFallback` is).
 
 ### `Link`
 
