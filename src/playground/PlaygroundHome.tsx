@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { Link } from '../clear-router';
+import { Link } from './clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { NavLinkAs } from './NavLinkAs';
 import { isMobileViewport } from './utils.ts';

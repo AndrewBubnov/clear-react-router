@@ -1,5 +1,6 @@
 import { Badge, MantineProvider, createTheme } from '@mantine/core';
-import { Router, useRouteStatus, type Status as RouteStatus } from './clear-router';
+import { Router, useRouteStatus, type Status as RouteStatus } from './playground/clear-router';
+import { CacheVisualizer } from './playground/CacheVisualizer';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
@@ -7,19 +8,29 @@ import { usePlaygroundSettings } from './playground/usePlaygroundSettings';
 import './playground/playground.css';
 
 const Shell = () => {
-	const { isAnimated, animationDuration, maxCacheSize, defaultPrefetch, minLoaderDuration } = usePlaygroundSettings();
+	const { isAnimated, animationDuration, maxCacheSize, defaultPrefetch, minLoaderDuration, showCacheVisualizer } =
+		usePlaygroundSettings();
 	return (
 		<div>
 			{/* Remount on strategy change: Link's viewport/render effects attach at mount time only. */}
 			<PlaygroundNav key={defaultPrefetch} />
-			<Router
-				routes={playgroundRoutes}
-				isAnimated={isAnimated}
-				animationDuration={animationDuration}
-				maxCacheSize={maxCacheSize}
-				defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
-				defaultMinLoaderDuration={minLoaderDuration}
-			/>
+			<div className={showCacheVisualizer ? 'pg-content pg-content--viz' : 'pg-content'}>
+				{showCacheVisualizer && (
+					<div className="pg-cache-viz">
+						<CacheVisualizer maxSlots={maxCacheSize} />
+					</div>
+				)}
+				<div className="pg-main">
+					<Router
+						routes={playgroundRoutes}
+						isAnimated={isAnimated}
+						animationDuration={animationDuration}
+						maxCacheSize={maxCacheSize}
+						defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
+						defaultMinLoaderDuration={minLoaderDuration}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 };

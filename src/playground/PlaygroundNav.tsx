@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Switch } from '@mantine/core';
-import { Link } from '../clear-router';
+import { Link } from './clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
 
@@ -14,7 +14,7 @@ const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; childre
 };
 
 export const PlaygroundNav = () => {
-	const { isAnimated, setIsAnimated } = usePlaygroundSettings();
+	const { showCacheVisualizer, setShowCacheVisualizer } = usePlaygroundSettings();
 	return (
 		<div>
 			<div className="pg-brand-wrap">
@@ -29,9 +29,9 @@ export const PlaygroundNav = () => {
 				<div className="pg-brand-controls">
 					<Switch
 						size="sm"
-						label="animated"
-						checked={isAnimated}
-						onChange={e => setIsAnimated(e.currentTarget.checked)}
+						label="cache"
+						checked={showCacheVisualizer}
+						onChange={e => setShowCacheVisualizer(e.currentTarget.checked)}
 					/>
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link">
 						<svg

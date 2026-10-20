@@ -1,5 +1,5 @@
 import { Alert, Button } from '@mantine/core';
-import { Link, useLocation, useRouterContext } from '../clear-router';
+import { Link, useLocation, useRouterContext } from './clear-router';
 
 const GuardPage = () => {
 	const { context, setContext } = useRouterContext();

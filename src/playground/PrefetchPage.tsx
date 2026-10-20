@@ -1,4 +1,4 @@
-import { Link, useLoaderState } from '../clear-router';
+import { Link, useLoaderState } from './clear-router';
 import { getCallCount } from './api';
 
 const PrefetchPage = () => {

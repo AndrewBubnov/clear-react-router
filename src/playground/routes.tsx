@@ -1,4 +1,4 @@
-import { createRouter, lazy } from '../clear-router';
+import { createRouter, lazy } from './clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
 import { Loading } from './Loading';
 import { NestLayout } from './NestLayout';
@@ -103,19 +103,21 @@ export const playgroundRoutes = createRouter([
 		element: lazy(() => import('./CachePage')),
 		loader: fetchCachePayload,
 		loaderFallback: <Loading title="cache lab" />,
-	},
-	{
-		path: '/playground/product/:productId',
-		element: lazy(() => import('./ProductPage')),
-		loader: ({ params }) => fetchProduct(params.productId),
-		loaderFallback: <Loading title="product" />,
-	},
-	{
-		path: '/playground/heavy',
-	element: lazy(() => import('./HeavyPage')),
-	loader: fetchHeavy,
-	gcTime: HEAVY_GC_TIME,
-		loaderFallback: <Loading title="heavy payload" />,
+		children: [
+			{
+				path: '/product/:productId',
+				element: lazy(() => import('./ProductPage')),
+				loader: ({ params }) => fetchProduct(params.productId),
+				loaderFallback: <Loading title="product" />,
+			},
+			{
+				path: '/heavy',
+				element: lazy(() => import('./HeavyPage')),
+				loader: fetchHeavy,
+				gcTime: HEAVY_GC_TIME,
+				loaderFallback: <Loading title="heavy payload" />,
+			},
+		],
 	},
 	{
 		path: '/playground/search',

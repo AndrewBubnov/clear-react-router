@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useInvalidate, useLoaderState, useRouterContext } from '../clear-router';
+import { Link, useInvalidate, useLoaderState, useRouterContext } from './clear-router';
 import { Button, Modal, RingProgress, Stack, Text } from '@mantine/core';
 import { getCallCount, HEAVY_GC_TIME } from './api';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
@@ -55,7 +55,7 @@ const InvalidateLab = () => {
 				<Button variant="light" onClick={() => run(invalidate())}>
 					Refetch this page
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/product/1'))}>
+				<Button variant="light" onClick={() => run(invalidate('/playground/cache/product/1'))}>
 					Refetch product 1
 				</Button>
 				<Button variant="light" onClick={() => run(invalidate('/playground/cache', { staleOnly: true }))}>
@@ -221,7 +221,7 @@ const CachePage = () => {
 						</p>
 						<div className="pg-row pg-items-row">
 							{PRODUCT_IDS.map(id => (
-								<Link key={id} to={`/playground/product/${id}`} prefetch="none">
+								<Link key={id} to={`/playground/cache/product/${id}`} prefetch="none">
 									#{id}
 								</Link>
 							))}
@@ -232,7 +232,7 @@ const CachePage = () => {
 			<div className="pg-card">
 				<h2>gcTime</h2>
 				<p>
-					<Link to="/playground/heavy" prefetch="none">
+					<Link to="/playground/cache/heavy" prefetch="none">
 						Open the heavy page
 					</Link>
 					, then leave and come back — immediately (cached) and after 10 seconds (garbage-collected, reloads).

@@ -427,5 +427,50 @@ h1 {
 	padding-inline: 20px;
 }
 
+.pg-content {
+	display: contents;
+}
+
+/* Mobile / narrow: the visualizer sits above the page and stays pinned on scroll. */
+.pg-cache-viz {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	max-width: 860px;
+	margin: 20px auto 0;
+	padding: 8px 20px;
+	background: var(--bg);
+}
+
+/* Wide: pin the visualizer beside the page so it stays visible while scrolling. */
+@media (width >= 1280px) {
+	.pg-content--viz {
+		display: grid;
+		grid-template-columns: minmax(0, 860px) 360px;
+		justify-content: center;
+		align-items: start;
+		gap: 24px;
+		padding-inline: 20px;
+	}
+
+	.pg-content--viz > .pg-cache-viz {
+		grid-column: 2;
+		grid-row: 1;
+		position: sticky;
+		top: 84px;
+		max-width: none;
+		max-height: calc(100vh - 104px);
+		overflow-y: auto;
+		margin: 20px 0 0;
+		padding: 0;
+		background: transparent;
+	}
+
+	.pg-content--viz > .pg-main {
+		grid-column: 1;
+		grid-row: 1;
+	}
+}
+
 
 

@@ -1,0 +1,89 @@
+import { PropsWithChildren, type ComponentType, type ReactNode } from 'react';
+import { router } from '../instance';
+import { useNavigation } from '../hooks/useNavigation';
+import { useApplyCustomAnimation } from '../hooks/useApplyCustomAnimation';
+import { useRestoreRouteScroll } from '../hooks/useRestoreRouteScroll';
+import { useSetRouterConfig } from '../hooks/useSetRouterConfig';
+import { useSetInitialContext } from '../hooks/useSetInitialContext';
+import { useReload } from '../hooks/useReload';
+import { renderElement } from '../utils/renderElement';
+import { isMobile } from '../utils/utils';
+import { STANDARD_PREFETCH_DELAY } from '../constants';
+import { RouterProps } from '../types';
+
+const EmptyBoundary = ({ children }: PropsWithChildren) => children;
+
+const IS_MOBILE = isMobile();
+const MOBILE_CACHE_SIZE = 60;
+const DESKTOP_CACHE_SIZE = 150;
+
+export const Router = ({
+	routes,
+	defaultBeforeLoad,
+	defaultAfterLoad,
+	animationDuration,
+	defaultLoaderFallback,
+	defaultErrorElement,
+	defaultRetry,
+	defaultStaleTime,
+	context: initialContext,
+	isAnimated = false,
+	defaultMinLoaderDuration = 0,
+	revalidateOnFocus = false,
+	revalidateOnReconnect = false,
+	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
+	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
+	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
+	defaultScrollRestorationBehavior = 'auto',
+	errorBoundary: ErrorBoundary = EmptyBoundary,
+}: RouterProps) => {
+	const { useRouteDataSelector } = router.hooks;
+	const routeItem = useRouteDataSelector(state => state.routeItem);
+	const location = useRouteDataSelector(state => state.location);
+	const status = useRouteDataSelector(state => state.status);
+
+	const isError = status === 'error';
+	const isLoading = status === 'pending';
+
+	useNavigation();
+
+	useSetRouterConfig({
+		routes,
+		isAnimated,
+		defaultPrefetch,
+		defaultHoverPrefetchDelay,
+		defaultBeforeLoad,
+		defaultAfterLoad,
+		defaultRetry,
+		defaultStaleTime,
+		defaultMinLoaderDuration,
+		maxCacheSize,
+		revalidateOnFocus,
+		revalidateOnReconnect,
+		defaultScrollRestorationBehavior,
+	});
+	useApplyCustomAnimation(animationDuration);
+	useSetInitialContext(initialContext);
+	useRestoreRouteScroll(defaultScrollRestorationBehavior);
+	useReload();
+
+	const loadingContent = isLoading && !isError;
+
+	if (!routeItem) return renderElement(loadingContent ? defaultLoaderFallback : undefined);
+
+	const Boundary = ErrorBoundary as ComponentType<{ children: ReactNode }>;
+
+	const content = loadingContent
+		? renderElement(routeItem.loaderFallback || defaultLoaderFallback)
+		: isError
+			? renderElement(routeItem.errorElement || defaultErrorElement)
+			: <Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>;
+
+	return routeItem.layouts.reduceRight<ReactNode>(
+		(acc, Layout) => {
+			const Wrapper = Layout as ComponentType<{ children: ReactNode }>;
+			return <Wrapper>{acc}</Wrapper>;
+		},
+		<div style={{ viewTransitionName: 'page' }}>{content}</div>
+	);
+};

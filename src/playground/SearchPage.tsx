@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from '../clear-router';
+import { Link, useSearchParams } from './clear-router';
 import { Button } from '@mantine/core';
 
 const BRANDS = ['nike', 'reebok', 'adidas'];

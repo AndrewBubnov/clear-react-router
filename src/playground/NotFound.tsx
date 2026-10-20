@@ -1,4 +1,4 @@
-import { Link, useLocation } from '../clear-router';
+import { Link, useLocation } from './clear-router';
 
 const PlaygroundNotFound = () => {
 	const { pathname } = useLocation();

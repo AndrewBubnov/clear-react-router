@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { Badge, Group, Paper, Text } from '@mantine/core';
-import { useParams } from '../clear-router';
+import { useParams } from './clear-router';
 
 export const NestChildLayout = ({ children }: { children: ReactNode }) => {
 	const { nestId } = useParams();

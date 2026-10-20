@@ -1,5 +1,5 @@
 import { Alert, Button } from '@mantine/core';
-import { Link, useLoaderState } from '../clear-router';
+import { Link, useLoaderState } from './clear-router';
 
 const RetryErrorView = () => {
 	const { loaderError } = useLoaderState();

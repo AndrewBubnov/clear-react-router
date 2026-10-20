@@ -7,6 +7,7 @@ export type SettingsContextValue = PlaygroundSettings & {
 	setAnimationDuration(value: number | undefined): void;
 	setMaxCacheSize(value: number): void;
 	setShowStatusBadge(value: boolean): void;
+	setShowCacheVisualizer(value: boolean): void;
 	setDefaultPrefetch(value: PrefetchSetting): void;
 	setMinLoaderDuration(value: number | undefined): void;
 	setNavLinkAs(value: NavLinkAs): void;

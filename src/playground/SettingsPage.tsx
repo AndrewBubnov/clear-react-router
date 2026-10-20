@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader, Slider, Switch, Tooltip, Button } from '@mantine/core';
-import { Link } from '../clear-router';
+import { Link } from './clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';
@@ -61,8 +61,7 @@ const SettingsPage = () => {
 		<div className="pg-wrap">
 			<h1>Settings</h1>
 			<p className="pg-hint">
-				Playground-wide router settings. Changes apply live, without reload — the same state drives the menu
-				switch above.
+				Playground-wide router settings. Changes apply live, without reload.
 			</p>
 			<div className="pg-card">
 				<h2>Page transitions</h2>

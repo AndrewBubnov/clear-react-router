@@ -1,4 +1,4 @@
-import { Link } from '../clear-router';
+import { Link } from './clear-router';
 
 const DashboardPage = () => (
 	<div className="pg-wrap">

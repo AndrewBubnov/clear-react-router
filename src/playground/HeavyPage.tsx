@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useLoaderState, useRouterContext } from '../clear-router';
+import { Link, useLoaderState, useRouterContext } from './clear-router';
 import { HEAVY_GC_TIME } from './api';
 
 const HeavyPage = () => {

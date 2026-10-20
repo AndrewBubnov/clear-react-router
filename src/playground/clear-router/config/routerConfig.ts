@@ -1,0 +1,24 @@
+import { STANDARD_PREFETCH_DELAY } from '../constants';
+import { ClientRouteItem, RouterProps } from '../types';
+
+class RouterConfig {
+	routes: RouterProps['routes'] = [];
+	maxCacheSize: number = 0;
+	defaultPrefetch: RouterProps['defaultPrefetch'] = 'hover';
+	isAnimated: RouterProps['isAnimated'] = false;
+	revalidateOnFocus = false;
+	revalidateOnReconnect = false;
+	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
+	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
+	defaultAfterLoad?: ClientRouteItem['afterLoad'];
+	defaultRetry?: RouterProps['defaultRetry'];
+	defaultStaleTime?: RouterProps['defaultStaleTime'];
+	defaultMinLoaderDuration?: RouterProps['defaultMinLoaderDuration'];
+	defaultScrollRestorationBehavior: RouterProps['defaultScrollRestorationBehavior'];
+
+	configure(config: Partial<RouterConfig>) {
+		Object.assign(this, config);
+	}
+}
+
+export const routerConfig = new RouterConfig();
