@@ -5,12 +5,6 @@ import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';
 
-const CACHE_PRESETS = [
-	{ value: 3, label: '3 (lab)' },
-	{ value: 60, label: '60 (mobile default)' },
-	{ value: 150, label: '150 (desktop default)' },
-];
-
 const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'auto', label: 'auto (device default)' },
 	{ value: 'hover', label: 'hover' },
@@ -60,9 +54,7 @@ const SettingsPage = () => {
 	return (
 		<div className="pg-wrap">
 			<h1>Settings</h1>
-			<p className="pg-hint">
-				Playground-wide router settings. Changes apply live, without reload.
-			</p>
+			<p className="pg-hint">Playground-wide router settings. Changes apply live, without reload.</p>
 			<div className="pg-card">
 				<h2>Page transitions</h2>
 				<div className="pg-row">
@@ -73,44 +65,53 @@ const SettingsPage = () => {
 					/>
 				</div>
 				<div className="pg-row">
-					<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
-						<div className="pg-slider">
-							<Slider
-								min={100}
-								max={2000}
-								step={50}
-								value={animationDuration ?? 500}
-								disabled={!isAnimated}
-								onChange={setAnimationDuration}
-								label={v => `${v}ms`}
-								labelAlwaysOn
-								thumbLabel="Animation duration in milliseconds"
-							/>
-						</div>
-					</Tooltip>
-					<Button onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated} variant="light">
-						Reset to browser default
-					</Button>
+					<div className="pg-row">
+						<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
+							<div className="pg-slider">
+								<Slider
+									min={100}
+									max={2000}
+									step={50}
+									value={animationDuration ?? 500}
+									disabled={!isAnimated}
+									onChange={setAnimationDuration}
+									label={v => `${v}ms`}
+									labelAlwaysOn
+									thumbLabel="Animation duration in milliseconds"
+								/>
+							</div>
+						</Tooltip>
+						<Button
+							onClick={() => setAnimationDuration(undefined)}
+							disabled={!isAnimated}
+							variant="light"
+							size="xs"
+						>
+							Reset to browser default
+						</Button>
+					</div>
 				</div>
 			</div>
 			<div className="pg-card">
 				<h2>Loader cache size</h2>
-				<div className="pg-row" role="radiogroup" aria-label="Loader cache size">
-					{CACHE_PRESETS.map(preset => (
-						<label key={preset.value} className="pg-radio">
-							<input
-								type="radio"
-								name="cache-size"
-								checked={maxCacheSize === preset.value}
-								onChange={() => setMaxCacheSize(preset.value)}
+				<div className="pg-row pg-settings-loader-wrap">
+					<div className="pg-row">
+						<div className="pg-slider">
+							<Slider
+								min={3}
+								max={90}
+								value={maxCacheSize}
+								onChange={setMaxCacheSize}
+								label={v => `${v}`}
+								labelAlwaysOn
+								thumbLabel="Maximum number of cached loader entries"
 							/>
-							{preset.label}
-						</label>
-					))}
+						</div>
+					</div>
 				</div>
 				<p className="pg-hint">
 					Lowering the limit evicts old entries gradually as new data loads — it does not purge the cache
-					instantly. Current value: <span className="pg-badge">{maxCacheSize}</span>
+					instantly.
 				</p>
 			</div>
 			<div className="pg-card">

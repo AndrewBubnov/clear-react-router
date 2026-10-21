@@ -7,7 +7,7 @@ const galleryCards = Array.from({ length: 30 }, (_, i) => `Card ${i + 1}`);
 const ManualRestore = () => {
 	const restoreScroll = useRestoreScroll();
 	return (
-		<Button variant="light" onClick={() => restoreScroll()}>
+		<Button variant="light" onClick={() => restoreScroll()} size="xs">
 			Restore saved positions
 		</Button>
 	);

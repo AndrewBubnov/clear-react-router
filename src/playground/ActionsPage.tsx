@@ -23,10 +23,10 @@ const AddNoteForm = () => {
 				<div className="pg-row">
 					<input name="text" className="pg-input" placeholder="Note text" disabled={isSubmitting} />
 					<div className="pg-row">
-						<Button variant="light" type="submit" disabled={isSubmitting}>
+						<Button variant="light" type="submit" disabled={isSubmitting} size="xs">
 							{isSubmitting ? 'Saving…' : 'Save'}
 						</Button>
-						<Button variant="light" type="button" disabled={isRevalidating} onClick={refresh}>
+						<Button variant="light" type="button" disabled={isRevalidating} onClick={refresh} size="xs">
 							{isRevalidating ? 'Refreshing…' : 'Refresh list (invalidate)'}
 						</Button>
 					</div>

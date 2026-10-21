@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, Card, Group, Progress, Text, ThemeIcon } from '@mantine/core';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from './clear-router';
@@ -70,6 +70,7 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 			title={entry.path}
 			style={{
 				width: 72,
+				flexShrink: 0,
 				padding: '8px 6px',
 				borderWidth: 2,
 				borderStyle: 'solid',
@@ -108,11 +109,16 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
 	const now = useNow(100);
+	const rowRef = useRef<HTMLDivElement>(null);
 	const cached = entries.filter(entry => !entry.inFlight);
 	const items: DisplayItem[] = cached.map(entry => ({ entry, reason: entry.reason ?? 'navigation' }));
 	const visible = items.slice(-VISIBLE_LIMIT);
 	const hidden = items.length - visible.length;
 	const full = cached.length >= maxSlots;
+	useEffect(() => {
+		const row = rowRef.current;
+		if (row) row.scrollLeft = row.scrollWidth;
+	}, [entries]);
 	return (
 		<Card withBorder radius="lg" padding="sm" shadow="sm">
 			<Group justify="space-between" align="center" gap="xs">
@@ -126,7 +132,18 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 			<Text size="9px" c="dimmed" tt="uppercase" fw={700} mt={6}>
 				oldest → newest
 			</Text>
-			<div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8, minHeight: 96 }}>
+			<div
+				ref={rowRef}
+				style={{
+					display: 'flex',
+					flexWrap: 'nowrap',
+					overflowX: 'auto',
+					overscrollBehaviorX: 'contain',
+					gap: 8,
+					marginTop: 8,
+					minHeight: 96,
+				}}
+			>
 				{hidden > 0 && (
 					<Text size="9px" c="dimmed" style={{ alignSelf: 'center' }}>
 						+{hidden} older

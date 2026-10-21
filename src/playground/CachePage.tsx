@@ -3,7 +3,6 @@ import { Link, useInvalidate, useLoaderState, useRouterContext } from './clear-r
 import { Button, Modal, RingProgress, Stack, Text } from '@mantine/core';
 import { getCallCount, HEAVY_GC_TIME } from './api';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
-import { isMobileViewport } from './utils.ts';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
 
@@ -52,22 +51,34 @@ const InvalidateLab = () => {
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
 			<div className="pg-btn-grid">
-				<Button variant="light" onClick={() => run(invalidate())}>
+				<Button variant="light" onClick={() => run(invalidate())} size="xs">
 					Refetch this page
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/cache/product/1'))}>
+				<Button variant="light" onClick={() => run(invalidate('/playground/cache/product/1'))} size="xs">
 					Refetch product 1
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/cache', { staleOnly: true }))}>
+				<Button
+					variant="light"
+					onClick={() => run(invalidate('/playground/cache', { staleOnly: true }))}
+					size="xs"
+				>
 					Touch only stale entries
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw'))}>
+				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw'))} size="xs">
 					Refetch the failing route
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw', { force: false }))}>
+				<Button
+					variant="light"
+					onClick={() => run(invalidate('/playground/retry-raw', { force: false }))}
+					size="xs"
+				>
 					Skip uncached entries
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/nest', { withChildren: true }))}>
+				<Button
+					variant="light"
+					onClick={() => run(invalidate('/playground/nest', { withChildren: true }))}
+					size="xs"
+				>
 					Refetch nest subtree
 				</Button>
 			</div>
@@ -150,21 +161,11 @@ const GcCountdown = () => {
 
 const CachePage = () => {
 	const { data, loaderError, beforeLoadError } = useLoaderState<string>();
-	const { maxCacheSize, defaultPrefetch } = usePlaygroundSettings();
+	const { maxCacheSize, showCacheVisualizer } = usePlaygroundSettings();
 	const loadError = loaderError ?? beforeLoadError;
-	// viewport/render prefetch the loader-backed menu links on mount, so the tiny cache is already full
-	// before the eviction steps below can be followed.
-	const prefetchFloodsCache =
-		defaultPrefetch === 'viewport' ||
-		defaultPrefetch === 'render' ||
-		(defaultPrefetch === 'auto' && isMobileViewport);
 	return (
 		<div className="pg-wrap">
 			<h1>Cache: eviction, gcTime, invalidation</h1>
-			<p className="pg-hint">
-				This playground runs with <code>maxCacheSize: {maxCacheSize}</code> (change it on the settings page).
-				For a deterministic run, reload the page first, then follow the steps.
-			</p>
 			<div className="pg-card">
 				<h2>This page itself is cached</h2>
 				<p>{data}</p>
@@ -190,44 +191,33 @@ const CachePage = () => {
 			</div>
 			<div className="pg-card">
 				<h2>LRU eviction</h2>
-				{prefetchFloodsCache ? (
-					<p className="pg-hint">
-						With the <code>{defaultPrefetch}</code> prefetch strategy, the loader-backed menu links prefetch
-						on mount and fill the tiny cache before you open anything — the eviction order below is not
-						observable. Switch the prefetch strategy to <code>none</code> (or <code>hover</code>) on the
-						settings page and come back.
-					</p>
-				) : (
-					<>
-						<p>
-							{maxCacheSize > 3 ? (
-								<>
-									Products share the cache with this page&apos;s own loader entry, and LRU only evicts
-									once every slot is taken — with <code>maxCacheSize: {maxCacheSize}</code> you would
-									need to open {maxCacheSize} distinct products before the oldest one drops out. Pick
-									the <code>3 (lab)</code> preset on the settings page to watch eviction in a few
-									clicks.
-								</>
-							) : (
-								<>
-									Open products #1 → #4 in order, returning to this page in between. Because this
-									page&apos;s own entry holds one slot, only the two most recent products stay cached:
-									#1 drops out as soon as you open #3, #2 when you open #4. Each visit back here also
-									refreshes this page&apos;s recency, so it never gets evicted first. Revisiting an
-									evicted product reloads it (fallback flash); the most recent one renders instantly
-									from cache.
-								</>
-							)}
-						</p>
-						<div className="pg-row pg-items-row">
-							{PRODUCT_IDS.map(id => (
-								<Link key={id} to={`/playground/cache/product/${id}`} prefetch="none">
-									#{id}
-								</Link>
-							))}
-						</div>
-					</>
-				)}
+				<p className="pg-hint">
+					This playground runs with <code>maxCacheSize: {maxCacheSize}</code> (change it on the settings
+					page).
+				</p>
+				<p>
+					{maxCacheSize > 3 ? (
+						<>
+							Products share the cache with this page&apos;s own loader entry, and LRU only evicts once
+							every slot is taken — you would need to open {maxCacheSize} distinct products before the
+							oldest one drops out. Set the cache size slider to <code>3</code> to watch eviction in a few
+							clicks.
+						</>
+					) : showCacheVisualizer ? (
+						<>
+							Click products #1–#5 — or any other links — and watch the visualizer evict the oldest entry.
+						</>
+					) : (
+						<>Click products #1–#5 in any order.</>
+					)}
+				</p>
+				<div className="pg-row pg-items-row">
+					{PRODUCT_IDS.map(id => (
+						<Link key={id} to={`/playground/cache/product/${id}`} prefetch="none">
+							#{id}
+						</Link>
+					))}
+				</div>
 			</div>
 			<div className="pg-card">
 				<h2>gcTime</h2>

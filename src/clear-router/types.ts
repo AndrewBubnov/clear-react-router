@@ -147,7 +147,7 @@ export type RouterType = {
 	runtime: {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
-		prefetch(location: Location): Promise<void>;
+		prefetch(location: Location, signal?: AbortSignal): Promise<void>;
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
@@ -202,9 +202,7 @@ type StrictLinkDestination<TPath extends string> = TPath extends unknown
 
 export type LinkDestination<TPath extends string> =
 	| { to: string; path?: never; params?: never }
-	| (string extends TPath
-		? { to?: never; path: string; params?: PathParams }
-		: StrictLinkDestination<TPath>);
+	| (string extends TPath ? { to?: never; path: string; params?: PathParams } : StrictLinkDestination<TPath>);
 
 type StrictNavigateArg<TPath extends string> = TPath extends unknown
 	? HasPathSegments<TPath> extends true
@@ -212,10 +210,9 @@ type StrictNavigateArg<TPath extends string> = TPath extends unknown
 		: { path: TPath; params?: never; pathname?: never; search?: string | SearchObject; state?: unknown }
 	: never;
 
-export type NavigatePathArg<TPath extends string> =
-	string extends TPath
-		? { path: string; params?: PathParams; search?: string | SearchObject; state?: unknown }
-		: StrictNavigateArg<TPath>;
+export type NavigatePathArg<TPath extends string> = string extends TPath
+	? { path: string; params?: PathParams; search?: string | SearchObject; state?: unknown }
+	: StrictNavigateArg<TPath>;
 
 export type NavigatePathInput = {
 	path: string;

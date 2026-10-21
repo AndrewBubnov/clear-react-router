@@ -24,7 +24,7 @@ const RetryErrorPage = () => {
 				page. Trying again runs a brand new fetch chain.
 			</p>
 			<div className="pg-row">
-				<Button variant="light" disabled={isRetrying} onClick={retry}>
+				<Button variant="light" disabled={isRetrying} onClick={retry} size="xs">
 					{isRetrying ? 'Retrying…' : 'Try again'}
 				</Button>
 				<Link to="/playground">← Back to playground home</Link>

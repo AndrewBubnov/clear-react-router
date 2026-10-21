@@ -15,6 +15,8 @@ import { routerConfig } from '../config/routerConfig';
 import { formatSearchObject, interpolatePath } from '../utils/utils';
 import { LinkDestination, RouterProps, Location, SearchObject } from '../types';
 
+const VIEWPORT_DWELL_MS = 250; // ←
+
 type ElementState = { isActive: boolean; isPending: boolean };
 
 export type ElementProps<T extends HTMLElement = HTMLElement> = {
@@ -47,6 +49,7 @@ export type LinkProps<T extends HTMLElement = HTMLAnchorElement, TPath extends s
 	Record<`data-${string}` | `aria-${string}`, unknown>;
 
 const defaultAs = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
+
 const comparator = (to: string, pathname: string, exact: boolean) =>
 	to === '/' ? pathname === '/' : exact ? pathname === to : pathname === to || pathname?.startsWith(`${to}/`);
 
@@ -69,11 +72,15 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 	...rest
 }: LinkProps<T, TPath>) => {
 	const pathname = path !== undefined ? interpolatePath(path, params ?? {}) : (to ?? '');
+
 	const { useRouteDataSelector } = router.hooks;
+
 	const isPending = useRouteDataSelector(
 		({ location: { pathname: currentPathname }, status }) => currentPathname === pathname && status === 'pending'
 	);
+
 	const navigate = useNavigate();
+
 	const isActive = useRouteDataSelector(({ location: { pathname: currentPathname } }) =>
 		comparator(pathname, currentPathname, exact)
 	);
@@ -82,6 +89,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 	const elementRef = useRef<HTMLElement | null>(null);
 
 	const getPrefetchStrategy = useCallback(() => linkPrefetch || routerConfig.defaultPrefetch, [linkPrefetch]);
+
 	const getPrefetchDelay = useCallback(
 		() => hoverPrefetchDelay ?? routerConfig.defaultHoverPrefetchDelay,
 		[hoverPrefetchDelay]
@@ -89,6 +97,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 
 	const searchString = typeof search === 'object' ? formatSearchObject(search) : search;
 
+	// location остаётся для navigate и hover; в deps prefetch-эффектов его больше нет
 	const location: Omit<Location, 'search'> & { search: string } = useMemo(
 		() => ({ pathname, search: searchString, state }),
 		[searchString, state, pathname]
@@ -109,25 +118,45 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 		}
 	}, [getPrefetchStrategy, getPrefetchDelay]);
 
+	// ← deps: pathname/searchString вместо location; отмена задачи в очереди при размонтировании
 	useEffect(() => {
 		if (getPrefetchStrategy() !== 'render') return;
-		(async () => {
-			await router.runtime.prefetch(location);
-		})();
-	}, [getPrefetchStrategy, location]);
+		const controller = new AbortController();
+		router.runtime.prefetch({ pathname, search: searchString }, controller.signal);
+		return () => controller.abort();
+	}, [getPrefetchStrategy, pathname, searchString]);
 
+	// ← dwell-задержка, отмена при выходе из viewport, последний entry пачки
 	useEffect(() => {
 		if (getPrefetchStrategy() !== 'viewport') return;
 		const element = elementRef.current;
 		if (!element) return;
-		const observer = new IntersectionObserver(async ([entry]) => {
-			if (!entry.isIntersecting) return;
-			await router.runtime.prefetch(location);
-			observer.disconnect();
+
+		let dwellTimer = 0;
+		let controller: AbortController | null = null;
+
+		const observer = new IntersectionObserver(entries => {
+			const isVisible = entries[entries.length - 1].isIntersecting;
+			window.clearTimeout(dwellTimer);
+			if (!isVisible) {
+				controller?.abort(); // ушла из viewport — снимаем с очереди, если ещё не стартовала
+				return;
+			}
+			dwellTimer = window.setTimeout(async () => {
+				const attempt = new AbortController();
+				controller = attempt;
+				await router.runtime.prefetch({ pathname, search: searchString }, attempt.signal);
+				if (!attempt.signal.aborted) observer.disconnect();
+			}, VIEWPORT_DWELL_MS);
 		});
+
 		observer.observe(element);
-		return () => observer.disconnect();
-	}, [getPrefetchStrategy, location]);
+		return () => {
+			window.clearTimeout(dwellTimer);
+			controller?.abort();
+			observer.disconnect();
+		};
+	}, [getPrefetchStrategy, pathname, searchString]);
 
 	useEffect(
 		() => () => {
@@ -135,8 +164,10 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 		},
 		[]
 	);
+
 	const normalizedClassName = typeof className === 'function' ? className({ isActive, isPending }) : className;
 	const normalizedStyle = typeof style === 'function' ? style({ isActive, isPending }) : style;
+
 	const resultClassName = [isActive && activeClassName, isPending && pendingClassName, normalizedClassName]
 		.filter(Boolean)
 		.join(' ');

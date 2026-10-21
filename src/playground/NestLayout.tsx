@@ -22,7 +22,7 @@ export const NestLayout = ({ children }: { children: ReactNode }) => {
 							remounted. It resets only when you leave the section entirely.
 						</Text>
 						<Group>
-							<Button variant="light" onClick={() => setCount(c => c + 1)}>
+							<Button variant="light" onClick={() => setCount(c => c + 1)} size="xs">
 								Increment
 							</Button>
 							<Badge color="teal" size="lg">

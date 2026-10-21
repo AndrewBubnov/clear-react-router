@@ -24,14 +24,15 @@ export const PlaygroundNav = () => {
 					rel="noopener noreferrer"
 					aria-label="Clear Router playground — npm package (opens in new tab)"
 				>
-					<div className="pg-brand">Clear Router playground</div>
+					<div className="pg-brand">Clear React Router</div>
 				</a>
 				<div className="pg-brand-controls">
 					<Switch
 						size="sm"
-						label="cache"
+						label="visualize cache"
 						checked={showCacheVisualizer}
 						onChange={e => setShowCacheVisualizer(e.currentTarget.checked)}
+						styles={{ label: { lineHeight: 1.2 } }}
 					/>
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link">
 						<svg

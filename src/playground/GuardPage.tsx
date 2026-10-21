@@ -29,7 +29,11 @@ const GuardPage = () => {
 					</span>
 				</p>
 				<div className="pg-row">
-					<Button variant="light" onClick={() => setContext({ ...context, isAuthorized: !isAuthorized })}>
+					<Button
+						variant="light"
+						onClick={() => setContext({ ...context, isAuthorized: !isAuthorized })}
+						size="xs"
+					>
 						{isAuthorized ? 'Log out' : 'Log in'}
 					</Button>
 					<Link to="/playground/dashboard">Try opening dashboard →</Link>

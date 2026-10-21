@@ -20,6 +20,7 @@ const SearchPage = () => {
 						<Button
 							key={brand}
 							variant="light"
+							size="xs"
 							onClick={() => {
 								const current = getSearchParams('brand');
 								const list = Array.isArray(current) ? current : current ? [current] : [];
@@ -32,7 +33,7 @@ const SearchPage = () => {
 							{brand}
 						</Button>
 					))}
-					<Button variant="light" onClick={() => setSearchParams('page', '2')}>
+					<Button variant="light" onClick={() => setSearchParams('page', '2')} size="xs">
 						page=2
 					</Button>
 				</div>

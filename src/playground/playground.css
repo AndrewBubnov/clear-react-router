@@ -49,7 +49,9 @@
 }
 
 .pg-card-home {
-	transition: transform 0.4s ease, box-shadow 0.4s ease;
+	transition:
+		transform 0.4s ease,
+		box-shadow 0.4s ease;
 }
 
 .pg-card-home:hover {
@@ -361,7 +363,10 @@
 .pg-gear-link[aria-current='page'] {
 	color: steelblue;
 }
-.pg-gear-link[aria-current='page'] svg { fill: steelblue; stroke: steelblue; }
+.pg-gear-link[aria-current='page'] svg {
+	fill: steelblue;
+	stroke: steelblue;
+}
 
 .pg-gear-link:focus-visible {
 	outline: 2px solid steelblue;
@@ -431,7 +436,6 @@ h1 {
 	display: contents;
 }
 
-/* Mobile / narrow: the visualizer sits above the page and stays pinned on scroll. */
 .pg-cache-viz {
 	position: sticky;
 	top: 0;
@@ -440,24 +444,34 @@ h1 {
 	margin: 20px auto 0;
 	padding: 8px 20px;
 	background: var(--bg);
+	overflow: hidden;
 }
 
-/* Wide: pin the visualizer beside the page so it stays visible while scrolling. */
 @media (width >= 1280px) {
-	.pg-content--viz {
+	.pg-content {
 		display: grid;
-		grid-template-columns: minmax(0, 860px) 360px;
+		grid-template-columns: minmax(0, 860px) 0px;
 		justify-content: center;
 		align-items: start;
-		gap: 24px;
+		gap: 0;
 		padding-inline: 20px;
+		overflow-x: clip;
+		transition:
+			grid-template-columns 0.2s ease,
+			gap 0.2s ease;
 	}
 
-	.pg-content--viz > .pg-cache-viz {
+	.pg-content:has(> .pg-cache-viz) {
+		grid-template-columns: minmax(0, 860px) 360px;
+		gap: 24px;
+	}
+
+	.pg-content > .pg-cache-viz {
 		grid-column: 2;
 		grid-row: 1;
 		position: sticky;
 		top: 84px;
+		width: 360px;
 		max-width: none;
 		max-height: calc(100vh - 104px);
 		overflow-y: auto;
@@ -466,11 +480,14 @@ h1 {
 		background: transparent;
 	}
 
-	.pg-content--viz > .pg-main {
+	.pg-content > .pg-main {
 		grid-column: 1;
 		grid-row: 1;
 	}
 }
 
-
-
+@media (prefers-reduced-motion: reduce) {
+	.pg-content {
+		transition: none;
+	}
+}
