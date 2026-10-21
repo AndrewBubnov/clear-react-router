@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { Link, useInvalidate, useLoaderState, useRouterContext } from './clear-router';
-import { Button, Modal, RingProgress, Stack, Text } from '@mantine/core';
+import { Button, RingProgress, Stack, Text } from '@mantine/core';
 import { getCallCount, HEAVY_GC_TIME } from './api';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 
@@ -30,26 +31,102 @@ const stringifyLoaderState = (data: unknown, loaderError: Error | null, beforeLo
 const InvalidateLab = () => {
 	const invalidate = useInvalidate();
 	const { maxCacheSize } = usePlaygroundSettings();
-	const [opened, setOpened] = useState(false);
-	const [lastResult, setLastResult] = useState<InvalidateEntry[]>([]);
+	const [lastResult, setLastResult] = useState<InvalidateEntry[] | null>(null);
+	const [resultVersion, setResultVersion] = useState(0);
 
 	const run = (result: Promise<InvalidateEntry[]>) =>
 		result.then(entries => {
 			setLastResult(entries);
-			setOpened(true);
+			setResultVersion(version => version + 1);
 		});
 
 	return (
 		<div className="pg-card">
 			<h2>Invalidation lab</h2>
 			<p>
-				Each button revalidates and opens a dialog with per-entry results. The counters below tell whether a
-				fetch actually ran. Watch the network tab too.
+				Each button revalidates and shows per-entry results in the card above the buttons. The counters below
+				tell whether a fetch actually ran. Watch the network tab too.
 			</p>
 			<p>
 				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
+			<p className="pg-hint">
+				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is
+				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached paths —
+				and the failing route is never cached (failures don&apos;t poison the cache), so it always comes back
+				empty. Compare with the plain refetch right above each of them. <code>withChildren</code> revalidates
+				the route plus all nested children — open any nest and item first so there is something cached, then
+				watch both entries refresh at once.
+			</p>
+			{lastResult && (
+				<motion.div
+					style={{ overflow: 'hidden' }}
+					initial={{ height: 0, marginTop: 0 }}
+					animate={{ height: 'auto', marginTop: 12 }}
+					transition={{ type: 'spring', stiffness: 400, damping: 34, mass: 0.8 }}
+				>
+					<div className="pg-invalidate-result">
+						<div className="pg-invalidate-result__head">
+							<span className="pg-invalidate-result__title">Invalidation results</span>
+							<span className="pg-badge">
+								{lastResult.length === 0
+									? 'no entries'
+									: `${lastResult.length} ${lastResult.length === 1 ? 'entry' : 'entries'}`}
+							</span>
+						</div>
+						<motion.div
+							key={resultVersion}
+							initial={{ opacity: 0, x: -10 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+						>
+							{lastResult.length === 0 ? (
+								<p className="pg-invalidate-result__empty">
+									no matching cache entries — nothing was revalidated
+								</p>
+							) : (
+								<>
+									<div className="pg-invalidate-result__row">
+										{lastResult.map(entry => (
+											<div className="pg-invalidate-result__entry" key={entry.path}>
+												<span className="pg-badge" title={entry.path}>
+													{entry.path}
+												</span>
+												{entry.error ? (
+													<span className="pg-badge err" title={errorMessage(entry.error)}>
+														error: {errorMessage(entry.error)}
+													</span>
+												) : entry.data === undefined ? (
+													<span className="pg-badge">no loader</span>
+												) : (
+													<>
+														<span className="pg-badge ok">ok</span>
+														<span
+															className="pg-invalidate-result__data"
+															title={previewData(entry.data, 1000)}
+														>
+															{previewData(entry.data)}
+														</span>
+													</>
+												)}
+											</div>
+										))}
+									</div>
+									{lastResult.every(entry => entry.data === undefined && !entry.error) && (
+										<p className="pg-hint">
+											Nothing cached under this route yet — open any nest and an item first (that
+											fills the cache), then press again. Note{' '}
+											<code>maxCacheSize: {maxCacheSize}</code>: hovering menu links prefetches in
+											the background and may evict entries before you press.
+										</p>
+									)}
+								</>
+							)}
+						</motion.div>
+					</div>
+				</motion.div>
+			)}
 			<div className="pg-btn-grid">
 				<Button variant="light" onClick={() => run(invalidate())} size="xs">
 					Refetch this page
@@ -82,46 +159,6 @@ const InvalidateLab = () => {
 					Refetch nest subtree
 				</Button>
 			</div>
-			<p className="pg-hint">
-				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is
-				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached paths —
-				and the failing route is never cached (failures don&apos;t poison the cache), so it always comes back
-				empty. Compare with the plain refetch right above each of them. <code>withChildren</code> revalidates
-				the route plus all nested children — open any nest and item first so there is something cached, then
-				watch both entries refresh at once.
-			</p>
-			<Modal opened={opened} onClose={() => setOpened(false)} title="Invalidation results" centered>
-				{lastResult.length === 0 ? (
-					<p className="pg-hint">no matching cache entries — nothing was revalidated</p>
-				) : (
-					<>
-						<ul className="pg-list">
-							{lastResult.map(entry => (
-								<li key={entry.path}>
-									<span className="pg-badge">{entry.path}</span>{' '}
-									{entry.error ? (
-										<span className="pg-badge err">error: {errorMessage(entry.error)}</span>
-									) : entry.data === undefined ? (
-										<span className="pg-badge">no loader</span>
-									) : (
-										<>
-											<span className="pg-badge ok">ok</span>{' '}
-											<span className="pg-badge">{previewData(entry.data)}</span>
-										</>
-									)}
-								</li>
-							))}
-						</ul>
-						{lastResult.every(entry => entry.data === undefined && !entry.error) && (
-							<p className="pg-hint">
-								Nothing cached under this route yet — open any nest and an item first (that fills the
-								cache), then press again. Note <code>maxCacheSize: {maxCacheSize}</code>: hovering menu
-								links prefetches in the background and may evict entries before you press.
-							</p>
-						)}
-					</>
-				)}
-			</Modal>
 		</div>
 	);
 };
