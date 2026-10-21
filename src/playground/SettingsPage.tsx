@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader, Slider, Switch, Tooltip, Button } from '@mantine/core';
+import { Skeleton, Slider, Switch, Tooltip, Button } from '@mantine/core';
 import { Link } from './clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
@@ -24,13 +24,13 @@ const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
 	const timeout = useRef<number | undefined>(undefined);
 	useEffect(() => {
 		window.clearTimeout(timeout.current);
-		// Timer side effect, intentionally not derived state: the spinner must restart on every change.
+		// Timer side effect, intentionally not derived state: the preview must restart on every change.
 		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoading(true);
 		timeout.current = window.setTimeout(() => setIsLoading(false), duration);
 		return () => window.clearTimeout(timeout.current);
 	}, [duration]);
-	return isLoading ? <Loader size="sm" /> : null;
+	return isLoading ? <Skeleton height={22} width={90} radius="sm" /> : null;
 };
 
 const SettingsPage = () => {
@@ -178,7 +178,7 @@ const SettingsPage = () => {
 				<p className="pg-hint">
 					Without it, a fast loader flashes its fallback for a split second — visible flicker on every
 					navigation. This setting holds the loading state for at least the given time, so the fallback never
-					blinks. Try a high value and navigate to a fast route: the spinner above previews the delay.
+					blinks. Try a high value and navigate to a fast route: the skeleton above previews the delay.
 				</p>
 			</div>
 			<div className="pg-card">

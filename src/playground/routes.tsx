@@ -1,7 +1,6 @@
 import { createRouter, lazy } from './clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
-import { Loading } from './Loading';
-import { DeferredSkeleton } from './DeferredSkeleton';
+import { DeferredSkeleton, PageSkeleton, ProductSkeleton } from './Skeletons';
 import { NestLayout } from './NestLayout';
 import { NestChildLayout } from './NestChildLayout';
 import {
@@ -37,7 +36,7 @@ export const playgroundRoutes = createRouter([
 		loader: fetchUnstable,
 		retry: { count: 3, delay: 400 },
 		staleTime: 10000,
-		loaderFallback: <Loading title="retry demo" />,
+		loaderFallback: <PageSkeleton />,
 		errorElement: lazy(() => import('./RetryErrorPage')),
 	},
 	{
@@ -45,7 +44,7 @@ export const playgroundRoutes = createRouter([
 		element: <div>Unreachable — this loader always fails</div>,
 		loader: fetchDoomed,
 		retry: 0,
-		loaderFallback: <Loading title="doomed demo" />,
+		loaderFallback: <PageSkeleton />,
 		errorElement: lazy(() => import('./RetryErrorView')),
 	},
 	{
@@ -53,13 +52,13 @@ export const playgroundRoutes = createRouter([
 		element: lazy(() => import('./LivePage')),
 		loader: fetchQuotes,
 		pollingInterval: 2000,
-		loaderFallback: <Loading title="live quotes" />,
+		loaderFallback: <PageSkeleton />,
 	},
 	{
 		path: '/playground/actions',
 		element: lazy(() => import('./ActionsPage')),
 		loader: fetchNotes,
-		loaderFallback: <Loading title="notes" />,
+		loaderFallback: <PageSkeleton />,
 		actions: () => ({
 			addNote: async (data: Record<string, unknown>) => addNote(data['text'] as string),
 		}),
@@ -68,7 +67,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/prefetch',
 		element: lazy(() => import('./PrefetchPage')),
 		loader: fetchSlow,
-		loaderFallback: <Loading title="slow payload" />,
+		loaderFallback: <PageSkeleton />,
 	},
 	{
 		path: '/playground/optimistic',
@@ -76,7 +75,7 @@ export const playgroundRoutes = createRouter([
 		loader: fetchOptimisticValue,
 		staleTime: 800,
 		optimistic: true,
-		loaderFallback: <Loading title="optimistic value" />,
+		loaderFallback: <PageSkeleton />,
 	},
 	{
 		path: '/playground/deferred',
@@ -95,13 +94,13 @@ export const playgroundRoutes = createRouter([
 				element: lazy(() => import('./NestChildPage')),
 				layout: NestChildLayout,
 				loader: ({ params }) => fetchNest(params.nestId),
-				loaderFallback: <Loading title="nest" />,
+				loaderFallback: <ProductSkeleton />,
 				children: [
 					{
 						path: '/item/:itemId',
 						element: lazy(() => import('./NestItemPage')),
 						loader: ({ params }) => fetchNestItem(params.nestId, params.itemId),
-						loaderFallback: <Loading title="nest item" />,
+						loaderFallback: <ProductSkeleton />,
 					},
 				],
 			},
@@ -111,20 +110,20 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/cache',
 		element: lazy(() => import('./CachePage')),
 		loader: fetchCachePayload,
-		loaderFallback: <Loading title="cache lab" />,
+		loaderFallback: <PageSkeleton />,
 		children: [
 			{
 				path: '/product/:productId',
 				element: lazy(() => import('./ProductPage')),
 				loader: ({ params }) => fetchProduct(params.productId),
-				loaderFallback: <Loading title="product" />,
+				loaderFallback: <ProductSkeleton />,
 			},
 			{
 				path: '/heavy',
 				element: lazy(() => import('./HeavyPage')),
 				loader: fetchHeavy,
 				gcTime: HEAVY_GC_TIME,
-				loaderFallback: <Loading title="heavy payload" />,
+				loaderFallback: <PageSkeleton />,
 			},
 		],
 	},

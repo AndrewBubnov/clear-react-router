@@ -32,3 +32,25 @@ export const DeferredSkeleton = () => (
 		<Skeleton height={16} width={200} mt={8} />
 	</div>
 );
+
+export const PageSkeleton = () => (
+	<div className="pg-wrap">
+		<Skeleton height={52} width={300} mt={32} />
+		<Skeleton height={78} mt={12} radius="sm" />
+		<div className="pg-card">
+			<Skeleton height={24} width={200} />
+			<Skeleton height={16} width="70%" />
+			<Skeleton height={16} width="55%" />
+			<Skeleton height={120} mt={8} radius="sm" />
+		</div>
+		<Skeleton height={16} width={200} mt={8} />
+	</div>
+);
+
+export const ProductSkeleton = () => (
+	<div className="pg-wrap">
+		<Skeleton height={52} width={300} mt={32} />
+		<Skeleton height={78} mt={12} radius="sm" />
+		<Skeleton height={16} width={200} mt={8} />
+	</div>
+);

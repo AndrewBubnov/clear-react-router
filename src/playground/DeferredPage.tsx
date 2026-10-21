@@ -2,7 +2,7 @@ import { Suspense, use } from 'react';
 import { Badge, Button, Group, Progress, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState } from './clear-router';
 import { getCallCount } from './api';
-import { ChartFallback } from './DeferredSkeleton';
+import { ChartFallback } from './Skeletons';
 
 type TrafficSlice = { label: string; color: string; value: number };
 type DeferredDashboard = { call: number; fetchedAt: string; traffic: Promise<TrafficSlice[]> };
