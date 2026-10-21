@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, Card, Group, Progress, Text, ThemeIcon } from '@mantine/core';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from './clear-router';
@@ -135,16 +135,11 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
 	const now = useNow(100);
-	const rowRef = useRef<HTMLDivElement>(null);
 	const cached = entries.filter(entry => !entry.inFlight);
 	const items: DisplayItem[] = cached.map(entry => ({ entry, reason: entry.reason ?? 'navigation' }));
 	const visible = items.slice(-VISIBLE_LIMIT);
 	const hidden = items.length - visible.length;
 	const full = cached.length >= maxSlots;
-	useEffect(() => {
-		const row = rowRef.current;
-		if (row) row.scrollLeft = row.scrollWidth;
-	}, [entries]);
 	return (
 		<Card withBorder radius="lg" padding="sm" shadow="sm">
 			<Group justify="space-between" align="center" gap="xs">
@@ -159,7 +154,6 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 				<FreshnessLegend />
 			</Group>
 			<div
-				ref={rowRef}
 				style={{
 					display: 'flex',
 					flexWrap: 'nowrap',
