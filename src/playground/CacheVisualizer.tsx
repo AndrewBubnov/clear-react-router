@@ -43,6 +43,21 @@ const shortLabel = (path: string) => {
 	return segments[segments.length - 1] ?? '/';
 };
 
+const freshnessColor = (stale: boolean) => (stale ? 'var(--mantine-color-orange-6)' : 'var(--mantine-color-teal-6)');
+
+const FreshnessLegend = () => (
+	<Group gap={10}>
+		{[false, true].map(stale => (
+			<Group key={String(stale)} gap={4}>
+				<span style={{ width: 7, height: 7, borderRadius: '50%', background: freshnessColor(stale) }} />
+				<Text size="9px" c="dimmed" tt="uppercase" fw={700}>
+					{stale ? 'stale' : 'fresh'}
+				</Text>
+			</Group>
+		))}
+	</Group>
+);
+
 const useNow = (interval: number) => {
 	const [now, setNow] = useState(() => Date.now());
 	useEffect(() => {
@@ -57,6 +72,7 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 	const { entry } = item;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
 	const progress = remaining !== undefined && entry.gcDuration ? (remaining / entry.gcDuration) * 100 : undefined;
+	const stale = entry.staleTime !== undefined && now - entry.timestamp > entry.staleTime;
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.8, y: 10, backgroundColor: style.bg, borderColor: style.border }}
@@ -77,8 +93,22 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 				flexDirection: 'column',
 				alignItems: 'center',
 				gap: 2,
+				position: 'relative',
 			}}
 		>
+			<span
+				data-freshness={stale ? 'stale' : 'fresh'}
+				title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
+				style={{
+					position: 'absolute',
+					top: 5,
+					right: 5,
+					width: 7,
+					height: 7,
+					borderRadius: '50%',
+					background: freshnessColor(stale),
+				}}
+			/>
 			<ThemeIcon size={24} radius="xl" variant="light" color={style.theme}>
 				<span style={{ fontSize: 14, lineHeight: 1 }}>{style.icon}</span>
 			</ThemeIcon>
@@ -125,9 +155,9 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 					{cached.length} / {maxSlots} entries
 				</Badge>
 			</Group>
-			<Text size="9px" c="dimmed" tt="uppercase" fw={700} mt={6}>
-				oldest → newest
-			</Text>
+			<Group justify="center" mt={6}>
+				<FreshnessLegend />
+			</Group>
 			<div
 				ref={rowRef}
 				style={{
