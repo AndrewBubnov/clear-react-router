@@ -78,7 +78,7 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 			initial={{ opacity: 0, scale: 0.8, y: 10, backgroundColor: style.bg, borderColor: style.border }}
 			animate={{ opacity: 1, scale: 1, y: 0, backgroundColor: style.bg, borderColor: style.border }}
 			exit={{ opacity: 0, scale: 0.9 }}
-			transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+			transition={{ type: 'spring', stiffness: 200, damping: 35 }}
 			title={entry.path}
 			style={{
 				width: 72,
@@ -180,7 +180,7 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 						<CacheCard key={item.entry.path} item={item} now={now} />
 					))}
 				</AnimatePresence>
-				{visible.length === 0 && (
+				{!visible.length && (
 					<Text size="xs" c="dimmed">
 						No cached entries yet.
 					</Text>

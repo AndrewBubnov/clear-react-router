@@ -195,13 +195,6 @@
 	background: var(--code-bg);
 }
 
-.pg-invalidate-result__entry .pg-badge {
-	/*max-width: 200px;*/
-	/*overflow: hidden;*/
-	/*text-overflow: ellipsis;*/
-	/*white-space: nowrap;*/
-}
-
 .pg-invalidate-result__data {
 	max-width: 450px;
 	overflow: hidden;
