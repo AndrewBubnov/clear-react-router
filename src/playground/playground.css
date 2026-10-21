@@ -441,6 +441,21 @@ h1 {
 	overflow: hidden;
 }
 
+.pg-cache-row {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 8px;
+	margin-top: 8px;
+	min-height: 96px;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scrollbar-width: none;
+}
+
+.pg-cache-row::-webkit-scrollbar {
+	display: none;
+}
+
 @media (hover: hover) {
 	.pg-nav-link:hover {
 		background: var(--accent-bg);

@@ -159,17 +159,7 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 			<Group justify="center" mt={6}>
 				<FreshnessLegend />
 			</Group>
-			<div
-				style={{
-					display: 'flex',
-					flexWrap: 'nowrap',
-					overflowX: 'auto',
-					overscrollBehaviorX: 'contain',
-					gap: 8,
-					marginTop: 8,
-					minHeight: 96,
-				}}
-			>
+			<div className="pg-cache-row">
 				{hidden > 0 && (
 					<Text size="9px" c="dimmed" style={{ alignSelf: 'center' }}>
 						+{hidden} older
