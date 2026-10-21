@@ -59,6 +59,7 @@ export const PlaygroundNav = () => {
 				<NavLink to="/playground/blocker">Blocker</NavLink>
 				<NavLink to="/playground/prefetch">Prefetch</NavLink>
 				<NavLink to="/playground/optimistic">Optimistic</NavLink>
+				<NavLink to="/playground/deferred">Deferred</NavLink>
 				<NavLink to="/playground/guard">Guards</NavLink>
 				<NavLink to="/playground/nest">Nested</NavLink>
 				<NavLink to="/playground/live">Live</NavLink>

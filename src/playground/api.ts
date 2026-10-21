@@ -77,6 +77,25 @@ export const fetchCachePayload = async () => {
 
 const timeNow = () => new Date().toLocaleTimeString('en-GB');
 
+const TRAFFIC = [
+	{ label: 'Organic search', color: 'teal', value: 38 },
+	{ label: 'Direct', color: 'blue', value: 27 },
+	{ label: 'Referrals', color: 'grape', value: 21 },
+	{ label: 'Social', color: 'orange', value: 14 },
+];
+
+/**
+ * Deferred render demo: the route resolves fast with a summary, while the chart
+ * is a promise inside that data payload. React `use()` suspends only the chart.
+ */
+export const fetchDeferredDashboard = async () => {
+	const n = trackCall('deferred');
+	await delay(250);
+	const shift = (n - 1) % TRAFFIC.length;
+	const traffic = delay(1400).then(() => [...TRAFFIC.slice(shift), ...TRAFFIC.slice(0, shift)]);
+	return { call: n, fetchedAt: timeNow(), traffic };
+};
+
 /** Nest demo: per-id payload with visible latency, cached separately per params. */
 export const fetchNest = async (nestId: string) => {
 	const n = trackCall(`nest-${nestId}`);

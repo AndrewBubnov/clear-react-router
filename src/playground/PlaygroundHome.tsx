@@ -1,44 +1,7 @@
-import { Fragment } from 'react';
 import { Link } from './clear-router';
-import { usePlaygroundSettings } from './usePlaygroundSettings';
-import type { NavLinkAs } from './NavLinkAs';
 import { isMobileViewport } from './utils.ts';
 
-const NAV_LINK_LABELS: Record<NavLinkAs, string> = {
-	link: 'Link',
-	mui: 'MUI',
-	mantine: 'Mantine',
-};
-
-const SettingsSummary = () => {
-	const s = usePlaygroundSettings();
-	const rows: [string, string][] = [
-		['Transitions', s.isAnimated ? 'on' : 'off'],
-		['Animation', s.animationDuration ? `${s.animationDuration}ms` : 'default'],
-		['Cache size', String(s.maxCacheSize)],
-		['Prefetch', s.defaultPrefetch],
-		['Nav link', NAV_LINK_LABELS[s.navLinkAs]],
-		['Min loader', s.minLoaderDuration ? `${s.minLoaderDuration}ms` : 'unset'],
-		['Status badge', s.showStatusBadge ? 'shown' : 'hidden'],
-	];
-	return (
-		<dl className="pg-settings-grid">
-			{rows.map(([label, value]) => (
-				<Fragment key={label}>
-					<dt>{label}</dt>
-					<dd>{value}</dd>
-				</Fragment>
-			))}
-		</dl>
-	);
-};
-
 const demos = [
-	{
-		to: '/playground/settings',
-		title: 'Settings',
-		text: 'Router settings applied live: transitions, animation duration, cache size.',
-	},
 	{
 		to: '/playground/cache',
 		title: 'Cache: eviction, gcTime, invalidate',
@@ -70,13 +33,18 @@ const demos = [
 		text: 'Stale cached data renders instantly while fresh data revalidates in the background.',
 	},
 	{
+		to: '/playground/deferred',
+		title: 'Deferred render',
+		text: 'The route shell renders fast; a slow promise inside loader data streams in a colored chart under its own Suspense fallback.',
+	},
+	{
 		to: '/playground/prefetch',
 		title: 'Prefetch',
 		text: 'Slow loader + hover prefetch: load instantly on click, loader runs exactly once.',
 	},
 	{
 		to: '/playground/nest',
-		title: 'Nested routes + params',
+		title: 'Nested routes + params + layouts',
 		text: 'Double-nested children with params at each level, random IDs, per-param loaders cached separately, and a shared route layout that keeps its state across nested navigation.',
 	},
 	{
@@ -116,7 +84,7 @@ export const PlaygroundHome = () => (
 				<Link key={d.to} to={d.to} className="pg-card-link">
 					<div className="pg-card pg-card-home">
 						<h2>{d.title}</h2>
-						{d.to === '/playground/settings' ? <SettingsSummary /> : <p>{d.text}</p>}
+						<p>{d.text}</p>
 					</div>
 				</Link>
 			))}

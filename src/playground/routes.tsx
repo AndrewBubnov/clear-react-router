@@ -7,6 +7,7 @@ import {
 	HEAVY_GC_TIME,
 	addNote,
 	fetchCachePayload,
+	fetchDeferredDashboard,
 	fetchDoomed,
 	fetchHeavy,
 	fetchNest,
@@ -75,6 +76,13 @@ export const playgroundRoutes = createRouter([
 		staleTime: 800,
 		optimistic: true,
 		loaderFallback: <Loading title="optimistic value" />,
+	},
+	{
+		path: '/playground/deferred',
+		element: lazy(() => import('./DeferredPage')),
+		loader: fetchDeferredDashboard,
+		staleTime: 10000,
+		loaderFallback: <Loading title="deferred render" />,
 	},
 	{
 		path: '/playground/nest',
