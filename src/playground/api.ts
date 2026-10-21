@@ -90,9 +90,9 @@ const TRAFFIC = [
  */
 export const fetchDeferredDashboard = async () => {
 	const n = trackCall('deferred');
-	await delay(250);
+	await delay(400);
 	const shift = (n - 1) % TRAFFIC.length;
-	const traffic = delay(1400).then(() => [...TRAFFIC.slice(shift), ...TRAFFIC.slice(0, shift)]);
+	const traffic = delay(1600).then(() => [...TRAFFIC.slice(shift), ...TRAFFIC.slice(0, shift)]);
 	return { call: n, fetchedAt: timeNow(), traffic };
 };
 

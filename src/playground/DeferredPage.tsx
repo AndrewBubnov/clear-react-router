@@ -1,7 +1,8 @@
 import { Suspense, use } from 'react';
-import { Badge, Button, Group, Progress, RingProgress, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
+import { Badge, Button, Group, Progress, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
 import { Link, useInvalidate, useLoaderState } from './clear-router';
 import { getCallCount } from './api';
+import { ChartFallback } from './DeferredSkeleton';
 
 type TrafficSlice = { label: string; color: string; value: number };
 type DeferredDashboard = { call: number; fetchedAt: string; traffic: Promise<TrafficSlice[]> };
@@ -47,17 +48,6 @@ const TrafficChart = ({ traffic }: { traffic: Promise<TrafficSlice[]> }) => {
 	);
 };
 
-const ChartFallback = () => (
-	<Group align="center" gap="xl">
-		<Skeleton height={180} width={180} circle />
-		<Stack gap="sm" style={{ flex: 1, minWidth: 240 }}>
-			{Array.from({ length: 4 }, (_, i) => (
-				<Skeleton key={i} height={32} radius="sm" />
-			))}
-		</Stack>
-	</Group>
-);
-
 const DeferredPage = () => {
 	const { data } = useLoaderState<DeferredDashboard>();
 	const invalidate = useInvalidate();
@@ -65,7 +55,7 @@ const DeferredPage = () => {
 		<div className="pg-wrap">
 			<h1>Deferred render</h1>
 			<p className="pg-hint">
-				The loader resolves in ~250ms, but the chart is a promise nested in its data that settles ~1.4s later.
+				The loader resolves in ~400ms, but the chart is a promise nested in its data that settles ~1.6s later.
 				The page shell renders immediately and only the chart suspends into its own fallback. Press{' '}
 				<em>Load again</em>: <code>invalidate()</code> refreshes the loader and the chart drops back to the
 				fallback without remounting the rest of the card.

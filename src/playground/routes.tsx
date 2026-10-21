@@ -1,6 +1,7 @@
 import { createRouter, lazy } from './clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
 import { Loading } from './Loading';
+import { DeferredSkeleton } from './DeferredSkeleton';
 import { NestLayout } from './NestLayout';
 import { NestChildLayout } from './NestChildLayout';
 import {
@@ -82,7 +83,7 @@ export const playgroundRoutes = createRouter([
 		element: lazy(() => import('./DeferredPage')),
 		loader: fetchDeferredDashboard,
 		staleTime: 10000,
-		loaderFallback: <Loading title="deferred render" />,
+		loaderFallback: <DeferredSkeleton />,
 	},
 	{
 		path: '/playground/nest',
