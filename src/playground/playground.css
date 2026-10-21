@@ -208,6 +208,7 @@
 
 .pg-invalidate-result__entry {
 	display: flex;
+	flex-wrap: balance;
 	flex: 0 0 auto;
 	align-items: center;
 	gap: 6px;
@@ -219,14 +220,14 @@
 }
 
 .pg-invalidate-result__entry .pg-badge {
-	max-width: 200px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	/*max-width: 200px;*/
+	/*overflow: hidden;*/
+	/*text-overflow: ellipsis;*/
+	/*white-space: nowrap;*/
 }
 
 .pg-invalidate-result__data {
-	max-width: 200px;
+	max-width: 450px;
 	overflow: hidden;
 	font-family: var(--mono), sans-serif;
 	font-size: 13px;
