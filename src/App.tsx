@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { Badge, MantineProvider, createTheme } from '@mantine/core';
+import { Badge, MantineProvider, createTheme, type MantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { Router, useRouteStatus, type Status as RouteStatus } from './playground/clear-router';
 import { CacheVisualizer } from './playground/CacheVisualizer';
@@ -12,7 +12,6 @@ import './playground/playground.css';
 const Shell = () => {
 	const { isAnimated, animationDuration, maxCacheSize, defaultPrefetch, minLoaderDuration, showCacheVisualizer } =
 		usePlaygroundSettings();
-	const isWide = useMediaQuery('(min-width: 1280px)');
 	const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 	return (
 		<div>
@@ -30,7 +29,6 @@ const Shell = () => {
 								transition: reduceMotion
 									? { duration: 0 }
 									: {
-											delay: isWide ? 0.2 : 0,
 											type: 'spring',
 											stiffness: 400,
 											damping: 28,
@@ -47,16 +45,14 @@ const Shell = () => {
 						</motion.div>
 					)}
 				</AnimatePresence>
-				<div className="pg-main">
-					<Router
-						routes={playgroundRoutes}
-						isAnimated={isAnimated}
-						animationDuration={animationDuration}
-						maxCacheSize={maxCacheSize}
-						defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
-						defaultMinLoaderDuration={minLoaderDuration}
-					/>
-				</div>
+				<Router
+					routes={playgroundRoutes}
+					isAnimated={isAnimated}
+					animationDuration={animationDuration}
+					maxCacheSize={maxCacheSize}
+					defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
+					defaultMinLoaderDuration={minLoaderDuration}
+				/>
 			</div>
 		</div>
 	);
@@ -99,9 +95,16 @@ const theme = createTheme({
 	},
 });
 
+const cssVariablesResolver = (t: MantineTheme) => ({
+	variables: {},
+	light: {},
+	// Mantine's light variant paints text with shade 0 (near-white) in dark mode; use the mid shade instead.
+	dark: { '--mantine-color-steelblue-light-color': t.colors.steelblue[4] },
+});
+
 const App = () => {
 	return (
-		<MantineProvider theme={theme}>
+		<MantineProvider theme={theme} defaultColorScheme="auto" cssVariablesResolver={cssVariablesResolver}>
 			<PlaygroundSettingsProvider>
 				<Shell />
 				<Status />

@@ -11,7 +11,6 @@ const REASON = {
 	navigation: {
 		bg: 'rgba(34,160,107,0.14)',
 		border: 'rgba(34,160,107,0.9)',
-		color: '#1f8f60',
 		theme: 'green',
 		icon: '→',
 		label: 'navigation',
@@ -19,7 +18,6 @@ const REASON = {
 	prefetch: {
 		bg: 'rgba(112,72,232,0.14)',
 		border: 'rgba(112,72,232,0.9)',
-		color: '#6741d9',
 		theme: 'violet',
 		icon: '↯',
 		label: 'prefetch',
@@ -27,7 +25,6 @@ const REASON = {
 	invalidate: {
 		bg: 'rgba(217,72,15,0.13)',
 		border: 'rgba(217,72,15,0.9)',
-		color: '#c2410c',
 		theme: 'orange',
 		icon: '↻',
 		label: 'invalidate',
@@ -35,7 +32,6 @@ const REASON = {
 	polling: {
 		bg: 'rgba(51,112,180,0.12)',
 		border: 'rgba(51,112,180,0.9)',
-		color: '#3370b4',
 		theme: 'blue',
 		icon: '⟳',
 		label: 'polling',
@@ -86,10 +82,10 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 			<ThemeIcon size={24} radius="xl" variant="light" color={style.theme}>
 				<span style={{ fontSize: 14, lineHeight: 1 }}>{style.icon}</span>
 			</ThemeIcon>
-			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%', color: style.color }}>
+			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
 				{shortLabel(entry.path)}
 			</Text>
-			<Text size="10px" truncate style={{ maxWidth: '100%', color: style.color, opacity: 0.9 }}>
+			<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
 				{style.label}
 			</Text>
 			{progress !== undefined && remaining !== undefined && (

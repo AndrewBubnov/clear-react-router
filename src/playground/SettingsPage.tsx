@@ -156,7 +156,7 @@ const SettingsPage = () => {
 					navigation, active and pending states in all three.
 				</p>
 			</div>
-			<div className="pg-card pg-card-short">
+			<div className="pg-card">
 				<h2>Min loader duration</h2>
 				<div className="pg-row pg-settings-loader-wrap">
 					<div className="pg-row">
@@ -181,7 +181,7 @@ const SettingsPage = () => {
 					blinks. Try a high value and navigate to a fast route: the spinner above previews the delay.
 				</p>
 			</div>
-			<div className="pg-card pg-card-short">
+			<div className="pg-card">
 				<h2>Show status badge</h2>
 				<div className="pg-row">
 					<Switch

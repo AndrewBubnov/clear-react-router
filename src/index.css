@@ -14,18 +14,28 @@
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
+
+  --app-width: 1126px;
+  --content-width: 860px;
+  --page-gutter: 20px;
+
+  --fs-base: clamp(16px, 1.56vw, 18px);
+  --fs-h1: clamp(36px, 7.8vw - 44px, 56px);
+  --fs-h2: clamp(20px, 1.56vw + 4px, 24px);
+  --space-h1: clamp(20px, 4.7vw - 28px, 32px);
+
   a {
     color: currentColor;
     text-decoration: none;
   }
   .active-link {
     text-decoration: underline;
-    color: #4682b4;
+    color: var(--accent);
   }
   .pending-link {
     opacity: 0.5;
   }
-  font: 18px/145% var(--sans);
+  font: var(--fs-base)/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -34,10 +44,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,7 +66,7 @@
 }
 
 #root {
-  width: 1126px;
+  width: var(--app-width);
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -73,6 +79,9 @@
 
 body {
   margin: 0;
+  /* Our palette drives the page shell in both schemes; keep Mantine's baseline from overriding it. */
+  background: var(--bg);
+  color: var(--text);
   /* Mantine's layered baseline sets font-family/line-height on body; inherit keeps our :root typography. */
   font: inherit;
 }
@@ -85,22 +94,15 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
+  font-size: var(--fs-h1);
   letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  margin: var(--space-h1) 0;
 }
 h2 {
-  font-size: 24px;
+  font-size: var(--fs-h2);
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
 p {
   margin: 0;
