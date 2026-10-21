@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Badge, Card, Group, Progress, Text, ThemeIcon } from '@mantine/core';
+import { Badge, Card, Group, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from './clear-router';
 
 const VISIBLE_LIMIT = 6;
@@ -146,9 +146,15 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 				<Text fw={700} size="sm">
 					Cache visualizer
 				</Text>
-				<Badge variant="light" color={full ? 'orange' : 'teal'}>
-					{cached.length} / {maxSlots} entries
-				</Badge>
+				<Tooltip
+					label={`${cached.length} entries cached now, limit ${maxSlots} — set by "Loader cache size" in settings`}
+					multiline
+					w={260}
+				>
+					<Badge variant="light" color={full ? 'orange' : 'teal'}>
+						{cached.length} / {maxSlots} entries
+					</Badge>
+				</Tooltip>
 			</Group>
 			<Group justify="center" mt={6}>
 				<FreshnessLegend />
