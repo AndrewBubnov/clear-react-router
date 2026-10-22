@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { RouterProps } from './clear-router';
 import { SettingsContext } from './settings-context';
 import type { NavLinkAs } from './NavLinkAs';
+import { isMobileViewport } from './utils.ts';
 
 export type PrefetchSetting = 'auto' | NonNullable<RouterProps['defaultPrefetch']>;
 
@@ -19,7 +20,7 @@ export type PlaygroundSettings = {
 export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }) => {
 	const [isAnimated, setIsAnimated] = useState(false);
 	const [showStatusBadge, setShowStatusBadge] = useState(true);
-	const [showCacheVisualizer, setShowCacheVisualizer] = useState(true);
+	const [showCacheVisualizer, setShowCacheVisualizer] = useState(!isMobileViewport);
 	const [animationDuration, setAnimationDuration] = useState<number | undefined>(undefined);
 	const [maxCacheSize, setMaxCacheSize] = useState(3);
 	const [defaultPrefetch, setDefaultPrefetch] = useState<PrefetchSetting>('auto');
