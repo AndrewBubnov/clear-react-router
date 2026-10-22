@@ -66,7 +66,6 @@ Netlify (`public/_redirects`):
 |------|------|---------|-------------|
 | `routes` | `RouteItem[]` | required | Array of route configurations |
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
-| `logged` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
@@ -83,6 +82,7 @@ Netlify (`public/_redirects`):
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
 | `revalidateOnFocus` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser tab regains focus |
 | `revalidateOnReconnect` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser regains an internet connection |
+| `logged` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
