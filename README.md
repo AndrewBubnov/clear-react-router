@@ -896,7 +896,7 @@ type CacheSnapshotEntry = {
   reason?: CacheReason;               // what wrote the entry last
   gcExpiresAt: number | undefined;    // GC deadline, if a GC timer is pending
   gcDuration: number | undefined;     // the route's gcTime, for progress display
-  isLoading: boolean;                  // a loader for this path is currently running
+  isLoading: boolean;                 // a loader for this path is currently running
 };
 
 type CacheSnapshot = CacheSnapshotEntry[];
