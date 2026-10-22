@@ -22,24 +22,28 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 };
 
 export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderMap, loadingPromises, contextState } = routerState;
+	const { loaderMap, loadingPromises, contextState, syncCacheSnapshot } = routerState;
 	const flightOwners = new Map<string, AbortController | AbortSignal>();
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const oldestKey = loaderMap.keys().next().value;
-		if (oldestKey) loaderMap.delete(oldestKey);
+		if (oldestKey) {
+			loaderMap.delete(oldestKey);
+			syncCacheSnapshot();
+		}
 	};
 	const moveItemToLastPosition = (path: string) => {
 		const item = loaderMap.get(path);
 		if (item) {
 			loaderMap.delete(path);
 			loaderMap.set(path, item);
+			syncCacheSnapshot();
 		}
 		return item;
 	};
 
 	const revalidateCache = async (
-		{ routeItem, location, signal, force }: RevalidateCacheArgs,
+		{ routeItem, location, signal, force, reason }: RevalidateCacheArgs,
 		retried = 0
 	): LoadingPromise => {
 		if (!routeItem?.loader) return;
@@ -55,6 +59,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				owner.abort();
 				loadingPromises.delete(path);
 				flightOwners.delete(path);
+				syncCacheSnapshot();
 			} else {
 				moveItemToLastPosition(path);
 				return loadingPromises.get(path);
@@ -86,8 +91,10 @@ export const createRevalidateCache = (routerState: RouterState) => {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),
 					staleTime: routeItem.staleTime,
+					reason,
 				});
 				evict();
+				syncCacheSnapshot();
 				return { data: result, error: null };
 			} catch (error) {
 				if (effectiveSignal.aborted) return { data: null, error: null };
@@ -98,7 +105,7 @@ export const createRevalidateCache = (routerState: RouterState) => {
 						flightOwners.delete(path);
 					}
 					if (retry.delay) await sleep(retry.delay);
-					return revalidateCache({ routeItem, location, signal, force }, retried + 1);
+					return revalidateCache({ routeItem, location, signal, force, reason }, retried + 1);
 				} else {
 					return { data: null, error };
 				}
@@ -106,11 +113,13 @@ export const createRevalidateCache = (routerState: RouterState) => {
 				if (isOwner()) {
 					loadingPromises.delete(path);
 					flightOwners.delete(path);
+					syncCacheSnapshot();
 				}
 			}
 		})();
 
 		loadingPromises.set(path, promise);
+		syncCacheSnapshot();
 		return promise;
 	};
 	return revalidateCache;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, Card, Group, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
-import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from './clear-router';
+import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from '../clear-router';
 
 const VISIBLE_LIMIT = 6;
 

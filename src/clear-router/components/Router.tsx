@@ -36,6 +36,7 @@ export const Router = ({
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
+	logged = false,
 }: RouterProps) => {
 	const { useRouteDataSelector } = router.hooks;
 	const routeItem = useRouteDataSelector(state => state.routeItem);
@@ -61,6 +62,7 @@ export const Router = ({
 		revalidateOnFocus,
 		revalidateOnReconnect,
 		defaultScrollRestorationBehavior,
+		logged,
 	});
 	useApplyCustomAnimation(animationDuration);
 	useSetInitialContext(initialContext);

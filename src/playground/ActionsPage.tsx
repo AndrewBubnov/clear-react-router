@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Button } from '@mantine/core';
-import { Link, useInvalidate, useLoaderState, useSubmitAction } from './clear-router';
+import { Link, useInvalidate, useLoaderState, useSubmitAction } from '../clear-router';
 import type { Note } from './api';
 
 const AddNoteForm = () => {

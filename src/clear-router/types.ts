@@ -75,11 +75,14 @@ export type Location = {
 
 export type BlockerState = 'blocked' | 'unblocked' | 'charged';
 
+export type CacheReason = 'navigation' | 'prefetch' | 'invalidate' | 'polling';
+
 export type RevalidateCacheArgs = {
 	location: Location;
 	routeItem?: RouteItem;
 	signal?: AbortSignal;
 	force?: boolean;
+	reason?: CacheReason;
 };
 
 export type LoaderState<T = unknown> = {
@@ -120,14 +123,32 @@ export type RouterProps = {
 	revalidateOnFocus?: boolean;
 	revalidateOnReconnect?: boolean;
 	context?: Record<string, unknown>;
+	/** Enables cache snapshot tracking for devtools. `useCacheSnapshot` returns an empty list without it. */
+	logged?: boolean;
 };
 
 export type LoaderStateItem = {
 	state: LoaderState;
 	timestamp: number;
 	staleTime: number | undefined;
+	reason?: CacheReason;
 	gcTimeout?: number;
+	gcExpiresAt?: number;
+	gcDuration?: number;
 };
+
+export type CacheSnapshotEntry = {
+	path: string;
+	data: unknown;
+	timestamp: number;
+	staleTime: number | undefined;
+	reason?: CacheReason;
+	gcExpiresAt: number | undefined;
+	gcDuration: number | undefined;
+	inFlight: boolean;
+};
+
+export type CacheSnapshot = CacheSnapshotEntry[];
 
 export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
 
@@ -139,6 +160,8 @@ export type RouterState = {
 	contextState: Store<Record<string, unknown>>;
 	blockerState: Store<BlockerState>;
 	blockedTargetState: Store<Location | null>;
+	cacheSnapshotState: Store<CacheSnapshot>;
+	syncCacheSnapshot: () => void;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
 };
@@ -148,6 +171,7 @@ export type RouterType = {
 		navigate(arg: Location): Promise<void>;
 		invalidate(pathList?: string | string[], options?: InvalidateOptions): Promise<InvalidateResult[]>;
 		prefetch(location: Location, signal?: AbortSignal): Promise<void>;
+		syncCacheSnapshot(): void;
 	};
 	hooks: {
 		useBlockerState(): ReturnType<typeof useGlobalState<BlockerState>>;
@@ -165,6 +189,7 @@ export type RouterType = {
 		): (arg: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
 		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
 		useRouteDataSelector<T>(callback: (arg: RouteData) => T): T;
+		useCacheSnapshot(): CacheSnapshot;
 		useSetLocation(): (location: Location) => void;
 	};
 };

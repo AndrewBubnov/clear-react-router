@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, MantineProvider, createTheme, type MantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { Router, useRouteStatus, type Status as RouteStatus } from './playground/clear-router';
+import { Router, useRouteStatus, type Status as RouteStatus } from './clear-router';
 import { CacheVisualizer } from './playground/CacheVisualizer';
 import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
@@ -52,6 +52,7 @@ const Shell = () => {
 					maxCacheSize={maxCacheSize}
 					defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
 					defaultMinLoaderDuration={minLoaderDuration}
+					logged={showCacheVisualizer}
 				/>
 			</div>
 		</div>

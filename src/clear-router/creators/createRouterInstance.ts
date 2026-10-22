@@ -5,8 +5,10 @@ import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
 import { formatSearchObject, getParams, interpolatePath, isVerticalScroll } from '../utils/utils';
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
+import { routerConfig } from '../config/routerConfig';
 import {
 	BlockerState,
+	CacheSnapshot,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -22,6 +24,40 @@ import {
 } from '../types';
 
 export const createRouterInstance = (synchronizer: Synchronizer): RouterType => {
+	const loaderMap = new Map<string, LoaderStateItem>();
+	const loadingPromises = new Map<string, LoadingPromise>();
+	const cacheSnapshotState = create<CacheSnapshot>([]);
+
+	const syncCacheSnapshot = () => {
+		if (!routerConfig.logged) return;
+		const entries: CacheSnapshot = [];
+		for (const [path, item] of loaderMap) {
+			entries.push({
+				path,
+				data: item.state?.data,
+				timestamp: item.timestamp,
+				staleTime: item.staleTime,
+				reason: item.reason,
+				gcExpiresAt: item.gcExpiresAt,
+				gcDuration: item.gcDuration,
+				inFlight: loadingPromises.has(path),
+			});
+		}
+		for (const path of loadingPromises.keys()) {
+			if (loaderMap.has(path)) continue;
+			entries.push({
+				path,
+				data: undefined,
+				timestamp: Date.now(),
+				staleTime: undefined,
+				gcExpiresAt: undefined,
+				gcDuration: undefined,
+				inFlight: true,
+			});
+		}
+		cacheSnapshotState.setState(entries);
+	};
+
 	const routerState: RouterState = {
 		routeDataState: create<RouteData>({
 			routeItem: undefined,
@@ -33,8 +69,10 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 		contextState: create<Record<string, unknown>>({}),
 		blockerState: create<BlockerState>('unblocked'),
 		blockedTargetState: create<Location | null>(null),
-		loaderMap: new Map<string, LoaderStateItem>(),
-		loadingPromises: new Map<string, LoadingPromise>(),
+		cacheSnapshotState,
+		syncCacheSnapshot,
+		loaderMap,
+		loadingPromises,
 	};
 
 	const revalidateCache = createRevalidateCache(routerState);
@@ -57,7 +95,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 	};
 
 	return {
-		runtime: { navigate, invalidate, prefetch },
+		runtime: { navigate, invalidate, prefetch, syncCacheSnapshot },
 		hooks: {
 			useBlockerState: () => useGlobalState<BlockerState>(routerState.blockerState, synchronizer),
 			useScrollMap: () => useGlobalState<ScrollMap>(routerState.scrollMapState, synchronizer),
@@ -140,6 +178,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				const state = routerState.routeDataState;
 				return synchronizer(state.subscribe, () => callback(state.getState()));
 			},
+			useCacheSnapshot: () => useGlobalState<CacheSnapshot>(routerState.cacheSnapshotState, synchronizer)[0],
 			useSetLocation: () => (location: Location) =>
 				routerState.routeDataState.setState(prevState => ({ ...prevState, location })),
 		},

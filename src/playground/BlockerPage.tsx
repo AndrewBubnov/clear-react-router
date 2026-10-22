@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Modal, Button } from '@mantine/core';
-import { Link, useBlocker } from './clear-router';
+import { Link, useBlocker } from '../clear-router';
 
 const BlockerPage = () => {
 	const [value, setValue] = useState('');

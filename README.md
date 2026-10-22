@@ -33,6 +33,7 @@ It provides first-class support for:
 - **Programmatic Redirects** - Redirect from beforeLoad hook
 - **Cache invalidation** - Manual route invalidation
 - **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
+- **Cache inspection** - Opt into a live, read-only snapshot of cached loader entries with `logged` and `useCacheSnapshot()`
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
@@ -65,6 +66,7 @@ Netlify (`public/_redirects`):
 |------|------|---------|-------------|
 | `routes` | `RouteItem[]` | required | Array of route configurations |
 | `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
+| `logged` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
 | `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
 | `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
 | `context` | `object` | `{}` | Initial context (user, theme, etc.) |
@@ -858,6 +860,55 @@ const UserProfile = () => {
 ```
 
 
+### `useCacheSnapshot()`
+
+Returns a read-only snapshot of the loader cache — intended for devtools panels, debugging, and cache
+monitoring. Requires `<Router logged>`; while the flag is off the snapshot is empty and nothing is built.
+
+```tsx
+import { useCacheSnapshot } from 'clear-react-router';
+
+const CachePanel = () => {
+  const entries = useCacheSnapshot();
+
+  return (
+    <ul>
+      {entries.map(entry => (
+        <li key={entry.path}>
+          {entry.path} — {entry.reason ?? 'unknown'} — {entry.inFlight ? 'loading' : 'cached'}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+<Router routes={routes} logged />
+```
+
+```ts
+type CacheReason = 'navigation' | 'prefetch' | 'invalidate' | 'polling';
+
+type CacheSnapshotEntry = {
+  path: string;                       // pathname + search
+  data: unknown;                      // loader result; undefined while the first load is in flight
+  timestamp: number;                  // when the entry was written (ms since epoch)
+  staleTime: number | undefined;      // copy of the route's staleTime
+  reason?: CacheReason;               // what wrote the entry last
+  gcExpiresAt: number | undefined;    // GC deadline, if a GC timer is pending
+  gcDuration: number | undefined;     // the route's gcTime, for progress display
+  inFlight: boolean;                  // a loader for this path is currently running
+};
+
+type CacheSnapshot = CacheSnapshotEntry[];
+```
+
+Notes:
+
+- The snapshot is a projection, not a second cache — changing it does nothing.
+- Entries appear for in-flight first loads too (`data: undefined`, `inFlight: true`), so a devtool never misses a request.
+- Mounting the hook refreshes the snapshot, so a panel opened after navigation still sees existing entries.
+- `logged` is process-wide (the router is a singleton): if several `<Router>`s render with different values, the last rendered one wins. Enable it only when a consumer is actually mounted.
+
 ### `useInvalidate()`
 
 Returns a function that revalidates **cached** route data. Calling `invalidate()` clears cached route data and immediately runs the corresponding route `loader` again.
@@ -1276,8 +1327,9 @@ Try it live — no setup: **[clear-router playground](https://clear-react-router
 
 Scroll restoration (window + named containers), retry with attempt counts, live polling,
 actions with invalidation, navigation blocking, hover prefetch, optimistic navigation,
-LRU eviction with a tiny cache, gcTime cleanup, an invalidation lab, search params,
-and a context-based auth guard — all running against a fake in-browser server.
+LRU eviction with a tiny cache, gcTime cleanup, an invalidation lab, a live cache visualizer
+(toggle it in settings), search params, and a context-based auth guard — all running against a fake
+in-browser server.
 Open devtools and click around.
 
  ## License

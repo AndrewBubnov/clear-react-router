@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton, Slider, Switch, Tooltip, Button } from '@mantine/core';
-import { Link } from './clear-router';
+import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';

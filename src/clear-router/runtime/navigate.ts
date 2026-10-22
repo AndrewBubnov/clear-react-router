@@ -19,7 +19,15 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = null;
 	};
 
-	const { contextState, loaderMap, routeDataState, scrollMapState, blockerState, blockedTargetState } = routerState;
+	const {
+		contextState,
+		loaderMap,
+		routeDataState,
+		scrollMapState,
+		blockerState,
+		blockedTargetState,
+		syncCacheSnapshot,
+	} = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
@@ -69,8 +77,13 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const currentLoaderEntry = loaderMap.get(path);
 		if (!currentLoaderEntry) return;
 		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
-		const gcTimeout = window.setTimeout(() => loaderMap.delete(path), routeItem.gcTime);
-		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout });
+		const gcExpiresAt = Date.now() + routeItem.gcTime;
+		const gcTimeout = window.setTimeout(() => {
+			loaderMap.delete(path);
+			syncCacheSnapshot();
+		}, routeItem.gcTime);
+		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout, gcExpiresAt, gcDuration: routeItem.gcTime });
+		syncCacheSnapshot();
 	};
 
 	const commitOptimisticState = (routeItem: RouteItem | undefined, location: Location, path: string) => {
@@ -112,7 +125,13 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = new AbortController();
 		const signal = pollingController.signal;
 		interval = window.setInterval(async () => {
-			const result = await revalidateCache({ routeItem, location: nextLocation, signal, force: true });
+			const result = await revalidateCache({
+				routeItem,
+				location: nextLocation,
+				signal,
+				force: true,
+				reason: 'polling',
+			});
 			if (!result || signal.aborted) return;
 			const { location: currentLocation } = routeDataState.getState();
 			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;
@@ -139,7 +158,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		if (!routeItem?.loader) return;
 		const signal = createSignal();
 		const [result] = await Promise.all([
-			revalidateCache({ routeItem, location: nextLocation, signal }),
+			revalidateCache({ routeItem, location: nextLocation, signal, reason: 'navigation' }),
 			getLoaderDurationPromise(routeItem, nextLocation),
 		]);
 		if (seq !== navigationSeq) return;
@@ -170,7 +189,12 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		const currentLoaderEntry = loaderMap.get(path);
 		if (!currentLoaderEntry?.gcTimeout) return;
 		window.clearTimeout(currentLoaderEntry.gcTimeout);
-		loaderMap.set(path, { ...currentLoaderEntry, gcTimeout: undefined });
+		loaderMap.set(path, {
+			...currentLoaderEntry,
+			gcTimeout: undefined,
+			gcExpiresAt: undefined,
+			gcDuration: undefined,
+		});
 	};
 
 	const navigate = async (rawLocation: Location) => {

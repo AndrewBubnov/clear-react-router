@@ -12,6 +12,7 @@ export { useRouterContext } from './hooks/useRouterContext';
 export { useSearchParams } from './hooks/useSearchParams';
 export { useSubmitAction } from './hooks/useSubmitAction';
 export { useRestoreScroll } from './hooks/useRestoreScroll';
+export { useCacheSnapshot } from './hooks/useCacheSnapshot';
 export { createRouter } from './creators/createRouter';
 export { lazy } from './utils/lazy';
 export type {
@@ -25,5 +26,8 @@ export type {
 	PathParams,
 	ParamsFor,
 	Status,
+	CacheSnapshot,
+	CacheSnapshotEntry,
+	CacheReason,
 } from './types';
 export type { ElementProps, LinkProps } from './components/Link';

@@ -15,6 +15,7 @@ import {
 	RouterState,
 	ScrollMap,
 	BlockerState,
+	CacheSnapshot,
 } from '../../types';
 
 const createMockRouterState = (): RouterState => ({
@@ -28,6 +29,8 @@ const createMockRouterState = (): RouterState => ({
 	contextState: create<Record<string, unknown>>({}),
 	blockerState: create<BlockerState>('unblocked'),
 	blockedTargetState: create<Location | null>(null),
+	cacheSnapshotState: create<CacheSnapshot>([]),
+	syncCacheSnapshot: () => {},
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
 });

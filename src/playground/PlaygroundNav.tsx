@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Switch } from '@mantine/core';
-import { Link } from './clear-router';
+import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
 

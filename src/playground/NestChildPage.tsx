@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useLoaderState, useParams } from './clear-router';
+import { Link, useLoaderState, useParams } from '../clear-router';
 import { getCallCount, randomIds } from './api';
 
 const NestChildPage = () => {

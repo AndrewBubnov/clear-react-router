@@ -1,4 +1,4 @@
-import { createRouter, lazy } from './clear-router';
+import { createRouter, lazy } from '../clear-router';
 import { PlaygroundHome } from './PlaygroundHome';
 import { DeferredSkeleton, PageSkeleton, ProductSkeleton } from './Skeletons';
 import { NestLayout } from './NestLayout';

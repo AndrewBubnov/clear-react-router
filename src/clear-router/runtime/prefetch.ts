@@ -16,7 +16,7 @@ export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache:
 		const currentLocation = routeDataState.getState().location;
 		if (location.pathname === currentLocation.pathname && location.search === currentLocation.search) return;
 		await item.preloadElement?.();
-		await revalidateCache({ routeItem: item, location });
+		await revalidateCache({ routeItem: item, location, reason: 'prefetch' });
 	};
 
 	const drain = () => {

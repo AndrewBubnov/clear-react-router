@@ -4,18 +4,24 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 
 const separatePathname = (text: string) => text.split('?')[0];
 
-export const createInvalidate = ({ routeDataState, loaderMap }: RouterState, revalidateCache: RevalidateCache) => {
+export const createInvalidate = (
+	{ routeDataState, loaderMap, syncCacheSnapshot }: RouterState,
+	revalidateCache: RevalidateCache
+) => {
 	const invalidatePath = async (
 		routeItem: RouteItem,
 		pathname: string,
 		options?: InvalidateOptions
 	): Promise<InvalidateResult> => {
 		const routePathname = routeDataState.getState().location.pathname;
-		if (!options?.staleOnly) loaderMap.delete(pathname);
+		if (!options?.staleOnly) {
+			loaderMap.delete(pathname);
+			syncCacheSnapshot();
+		}
 		const [path, search = ''] = pathname.split('?');
 		const location = { pathname: path, search };
 
-		const result = await revalidateCache({ routeItem, location });
+		const result = await revalidateCache({ routeItem, location, reason: 'invalidate' });
 
 		if (result && path === routePathname) {
 			routeDataState.setState(prevState => ({

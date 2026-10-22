@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import type { RouterProps } from './clear-router';
+import type { RouterProps } from '../clear-router';
 import { SettingsContext } from './settings-context';
 import type { NavLinkAs } from './NavLinkAs';
 import { isMobileViewport } from './utils.ts';

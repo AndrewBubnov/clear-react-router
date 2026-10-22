@@ -1,6 +1,6 @@
 import MuiButton from '@mui/material/Button';
 import { Button as MantineButton } from '@mantine/core';
-import type { ElementProps, LinkProps } from './clear-router';
+import type { ElementProps, LinkProps } from '../clear-router';
 
 export type NavLinkAs = 'link' | 'mui' | 'mantine';
 
