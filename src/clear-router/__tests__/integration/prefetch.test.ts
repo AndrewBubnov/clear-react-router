@@ -15,6 +15,8 @@ import {
 	CacheSnapshot,
 } from '../../types';
 
+const syncCacheSnapshot = () => {};
+
 const createMockRouterState = (): RouterState => ({
 	routeDataState: create<RouteData>({
 		routeItem: undefined,
@@ -27,7 +29,6 @@ const createMockRouterState = (): RouterState => ({
 	blockerState: create<BlockerState>('unblocked'),
 	blockedTargetState: create<Location | null>(null),
 	cacheSnapshotState: create<CacheSnapshot>([]),
-	syncCacheSnapshot: () => {},
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
 });
@@ -44,7 +45,7 @@ describe('prefetch', () => {
 			routes: [createMockRouteItem({ path: '/test', pattern: '/test', loader })],
 			maxCacheSize: 10,
 		});
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		prefetch = createPrefetch(state, revalidateCache);
 	});
 

@@ -18,6 +18,8 @@ import {
 	CacheSnapshot,
 } from '../../types';
 
+const syncCacheSnapshot = () => {};
+
 const createMockRouterState = (): RouterState => ({
 	routeDataState: create<RouteData>({
 		routeItem: undefined,
@@ -30,7 +32,6 @@ const createMockRouterState = (): RouterState => ({
 	blockerState: create<BlockerState>('unblocked'),
 	blockedTargetState: create<Location | null>(null),
 	cacheSnapshotState: create<CacheSnapshot>([]),
-	syncCacheSnapshot: () => {},
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
 });
@@ -70,8 +71,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -91,8 +92,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		const navPromise = navigate({ pathname: '/test' });
 
@@ -109,8 +110,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		state.blockerState.setState('charged');
 		await navigate({ pathname: '/test' });
@@ -125,8 +126,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, beforeLoad });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -140,8 +141,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, beforeLoad });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -161,8 +162,8 @@ describe('navigate', () => {
 		});
 		routerConfig.configure({ routes: [routeA, routeB] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/a' });
 		expect(state.routeDataState.getState().status).toBe('active');
@@ -183,8 +184,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem], defaultBeforeLoad });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -197,8 +198,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -211,8 +212,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, staleTime: 10000 });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 		const firstCallCount = loader.mock.calls.length;
@@ -236,8 +237,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		const p1 = navigate({ pathname: '/test' });
 		await vi.advanceTimersByTimeAsync(0);
@@ -255,8 +256,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test', search: '?foo=bar' });
 
@@ -270,8 +271,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, afterLoad });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -284,8 +285,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader });
 		routerConfig.configure({ routes: [routeItem], defaultAfterLoad });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -309,8 +310,8 @@ describe('navigate', () => {
 		});
 		routerConfig.configure({ routes: [targetRoute, sourceRoute] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/source' });
 
@@ -323,8 +324,8 @@ describe('navigate', () => {
 		const otherRoute = createMockRouteItem({ path: '/other', pattern: '/other', loader });
 		routerConfig.configure({ routes: [gcRoute, otherRoute] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/gc' });
 		expect(state.loaderMap.has('/gc')).toBe(true);
@@ -340,8 +341,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader: undefined });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 
@@ -354,8 +355,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, minLoaderDuration: 500 });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		const navPromise = navigate({ pathname: '/test' });
 
@@ -370,8 +371,8 @@ describe('navigate', () => {
 		const routeItem = createMockRouteItem({ loader, staleTime: 10000 });
 		routerConfig.configure({ routes: [routeItem] });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/test' });
 		expect(loader).toHaveBeenCalledOnce();
@@ -422,8 +423,8 @@ describe('navigate', () => {
 		});
 		routerConfig.configure({ routes: [slowRoute, optimisticRoute], isAnimated: true });
 
-		revalidateCache = createRevalidateCache(state);
-		navigate = createNavigate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 		await navigate({ pathname: '/fast' });
 		flushTransition();
@@ -456,8 +457,8 @@ describe('navigate', () => {
 			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000, staleTime: 500 });
 			routerConfig.configure({ routes: [routeItem] });
 
-			revalidateCache = createRevalidateCache(state);
-			navigate = createNavigate(state, revalidateCache);
+			revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+			navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 			await navigate({ pathname: '/test' });
 			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
@@ -476,8 +477,8 @@ describe('navigate', () => {
 			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000 });
 			routerConfig.configure({ routes: [routeItem] });
 
-			revalidateCache = createRevalidateCache(state);
-			navigate = createNavigate(state, revalidateCache);
+			revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+			navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 			await navigate({ pathname: '/test' });
 			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
@@ -494,8 +495,8 @@ describe('navigate', () => {
 			const plainItem = createMockRouteItem({ path: '/other', pattern: '/other' });
 			routerConfig.configure({ routes: [routeItem, plainItem] });
 
-			revalidateCache = createRevalidateCache(state);
-			navigate = createNavigate(state, revalidateCache);
+			revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+			navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
 
 			await navigate({ pathname: '/test' });
 			expect(loader).toHaveBeenCalledTimes(1);

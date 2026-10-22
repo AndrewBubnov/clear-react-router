@@ -12,6 +12,8 @@ import {
 	BlockerState,
 	CacheSnapshot,
 } from '../../types';
+
+const syncCacheSnapshot = () => {};
 import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common.tsx';
 
 const createMockRouterState = (): RouterState => ({
@@ -26,7 +28,6 @@ const createMockRouterState = (): RouterState => ({
 	blockerState: create<BlockerState>('unblocked'),
 	blockedTargetState: create<Location | null>(null),
 	cacheSnapshotState: create<CacheSnapshot>([]),
-	syncCacheSnapshot: () => {},
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
 });
@@ -52,7 +53,7 @@ describe('revalidateCache', () => {
 	});
 
 	it('returns undefined when no loader', async () => {
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader: undefined });
 		const result = await revalidateCache({
 			routeItem,
@@ -63,7 +64,7 @@ describe('revalidateCache', () => {
 
 	it('calls loader and caches result', async () => {
 		const loader = vi.fn().mockResolvedValue('test data');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const result = await revalidateCache({
@@ -79,7 +80,7 @@ describe('revalidateCache', () => {
 
 	it('returns cached data on second call (fresh cache)', async () => {
 		const loader = vi.fn().mockResolvedValue('test data');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, staleTime: 10000 });
 
 		await revalidateCache({
@@ -98,7 +99,7 @@ describe('revalidateCache', () => {
 
 	it('refetches when cache is stale', async () => {
 		const loader = vi.fn().mockResolvedValueOnce('data v1').mockResolvedValueOnce('data v2');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, staleTime: 100 });
 
 		await revalidateCache({
@@ -125,7 +126,7 @@ describe('revalidateCache', () => {
 					resolveLoader = r;
 				})
 		);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const p1 = revalidateCache({ routeItem, location: { pathname: '/test' } });
@@ -141,7 +142,7 @@ describe('revalidateCache', () => {
 	it('caches loader error', async () => {
 		const error = new Error('load failed');
 		const loader = vi.fn().mockRejectedValue(error);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const result = await revalidateCache({
@@ -155,7 +156,7 @@ describe('revalidateCache', () => {
 	it('retries on failure', async () => {
 		const error = new Error('fail');
 		const loader = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('retry success');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, retry: 2 });
 
 		const result = await revalidateCache({
@@ -172,7 +173,7 @@ describe('revalidateCache', () => {
 	it('retries with delay', async () => {
 		const error = new Error('fail');
 		const loader = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('retry success');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, retry: { count: 2, delay: 100 } });
 
 		const resultPromise = revalidateCache({
@@ -190,7 +191,7 @@ describe('revalidateCache', () => {
 	it('gives up after max retries', async () => {
 		const error = new Error('persistent fail');
 		const loader = vi.fn().mockRejectedValue(error);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, retry: 1 });
 
 		const result = await revalidateCache({
@@ -204,7 +205,7 @@ describe('revalidateCache', () => {
 
 	it('evicts oldest entry when cache exceeds maxCacheSize', async () => {
 		routerConfig.configure({ maxCacheSize: 2 });
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const loader = vi.fn().mockResolvedValue('data');
 		const routeItem = createMockRouteItem({ loader, staleTime: 10000 });
 
@@ -220,7 +221,7 @@ describe('revalidateCache', () => {
 
 	it('returns cached error state from cache', async () => {
 		const error = new Error('cached error');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		state.loaderMap.set('/test', {
 			state: { data: null, loaderError: error, beforeLoadError: null },
 			timestamp: Date.now(),
@@ -237,7 +238,7 @@ describe('revalidateCache', () => {
 	});
 
 	it('returns undefined when cache fresh but no state', async () => {
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		state.loaderMap.set('/test', {
 			state: undefined as unknown as LoaderStateItem['state'],
 			timestamp: Date.now(),
@@ -264,7 +265,7 @@ describe('revalidateCache', () => {
 					});
 				})
 		);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const controller = new AbortController();
@@ -282,7 +283,7 @@ describe('revalidateCache', () => {
 		routerConfig.configure({ defaultRetry: { count: 1, delay: 0 } });
 		const error = new Error('fail');
 		const loader = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('success');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const result = await revalidateCache({
@@ -297,7 +298,7 @@ describe('revalidateCache', () => {
 	it('route retry overrides global retry', async () => {
 		routerConfig.configure({ defaultRetry: { count: 5, delay: 0 } });
 		const loader = vi.fn().mockRejectedValue(new Error('fail'));
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader, retry: 1 });
 
 		await revalidateCache({
@@ -318,7 +319,7 @@ describe('revalidateCache', () => {
 					})
 			)
 			.mockResolvedValueOnce('navigation data');
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		// Prefetch without a navigation signal hangs in flight
@@ -345,7 +346,7 @@ describe('revalidateCache', () => {
 					resolveLoader = r;
 				})
 		);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const p1 = revalidateCache({
@@ -383,7 +384,7 @@ describe('revalidateCache', () => {
 						resolveNav = r;
 					})
 			);
-		revalidateCache = createRevalidateCache(state);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
 		const routeItem = createMockRouteItem({ loader });
 
 		const prefetchPromise = revalidateCache({ routeItem, location: { pathname: '/test' } });

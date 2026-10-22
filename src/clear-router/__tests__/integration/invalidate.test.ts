@@ -16,6 +16,8 @@ import {
 	CacheSnapshot,
 } from '../../types';
 
+const syncCacheSnapshot = () => {};
+
 const createMockRouterState = (): RouterState => ({
 	routeDataState: create<RouteData>({
 		routeItem: undefined,
@@ -28,7 +30,6 @@ const createMockRouterState = (): RouterState => ({
 	blockerState: create<BlockerState>('unblocked'),
 	blockedTargetState: create<Location | null>(null),
 	cacheSnapshotState: create<CacheSnapshot>([]),
-	syncCacheSnapshot: () => {},
 	loaderMap: new Map<string, LoaderStateItem>(),
 	loadingPromises: new Map<string, LoadingPromise>(),
 });
@@ -50,8 +51,8 @@ describe('invalidate', () => {
 			],
 			maxCacheSize: 10,
 		});
-		revalidateCache = createRevalidateCache(state);
-		invalidate = createInvalidate(state, revalidateCache);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		invalidate = createInvalidate(state, revalidateCache, syncCacheSnapshot);
 	});
 
 	it('invalidates cached path and re-fetches', async () => {

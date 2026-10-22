@@ -21,8 +21,8 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 	};
 };
 
-export const createRevalidateCache = (routerState: RouterState) => {
-	const { loaderMap, loadingPromises, contextState, syncCacheSnapshot } = routerState;
+export const createRevalidateCache = (routerState: RouterState, syncCacheSnapshot: () => void) => {
+	const { loaderMap, loadingPromises, contextState } = routerState;
 	const flightOwners = new Map<string, AbortController | AbortSignal>();
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
@@ -82,11 +82,11 @@ export const createRevalidateCache = (routerState: RouterState) => {
 			flightOwners.set(path, ownerToken);
 			const isOwner = () => flightOwners.get(path) === ownerToken;
 			try {
-			const result = await routeItem?.loader({
-				...getPartialLoaderArgs(contextState, location, routeItem),
-				signal: effectiveSignal,
-				attempt: retried + 1,
-			});
+				const result = await routeItem?.loader({
+					...getPartialLoaderArgs(contextState, location, routeItem),
+					signal: effectiveSignal,
+					attempt: retried + 1,
+				});
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),

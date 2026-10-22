@@ -161,7 +161,6 @@ export type RouterState = {
 	blockerState: Store<BlockerState>;
 	blockedTargetState: Store<Location | null>;
 	cacheSnapshotState: Store<CacheSnapshot>;
-	syncCacheSnapshot: () => void;
 	loaderMap: Map<string, LoaderStateItem>;
 	loadingPromises: Map<string, LoadingPromise>;
 };

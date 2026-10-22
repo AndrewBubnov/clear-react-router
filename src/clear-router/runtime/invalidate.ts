@@ -5,8 +5,9 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 const separatePathname = (text: string) => text.split('?')[0];
 
 export const createInvalidate = (
-	{ routeDataState, loaderMap, syncCacheSnapshot }: RouterState,
-	revalidateCache: RevalidateCache
+	{ routeDataState, loaderMap }: RouterState,
+	revalidateCache: RevalidateCache,
+	syncCacheSnapshot: () => void
 ) => {
 	const invalidatePath = async (
 		routeItem: RouteItem,

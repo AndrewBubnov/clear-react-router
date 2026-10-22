@@ -3,6 +3,7 @@ import { createNavigate } from '../runtime/navigate';
 import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
+import { createCacheSnapshot } from '../runtime/syncCacheSnapshot';
 import { formatSearchObject, getParams, interpolatePath, isVerticalScroll } from '../utils/utils';
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import { routerConfig } from '../config/routerConfig';
@@ -28,36 +29,6 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 	const loadingPromises = new Map<string, LoadingPromise>();
 	const cacheSnapshotState = create<CacheSnapshot>([]);
 
-	const syncCacheSnapshot = () => {
-		if (!routerConfig.logged) return;
-		const entries: CacheSnapshot = [];
-		for (const [path, item] of loaderMap) {
-			entries.push({
-				path,
-				data: item.state?.data,
-				timestamp: item.timestamp,
-				staleTime: item.staleTime,
-				reason: item.reason,
-				gcExpiresAt: item.gcExpiresAt,
-				gcDuration: item.gcDuration,
-				isLoading: loadingPromises.has(path),
-			});
-		}
-		for (const path of loadingPromises.keys()) {
-			if (loaderMap.has(path)) continue;
-			entries.push({
-				path,
-				data: undefined,
-				timestamp: Date.now(),
-				staleTime: undefined,
-				gcExpiresAt: undefined,
-				gcDuration: undefined,
-				isLoading: true,
-			});
-		}
-		cacheSnapshotState.setState(entries);
-	};
-
 	const routerState: RouterState = {
 		routeDataState: create<RouteData>({
 			routeItem: undefined,
@@ -70,14 +41,16 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 		blockerState: create<BlockerState>('unblocked'),
 		blockedTargetState: create<Location | null>(null),
 		cacheSnapshotState,
-		syncCacheSnapshot,
 		loaderMap,
 		loadingPromises,
 	};
 
-	const revalidateCache = createRevalidateCache(routerState);
-	const navigate = createNavigate(routerState, revalidateCache);
-	const invalidate = createInvalidate(routerState, revalidateCache);
+	const syncCacheSnapshot = () => {
+		if (routerConfig.logged) cacheSnapshotState.setState(createCacheSnapshot(loaderMap, loadingPromises));
+	};
+	const revalidateCache = createRevalidateCache(routerState, syncCacheSnapshot);
+	const navigate = createNavigate(routerState, revalidateCache, syncCacheSnapshot);
+	const invalidate = createInvalidate(routerState, revalidateCache, syncCacheSnapshot);
 
 	const prefetch = createPrefetch(routerState, revalidateCache);
 

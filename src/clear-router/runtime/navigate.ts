@@ -6,7 +6,11 @@ import { findRoute } from '../utils/findRoute';
 import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
 import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
-export const createNavigate = (routerState: RouterState, revalidateCache: RevalidateCache) => {
+export const createNavigate = (
+	routerState: RouterState,
+	revalidateCache: RevalidateCache,
+	syncCacheSnapshot: () => void
+) => {
 	let navigationSeq = 0;
 	let interval = 0;
 	let abortController: AbortController | null = null;
@@ -19,15 +23,7 @@ export const createNavigate = (routerState: RouterState, revalidateCache: Revali
 		pollingController = null;
 	};
 
-	const {
-		contextState,
-		loaderMap,
-		routeDataState,
-		scrollMapState,
-		blockerState,
-		blockedTargetState,
-		syncCacheSnapshot,
-	} = routerState;
+	const { contextState, loaderMap, routeDataState, scrollMapState, blockerState, blockedTargetState } = routerState;
 	const commitState = createCommitState(routerState);
 	const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
