@@ -135,7 +135,7 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
 	const now = useNow(100);
-	const cached = entries.filter(entry => !entry.inFlight);
+		const cached = entries.filter(entry => !entry.isLoading);
 	const items: DisplayItem[] = cached.map(entry => ({ entry, reason: entry.reason ?? 'navigation' }));
 	const visible = items.slice(-VISIBLE_LIMIT);
 	const hidden = items.length - visible.length;

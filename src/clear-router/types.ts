@@ -145,7 +145,7 @@ export type CacheSnapshotEntry = {
 	reason?: CacheReason;
 	gcExpiresAt: number | undefined;
 	gcDuration: number | undefined;
-	inFlight: boolean;
+	isLoading: boolean;
 };
 
 export type CacheSnapshot = CacheSnapshotEntry[];

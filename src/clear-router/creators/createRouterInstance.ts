@@ -40,7 +40,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				reason: item.reason,
 				gcExpiresAt: item.gcExpiresAt,
 				gcDuration: item.gcDuration,
-				inFlight: loadingPromises.has(path),
+				isLoading: loadingPromises.has(path),
 			});
 		}
 		for (const path of loadingPromises.keys()) {
@@ -52,7 +52,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				staleTime: undefined,
 				gcExpiresAt: undefined,
 				gcDuration: undefined,
-				inFlight: true,
+				isLoading: true,
 			});
 		}
 		cacheSnapshotState.setState(entries);
