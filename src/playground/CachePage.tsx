@@ -250,7 +250,7 @@ const CachePage = () => {
 				</p>
 				<div className="pg-row pg-items-row">
 					{PRODUCT_IDS.map(id => (
-						<Link key={id} to={`/playground/cache/product/${id}`} prefetch="none">
+						<Link key={id} to={`/playground/cache/product/${id}`}>
 							#{id}
 						</Link>
 					))}

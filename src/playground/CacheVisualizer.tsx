@@ -4,6 +4,7 @@ import { Badge, Card, Group, Progress, Text, ThemeIcon, Tooltip } from '@mantine
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from '../clear-router';
 
 const VISIBLE_LIMIT = 6;
+const REMAINING_INTERVAL = 100;
 
 type DisplayItem = { entry: CacheSnapshotEntry; reason: CacheReason };
 
@@ -58,21 +59,33 @@ const FreshnessLegend = () => (
 	</Group>
 );
 
-const useNow = (interval: number) => {
+const CacheCard = ({ item }: { item: DisplayItem }) => {
 	const [now, setNow] = useState(() => Date.now());
-	useEffect(() => {
-		const id = window.setInterval(() => setNow(Date.now()), interval);
-		return () => window.clearInterval(id);
-	}, [interval]);
-	return now;
-};
-
-const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 	const style = REASON[item.reason];
 	const { entry } = item;
+	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
 	const progress = remaining !== undefined && entry.gcDuration ? (remaining / entry.gcDuration) * 100 : undefined;
-	const stale = entry.staleTime !== undefined && now - entry.timestamp > entry.staleTime;
+
+	useEffect(() => {
+		if (entry.staleTime === undefined) return;
+		const age = Date.now() - entry.timestamp;
+		if (age >= entry.staleTime) return;
+		const timeout = window.setTimeout(() => setNow(Date.now()), entry.staleTime - age);
+		return () => window.clearTimeout(timeout);
+	}, [entry.timestamp, entry.staleTime]);
+
+	useEffect(() => {
+		const expiresAt = entry.gcExpiresAt;
+		if (expiresAt === undefined || expiresAt <= Date.now()) return;
+		const interval = window.setInterval(() => {
+			const current = Date.now();
+			setNow(current);
+			if (current >= expiresAt) window.clearInterval(interval);
+		}, REMAINING_INTERVAL);
+		return () => window.clearInterval(interval);
+	}, [entry.gcExpiresAt]);
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.8, y: 10, backgroundColor: style.bg, borderColor: style.border }}
@@ -134,8 +147,7 @@ const CacheCard = ({ item, now }: { item: DisplayItem; now: number }) => {
 
 export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
-	const now = useNow(100);
-		const cached = entries.filter(entry => !entry.isLoading);
+	const cached = entries.filter(entry => !entry.isLoading);
 	const items: DisplayItem[] = cached.map(entry => ({ entry, reason: entry.reason ?? 'navigation' }));
 	const visible = items.slice(-VISIBLE_LIMIT);
 	const hidden = items.length - visible.length;
@@ -167,7 +179,7 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 				)}
 				<AnimatePresence initial={false}>
 					{visible.map(item => (
-						<CacheCard key={item.entry.path} item={item} now={now} />
+						<CacheCard key={item.entry.path} item={item} />
 					))}
 				</AnimatePresence>
 				{!visible.length && (
