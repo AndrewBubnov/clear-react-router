@@ -52,7 +52,7 @@ const Shell = () => {
 					maxCacheSize={maxCacheSize}
 					defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
 					defaultMinLoaderDuration={minLoaderDuration}
-					logged={showCacheVisualizer}
+					enableCacheSnapshot={showCacheVisualizer}
 				/>
 			</div>
 		</div>

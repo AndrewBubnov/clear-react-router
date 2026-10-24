@@ -46,7 +46,8 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 	};
 
 	const syncCacheSnapshot = () => {
-		if (routerConfig.logged) cacheSnapshotState.setState(createCacheSnapshot(loaderMap, loadingPromises));
+		if (routerConfig.enableCacheSnapshot)
+			cacheSnapshotState.setState(createCacheSnapshot(loaderMap, loadingPromises));
 	};
 	const revalidateCache = createRevalidateCache(routerState, syncCacheSnapshot);
 	const navigate = createNavigate(routerState, revalidateCache, syncCacheSnapshot);

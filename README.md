@@ -33,7 +33,7 @@ It provides first-class support for:
 - **Programmatic Redirects** - Redirect from beforeLoad hook
 - **Cache invalidation** - Manual route invalidation
 - **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
-- **Cache inspection** - Opt into a live, read-only snapshot of cached loader entries with `logged` and `useCacheSnapshot()`
+- **Cache inspection** - Opt into a live, read-only snapshot of cached loader entries with `enableCacheSnapshot` and `useCacheSnapshot()`
 - **Prefetching** - Preload data on hover for instant navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
@@ -82,7 +82,7 @@ Netlify (`public/_redirects`):
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
 | `revalidateOnFocus` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser tab regains focus |
 | `revalidateOnReconnect` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser regains an internet connection |
-| `logged` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
+| `enableCacheSnapshot` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
@@ -863,7 +863,7 @@ const UserProfile = () => {
 ### `useCacheSnapshot()`
 
 Returns a read-only snapshot of the loader cache — intended for devtools panels, debugging, and cache
-monitoring. Requires `<Router logged>`; while the flag is off the snapshot is empty and nothing is built.
+monitoring. Requires `<Router enableCacheSnapshot>`; while the flag is off the snapshot is empty and nothing is built.
 
 ```tsx
 import { useCacheSnapshot } from 'clear-react-router';
@@ -882,7 +882,7 @@ const CachePanel = () => {
   );
 };
 
-<Router routes={routes} logged />
+<Router routes={routes} enableCacheSnapshot />
 ```
 
 ```ts
@@ -907,7 +907,7 @@ Notes:
 - The snapshot is a projection, not a second cache — changing it does nothing.
 - Entries appear for in-flight first loads too (`data: undefined`, `isLoading: true`), so a devtool never misses a request.
 - Mounting the hook refreshes the snapshot, so a panel opened after navigation still sees existing entries.
-- `logged` is process-wide (the router is a singleton): if several `<Router>`s render with different values, the last rendered one wins. Enable it only when a consumer is actually mounted.
+- `enableCacheSnapshot` is process-wide (the router is a singleton): if several `<Router>`s render with different values, the last rendered one wins. Enable it only when a consumer is actually mounted.
 
 ### `useInvalidate()`
 

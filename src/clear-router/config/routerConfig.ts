@@ -15,7 +15,7 @@ class RouterConfig {
 	defaultStaleTime?: RouterProps['defaultStaleTime'];
 	defaultMinLoaderDuration?: RouterProps['defaultMinLoaderDuration'];
 	defaultScrollRestorationBehavior: RouterProps['defaultScrollRestorationBehavior'];
-	logged: boolean = false;
+	enableCacheSnapshot: boolean = false;
 
 	configure(config: Partial<RouterConfig>) {
 		Object.assign(this, config);

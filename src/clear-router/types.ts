@@ -124,7 +124,7 @@ export type RouterProps = {
 	revalidateOnReconnect?: boolean;
 	context?: Record<string, unknown>;
 	/** Enables cache snapshot tracking for devtools. `useCacheSnapshot` returns an empty list without it. */
-	logged?: boolean;
+	enableCacheSnapshot?: boolean;
 };
 
 export type LoaderStateItem = {
