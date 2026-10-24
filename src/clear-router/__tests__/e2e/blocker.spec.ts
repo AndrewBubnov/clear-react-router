@@ -31,7 +31,7 @@ test('confirm completes the blocked navigation', async ({ page }) => {
 	await expect(page).toHaveURL(/\/$/);
 });
 
-test('browser back is blocked and the URL is reverted', async ({ page }) => {
+test('browser back is blocked without adding history entries', async ({ page }) => {
 	await page.goto('/');
 	await page.getByTestId('link-form').click();
 	await expect(page.getByTestId('page-form')).toBeVisible();
@@ -39,10 +39,17 @@ test('browser back is blocked and the URL is reverted', async ({ page }) => {
 	await page.getByTestId('form-input').fill('unsaved');
 	await expect(page.getByTestId('blocker-state')).toHaveText('charged');
 
-	await page.goBack();
+	const historyLength = await page.evaluate(() => history.length);
 
+	await page.evaluate(() => history.back());
 	await expect(page.getByTestId('blocker-dialog')).toBeVisible();
 	await expect(page).toHaveURL(/\/form$/);
+	expect(await page.evaluate(() => history.length)).toBe(historyLength);
+
+	await page.evaluate(() => history.back());
+	await expect(page.getByTestId('blocker-dialog')).toBeVisible();
+	await expect(page).toHaveURL(/\/form$/);
+	expect(await page.evaluate(() => history.length)).toBe(historyLength);
 
 	await page.getByTestId('blocker-confirm').click();
 	await expect(page.getByTestId('page-home')).toBeVisible();

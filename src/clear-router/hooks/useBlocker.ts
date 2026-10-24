@@ -33,9 +33,12 @@ export const useBlocker = (blockerFn: (args: BlockerCallback) => boolean): UseBl
 	useEffect(() => setBlockerState(shouldBlock ? 'charged' : 'unblocked'), [setBlockerState, shouldBlock]);
 
 	const processHandler = useCallback(async () => {
-		if (nextLocation) await navigate(nextLocation);
+		if (!nextLocation) return;
+		const target = nextLocation;
+		setBlockerState('unblocked');
+		await navigate(target);
 		setNextLocation(null);
-	}, [navigate, nextLocation, setNextLocation]);
+	}, [navigate, nextLocation, setBlockerState, setNextLocation]);
 
 	const resetHandler = useCallback(() => {
 		setBlockerState('charged');

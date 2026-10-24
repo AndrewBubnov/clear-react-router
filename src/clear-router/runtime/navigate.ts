@@ -171,12 +171,13 @@ export const createNavigate = (
 	};
 
 	const checkBlocked = (nextLocation: Location) => {
-		if (blockerState.getState() === 'charged') {
+		const currentState = blockerState.getState();
+		if (currentState === 'charged') {
 			blockerState.setState('blocked');
 			blockedTargetState.setState(nextLocation);
 			return true;
 		}
-		return false;
+		return currentState === 'blocked';
 	};
 
 	const clearCurrentGcTimeout = (routeItem: RouteItem | undefined, location: Location) => {

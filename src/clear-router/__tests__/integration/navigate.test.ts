@@ -120,6 +120,26 @@ describe('navigate', () => {
 		expect(state.routeDataState.getState().status).toBe('idle');
 	});
 
+	it('keeps the first target when navigation is attempted again while blocked', async () => {
+		const loader = vi.fn().mockResolvedValue('data');
+		const routeItem = createMockRouteItem({ loader });
+		routerConfig.configure({ routes: [routeItem] });
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		state.blockerState.setState('charged');
+		await navigate({ pathname: '/test' });
+		expect(state.blockedTargetState.getState()?.pathname).toBe('/test');
+
+		await navigate({ pathname: '/other' });
+
+		expect(state.blockerState.getState()).toBe('blocked');
+		expect(state.blockedTargetState.getState()?.pathname).toBe('/test');
+		expect(state.routeDataState.getState().location.pathname).toBe('/');
+		expect(state.routeDataState.getState().status).toBe('idle');
+	});
+
 	it('runs beforeLoad', async () => {
 		const beforeLoad = vi.fn();
 		const loader = vi.fn().mockResolvedValue('data');
