@@ -1,3 +1,4 @@
+import { routerConfig } from '../config/routerConfig';
 import { CacheSnapshot, LoaderStateItem, LoadingPromise } from '../types';
 
 export const createCacheSnapshot = (
@@ -10,7 +11,7 @@ export const createCacheSnapshot = (
 			path,
 			data: item.state?.data,
 			timestamp: item.timestamp,
-			staleTime: item.staleTime,
+			staleTime: item.staleTime ?? routerConfig.defaultStaleTime ?? 0,
 			reason: item.reason,
 			gcExpiresAt: item.gcExpiresAt,
 			gcDuration: item.gcDuration,
@@ -23,7 +24,7 @@ export const createCacheSnapshot = (
 			path,
 			data: undefined,
 			timestamp: Date.now(),
-			staleTime: undefined,
+			staleTime: routerConfig.defaultStaleTime ?? 0,
 			gcExpiresAt: undefined,
 			gcDuration: undefined,
 			isLoading: true,

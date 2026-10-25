@@ -254,6 +254,7 @@ describe('fresh cache revisit', () => {
 						await sleep(150);
 						return 'live data';
 					},
+					staleTime: Infinity,
 				},
 				{
 					path: '/boom',

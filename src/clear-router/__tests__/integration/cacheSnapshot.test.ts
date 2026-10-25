@@ -27,7 +27,7 @@ describe('cache snapshot', () => {
 		});
 
 		expect(result.current).toContainEqual(
-			expect.objectContaining({ path: '/test', data: 'data', isLoading: false })
+			expect.objectContaining({ path: '/test', data: 'data', staleTime: 0, isLoading: false })
 		);
 	});
 

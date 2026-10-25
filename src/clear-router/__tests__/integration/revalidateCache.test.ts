@@ -97,6 +97,181 @@ describe('revalidateCache', () => {
 		expect(loader).toHaveBeenCalledOnce();
 	});
 
+	it('refetches when no staleTime is configured', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('data v1').mockResolvedValueOnce('data v2');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		expect(result).toEqual({ data: 'data v2', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('keeps prefetched data fresh for the preload window', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		vi.advanceTimersByTime(29_000);
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'prefetched', error: null });
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
+	it('consumes prefetch freshness on the first navigation', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('expires prefetched data after the preload window', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		vi.advanceTimersByTime(30_001);
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('does not shorten a longer route staleTime when prefetching', async () => {
+		const loader = vi.fn().mockResolvedValue('prefetched');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, staleTime: 60_000 });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		vi.advanceTimersByTime(40_000);
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'prefetched', error: null });
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
+	it('uses defaultStaleTime when the route does not set staleTime', async () => {
+		routerConfig.configure({ defaultStaleTime: 10000 });
+		const loader = vi.fn().mockResolvedValue('test data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		expect(result).toEqual({ data: 'test data', error: null });
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
+	it('treats staleTime: 0 as always stale', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('data v1').mockResolvedValueOnce('data v2');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, staleTime: 0 });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		expect(result).toEqual({ data: 'data v2', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('keeps data fresh forever with staleTime: Infinity', async () => {
+		const loader = vi.fn().mockResolvedValue('test data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, staleTime: Infinity });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		vi.advanceTimersByTime(1_000_000);
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+		});
+
+		expect(result).toEqual({ data: 'test data', error: null });
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
 	it('refetches when cache is stale', async () => {
 		const loader = vi.fn().mockResolvedValueOnce('data v1').mockResolvedValueOnce('data v2');
 		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);

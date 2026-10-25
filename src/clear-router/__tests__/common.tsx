@@ -86,6 +86,7 @@ export const routes = createRouter([
 			await sleep(1500);
 			return `Hello from home, ${new Date().getSeconds()}`;
 		},
+		staleTime: Infinity,
 	},
 	{
 		path: '/about',

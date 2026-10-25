@@ -52,12 +52,12 @@ const InvalidateLab = () => {
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
 			<p className="pg-hint">
-				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so it is
-				always fresh and the counter above never moves. <code>force: false</code> never fetches uncached paths —
-				and the failing route is never cached (failures don&apos;t poison the cache), so it always comes back
-				empty. Compare with the plain refetch right above each of them. <code>withChildren</code> revalidates
-				the route plus all nested children — open any nest and item first so there is something cached, then
-				watch both entries refresh at once.
+				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so its
+				entry is stale immediately and the counter above moves on every press. <code>force: false</code> never
+				fetches uncached paths — and the failing route is never cached (failures don&apos;t poison the cache),
+				so it always comes back empty. Compare with the plain refetch right above each of them.{' '}
+				<code>withChildren</code> revalidates the route plus all nested children — open any nest and item first
+				so there is something cached, then watch both entries refresh at once.
 			</p>
 			{lastResult && (
 				<motion.div
@@ -204,7 +204,7 @@ const CachePage = () => {
 		<div className="pg-wrap">
 			<h1>Cache: eviction, gcTime, invalidation</h1>
 			<div className="pg-card">
-				<h2>This page itself is cached</h2>
+				<h2>This page itself is cached, but stale by default</h2>
 				<p>{data}</p>
 				<p className="pg-row pg-no-margin">
 					Errors:
@@ -222,8 +222,9 @@ const CachePage = () => {
 					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>
 				</p>
 				<p className="pg-hint">
-					First visit shows a loading fallback (~600ms). Leave and come back — instant render from cache, the
-					loader is not called again.
+					First visit shows a loading fallback (~600ms). Leave and come back — the loader runs again because
+					this page has no <code>staleTime</code>. Add one (or <code>Infinity</code>) to render revisits from
+					cache without refetching.
 				</p>
 			</div>
 			<div className="pg-card">

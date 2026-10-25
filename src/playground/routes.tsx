@@ -94,12 +94,14 @@ export const playgroundRoutes = createRouter([
 				element: lazy(() => import('./NestChildPage')),
 				layout: NestChildLayout,
 				loader: ({ params }) => fetchNest(params.nestId),
+				staleTime: Infinity,
 				loaderFallback: <ProductSkeleton />,
 				children: [
 					{
 						path: '/item/:itemId',
 						element: lazy(() => import('./NestItemPage')),
 						loader: ({ params }) => fetchNestItem(params.nestId, params.itemId),
+						staleTime: Infinity,
 						loaderFallback: <ProductSkeleton />,
 					},
 				],
@@ -122,6 +124,7 @@ export const playgroundRoutes = createRouter([
 				path: '/heavy',
 				element: lazy(() => import('./HeavyPage')),
 				loader: fetchHeavy,
+				staleTime: Infinity,
 				gcTime: HEAVY_GC_TIME,
 				loaderFallback: <PageSkeleton />,
 			},

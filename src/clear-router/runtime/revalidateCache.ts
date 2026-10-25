@@ -3,6 +3,8 @@ import { getPartialLoaderArgs, sleep } from '../utils/utils';
 import { routerConfig } from '../config/routerConfig';
 import { LoadingPromise, Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
+const PRELOAD_STALE_TIME = 30_000;
+
 const isObjectRetry = (arg: Retry) => typeof arg === 'object';
 const createRetry = (arg: Retry) => {
 	if (arg === undefined) return null;
@@ -67,7 +69,12 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 		}
 
 		if (!force && isCacheItemFresh(path)) {
-			const item = moveItemToLastPosition(path);
+			const item = loaderMap.get(path);
+			if (reason === 'navigation' && item?.reason === 'prefetch') {
+				item.reason = 'navigation';
+				item.staleTime = routeItem.staleTime;
+			}
+			moveItemToLastPosition(path);
 			if (!item?.state) return undefined;
 			return item.state.loaderError
 				? { data: null, error: item.state.loaderError }
@@ -87,10 +94,12 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 					signal: effectiveSignal,
 					attempt: retried + 1,
 				});
+				const resolvedStaleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime ?? 0;
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),
-					staleTime: routeItem.staleTime,
+					staleTime:
+						reason === 'prefetch' ? Math.max(resolvedStaleTime, PRELOAD_STALE_TIME) : routeItem.staleTime,
 					reason,
 				});
 				evict();

@@ -34,7 +34,7 @@ It provides first-class support for:
 - **Cache invalidation** - Manual route invalidation
 - **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
 - **Cache inspection** - Opt into a live, read-only snapshot of cached loader entries with `enableCacheSnapshot` and `useCacheSnapshot()`
-- **Prefetching** - Preload data on hover for instant navigation
+- **Prefetching** - Preload data on hover; prefetched entries stay fresh for 30 seconds before the first navigation
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
@@ -74,7 +74,7 @@ Netlify (`public/_redirects`):
 | `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
 | `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
 | `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
-| `defaultStaleTime` | `number` | `optional` | Default time in milliseconds before cached loader data is considered stale |
+| `defaultStaleTime` | `number` | `0` | Default time in milliseconds before cached loader data is considered stale. When unset (or `0`), data is stale immediately and navigation revalidates it |
 | `defaultBeforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
 | `defaultAfterLoad`  | `({ params, context, searchParams }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
 | `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
@@ -106,7 +106,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
 | `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
 | `errorElement` | `ReactElement \| () => ReactElement \| LazyComponent` | Error fallback for the route. Overrides the global `Router.defaultErrorElement` |
-| `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, cached data never expires |
+| `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, data is stale immediately and navigation revalidates it. Use `Infinity` to never consider it stale |
 | `gcTime` | `number \| undefined` | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected |
 | `actions` | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. |
 | `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active. Each tick refetches unconditionally, ignoring `staleTime` |
@@ -249,6 +249,8 @@ When using a custom element via `as`, these attributes arrive in `props` togethe
 | `'render'` | Prefetches immediately when the link is rendered |
 | `'viewport'` | Prefetches when the link enters the viewport (using Intersection Observer) |
 | `'none'` | No prefetching |
+
+> A prefetched entry is considered fresh for 30 seconds. The first navigation within that window reuses it without running the loader; after that, the route's normal `staleTime` applies (by default `0`, so the next revisit revalidates). A longer route `staleTime` is never shortened by prefetching.
 
 ### Custom elements via `as`
 
@@ -825,7 +827,7 @@ beforeLoad: async ({ location, redirect }) => {
 
 ### `useLoaderState<T>()`
 
-Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is automatically cached and reused when navigating back to the same route.
+Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is cached, but whether a revisit reuses it depends on `staleTime`: by default cached data is stale immediately and the loader runs again.
 
 **Returns:**
 
@@ -842,8 +844,7 @@ const UserProfile = () => {
 
 ### Caching behavior:
 
-- The loader result is cached and reused when navigating back to the same route (e.g., from /user/123 back to /user/456 it will be a new request because different params, but from /user/456 to /user/456 — cache hit).
-- Use `staleTime` in route config to control how long cache is considered fresh:
+- The loader result is cached. Without `staleTime` (and without `defaultStaleTime`), the entry is stale immediately, so navigating back to the same route runs the loader again. Set `staleTime` to reuse data within a time window:
 
 ```tsx
 {
@@ -852,6 +853,8 @@ const UserProfile = () => {
   staleTime: 60000, // 1 minute — cache is fresh for 60 seconds
 }
 ```
+
+- Use `staleTime: Infinity` when data should stay fresh until it is explicitly invalidated, garbage-collected or evicted.
 
 - The cache is bounded by `maxCacheSize` — once the limit is reached, the least recently used entry is evicted to make room for a new one, regardless of whether it's still fresh. This caps memory usage for apps with many high-cardinality dynamic routes (e.g. `/product/:id` across a large catalog). It defaults to a device-aware value (lower on mobile) and can be overridden on the `Router`:
 
@@ -892,7 +895,7 @@ type CacheSnapshotEntry = {
   path: string;                       // pathname + search
   data: unknown;                      // loader result; undefined while the first load is in flight
   timestamp: number;                  // when the entry was written (ms since epoch)
-  staleTime: number | undefined;      // copy of the route's staleTime
+  staleTime: number | undefined;      // effective staleTime: route value, default, or 0 when neither is set
   reason?: CacheReason;               // what wrote the entry last
   gcExpiresAt: number | undefined;    // GC deadline, if a GC timer is pending
   gcDuration: number | undefined;     // the route's gcTime, for progress display

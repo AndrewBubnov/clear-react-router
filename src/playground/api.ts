@@ -68,7 +68,7 @@ export const fetchProduct = async (id: string) => {
 	return { id, description: `Product ${id} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
 };
 
-/** Payload for the cache lab home page itself. Revisit renders instantly from cache. */
+/** Payload for the cache lab home page itself. No staleTime, so revisits refetch by default. */
 export const fetchCachePayload = async () => {
 	const n = trackCall('cache');
 	await delay(600);
