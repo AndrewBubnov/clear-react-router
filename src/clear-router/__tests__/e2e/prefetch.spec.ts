@@ -37,3 +37,25 @@ test('prefetch=none does not fetch until click', async ({ page }) => {
 	await expect(page.getByTestId('page-about')).toBeVisible();
 	expect(await aboutCalls(page)).toBe(1);
 });
+
+test('viewport prefetch runs without interaction and serves the navigation', async ({ page }) => {
+	const viewportCalls = (page: import('@playwright/test').Page) =>
+		page.evaluate(
+			() => (window as unknown as { __loaderCalls?: Record<string, number> }).__loaderCalls?.viewport ?? 0
+		);
+	const viewportDone = (page: import('@playwright/test').Page) =>
+		page.evaluate(
+			() => (window as unknown as { __loaderDone?: Record<string, number> }).__loaderDone?.viewport ?? 0
+		);
+
+	await page.goto('/');
+
+	// the link is on screen at mount: dwell + observer must prefetch it with no pointer input;
+	// wait for completion, clicking mid-prefetch aborts it by design (see the hover test)
+	await expect.poll(() => viewportDone(page), { timeout: 5000 }).toBe(1);
+
+	await page.getByTestId('link-viewport').click();
+
+	await expect(page.getByTestId('page-viewport')).toBeVisible();
+	expect(await viewportCalls(page)).toBe(1);
+});

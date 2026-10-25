@@ -49,9 +49,14 @@ const Home = () => {
 				<span data-testid="link-form">
 					<Link to="/form">Form</Link>
 				</span>{' '}
-				<span data-testid="link-long">
-					<Link to="/long">Long page</Link>
-				</span>
+			<span data-testid="link-long">
+				<Link to="/long">Long page</Link>
+			</span>{' '}
+			<span data-testid="link-viewport">
+				<Link to="/viewport" prefetch="viewport">
+					Viewport prefetch
+				</Link>
+			</span>
 			</nav>
 		</div>
 	);
@@ -126,6 +131,15 @@ const LongPage = () => (
 	</div>
 );
 
+const ViewportPage = () => (
+	<div>
+		<h1 data-testid="page-viewport">Viewport page</h1>
+		<span data-testid="link-home">
+			<Link to="/">Home</Link>
+		</span>
+	</div>
+);
+
 const NotFound = () => (
 	<div>
 		<h1 data-testid="page-404">Not found</h1>
@@ -152,6 +166,18 @@ const routes = createRouter([
 	{ path: '/user/:userId', element: <User /> },
 	{ path: '/form', element: <FormPage /> },
 	{ path: '/long', element: <LongPage />, scrollRestoration: true },
+	{
+		path: '/viewport',
+		element: <ViewportPage />,
+		loader: async () => {
+			const n = countCall('viewport');
+			await delay(300);
+			const w = window as unknown as { __loaderDone?: Record<string, number> };
+			w.__loaderDone = w.__loaderDone ?? {};
+			w.__loaderDone.viewport = n;
+			return `viewport-data-${n}`;
+		},
+	},
 	{ path: '*', element: <NotFound /> },
 ]);
 

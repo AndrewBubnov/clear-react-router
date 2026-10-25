@@ -46,6 +46,17 @@ describe('navigate', () => {
 		return { ready: Promise.resolve(), finished: Promise.resolve() } as unknown as ViewTransition;
 	};
 
+	// jsdom has no startViewTransition; patching the real document keeps every other DOM
+	// member intact (a global `{...document}` stub degrades to an empty object).
+	const setStartViewTransition = (value: Document['startViewTransition'] | undefined) => {
+		if (value === undefined) Reflect.deleteProperty(document, 'startViewTransition');
+		else
+			Object.defineProperty(document, 'startViewTransition', {
+				value,
+				configurable: true,
+			});
+	};
+
 	beforeEach(() => {
 		state = createMockRouterState();
 		routerConfig.configure({
@@ -55,14 +66,12 @@ describe('navigate', () => {
 		});
 		vi.useFakeTimers();
 		vi.spyOn(history, 'pushState').mockImplementation(() => {});
-		vi.stubGlobal('document', {
-			...document,
-			startViewTransition: mockStartViewTransition,
-		});
+		setStartViewTransition(mockStartViewTransition);
 	});
 
 	afterEach(() => {
 		vi.useRealTimers();
+		setStartViewTransition(undefined);
 		vi.restoreAllMocks();
 	});
 
@@ -410,12 +419,9 @@ describe('navigate', () => {
 		// data (object) landed while the old route (string page) still rendered — React crashed
 		// on `<p>{data}</p>`. Both updates must share one transition callback.
 		let transitionCb: (() => void) | null = null;
-		vi.stubGlobal('document', {
-			...document,
-			startViewTransition: (cb: () => void) => {
-				transitionCb = cb;
-				return { ready: Promise.resolve(), finished: Promise.resolve() } as unknown as ViewTransition;
-			},
+		setStartViewTransition((cb: () => void) => {
+			transitionCb = cb;
+			return { ready: Promise.resolve(), finished: Promise.resolve() } as unknown as ViewTransition;
 		});
 		const flushTransition = () => {
 			transitionCb?.();
@@ -469,6 +475,25 @@ describe('navigate', () => {
 		flushTransition();
 		expect(state.routeDataState.getState().status).toBe('active');
 		expect(state.routeDataState.getState().loaderState.data).toEqual({ value: 2 });
+	});
+
+	it('commits navigation synchronously when startViewTransition throws', async () => {
+		// commitNavigation's catch branch: unsupported/broken API must not drop the commit.
+		setStartViewTransition(() => {
+			throw new Error('startViewTransition is not supported');
+		});
+		const loader = vi.fn().mockResolvedValue('fallback data');
+		const routeItem = createMockRouteItem({ loader });
+		routerConfig.configure({ routes: [routeItem], isAnimated: true });
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/test' });
+
+		expect(state.routeDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().loaderState.data).toBe('fallback data');
+		expect(state.routeDataState.getState().location.pathname).toBe('/test');
 	});
 
 	describe('polling', () => {
@@ -535,9 +560,6 @@ describe('useAction', () => {
 			isAnimated: false,
 		});
 		vi.spyOn(history, 'pushState').mockImplementation(() => {});
-		// The outer suite stubs `document` with a plain object (startViewTransition mock),
-		// which breaks @testing-library/react rendering — restore the real jsdom document.
-		vi.unstubAllGlobals();
 	});
 
 	afterEach(() => {
@@ -675,7 +697,6 @@ describe('useNavigate path params', () => {
 			isAnimated: false,
 		});
 		vi.spyOn(history, 'pushState').mockImplementation(() => {});
-		vi.unstubAllGlobals();
 	});
 
 	afterEach(() => {

@@ -108,6 +108,36 @@ describe('prefetch', () => {
 		expect(state.loaderMap.size).toBe(0);
 	});
 
+	it('runs prefetches through the concurrency queue and drains it', async () => {
+		const resolvers: Array<() => void> = [];
+		const loader = vi.fn(
+			() =>
+				new Promise<string>(resolve => {
+					resolvers.push(() => resolve('data'));
+				})
+		);
+		const routeItems = [0, 1, 2, 3, 4].map(i => createMockRouteItem({ path: `/p${i}`, pattern: `/p${i}`, loader }));
+		routerConfig.configure({ routes: routeItems, maxCacheSize: 10 });
+		prefetch = createPrefetch(state, revalidateCache);
+
+		const flush = () => new Promise(resolve => setTimeout(resolve, 0)); // all queued microtasks settle
+		const all = Promise.all(routeItems.map((_, i) => prefetch({ pathname: `/p${i}` })));
+		await flush();
+
+		// desktop width (jsdom matchMedia reports "no coarse pointer") caps at 4 concurrently
+		expect(loader).toHaveBeenCalledTimes(4);
+		expect(resolvers.length).toBe(4);
+
+		resolvers[0]();
+		await flush(); // the freed slot drains the queue
+
+		expect(loader).toHaveBeenCalledTimes(5);
+		resolvers.slice(1).forEach(resolve => resolve());
+		await all;
+
+		expect(state.loaderMap.size).toBe(5);
+	});
+
 	it('calls preloadElement if available', async () => {
 		const preloadElement = vi.fn().mockResolvedValue({ default: () => null });
 		const loader = vi.fn().mockResolvedValue('data');
