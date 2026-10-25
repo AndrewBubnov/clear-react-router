@@ -495,6 +495,70 @@ describe('Link component', () => {
 		);
 	});
 
+	describe('pending state', () => {
+		it(
+			'marks only the link whose search matches the pending location',
+			async () => {
+				let resolveLoader!: (value: string) => void;
+				const routes = createRouter([
+					{ path: '/', element: <div>Pending Home</div> },
+					{
+						path: '/search',
+						element: <div>Search Page</div>,
+						loader: () =>
+							new Promise<string>(resolve => {
+								resolveLoader = resolve;
+							}),
+					},
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				render(
+					<div>
+						<Link to="/search" data-testid="no-search">
+							No search
+						</Link>
+						<Link to="/search" search={{ q: 'x' }} data-testid="with-search">
+							With search
+						</Link>
+						<Router routes={routes} />
+					</div>
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Pending Home')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				const noSearch = screen.getByTestId('no-search');
+				const withSearch = screen.getByTestId('with-search');
+				withSearch.click();
+				await waitFor(
+					() => {
+						expect(withSearch).toHaveClass('pending-link');
+					},
+					{ timeout: 5000 }
+				);
+				expect(noSearch).not.toHaveClass('pending-link');
+
+				await waitFor(
+					() => {
+						expect(resolveLoader).toBeDefined();
+					},
+					{ timeout: 5000 }
+				);
+				resolveLoader('data');
+				await waitFor(
+					() => {
+						expect(screen.getByText('Search Page')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+			},
+			TEST_TIMEOUT
+		);
+	});
+
 	describe('click behavior', () => {
 		it(
 			'navigates on click',
