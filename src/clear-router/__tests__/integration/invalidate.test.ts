@@ -93,6 +93,42 @@ describe('invalidate', () => {
 		expect(state.loaderMap.has('/users')).toBe(true);
 	});
 
+	it('waits for an in-flight load and refetches instead of returning it', async () => {
+		let resolvePrefetch!: (value: string) => void;
+		const flightLoader = vi
+			.fn()
+			.mockImplementationOnce(
+				() =>
+					new Promise<string>(resolve => {
+						resolvePrefetch = resolve;
+					})
+			)
+			.mockResolvedValueOnce('fresh data');
+		const routeItem = createMockRouteItem({ path: '/users', pattern: '/users', loader: flightLoader });
+		routerConfig.configure({ routes: [routeItem], maxCacheSize: 10 });
+		state.routeDataState.setState({
+			routeItem,
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
+		});
+
+		const prefetchPromise = revalidateCache({
+			routeItem,
+			location: { pathname: '/users' },
+			reason: 'prefetch',
+		});
+		const invalidatePromise = invalidate('/users');
+		resolvePrefetch('stale prefetch');
+		await prefetchPromise;
+
+		const result = await invalidatePromise;
+
+		expect(result[0].data).toBe('fresh data');
+		expect(state.loaderMap.get('/users')?.state.data).toBe('fresh data');
+		expect(flightLoader).toHaveBeenCalledTimes(2);
+	});
+
 	it('force adds path even if not in cache', async () => {
 		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),
