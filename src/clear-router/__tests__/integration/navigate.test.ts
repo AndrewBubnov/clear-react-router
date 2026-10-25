@@ -600,6 +600,44 @@ describe('useAction', () => {
 		expect(submitResult?.error).toBeInstanceOf(Error);
 	});
 
+	it('invalidates the route where the action started after navigating away mid-flight', async () => {
+		let resolveAction!: (value: string) => void;
+		const action = vi.fn(
+			() =>
+				new Promise<string>(resolve => {
+					resolveAction = resolve;
+				})
+		);
+		const loaderA = vi.fn().mockResolvedValueOnce('a1').mockResolvedValueOnce('a2');
+		const loaderB = vi.fn(async () => 'b1');
+		const routeA = createMockRouteItem({
+			path: '/a',
+			pattern: '/a',
+			loader: loaderA,
+			actions: () => ({ save: action }),
+		});
+		const routeB = createMockRouteItem({ path: '/b', pattern: '/b', loader: loaderB });
+		routerConfig.configure({ routes: [routeA, routeB] });
+		const instance = createRouterInstance(useSyncExternalStore);
+
+		await instance.runtime.navigate({ pathname: '/a', search: '?tab=1' });
+		const { result } = renderHook(() => instance.hooks.useAction('save'));
+
+		let submitPromise!: Promise<unknown>;
+		await act(async () => {
+			submitPromise = result.current({});
+		});
+		await instance.runtime.navigate({ pathname: '/b' });
+
+		await act(async () => {
+			resolveAction('saved');
+			await submitPromise;
+		});
+
+		expect(loaderA).toHaveBeenCalledTimes(2);
+		expect(loaderB).toHaveBeenCalledTimes(1);
+	});
+
 	it('invalidates current route and calls onSuccess after submit', async () => {
 		const loader = vi.fn(async () => 'v1');
 		const action = vi.fn(async () => 'saved');

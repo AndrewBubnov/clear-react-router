@@ -106,8 +106,10 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				return async (input: Record<string, unknown>) => {
 					try {
 						const currentAction = getCurrentAction(action);
+						const { location } = routerState.routeDataState.getState();
+						const path = `${location.pathname}${location.search ?? ''}`;
 						const data = await currentAction(input);
-						await invalidate();
+						await invalidate(path);
 						options.onSuccess?.(data);
 						return { data, error: null };
 					} catch (error) {

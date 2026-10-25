@@ -542,7 +542,7 @@ const routes = createRouter([
 
 Defines route-specific actions for handling data mutations such as creating, updating, or deleting resources.
 
-Actions are available through the `useSubmitAction` and `useAction` hooks. After a successful action, the current route is automatically invalidated, causing `loader` to run again in the background.
+Actions are available through the `useSubmitAction` and `useAction` hooks. After a successful action, the route where the action was triggered is automatically invalidated, causing `loader` to run again in the background.
 
 ```tsx
 actions?: ({ params, context, searchParams, setContext, location }) => ({
@@ -646,7 +646,7 @@ const handleClick = async () => await save({ data: 'Hello world!' });
 <button onClick={handleClick}>Save</button>
 ```
 
-`useAction` automatically invalidates the current route after a successful action, causing `loader` to run again in the background.
+`useAction` automatically invalidates the route where the action was triggered after a successful action, causing `loader` to run again in the background. This remains the same route even if the user navigates away while the action is in flight.
 
 This hook is useful when the mutation is triggered programmatically, such as from dialogs, context menus, drag-and-drop interactions, keyboard shortcuts, or custom UI components.
 
