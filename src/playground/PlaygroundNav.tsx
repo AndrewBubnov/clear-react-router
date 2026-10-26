@@ -1,14 +1,29 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ActionIcon, Switch, Tooltip, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
-import { IconMoon, IconRoute, IconSettings, IconSun } from '@tabler/icons-react';
+import { IconMenu2, IconMoon, IconRoute, IconSettings, IconSun, IconX } from '@tabler/icons-react';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
 
-const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; children: ReactNode }) => {
+const NavLink = ({
+	to,
+	exact,
+	children,
+	className = '',
+}: {
+	to: string;
+	exact?: boolean;
+	children: ReactNode;
+	className?: string;
+}) => {
 	const { navLinkAs } = usePlaygroundSettings();
 	return (
-		<Link to={to} exact={exact} as={NAV_LINK_AS[navLinkAs]} className="pg-nav-link">
+		<Link
+			to={to}
+			exact={exact}
+			as={NAV_LINK_AS[navLinkAs]}
+			className={`pg-nav-link${className ? ` ${className}` : ''}`}
+		>
 			{children}
 		</Link>
 	);
@@ -37,6 +52,8 @@ const ThemeToggle = () => {
 
 export const PlaygroundNav = () => {
 	const { showCacheVisualizer, setShowCacheVisualizer } = usePlaygroundSettings();
+	const [menuOpen, setMenuOpen] = useState(false);
+	const menuLabel = menuOpen ? 'Close navigation menu' : 'Open navigation menu';
 	return (
 		<header className="pg-header">
 			<div className="pg-brand-wrap">
@@ -69,26 +86,50 @@ export const PlaygroundNav = () => {
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link pg-icon-button">
 						<IconSettings size={19} stroke={1.8} aria-hidden="true" />
 					</Link>
+					<ActionIcon
+						className="pg-menu-toggle pg-icon-button"
+						variant="default"
+						size="lg"
+						radius="xl"
+						onClick={() => setMenuOpen(open => !open)}
+						aria-label={menuLabel}
+						aria-expanded={menuOpen}
+						aria-controls="pg-nav"
+					>
+						{menuOpen ? <IconX size={19} stroke={1.8} /> : <IconMenu2 size={19} stroke={1.8} />}
+					</ActionIcon>
 				</div>
 			</div>
-			<nav className="pg-nav" aria-label="Playground">
-				<NavLink to="/playground" exact>
-					Home
-				</NavLink>
-				<NavLink to="/playground/cache">Cache</NavLink>
-				<NavLink to="/playground/retry">Retry</NavLink>
-				<NavLink to="/playground/retry-raw">No-retry</NavLink>
-				<NavLink to="/playground/actions">Actions</NavLink>
-				<NavLink to="/playground/blocker">Blocker</NavLink>
-				<NavLink to="/playground/prefetch">Prefetch</NavLink>
-				<NavLink to="/playground/optimistic">Optimistic</NavLink>
-				<NavLink to="/playground/deferred">Deferred</NavLink>
-				<NavLink to="/playground/guard">Guards</NavLink>
-				<NavLink to="/playground/nest">Nested</NavLink>
-				<NavLink to="/playground/live">Live</NavLink>
-				<NavLink to="/playground/scroll">Scroll</NavLink>
-				<NavLink to="/playground/search">Search</NavLink>
-			</nav>
+			<div className="pg-nav-row">
+				<nav
+					id="pg-nav"
+					className={`pg-nav${menuOpen ? ' is-open' : ''}`}
+					aria-label="Playground"
+					onClick={event => {
+						if ((event.target as HTMLElement).closest('a')) setMenuOpen(false);
+					}}
+				>
+					<NavLink to="/playground" exact>
+						Home
+					</NavLink>
+					<NavLink to="/playground/cache">Cache</NavLink>
+					<NavLink to="/playground/retry">Retry</NavLink>
+					<NavLink to="/playground/retry-raw">No-retry</NavLink>
+					<NavLink to="/playground/actions">Actions</NavLink>
+					<NavLink to="/playground/blocker">Blocker</NavLink>
+					<NavLink to="/playground/prefetch">Prefetch</NavLink>
+					<NavLink to="/playground/optimistic">Optimistic</NavLink>
+					<NavLink to="/playground/deferred">Deferred</NavLink>
+					<NavLink to="/playground/guard">Guards</NavLink>
+					<NavLink to="/playground/nest">Nested</NavLink>
+					<NavLink to="/playground/live">Live</NavLink>
+					<NavLink to="/playground/scroll">Scroll</NavLink>
+					<NavLink to="/playground/search">Search</NavLink>
+					<NavLink to="/playground/settings" className="pg-nav-settings">
+						Settings
+					</NavLink>
+				</nav>
+			</div>
 		</header>
 	);
 };

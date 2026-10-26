@@ -21,3 +21,22 @@ test('nav link opens the deferred render demo', async ({ page }) => {
 	await expect(page).toHaveURL(/\/playground\/deferred$/);
 	await expect(page.getByRole('heading', { name: 'Deferred render' })).toBeVisible();
 });
+
+for (const width of [390, 1000]) {
+	test(`menu exposes every nav link at ${width}px`, async ({ page }) => {
+		await page.setViewportSize({ width, height: 844 });
+		await page.goto('/playground');
+
+		const toggle = page.getByRole('button', { name: 'Open navigation menu' });
+		await expect(toggle).toBeVisible();
+		await toggle.click();
+
+		await expect(page.locator('.pg-nav a:visible')).toHaveCount(15);
+		const settings = page.locator('.pg-nav').getByRole('link', { name: 'Settings' });
+		await expect(settings).toBeVisible();
+		await settings.click();
+
+		await expect(page).toHaveURL(/\/playground\/settings$/);
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+	});
+}

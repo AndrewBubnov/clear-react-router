@@ -135,7 +135,18 @@ export const PlaygroundHome = () => (
 					<strong>network tab</strong> and click around.
 				</p>
 				<div className="pg-hero__actions">
-					<a className="pg-button pg-button--primary" href="#demos">
+					<a
+						className="pg-button pg-button--primary"
+						href="#demos"
+						onClick={event => {
+							event.preventDefault();
+							document.getElementById('demos')?.scrollIntoView({
+								behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+									? 'auto'
+									: 'smooth',
+							});
+						}}
+					>
 						Explore 12 demos
 						<IconArrowRight size={17} stroke={2} aria-hidden="true" />
 					</a>
