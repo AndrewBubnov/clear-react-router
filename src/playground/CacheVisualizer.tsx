@@ -90,7 +90,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 		<motion.div
 			initial={{ opacity: 0, scale: 0.8, y: 10, backgroundColor: style.bg, borderColor: style.border }}
 			animate={{ opacity: 1, scale: 1, y: 0, backgroundColor: style.bg, borderColor: style.border }}
-			exit={{ opacity: 0, scale: 0.9 }}
+			exit={{ opacity: 0 }}
 			transition={{ type: 'spring', stiffness: 200, damping: 35 }}
 			title={entry.path}
 			style={{
