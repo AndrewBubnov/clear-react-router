@@ -1,13 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clear Router — Playground</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#f4f6fb" />
+		<meta
+			name="description"
+			content="Interactive playground for clear-react-router: nested routes, loader cache, actions, blockers, prefetch and scroll restoration."
+		/>
+		<script>
+			try {
+				var stored = localStorage.getItem('mantine-color-scheme-value');
+				var dark =
+					stored === 'dark' ||
+					((!stored || stored === 'auto') && matchMedia('(prefers-color-scheme: dark)').matches);
+				document.documentElement.setAttribute('data-mantine-color-scheme', dark ? 'dark' : 'light');
+			} catch (error) {}
+		</script>
+		<title>Clear Router — Playground</title>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
 </html>
