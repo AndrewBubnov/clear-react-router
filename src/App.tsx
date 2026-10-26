@@ -87,7 +87,7 @@ const Status = () => {
 	const { showStatusBadge } = usePlaygroundSettings();
 	if (!showStatusBadge) return null;
 	return (
-		<Badge className="status-badge" color={STATUS_COLOR[status]} variant="light" size="sm" radius="xl" tt="none">
+		<Badge className="status-badge" color={STATUS_COLOR[status]} variant="light" size="md" radius="xl" tt="none">
 			{status}
 		</Badge>
 	);

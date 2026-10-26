@@ -631,8 +631,6 @@
 	margin: 16px 0 18px;
 	font-size: clamp(42px, 6.5vw, 76px);
 	font-weight: 680;
-	line-height: 0.96;
-	letter-spacing: -0.06em;
 	background: linear-gradient(115deg, var(--text-h) 32%, var(--accent) 76%, var(--accent-2));
 	background-clip: text;
 	-webkit-background-clip: text;
@@ -1169,8 +1167,7 @@ h1 {
 	}
 
 	.pg-hero__visual {
-		width: min(100%, 520px);
-		margin-inline: auto;
+		display: none;
 	}
 
 	.pg-home-grid {
@@ -1193,10 +1190,6 @@ h1 {
 
 	.pg-hero h1 {
 		font-size: clamp(38px, 12vw, 56px);
-	}
-
-	.pg-hero__visual {
-		min-height: 320px;
 	}
 
 	.pg-window {
