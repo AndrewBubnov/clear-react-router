@@ -856,7 +856,7 @@ const UserProfile = () => {
 
 - Use `staleTime: Infinity` when data should stay fresh until it is explicitly invalidated, garbage-collected or evicted.
 
-- The cache is bounded by `maxCacheSize` — once the limit is reached, the least recently used entry is evicted to make room for a new one, regardless of whether it's still fresh. This caps memory usage for apps with many high-cardinality dynamic routes (e.g. `/product/:id` across a large catalog). It defaults to a device-aware value (lower on mobile) and can be overridden on the `Router`:
+- The cache is bounded by `maxCacheSize` — once the limit is reached, the least recently used entry is evicted to make room for a new one, regardless of whether it's still fresh. The currently active route's entry is never evicted. This caps memory usage for apps with many high-cardinality dynamic routes (e.g. `/product/:id` across a large catalog). It defaults to a device-aware value (lower on mobile) and can be overridden on the `Router`:
 
 ```tsx
 <Router routes={routes} maxCacheSize={200} />

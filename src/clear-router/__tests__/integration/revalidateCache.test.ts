@@ -394,6 +394,38 @@ describe('revalidateCache', () => {
 		expect(state.loaderMap.has('/c')).toBe(true);
 	});
 
+	it('does not evict the current route when a prefetch fills the cache', async () => {
+		routerConfig.configure({ maxCacheSize: 2 });
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const loader = vi.fn().mockResolvedValue('new data');
+		const routeItem = createMockRouteItem({ loader, staleTime: 10000 });
+
+		state.routeDataState.setState({
+			routeItem: undefined,
+			location: { pathname: '/live', search: '?tab=1' },
+			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
+		});
+		state.loaderMap.set('/live?tab=1', {
+			state: { data: 'live data', beforeLoadError: null, loaderError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+			reason: 'navigation',
+		});
+		state.loaderMap.set('/other', {
+			state: { data: 'other data', beforeLoadError: null, loaderError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+			reason: 'navigation',
+		});
+
+		await revalidateCache({ routeItem, location: { pathname: '/new' }, reason: 'prefetch' });
+
+		expect(state.loaderMap.has('/live?tab=1')).toBe(true);
+		expect(state.loaderMap.has('/other')).toBe(false);
+		expect(state.loaderMap.has('/new')).toBe(true);
+	});
+
 	it('returns cached error state from cache', async () => {
 		const error = new Error('cached error');
 		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);

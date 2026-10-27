@@ -24,11 +24,14 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 };
 
 export const createRevalidateCache = (routerState: RouterState, syncCacheSnapshot: () => void) => {
-	const { loaderMap, loadingPromises, contextState } = routerState;
+	const { loaderMap, loadingPromises, contextState, routeDataState } = routerState;
 	const flightOwners = new Map<string, AbortController | AbortSignal>();
+
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
-		const oldestKey = loaderMap.keys().next().value;
+		const { pathname, search = '' } = routeDataState.getState().location;
+		const currentPath = `${pathname}${search}`;
+		const oldestKey = [...loaderMap.keys()].find(key => key !== currentPath);
 		if (oldestKey) {
 			loaderMap.delete(oldestKey);
 			syncCacheSnapshot();
