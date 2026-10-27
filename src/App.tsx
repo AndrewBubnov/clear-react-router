@@ -18,7 +18,7 @@ const RouteProgress = () => {
 const CacheVizSlot = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
 	const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-	const visible = entries.some(entry => !entry.isLoading);
+	const visible = entries.some(entry => entry.isCached);
 	return (
 		<AnimatePresence initial={false}>
 			{visible && (

@@ -145,6 +145,7 @@ export type CacheSnapshotEntry = {
 	reason?: CacheReason;
 	gcExpiresAt: number | undefined;
 	gcDuration: number | undefined;
+	isCached: boolean;
 	isLoading: boolean;
 };
 

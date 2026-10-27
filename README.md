@@ -878,7 +878,8 @@ const CachePanel = () => {
     <ul>
       {entries.map(entry => (
         <li key={entry.path}>
-          {entry.path} — {entry.reason ?? 'unknown'} — {entry.isLoading ? 'loading' : 'cached'}
+          {entry.path} — {entry.reason ?? 'unknown'} —{' '}
+          {entry.isCached ? (entry.isLoading ? 'revalidating' : 'cached') : 'loading'}
         </li>
       ))}
     </ul>
@@ -899,6 +900,7 @@ type CacheSnapshotEntry = {
   reason?: CacheReason;               // what wrote the entry last
   gcExpiresAt: number | undefined;    // GC deadline, if a GC timer is pending
   gcDuration: number | undefined;     // the route's gcTime, for progress display
+  isCached: boolean;                  // a loader result exists in memory (fresh or stale)
   isLoading: boolean;                 // a loader for this path is currently running
 };
 
@@ -908,7 +910,8 @@ type CacheSnapshot = CacheSnapshotEntry[];
 Notes:
 
 - The snapshot is a projection, not a second cache — changing it does nothing.
-- Entries appear for in-flight first loads too (`data: undefined`, `isLoading: true`), so a devtool never misses a request.
+- Entries appear for in-flight first loads too (`data: undefined`, `isCached: false`, `isLoading: true`), so a devtool never misses a request.
+- A cached entry being revalidated has `isCached: true` and `isLoading: true`; read `data` to show the previous result while it refreshes.
 - Mounting the hook refreshes the snapshot, so a panel opened after navigation still sees existing entries.
 - `enableCacheSnapshot` is process-wide (the router is a singleton): if several `<Router>`s render with different values, the last rendered one wins. Enable it only when a consumer is actually mounted.
 

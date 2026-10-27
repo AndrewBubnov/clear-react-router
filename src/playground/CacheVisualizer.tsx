@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Badge, Card, Group, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
+import { Badge, Card, Group, Loader, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
+import { IconArrowRight, IconBolt, IconRefresh, IconReload } from '@tabler/icons-react';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from '../clear-router';
 
 const VISIBLE_LIMIT = 6;
@@ -13,30 +14,33 @@ const REASON = {
 		bg: 'rgba(34,160,107,0.14)',
 		border: 'rgba(34,160,107,0.9)',
 		theme: 'green',
-		icon: '→',
 		label: 'navigation',
 	},
 	prefetch: {
 		bg: 'rgba(112,72,232,0.14)',
 		border: 'rgba(112,72,232,0.9)',
 		theme: 'violet',
-		icon: '↯',
 		label: 'prefetch',
 	},
 	invalidate: {
 		bg: 'rgba(217,72,15,0.13)',
 		border: 'rgba(217,72,15,0.9)',
 		theme: 'orange',
-		icon: '↻',
 		label: 'invalidate',
 	},
 	polling: {
 		bg: 'rgba(51,112,180,0.12)',
 		border: 'rgba(51,112,180,0.9)',
 		theme: 'blue',
-		icon: '⟳',
 		label: 'polling',
 	},
+} as const;
+
+const REASON_ICON = {
+	navigation: IconArrowRight,
+	prefetch: IconBolt,
+	invalidate: IconReload,
+	polling: IconRefresh,
 } as const;
 
 const shortLabel = (path: string) => {
@@ -62,6 +66,7 @@ const FreshnessLegend = () => (
 const CacheCard = ({ item }: { item: DisplayItem }) => {
 	const [now, setNow] = useState(() => Date.now());
 	const style = REASON[item.reason];
+	const Icon = REASON_ICON[item.reason];
 	const { entry } = item;
 	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
@@ -88,6 +93,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 
 	return (
 		<motion.div
+			data-loading={entry.isLoading ? 'true' : undefined}
 			initial={{ opacity: 0, scale: 0.8, y: 10, backgroundColor: style.bg, borderColor: style.border }}
 			animate={{ opacity: 1, scale: 1, y: 0, backgroundColor: style.bg, borderColor: style.border }}
 			exit={{ opacity: 0 }}
@@ -123,7 +129,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 				}}
 			/>
 			<ThemeIcon size={24} radius="xl" variant="light" color={style.theme}>
-				<span style={{ fontSize: 14, lineHeight: 1 }}>{style.icon}</span>
+				{entry.isLoading ? <Loader size={12} color={style.theme} /> : <Icon size={16} stroke={2} />}
 			</ThemeIcon>
 			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
 				{shortLabel(entry.path)}
@@ -147,7 +153,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 
 export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
-	const cached = entries.filter(entry => !entry.isLoading);
+	const cached = entries.filter(entry => entry.isCached);
 	const items: DisplayItem[] = cached.map(entry => ({ entry, reason: entry.reason ?? 'navigation' }));
 	const visible = items.slice(-VISIBLE_LIMIT);
 	const hidden = items.length - visible.length;
@@ -182,11 +188,6 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 						<CacheCard key={item.entry.path} item={item} />
 					))}
 				</AnimatePresence>
-				{!visible.length && (
-					<Text size="xs" c="dimmed">
-						No cached entries yet.
-					</Text>
-				)}
 			</div>
 		</Card>
 	);

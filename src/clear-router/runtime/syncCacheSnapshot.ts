@@ -15,6 +15,7 @@ export const createCacheSnapshot = (
 			reason: item.reason,
 			gcExpiresAt: item.gcExpiresAt,
 			gcDuration: item.gcDuration,
+			isCached: true,
 			isLoading: loadingPromises.has(path),
 		});
 	}
@@ -27,6 +28,7 @@ export const createCacheSnapshot = (
 			staleTime: routerConfig.defaultStaleTime ?? 0,
 			gcExpiresAt: undefined,
 			gcDuration: undefined,
+			isCached: false,
 			isLoading: true,
 		});
 	}
