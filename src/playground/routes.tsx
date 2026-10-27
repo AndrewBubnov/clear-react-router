@@ -112,6 +112,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/cache',
 		element: lazy(() => import('./CachePage')),
 		loader: fetchCachePayload,
+		staleTime: 3000,
 		loaderFallback: <PageSkeleton />,
 		children: [
 			{
