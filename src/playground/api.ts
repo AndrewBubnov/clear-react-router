@@ -51,7 +51,7 @@ export const fetchOptimisticValue = async () => {
 /** Random-walking quotes. Powers the polling demo. */
 export const fetchQuotes = async (): Promise<{ tick: number; quotes: Quote[] }> => {
 	trackCall('live');
-	await delay(200);
+	await delay(400);
 	tick += 1;
 	const quotes = Object.entries(PRICES).map(([symbol, base]) => {
 		const drift = (Math.random() - 0.5) * base * 0.04;
@@ -68,7 +68,10 @@ export const fetchProduct = async (id: string) => {
 	return { id, description: `Product ${id} (loaded ${n} time${n === 1 ? '' : 's'})`, loads: n };
 };
 
-/** Payload for the cache lab home page itself. No staleTime, so revisits refetch by default. */
+/** The cache lab route sets this staleTime, so revisits within the window reuse the payload. */
+export const CACHE_STALE_TIME = 3000;
+
+/** Payload for the cache lab home page itself. */
 export const fetchCachePayload = async () => {
 	const n = trackCall('cache');
 	await delay(600);

@@ -4,6 +4,7 @@ import { DeferredSkeleton, PageSkeleton, ProductSkeleton } from './Skeletons';
 import { NestLayout } from './NestLayout';
 import { NestChildLayout } from './NestChildLayout';
 import {
+	CACHE_STALE_TIME,
 	HEAVY_GC_TIME,
 	addNote,
 	fetchCachePayload,
@@ -51,7 +52,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/live',
 		element: lazy(() => import('./LivePage')),
 		loader: fetchQuotes,
-		pollingInterval: 2000,
+		pollingInterval: 3000,
 		loaderFallback: <PageSkeleton />,
 	},
 	{
@@ -112,7 +113,7 @@ export const playgroundRoutes = createRouter([
 		path: '/playground/cache',
 		element: lazy(() => import('./CachePage')),
 		loader: fetchCachePayload,
-		staleTime: 3000,
+		staleTime: CACHE_STALE_TIME,
 		loaderFallback: <PageSkeleton />,
 		children: [
 			{

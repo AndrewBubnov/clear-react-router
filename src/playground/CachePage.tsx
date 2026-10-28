@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useInvalidate, useLoaderState, useRouterContext } from '../clear-router';
 import { Button, RingProgress, Stack, Text } from '@mantine/core';
-import { getCallCount, HEAVY_GC_TIME } from './api';
+import { CACHE_STALE_TIME, getCallCount, HEAVY_GC_TIME } from './api';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
@@ -52,12 +52,13 @@ const InvalidateLab = () => {
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
 			<p className="pg-hint">
-				<code>staleOnly</code> leaves fresh entries alone — this page has no <code>staleTime</code>, so its
-				entry is stale immediately and the counter above moves on every press. <code>force: false</code> never
-				fetches uncached paths — and the failing route is never cached (failures don&apos;t poison the cache),
-				so it always comes back empty. Compare with the plain refetch right above each of them.{' '}
-				<code>withChildren</code> revalidates the route plus all nested children — open any nest and item first
-				so there is something cached, then watch both entries refresh at once.
+				<code>staleOnly</code> leaves fresh entries alone — this page has{' '}
+				<code>staleTime: {CACHE_STALE_TIME}</code>, so press within {CACHE_STALE_TIME / 1000} seconds and
+				nothing is stale to refetch; after that the counter moves. <code>force: false</code> never fetches
+				uncached paths — and the failing route is never cached (failures don&apos;t poison the cache), so it
+				always comes back empty. Compare with the plain refetch buttons below. <code>withChildren</code>{' '}
+				revalidates the route plus all nested children — open any nest and item first so there is something
+				cached, then watch both entries refresh at once.
 			</p>
 			{lastResult && (
 				<motion.div
@@ -204,7 +205,7 @@ const CachePage = () => {
 		<div className="pg-wrap">
 			<h1>Cache: eviction, gcTime, invalidation</h1>
 			<div className="pg-card">
-				<h2>This page itself is cached, but stale by default</h2>
+				<h2>This page itself is cached for {CACHE_STALE_TIME / 1000} seconds</h2>
 				<p>{data}</p>
 				<p className="pg-row pg-no-margin">
 					Errors:
@@ -219,19 +220,22 @@ const CachePage = () => {
 					<pre>{stringifyLoaderState(data, loaderError, beforeLoadError)}</pre>
 				</details>
 				<p>
-					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>
+					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>{' '}
+					<span className="pg-badge">staleTime: {CACHE_STALE_TIME}ms</span>
 				</p>
 				<p className="pg-hint">
-					First visit shows a loading fallback (~600ms). Leave and come back — the loader runs again because
-					this page has no <code>staleTime</code>. Add one (or <code>Infinity</code>) to render revisits from
-					cache without refetching.
+					First visit shows a loading fallback (~600ms). Leave and come back within {CACHE_STALE_TIME / 1000}{' '}
+					seconds — the loader is skipped and the cached payload renders instantly. After that the entry is
+					stale, so the next visit runs the loader again. Set <code>staleTime: Infinity</code> when data
+					should stay fresh until it is invalidated or evicted.
 				</p>
 			</div>
 			<div className="pg-card">
 				<h2>LRU eviction</h2>
 				<p className="pg-hint">
-					This playground runs with <code>maxCacheSize: {maxCacheSize}</code> (change it on the settings
-					page).
+					This playground runs with <code>maxCacheSize: {maxCacheSize}</code> (change it on the{' '}
+					<Link to="/playground/settings">settings page</Link>). The active route is pinned, so the oldest
+					other entry is the one that gets evicted.
 				</p>
 				<p>
 					{maxCacheSize > 3 ? (

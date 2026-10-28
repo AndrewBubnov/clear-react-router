@@ -63,10 +63,43 @@ const FreshnessLegend = () => (
 	</Group>
 );
 
+const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }) => {
+	const Icon = REASON_ICON[item.reason];
+	const style = REASON[item.reason];
+	return (
+		<ThemeIcon size={24} radius="xl" variant="light" color={style.theme}>
+			<AnimatePresence mode="wait">
+				{isLoading ? (
+					<motion.div
+						key="loader"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.2 }}
+					>
+						<Loader size={12} color={style.theme} />
+					</motion.div>
+				) : (
+					<AnimatePresence mode="wait">
+						<motion.div
+							key="icon"
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.2 }}
+						>
+							<Icon size={16} stroke={2} />
+						</motion.div>
+					</AnimatePresence>
+				)}
+			</AnimatePresence>
+		</ThemeIcon>
+	);
+};
+
 const CacheCard = ({ item }: { item: DisplayItem }) => {
 	const [now, setNow] = useState(() => Date.now());
 	const style = REASON[item.reason];
-	const Icon = REASON_ICON[item.reason];
 	const { entry } = item;
 	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
@@ -128,9 +161,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 					background: freshnessColor(stale),
 				}}
 			/>
-			<ThemeIcon size={24} radius="xl" variant="light" color={style.theme}>
-				{entry.isLoading ? <Loader size={12} color={style.theme} /> : <Icon size={16} stroke={2} />}
-			</ThemeIcon>
+			<CardIcon isLoading={entry.isLoading} item={item} />
 			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
 				{shortLabel(entry.path)}
 			</Text>
