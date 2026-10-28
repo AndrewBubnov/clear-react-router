@@ -1054,10 +1054,6 @@ h1 {
 	max-width: var(--content-width);
 	margin: var(--page-gutter) auto 0;
 	padding: 8px var(--page-gutter);
-	border: 1px solid var(--border);
-	border-radius: 18px;
-	background: var(--header-bg);
-	backdrop-filter: blur(18px) saturate(1.35);
 	overflow: hidden;
 }
 
