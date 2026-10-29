@@ -76,6 +76,7 @@ const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						transition={{ duration: 0.2 }}
+						style={{ display: 'flex' }}
 					>
 						<Loader size={12} color={style.theme} />
 					</motion.div>
@@ -87,6 +88,7 @@ const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
 							transition={{ duration: 0.2 }}
+							style={{ display: 'flex' }}
 						>
 							<Icon size={16} stroke={2} />
 						</motion.div>

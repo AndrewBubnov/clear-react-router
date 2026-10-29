@@ -140,6 +140,7 @@ let notes: Note[] = [
 let nextId = 3;
 
 export const fetchNotes = async (): Promise<Note[]> => {
+	trackCall('notes');
 	await delay(300);
 	return [...notes];
 };
