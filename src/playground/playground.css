@@ -300,6 +300,14 @@
 	font-size: 15px;
 }
 
+.pg-hint-list {
+	padding-left: 30px;
+}
+
+.pg-hint-list li + li {
+	margin-top: 6px;
+}
+
 .pg-row {
 	display: flex;
 	gap: 16px;
@@ -313,6 +321,12 @@
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 12px;
 	margin: 12px 0;
+}
+
+/* Mantine slides the label out and the loader in; keep the swap instant. */
+.pg-btn-grid .mantine-Button-inner,
+.pg-btn-grid .mantine-Button-loader {
+	transition: none !important;
 }
 
 .pg-details {

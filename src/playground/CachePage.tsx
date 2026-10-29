@@ -33,12 +33,21 @@ const InvalidateLab = () => {
 	const { maxCacheSize } = usePlaygroundSettings();
 	const [lastResult, setLastResult] = useState<InvalidateEntry[] | null>(null);
 	const [resultVersion, setResultVersion] = useState(0);
+	const [pending, setPending] = useState<string | null>(null);
 
-	const run = (result: Promise<InvalidateEntry[]>) =>
-		result.then(entries => {
-			setLastResult(entries);
-			setResultVersion(version => version + 1);
-		});
+	const run = (key: string, result: Promise<InvalidateEntry[]>) => {
+		setPending(key);
+		result
+			.then(entries => {
+				setLastResult(entries);
+				setResultVersion(version => version + 1);
+			})
+			.finally(() => setPending(null));
+	};
+	const buttonState = (key: string) => ({
+		loading: pending === key,
+		disabled: pending !== null && pending !== key,
+	});
 
 	return (
 		<div className="pg-card">
@@ -51,15 +60,22 @@ const InvalidateLab = () => {
 				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
-			<p className="pg-hint">
-				<code>staleOnly</code> leaves fresh entries alone — this page has{' '}
-				<code>staleTime: {CACHE_STALE_TIME}</code>, so press within {CACHE_STALE_TIME / 1000} seconds and
-				nothing is stale to refetch; after that the counter moves. <code>force: false</code> never fetches
-				uncached paths — and the failing route is never cached (failures don&apos;t poison the cache), so it
-				always comes back empty. Compare with the plain refetch buttons below. <code>withChildren</code>{' '}
-				revalidates the route plus all nested children — open any nest and item first so there is something
-				cached, then watch both entries refresh at once.
-			</p>
+			<ul className="pg-hint pg-hint-list">
+				<li>
+					<code>staleOnly</code> only refetches stale entries. This page stays fresh for{' '}
+					{CACHE_STALE_TIME / 1000} seconds, so pressing sooner returns no entries; after that the counter
+					moves.
+				</li>
+				<li>
+					<code>force: false</code> skips uncached paths. The failing route is never cached (failures
+					don&apos;t poison the cache), so this always comes back empty. Compare it with the plain refetch
+					button.
+				</li>
+				<li>
+					<code>withChildren</code> revalidates the route and all nested children. Open a nest and an item
+					first so there is something cached, then watch both entries refresh at once.
+				</li>
+			</ul>
 			{lastResult && (
 				<motion.div
 					style={{ overflow: 'hidden' }}
@@ -67,7 +83,7 @@ const InvalidateLab = () => {
 					animate={{ height: 'auto', marginTop: 12 }}
 					transition={{ type: 'spring', stiffness: 400, damping: 34, mass: 0.8 }}
 				>
-					<div className="pg-invalidate-result">
+					<div className="pg-invalidate-result" role="status">
 						<div className="pg-invalidate-result__head">
 							<span className="pg-invalidate-result__title">Invalidation results</span>
 							<span className="pg-badge">
@@ -129,33 +145,46 @@ const InvalidateLab = () => {
 				</motion.div>
 			)}
 			<div className="pg-btn-grid">
-				<Button variant="light" onClick={() => run(invalidate())} size="xs">
+				<Button variant="light" onClick={() => run('page', invalidate())} size="xs" {...buttonState('page')}>
 					Refetch this page
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/cache/product/1'))} size="xs">
+				<Button
+					variant="light"
+					onClick={() => run('product/1', invalidate('/playground/cache/product/1'))}
+					size="xs"
+					{...buttonState('product/1')}
+				>
 					Refetch product 1
 				</Button>
 				<Button
 					variant="light"
-					onClick={() => run(invalidate('/playground/cache', { staleOnly: true }))}
+					onClick={() => run('stale', invalidate('/playground/cache', { staleOnly: true }))}
 					size="xs"
+					{...buttonState('stale')}
 				>
 					Touch only stale entries
 				</Button>
-				<Button variant="light" onClick={() => run(invalidate('/playground/retry-raw'))} size="xs">
+				<Button
+					variant="light"
+					onClick={() => run('failing', invalidate('/playground/retry-raw'))}
+					size="xs"
+					{...buttonState('failing')}
+				>
 					Refetch the failing route
 				</Button>
 				<Button
 					variant="light"
-					onClick={() => run(invalidate('/playground/retry-raw', { force: false }))}
+					onClick={() => run('skip', invalidate('/playground/retry-raw', { force: false }))}
 					size="xs"
+					{...buttonState('skip')}
 				>
 					Skip uncached entries
 				</Button>
 				<Button
 					variant="light"
-					onClick={() => run(invalidate('/playground/nest', { withChildren: true }))}
+					onClick={() => run('nest', invalidate('/playground/nest', { withChildren: true }))}
 					size="xs"
+					{...buttonState('nest')}
 				>
 					Refetch nest subtree
 				</Button>
@@ -247,15 +276,16 @@ const CachePage = () => {
 						</>
 					) : showCacheVisualizer ? (
 						<>
-							Click products #1–#5 — or any other links — and watch the visualizer evict the oldest entry.
+							Open products #1–#5 — or hover them when prefetch is enabled — and watch the visualizer
+							evict the oldest entry.
 						</>
 					) : (
-						<>Click products #1–#5 in any order.</>
+						<>Open products #1–#5 in any order.</>
 					)}
 				</p>
 				<div className="pg-row pg-items-row">
 					{PRODUCT_IDS.map(id => (
-						<Link key={id} to={`/playground/cache/product/${id}`}>
+						<Link key={id} to={`/playground/cache/product/${id}`} aria-label={`Open product ${id}`}>
 							#{id}
 						</Link>
 					))}
