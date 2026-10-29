@@ -1,4 +1,4 @@
-import { comparePaths } from '../utils/utils';
+import { isParamSegment, matchPathPattern } from '../utils/utils';
 import { findRoute } from '../utils/findRoute';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
@@ -50,16 +50,17 @@ export const createInvalidate = (
 
 		if (!routeItem) return [];
 
+		const targetPathname = separatePathname(pathname);
+		const isPattern = targetPathname.split('/').filter(Boolean).some(isParamSegment);
+
 		const pathnameSet = new Set<string>();
-		for (const [key] of loaderMap) if (comparePaths(routeItem, separatePathname(key))) pathnameSet.add(key);
-		// A path with unresolved :params (e.g. a child pattern expanded during withChildren
-		// recursion) addresses nothing fetchable — only already-cached entries make sense,
-		// unless fetching is explicitly forced.
-		const hasUnresolvedParams = separatePathname(pathname)
-			.split('/')
-			.some(segment => segment.startsWith(':'));
+		for (const [key] of loaderMap) {
+			const keyPathname = separatePathname(key);
+			const matches = isPattern ? matchPathPattern(targetPathname, keyPathname) : keyPathname === targetPathname;
+			if (matches) pathnameSet.add(key);
+		}
 		const implicitForce = options?.force === undefined && !options?.staleOnly;
-		if (options?.force === true || (implicitForce && !hasUnresolvedParams)) pathnameSet.add(pathname);
+		if (!isPattern && (options?.force === true || implicitForce)) pathnameSet.add(pathname);
 
 		const currentResults = await Promise.all(
 			[...pathnameSet].map(pathname => invalidatePath(routeItem, pathname, options))
