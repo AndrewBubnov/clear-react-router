@@ -14,6 +14,17 @@ test('dirty form blocks navigation until Stay is chosen', async ({ page }) => {
 
 	await expect(page.getByRole('dialog')).toBeHidden();
 	await expect(page).toHaveURL(/\/playground\/blocker$/);
+	await expect(page.locator('.pg-badge').filter({ hasText: 'blocker:' })).toHaveText('blocker: charged');
+});
+
+test('clean form navigates without a dialog', async ({ page }) => {
+	await page.goto('/playground/blocker');
+	await expect(page.locator('.pg-badge').filter({ hasText: 'blocker:' })).toHaveText('blocker: unblocked');
+
+	await page.getByRole('link', { name: /Try leaving/ }).click();
+
+	await expect(page).toHaveURL(/\/playground$/);
+	await expect(page.getByRole('dialog')).toBeHidden();
 });
 
 test('confirming leaves the dirty page', async ({ page }) => {

@@ -10,19 +10,29 @@ const BlockerPage = () => {
 	return (
 		<div className="pg-wrap">
 			<h1>Navigation blocking</h1>
-			<p className="pg-hint">
-				Type something to make the form dirty — navigation (links <em>and</em> the browser Back button) gets
-				intercepted until you confirm or cancel.
-			</p>
+			<ul className="pg-hint pg-hint-list">
+				<li>
+					Type something — the blocker becomes <code>charged</code>.
+				</li>
+				<li>
+					Follow the link (or press browser Back) — the state turns <code>blocked</code> and the dialog opens.
+				</li>
+				<li>
+					Choose <strong>Leave</strong> to navigate anyway, or <strong>Stay</strong> to keep editing.
+				</li>
+			</ul>
 			<div className="pg-card">
 				<div className="pg-row">
 					<input
 						className="pg-input"
 						placeholder="Type to make the form dirty…"
+						aria-label="Unsaved form text"
 						value={value}
 						onChange={e => setValue(e.target.value)}
 					/>
-					<span className="pg-badge">blocker: {state}</span>
+					<span className="pg-badge" role="status">
+						blocker: {state}
+					</span>
 				</div>
 				<p>
 					<Link to="/playground">← Try leaving via this link</Link>
