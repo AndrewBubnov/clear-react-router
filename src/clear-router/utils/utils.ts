@@ -25,17 +25,13 @@ export const parseWindowLocation = (location: typeof window.location): Location 
 	state: history.state ?? undefined,
 });
 
-export const isParamSegment = (segment: string) => segment.startsWith(':') || /^\[[^\]]+]$/.test(segment);
-
-export const matchPathPattern = (pattern: string, pathname: string) => {
-	const patternSegments = pattern.split('/').filter(Boolean);
-	const pathSegments = pathname.split('/').filter(Boolean);
-	return patternSegments.length === pathSegments.length
-		? patternSegments.every((segment, index) => isParamSegment(segment) || segment === pathSegments[index])
+export const comparePaths = (route: RouteItem, pathname: string) => {
+	const pattern = route.pattern.split('/').filter(Boolean);
+	const current = pathname.split('/').filter(Boolean);
+	return pattern.length === current.length
+		? pattern.every((segment, index) => segment.startsWith(':') || segment === current[index])
 		: false;
 };
-
-export const comparePaths = (route: RouteItem, pathname: string) => matchPathPattern(route.pattern, pathname);
 
 export const isMobile = () => {
 	const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
