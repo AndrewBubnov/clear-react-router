@@ -115,15 +115,14 @@
 .pg-nav {
 	display: flex;
 	align-items: center;
-	gap: 3px;
+	gap: 8px;
 	padding: 0 var(--page-gutter) 10px;
 	overflow-x: auto;
 	overscroll-behavior-x: contain;
 	scrollbar-width: none;
 }
 
-.pg-menu-toggle,
-.pg-nav-settings {
+.pg-menu-toggle {
 	display: none;
 }
 
@@ -133,7 +132,7 @@
 
 .pg-nav-link {
 	flex: none;
-	padding: 7px 12px;
+	padding: 3px 12px;
 	border: 1px solid transparent;
 	border-radius: 999px;
 	color: var(--text);
@@ -1159,11 +1158,6 @@ h1 {
 
 	.pg-nav.is-open .pg-nav-link {
 		text-align: left;
-	}
-
-	.pg-nav.is-open .pg-nav-settings {
-		display: block;
-		grid-column: 1 / -1;
 	}
 }
 

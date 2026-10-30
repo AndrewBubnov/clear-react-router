@@ -125,9 +125,6 @@ export const PlaygroundNav = () => {
 					<NavLink to="/playground/live">Live</NavLink>
 					<NavLink to="/playground/scroll">Scroll</NavLink>
 					<NavLink to="/playground/search">Search</NavLink>
-					<NavLink to="/playground/settings" className="pg-nav-settings">
-						Settings
-					</NavLink>
 				</nav>
 			</div>
 		</header>
