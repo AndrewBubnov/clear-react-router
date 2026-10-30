@@ -1121,10 +1121,6 @@ h1 {
 		--header-h: 60px;
 	}
 
-	.pg-gear-link {
-		display: none;
-	}
-
 	.pg-menu-toggle {
 		display: grid;
 	}
@@ -1184,10 +1180,6 @@ h1 {
 		display: none;
 	}
 
-	.pg-cache-switch .mantine-Switch-label {
-		display: none;
-	}
-
 	.pg-hero {
 		gap: 34px;
 	}
@@ -1211,8 +1203,13 @@ h1 {
 	}
 }
 
-@media (max-width: 370px) {
-	.pg-brand-copy {
+@media (max-width: 480px) {
+	.pg-cache-switch .mantine-Switch-labelWrapper {
+		display: none;
+	}
+}
+@media (max-width: 385px) {
+	.pg-brand-mark {
 		display: none;
 	}
 }
