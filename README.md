@@ -947,15 +947,21 @@ await invalidate(['/posts', '/profile', '/settings']);
 
 #### Dynamic routes
 
-When a dynamic route pattern is provided, every cached route that matches the pattern will be revalidated.
-
-For example:
+Pass a concrete dynamic pathname to revalidate only that cached route:
 
 ```tsx
-await invalidate('/post/[id]');
+await invalidate('/post/17');
 ```
 
-will revalidate all cached routes such as:
+Only `/post/17` is refetched; cached `/post/1` and `/post/42` are left untouched.
+
+Pass a dynamic route pattern to revalidate every cached route that matches it:
+
+```tsx
+await invalidate('/post/[id]'); // or await invalidate('/post/:id')
+```
+
+This revalidates all cached routes such as:
 
 ```text
 /post/1
@@ -963,14 +969,17 @@ will revalidate all cached routes such as:
 /post/42
 ```
 
+Pattern-based invalidation is cache-only: it never sends `:param`/`[param]` to a loader.
+If no cached route matches, nothing is fetched.
+
 This also works for nested dynamic routes:
 
 ```tsx
-await invalidate('/post/[id]/comment/[id]');
+await invalidate('/post/[id]/comment/:commentId');
 ```
 
 #### Force revalidation
-By default the exact path(s) you pass are always revalidated, even if they were never cached
+By default concrete pathnames are always revalidated, even if they were never cached
 — this also makes `invalidate()` work on an error page with an empty cache.
 Pass `{ force: false }` to go back to cache-only revalidation:
 
@@ -978,8 +987,8 @@ Pass `{ force: false }` to go back to cache-only revalidation:
 await invalidate('/about', { force: false });
 ```
 
-Explicit `{ force: true }` behaves the same as the default; it exists for readability
-and for combining with other options (see below).
+Explicit `{ force: true }` behaves the same as the default for concrete paths. Pattern
+targets stay cache-only regardless of `force`.
 
 #### Stale-only revalidation
 By default, `invalidate` deletes matching cache entries and refetches them.
@@ -1047,7 +1056,7 @@ Each object represents a revalidated route, where `path` is the route pathname, 
 
 #### Notes
 
-* Without `force: false`, the exact pathnames you pass are always revalidated (and stored in the cache), even if they were never cached. Pass `{ force: false }` to revalidate **only routes that already have cached data**.
+* Without `force: false`, concrete pathnames you pass are always revalidated (and stored in the cache), even if they were never cached. Dynamic patterns only revalidate cached matches and never fetch the pattern itself. Pass `{ force: false }` to revalidate **only routes that already have cached data**.
 * With `{ staleOnly: true }`, uncached paths are never fetched — the default force does not apply.
 * Cached data is cleared before the new loader starts.
 * When used as an event handler, wrap the call in an arrow function:
