@@ -10,6 +10,8 @@ import {
 	interpolatePath,
 	isVerticalScroll,
 	updateScrollMap,
+	isParamSegment,
+	matchPathPattern,
 } from '../../utils/utils';
 import { create } from '../../create';
 import { TestElement, EMPTY_LOADER_STATE } from '../common';
@@ -64,6 +66,40 @@ describe('utils', () => {
 			expect(comparePaths(routeItem, '/user')).toBe(false);
 			expect(comparePaths(routeItem, '/user/123/extra')).toBe(false);
 			expect(comparePaths(routeItem, '/post/123')).toBe(false);
+		});
+	});
+
+	describe('isParamSegment', () => {
+		it('recognizes colon and bracket params', () => {
+			expect(isParamSegment(':id')).toBe(true);
+			expect(isParamSegment('[id]')).toBe(true);
+		});
+
+		it('rejects static and empty segments', () => {
+			expect(isParamSegment('id')).toBe(false);
+			expect(isParamSegment('')).toBe(false);
+			expect(isParamSegment('[]')).toBe(false);
+		});
+	});
+
+	describe('matchPathPattern', () => {
+		it('matches cached paths for colon and bracket patterns', () => {
+			expect(matchPathPattern('/user/:id', '/user/123')).toBe(true);
+			expect(matchPathPattern('/user/[id]', '/user/123')).toBe(true);
+		});
+
+		it('requires the same segment count', () => {
+			expect(matchPathPattern('/user/:id', '/user')).toBe(false);
+			expect(matchPathPattern('/user/:id', '/user/123/extra')).toBe(false);
+		});
+
+		it('does not match a sibling static segment', () => {
+			expect(matchPathPattern('/user/me', '/user/123')).toBe(false);
+		});
+
+		it('matches multiple params', () => {
+			expect(matchPathPattern('/nest/:nestId/item/:itemId', '/nest/a/item/b')).toBe(true);
+			expect(matchPathPattern('/nest/:nestId/item/:itemId', '/nest/a/item')).toBe(false);
 		});
 	});
 

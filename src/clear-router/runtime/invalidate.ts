@@ -1,17 +1,8 @@
 import { findRoute } from '../utils/findRoute';
+import { isParamSegment, matchPathPattern } from '../utils/utils';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
-export const isParamSegment = (segment: string) => segment.startsWith(':') || /^\[[^\]]+]$/.test(segment);
-
-export const matchPathPattern = (pattern: string, pathname: string) => {
-	const patternSegments = pattern.split('/').filter(Boolean);
-	const pathSegments = pathname.split('/').filter(Boolean);
-	return patternSegments.length === pathSegments.length
-		? patternSegments.every((segment, index) => isParamSegment(segment) || segment === pathSegments[index])
-		: false;
-};
-
-const separatePathname = (text: string) => text.split('?')[0];
+const separatePathname = (text: string) => text.split('?')[0].replace(/\/+$/, '') || '/';
 
 export const createInvalidate = (
 	{ routeDataState, loaderMap, loadingPromises }: RouterState,
