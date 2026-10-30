@@ -115,27 +115,6 @@ const SettingsPage = () => {
 				</p>
 			</div>
 			<div className="pg-card">
-				<h2>Link prefetch strategy</h2>
-				<div className="pg-row" role="radiogroup" aria-label="Link prefetch strategy">
-					{PREFETCH_PRESETS.map(preset => (
-						<label key={preset.value} className="pg-radio">
-							<input
-								type="radio"
-								name="prefetch-strategy"
-								checked={defaultPrefetch === preset.value}
-								onChange={() => setDefaultPrefetch(preset.value)}
-							/>
-							{preset.label}
-						</label>
-					))}
-				</div>
-				<p className="pg-hint">
-					Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
-					<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
-					<code>prefetch</code> prop (like the lab links) are unaffected.
-				</p>
-			</div>
-			<div className="pg-card">
 				<h2>Nav link element</h2>
 				<div className="pg-row" role="radiogroup" aria-label="Nav link element">
 					{NAV_LINK_PRESETS.map(preset => (
@@ -154,6 +133,27 @@ const SettingsPage = () => {
 					Renders every menu link through Link's <code>as</code> prop: a plain <code>&lt;a&gt;</code>, a real
 					MUI <code>Button</code>, or a real Mantine <code>Button</code>. The router drives the same
 					navigation, active and pending states in all three.
+				</p>
+			</div>
+			<div className="pg-card">
+				<h2>Link prefetch strategy</h2>
+				<div className="pg-row" role="radiogroup" aria-label="Link prefetch strategy">
+					{PREFETCH_PRESETS.map(preset => (
+						<label key={preset.value} className="pg-radio">
+							<input
+								type="radio"
+								name="prefetch-strategy"
+								checked={defaultPrefetch === preset.value}
+								onChange={() => setDefaultPrefetch(preset.value)}
+							/>
+							{preset.label}
+						</label>
+					))}
+				</div>
+				<p className="pg-hint">
+					Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
+					<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
+					<code>prefetch</code> prop (like the lab links) are unaffected.
 				</p>
 			</div>
 			<div className="pg-card">

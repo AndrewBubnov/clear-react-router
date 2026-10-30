@@ -5,24 +5,15 @@ import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
 
-const NavLink = ({
-	to,
-	exact,
-	children,
-	className = '',
-}: {
-	to: string;
-	exact?: boolean;
-	children: ReactNode;
-	className?: string;
-}) => {
+const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; children: ReactNode }) => {
 	const { navLinkAs } = usePlaygroundSettings();
 	return (
 		<Link
 			to={to}
 			exact={exact}
 			as={NAV_LINK_AS[navLinkAs]}
-			className={`pg-nav-link${className ? ` ${className}` : ''}`}
+			className="pg-nav-link"
+			style={navLinkAs === 'mantine' ? { background: 'transparent' } : {}}
 		>
 			{children}
 		</Link>
