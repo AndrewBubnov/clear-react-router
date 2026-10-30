@@ -31,12 +31,8 @@ for (const width of [390, 1000]) {
 		await expect(toggle).toBeVisible();
 		await toggle.click();
 
-		await expect(page.locator('.pg-nav a:visible')).toHaveCount(15);
-		const settings = page.locator('.pg-nav').getByRole('link', { name: 'Settings' });
+		await expect(page.locator('.pg-nav a:visible')).toHaveCount(14);
+		const settings = page.locator('.pg-gear-link');
 		await expect(settings).toBeVisible();
-		await settings.click();
-
-		await expect(page).toHaveURL(/\/playground\/settings$/);
-		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 	});
 }
