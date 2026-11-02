@@ -74,7 +74,7 @@ const DeferredPage = () => {
 					<TrafficChart traffic={data.traffic} />
 				</Suspense>
 				<Group>
-					<Button variant="light" size="xs" onClick={() => invalidate()}>
+					<Button size="xs" onClick={() => invalidate()}>
 						Load again
 					</Button>
 					<Text size="sm" c="dimmed">

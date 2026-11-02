@@ -145,11 +145,10 @@ const InvalidateLab = () => {
 				</motion.div>
 			)}
 			<div className="pg-btn-grid">
-				<Button variant="light" onClick={() => run('page', invalidate())} size="xs" {...buttonState('page')}>
+				<Button onClick={() => run('page', invalidate())} size="xs" {...buttonState('page')}>
 					Refetch this page
 				</Button>
 				<Button
-					variant="light"
 					onClick={() => run('product/1', invalidate('/playground/cache/product/1'))}
 					size="xs"
 					{...buttonState('product/1')}
@@ -157,7 +156,6 @@ const InvalidateLab = () => {
 					Refetch product 1
 				</Button>
 				<Button
-					variant="light"
 					onClick={() => run('stale', invalidate('/playground/cache', { staleOnly: true }))}
 					size="xs"
 					{...buttonState('stale')}
@@ -165,7 +163,6 @@ const InvalidateLab = () => {
 					Touch only stale entries
 				</Button>
 				<Button
-					variant="light"
 					onClick={() => run('failing', invalidate('/playground/retry-raw'))}
 					size="xs"
 					{...buttonState('failing')}
@@ -173,7 +170,6 @@ const InvalidateLab = () => {
 					Refetch the failing route
 				</Button>
 				<Button
-					variant="light"
 					onClick={() => run('skip', invalidate('/playground/retry-raw', { force: false }))}
 					size="xs"
 					{...buttonState('skip')}
@@ -181,7 +177,6 @@ const InvalidateLab = () => {
 					Skip uncached entries
 				</Button>
 				<Button
-					variant="light"
 					onClick={() => run('nest', invalidate('/playground/nest', { withChildren: true }))}
 					size="xs"
 					{...buttonState('nest')}

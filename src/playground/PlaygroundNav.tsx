@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ActionIcon, Switch, Tooltip, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Switch, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import { IconMenu2, IconMoon, IconRoute, IconSettings, IconSun, IconX } from '@tabler/icons-react';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
@@ -26,18 +26,16 @@ const ThemeToggle = () => {
 	const dark = computed === 'dark';
 	const label = `Switch to ${dark ? 'light' : 'dark'} theme`;
 	return (
-		<Tooltip label={label} withArrow>
-			<ActionIcon
-				className="pg-icon-button"
-				variant="default"
-				size="lg"
-				radius="xl"
-				onClick={() => setColorScheme(dark ? 'light' : 'dark')}
-				aria-label={label}
-			>
-				{dark ? <IconSun size={19} stroke={1.8} /> : <IconMoon size={19} stroke={1.8} />}
-			</ActionIcon>
-		</Tooltip>
+		<ActionIcon
+			className="pg-icon-button"
+			variant="default"
+			size="lg"
+			radius="xl"
+			onClick={() => setColorScheme(dark ? 'light' : 'dark')}
+			aria-label={label}
+		>
+			{dark ? <IconSun size={19} stroke={1.8} /> : <IconMoon size={19} stroke={1.8} />}
+		</ActionIcon>
 	);
 };
 

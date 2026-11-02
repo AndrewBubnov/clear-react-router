@@ -81,12 +81,7 @@ const SettingsPage = () => {
 								/>
 							</div>
 						</Tooltip>
-						<Button
-							onClick={() => setAnimationDuration(undefined)}
-							disabled={!isAnimated}
-							variant="light"
-							size="xs"
-						>
+						<Button onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated} size="xs">
 							Reset to browser default
 						</Button>
 					</div>

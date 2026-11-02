@@ -22,7 +22,6 @@ const SearchPage = () => {
 					{BRANDS.map(brand => (
 						<Button
 							key={brand}
-							variant="light"
 							size="xs"
 							onClick={() => {
 								const current = getSearchParams('brand');
@@ -36,15 +35,10 @@ const SearchPage = () => {
 							{brand}
 						</Button>
 					))}
-					<Button variant="light" onClick={() => setSearchParams('page', '2')} size="xs">
+					<Button onClick={() => setSearchParams('page', '2')} size="xs">
 						page=2
 					</Button>
-					<Button
-						variant="light"
-						size="xs"
-						disabled={!query}
-						onClick={() => setSearchParams(() => new URLSearchParams())}
-					>
+					<Button size="xs" disabled={!query} onClick={() => setSearchParams(() => new URLSearchParams())}>
 						Clear all
 					</Button>
 				</div>

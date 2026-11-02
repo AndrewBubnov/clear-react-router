@@ -12,7 +12,7 @@ const RetryErrorView = () => {
 				<code>errorElement</code> instead of retrying.
 			</p>
 			<div className="pg-row">
-				<Button variant="light" onClick={() => window.location.reload()} size="xs">
+				<Button onClick={() => window.location.reload()} size="xs">
 					Reload the page
 				</Button>
 				<Link to="/playground/retry">Go to the retrying version →</Link>

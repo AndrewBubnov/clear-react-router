@@ -11,9 +11,8 @@ const PrefetchPage = () => {
 				then click it — navigation is instant and the loader ran exactly once (the hover prefetched the data,
 				check the counter below). Prefetched data stays fresh for 30 seconds; after that the normal{' '}
 				<code>staleTime</code> applies. On mobile the default strategy is <code>viewport</code> instead of{' '}
-				<code>hover</code>, so menu links prefetch as soon as they mount. The strategy (and <code>none</code>{' '}
-				to turn prefetch off) can be switched live on the{' '}
-				<Link to="/playground/settings">settings page</Link>.
+				<code>hover</code>, so menu links prefetch as soon as they mount. The strategy (and <code>none</code> to
+				turn prefetch off) can be switched live on the <Link to="/playground/settings">settings page</Link>.
 			</p>
 			<div className="pg-card">
 				<p>{data}</p>

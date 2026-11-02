@@ -41,10 +41,10 @@ const BlockerPage = () => {
 			<Modal opened={state === 'blocked'} onClose={reset} title="Leave without saving?" centered>
 				<p>You have unsaved changes in the form.</p>
 				<div className="pg-row">
-					<Button variant="light" onClick={process} size="xs">
+					<Button onClick={process} size="xs">
 						Leave
 					</Button>
-					<Button variant="light" onClick={reset} size="xs">
+					<Button onClick={reset} size="xs">
 						Stay
 					</Button>
 				</div>

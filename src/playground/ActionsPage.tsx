@@ -30,10 +30,10 @@ const AddNoteForm = () => {
 						disabled={isSubmitting}
 					/>
 					<div className="pg-row">
-						<Button variant="light" type="submit" disabled={isBusy} size="xs">
+						<Button type="submit" disabled={isBusy} size="xs">
 							{isSubmitting ? 'Saving…' : 'Save'}
 						</Button>
-						<Button variant="light" type="button" disabled={isBusy} onClick={refresh} size="xs">
+						<Button type="button" disabled={isBusy} onClick={refresh} size="xs">
 							{isRevalidating ? 'Refreshing…' : 'Refresh list (invalidate)'}
 						</Button>
 					</div>

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { Badge, MantineProvider, createTheme, type MantineTheme } from '@mantine/core';
+import { Badge, MantineProvider, type MantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { Router, useCacheSnapshot, useRouteStatus, type Status as RouteStatus } from './clear-router';
 import { CacheVisualizer } from './playground/CacheVisualizer';
@@ -7,6 +7,7 @@ import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
 import { usePlaygroundSettings } from './playground/usePlaygroundSettings';
+import { theme } from './clear-router/hooks/theme';
 import './playground/playground.css';
 
 const RouteProgress = () => {
@@ -92,32 +93,6 @@ const Status = () => {
 		</Badge>
 	);
 };
-
-const theme = createTheme({
-	primaryColor: 'brand',
-	primaryShade: { light: 6, dark: 4 },
-	fontFamily: "'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
-	fontFamilyMonospace: "'Geist Mono Variable', ui-monospace, 'Cascadia Code', Consolas, monospace",
-	headings: {
-		fontFamily: "'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
-		fontWeight: '640',
-	},
-	defaultRadius: 'lg',
-	colors: {
-		brand: [
-			'#eef2ff',
-			'#e0e7ff',
-			'#c7d2fe',
-			'#a5b4fc',
-			'#818cf8',
-			'#6366f1',
-			'#4f46e5',
-			'#4338ca',
-			'#3730a3',
-			'#312e81',
-		],
-	},
-});
 
 const cssVariablesResolver = (t: MantineTheme) => ({
 	variables: {},

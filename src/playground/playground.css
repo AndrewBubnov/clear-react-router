@@ -585,6 +585,10 @@
 	cursor: pointer;
 }
 
+[data-mantine-color-scheme='dark'] .pg-radio input[type='radio'] {
+	--accent: #3730a3;
+}
+
 .pg-home-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
