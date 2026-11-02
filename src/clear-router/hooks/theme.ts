@@ -46,6 +46,9 @@ export const theme = createTheme({
 					backgroundColor: BACKGROUND,
 					color: COLOR,
 				},
+				root: {
+					width: 160,
+				},
 			},
 		}),
 		Button: Button.extend({
