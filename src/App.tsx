@@ -33,7 +33,7 @@ const CacheVizSlot = ({ maxSlots }: { maxSlots: number }) => {
 							? { duration: 0 }
 							: {
 									type: 'spring',
-									stiffness: 400,
+									stiffness: 280,
 									damping: 28,
 									mass: 0.8,
 								},
