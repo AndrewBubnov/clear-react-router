@@ -160,7 +160,7 @@ const SettingsPage = () => {
 							onChange={setMinLoaderDuration}
 							onChangeEnd={setPreviewDuration}
 							label={v => `${v} ms`}
-							labelAlwaysOn
+							labelAlwaysOn={!!minLoaderDuration}
 							thumbLabel="Min loader duration in milliseconds"
 							style={{ width: '90%' }}
 						/>
