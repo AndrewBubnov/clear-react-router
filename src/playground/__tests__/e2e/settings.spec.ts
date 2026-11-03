@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('animated transitions toggle enables the duration controls', async ({ page }) => {
 	await page.goto('/playground/settings');
-	const toggle = page.getByLabel('animated');
+	const toggle = page.getByLabel('animated transitions');
 	const slider = page.locator('[aria-label="Animation duration in milliseconds"]');
 	const reset = page.getByRole('button', { name: 'Reset' });
 
@@ -10,12 +10,14 @@ test('animated transitions toggle enables the duration controls', async ({ page 
 	await expect(slider).toBeDisabled();
 	await expect(reset).toBeDisabled();
 
-	await toggle.check();
+	await toggle.focus();
+	await page.keyboard.press('Space');
+	await expect(toggle).toBeChecked();
 	await expect(slider).toBeEnabled();
 	await expect(reset).toBeEnabled();
 
 	await slider.press('ArrowRight');
-	await expect(slider).toHaveAttribute('aria-valuenow', '550');
+	await expect(slider).toHaveAttribute('aria-valuenow', '510');
 
 	await reset.click();
 	await expect(slider).toHaveAttribute('aria-valuenow', '500');

@@ -50,6 +50,7 @@ const SettingsPage = () => {
 		navLinkAs,
 		setNavLinkAs,
 	} = usePlaygroundSettings();
+	const [previewDuration, setPreviewDuration] = useState(minLoaderDuration);
 
 	return (
 		<div className="pg-wrap">
@@ -58,13 +59,17 @@ const SettingsPage = () => {
 				<div className="pg-card">
 					<h2>Page transitions</h2>
 					<div className="pg-row pg-space-between">
-						<Switch checked={isAnimated} onChange={e => setIsAnimated(e.currentTarget.checked)} />
+						<Switch
+							aria-label="animated transitions"
+							checked={isAnimated}
+							onChange={e => setIsAnimated(e.currentTarget.checked)}
+						/>
 						<div className="pg-inner-row">
 							<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
 								<Slider
 									min={100}
 									max={2000}
-									step={50}
+									step={10}
 									value={animationDuration ?? 500}
 									disabled={!isAnimated}
 									onChange={setAnimationDuration}
@@ -146,21 +151,20 @@ const SettingsPage = () => {
 				</div>
 				<div className="pg-card">
 					<h2>Min loader duration</h2>
-					<div className="pg-row pg-space-between pg-skeleton-viz-wrap">
+					<div className="pg-row pg-skeleton-viz-wrap">
 						<Slider
 							min={0}
-							max={2000}
+							max={3000}
 							step={50}
 							value={minLoaderDuration ?? 0}
 							onChange={setMinLoaderDuration}
+							onChangeEnd={setPreviewDuration}
 							label={v => `${v} ms`}
 							labelAlwaysOn
 							thumbLabel="Min loader duration in milliseconds"
-							styles={{
-								label: { transform: 'translateX(30%)' },
-							}}
+							style={{ width: '90%' }}
 						/>
-						<SettingsLoader duration={minLoaderDuration} />
+						<SettingsLoader duration={previewDuration} />
 					</div>
 					<p className="pg-hint">
 						Without it, a fast loader flashes its fallback for a split second — visible flicker on every

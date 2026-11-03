@@ -326,6 +326,10 @@
 	justify-content: space-between;
 }
 
+.pg-skeleton-viz-wrap {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 90px;
+}
 
 .pg-btn-grid {
 	display: grid;
