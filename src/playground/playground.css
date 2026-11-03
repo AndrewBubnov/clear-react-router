@@ -326,6 +326,7 @@
 	justify-content: space-between;
 }
 
+
 .pg-btn-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1244,6 +1245,10 @@ h1 {
 
 	.pg-inner-row {
 		margin: 12px 0;
+	}
+
+	.pg-skeleton-viz-wrap {
+		height: 22px;
 	}
 }
 

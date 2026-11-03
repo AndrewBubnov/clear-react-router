@@ -49,7 +49,7 @@ export const theme = createTheme({
 					cursor: 'grab',
 				},
 				root: {
-					width: 160,
+					width: 200,
 				},
 			},
 		}),

@@ -94,6 +94,7 @@ const SettingsPage = () => {
 							label={v => `${v}`}
 							labelAlwaysOn
 							thumbLabel="Maximum number of cached loader entries"
+							style={{ width: '100%' }}
 						/>
 					</div>
 					<p className="pg-hint">
@@ -145,7 +146,7 @@ const SettingsPage = () => {
 				</div>
 				<div className="pg-card">
 					<h2>Min loader duration</h2>
-					<div className="pg-row pg-space-between" style={{ height: 22 }}>
+					<div className="pg-row pg-space-between pg-skeleton-viz-wrap">
 						<Slider
 							min={0}
 							max={2000}
