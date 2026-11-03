@@ -7,7 +7,7 @@ import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
 import { usePlaygroundSettings } from './playground/usePlaygroundSettings';
-import { theme } from './clear-router/hooks/theme';
+import { theme } from './playground/theme.ts';
 import './playground/playground.css';
 
 const RouteProgress = () => {
