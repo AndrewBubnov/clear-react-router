@@ -178,7 +178,6 @@ export const PlaygroundHome = () => (
 						<span className="pg-window__dot" />
 						<span className="pg-window__dot" />
 						<span className="pg-window__url">/playground/nest/42/item/7</span>
-						<span className="pg-window__live">live</span>
 					</div>
 					<div className="pg-pipeline">
 						{pipeline.map(step => {
