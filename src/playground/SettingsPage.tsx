@@ -4,7 +4,6 @@ import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';
-import { isMobileViewport } from './utils.ts';
 
 const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'auto', label: 'auto' },
@@ -15,7 +14,7 @@ const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 ];
 
 const NAV_LINK_PRESETS: { value: NavLinkAs; label: string }[] = [
-	{ value: 'link', label: 'Link (plain <a>)' },
+	{ value: 'link', label: 'Link (plain <a> tag)' },
 	{ value: 'mui', label: 'MUI Button' },
 	{ value: 'mantine', label: 'Mantine Button' },
 ];
@@ -58,31 +57,30 @@ const SettingsPage = () => {
 			<div className="pg-settings-grid">
 				<div className="pg-card">
 					<h2>Page transitions</h2>
-					<div
-						className="pg-row"
-						style={{ justifyContent: isMobileViewport ? 'flex-start' : 'space-between' }}
-					>
+					<div className="pg-row pg-space-between">
 						<Switch
 							label="animated"
 							checked={isAnimated}
 							onChange={e => setIsAnimated(e.currentTarget.checked)}
 						/>
-						<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
-							<Slider
-								min={100}
-								max={2000}
-								step={50}
-								value={animationDuration ?? 500}
-								disabled={!isAnimated}
-								onChange={setAnimationDuration}
-								label={v => `${v}ms`}
-								labelAlwaysOn
-								thumbLabel="Animation duration in milliseconds"
-							/>
-						</Tooltip>
-						<Button onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated} size="xs">
-							Reset to default
-						</Button>
+						<div className="pg-inner-row pg-mobile-padding">
+							<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
+								<Slider
+									min={100}
+									max={2000}
+									step={50}
+									value={animationDuration ?? 500}
+									disabled={!isAnimated}
+									onChange={setAnimationDuration}
+									label={v => `${v}ms`}
+									labelAlwaysOn
+									thumbLabel="Animation duration in milliseconds"
+								/>
+							</Tooltip>
+							<Button onClick={() => setAnimationDuration(undefined)} disabled={!isAnimated} size="xs">
+								Reset
+							</Button>
+						</div>
 					</div>
 					<p className="pg-hint">
 						Switch on animated route transitions. The slider sets the duration for the next navigation;
@@ -151,19 +149,20 @@ const SettingsPage = () => {
 				</div>
 				<div className="pg-card">
 					<h2>Min loader duration</h2>
-					<div className="pg-row pg-settings-loader-wrap">
-						<div className="pg-row">
-							<Slider
-								min={0}
-								max={2000}
-								step={50}
-								value={minLoaderDuration ?? 0}
-								onChange={setMinLoaderDuration}
-								label={v => (v ? `${v}ms` : 'unset')}
-								labelAlwaysOn
-								thumbLabel="Min loader duration in milliseconds"
-							/>
-						</div>
+					<div className="pg-row pg-space-between" style={{ height: 22 }}>
+						<Slider
+							min={0}
+							max={2000}
+							step={50}
+							value={minLoaderDuration ?? 0}
+							onChange={setMinLoaderDuration}
+							label={v => `${v} ms`}
+							labelAlwaysOn
+							thumbLabel="Min loader duration in milliseconds"
+							styles={{
+								label: { transform: 'translateX(30%)' },
+							}}
+						/>
 						<SettingsLoader duration={minLoaderDuration} />
 					</div>
 					<p className="pg-hint">

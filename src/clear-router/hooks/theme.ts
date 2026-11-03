@@ -45,6 +45,8 @@ export const theme = createTheme({
 				label: {
 					backgroundColor: BACKGROUND,
 					color: COLOR,
+					pointerEvents: 'all',
+					cursor: 'grab',
 				},
 				root: {
 					width: 160,
