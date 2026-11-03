@@ -221,7 +221,6 @@ export const PlaygroundHome = () => (
 					<span className="pg-eyebrow">Explore the routes</span>
 					<h2 id="demos-title">Twelve demos, one router</h2>
 				</div>
-				<span className="pg-count">12 live demos</span>
 			</div>
 			<div className="pg-home-grid">
 				{demos.map((demo, index) => {

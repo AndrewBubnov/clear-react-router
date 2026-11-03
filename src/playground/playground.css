@@ -843,7 +843,6 @@
 	bottom: 34px;
 	left: 33px;
 	width: 1px;
-	background: linear-gradient(var(--accent-border), var(--accent-border), transparent);
 	content: '';
 }
 
@@ -956,19 +955,6 @@
 	margin-top: 8px;
 	font-size: clamp(26px, 3vw, 36px);
 	letter-spacing: -0.04em;
-}
-
-.pg-count {
-	flex: none;
-	padding: 6px 11px;
-	border: 1px solid var(--border);
-	border-radius: 999px;
-	background: var(--surface);
-	color: var(--muted);
-	font-family: var(--mono), sans-serif;
-	font-size: 10px;
-	letter-spacing: 0.04em;
-	white-space: nowrap;
 }
 
 .pg-wrapper {
