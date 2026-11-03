@@ -326,10 +326,6 @@
 	justify-content: space-between;
 }
 
-.pg-mobile-padding {
-	padding-top: 0;
-}
-
 .pg-btn-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1244,10 +1240,6 @@ h1 {
 @media (max-width: 480px) {
 	.pg-cache-switch .mantine-Switch-labelWrapper {
 		display: none;
-	}
-
-	.pg-mobile-padding {
-		padding-top: 8px;
 	}
 
 	.pg-inner-row {

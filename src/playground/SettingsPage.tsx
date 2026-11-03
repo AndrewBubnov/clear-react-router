@@ -58,12 +58,8 @@ const SettingsPage = () => {
 				<div className="pg-card">
 					<h2>Page transitions</h2>
 					<div className="pg-row pg-space-between">
-						<Switch
-							label="animated"
-							checked={isAnimated}
-							onChange={e => setIsAnimated(e.currentTarget.checked)}
-						/>
-						<div className="pg-inner-row pg-mobile-padding">
+						<Switch checked={isAnimated} onChange={e => setIsAnimated(e.currentTarget.checked)} />
+						<div className="pg-inner-row">
 							<Tooltip label="Enable animated transitions to use this slider" disabled={isAnimated}>
 								<Slider
 									min={100}
