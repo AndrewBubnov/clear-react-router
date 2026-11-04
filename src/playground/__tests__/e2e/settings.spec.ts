@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { DEFAULT_MAX_CACHE_SIZE } from '../../constants.ts';
 
 test('animated transitions toggle enables the duration controls', async ({ page }) => {
 	await page.goto('/playground/settings');
@@ -27,15 +28,15 @@ test('cache size setting applies to the cache page', async ({ page }) => {
 	await page.goto('/playground/settings');
 	const slider = page.getByRole('slider', { name: 'Maximum number of cached loader entries' });
 
-	await expect(slider).toHaveAttribute('aria-valuenow', '3');
+	await expect(slider).toHaveAttribute('aria-valuenow', String(DEFAULT_MAX_CACHE_SIZE));
 	await slider.press('ArrowRight');
-	await expect(slider).toHaveAttribute('aria-valuenow', '4');
+	await expect(slider).toHaveAttribute('aria-valuenow', String(DEFAULT_MAX_CACHE_SIZE + 1));
 
 	await page.getByRole('link', { name: 'Cache', exact: true }).click();
 
 	await expect(page.getByRole('heading', { name: /Cache: eviction/ })).toBeVisible();
 	await expect(page.locator('.pg-card').filter({ hasText: 'This playground runs with' })).toContainText(
-		'maxCacheSize: 4'
+		`maxCacheSize: ${String(DEFAULT_MAX_CACHE_SIZE + 1)}`
 	);
 });
 

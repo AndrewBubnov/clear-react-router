@@ -1,6 +1,7 @@
-import { Button, createTheme, Slider, Switch } from '@mantine/core';
+import { Button, createTheme, Slider } from '@mantine/core';
 
 const BACKGROUND = 'light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-9))';
+const BACKGROUND_HOVER = 'var(--mantine-color-brand-8)';
 const COLOR = 'light-dark(var(--mantine-color-brand-2), var(--mantine-color-brand-3))';
 
 export const theme = createTheme({
@@ -28,20 +29,8 @@ export const theme = createTheme({
 		],
 	},
 	components: {
-		Switch: Switch.extend({
-			defaultProps: {
-				color: BACKGROUND,
-			},
-		}),
 		Slider: Slider.extend({
 			styles: {
-				thumb: {
-					backgroundColor: BACKGROUND,
-					border: BACKGROUND,
-				},
-				bar: {
-					backgroundColor: BACKGROUND,
-				},
 				label: {
 					backgroundColor: BACKGROUND,
 					color: COLOR,
@@ -54,8 +43,13 @@ export const theme = createTheme({
 			},
 		}),
 		Button: Button.extend({
-			styles: (_theme, { disabled, loading }) => ({
-				root: disabled || loading ? {} : { backgroundColor: BACKGROUND, color: COLOR },
+			vars: () => ({
+				root: {
+					'--button-bg': BACKGROUND,
+					'--button-color': COLOR,
+					'--button-hover': BACKGROUND_HOVER,
+					'--button-hover-color': COLOR,
+				},
 			}),
 		}),
 	},

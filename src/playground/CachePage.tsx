@@ -57,7 +57,7 @@ const InvalidateLab = () => {
 				Each button revalidates and shows per-entry results in the card above the buttons. The counters below
 				tell whether a fetch actually ran. Watch the network tab too.
 			</p>
-			<p>
+			<p className="pg-row">
 				<span className="pg-badge">cache calls: {getCallCount('cache')}</span>{' '}
 				<span className="pg-badge">product-1 calls: {getCallCount('product-1')}</span>
 			</p>
@@ -244,7 +244,7 @@ const CachePage = () => {
 					<summary>Show raw JSON</summary>
 					<pre>{stringifyLoaderState(data, loaderError, beforeLoadError)}</pre>
 				</details>
-				<p>
+				<p className="pg-row">
 					<span className="pg-badge">loader calls: {getCallCount('cache')}</span>{' '}
 					<span className="pg-badge">staleTime: {CACHE_STALE_TIME}ms</span>
 				</p>
