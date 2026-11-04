@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { RouterProps } from '../clear-router';
 import { SettingsContext } from './settings-context';
 import type { NavLinkAs } from './NavLinkAs';
+import { DEFAULT_MAX_CACHE_SIZE } from './constants';
 
 export type PrefetchSetting = 'auto' | NonNullable<RouterProps['defaultPrefetch']>;
 
@@ -21,7 +22,7 @@ export const PlaygroundSettingsProvider = ({ children }: { children: ReactNode }
 	const [showStatusBadge, setShowStatusBadge] = useState(true);
 	const [showCacheVisualizer, setShowCacheVisualizer] = useState(true);
 	const [animationDuration, setAnimationDuration] = useState<number | undefined>(undefined);
-	const [maxCacheSize, setMaxCacheSize] = useState(3);
+	const [maxCacheSize, setMaxCacheSize] = useState(DEFAULT_MAX_CACHE_SIZE);
 	const [defaultPrefetch, setDefaultPrefetch] = useState<PrefetchSetting>('auto');
 	const [minLoaderDuration, setMinLoaderDuration] = useState<number | undefined>(0);
 	const [navLinkAs, setNavLinkAs] = useState<NavLinkAs>('link');

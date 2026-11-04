@@ -4,6 +4,7 @@ import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import type { PrefetchSetting } from './settings';
 import type { NavLinkAs } from './NavLinkAs';
+import { DEFAULT_MAX_CACHE_SIZE } from './constants';
 
 const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'auto', label: 'auto' },
@@ -92,7 +93,7 @@ const SettingsPage = () => {
 					<h2>Loader cache size</h2>
 					<div className="pg-row">
 						<Slider
-							min={3}
+							min={DEFAULT_MAX_CACHE_SIZE}
 							max={90}
 							value={maxCacheSize}
 							onChange={setMaxCacheSize}

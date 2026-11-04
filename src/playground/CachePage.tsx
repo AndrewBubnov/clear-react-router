@@ -4,6 +4,7 @@ import { Link, useInvalidate, useLoaderState, useRouterContext } from '../clear-
 import { Button, RingProgress, Stack, Text } from '@mantine/core';
 import { CACHE_STALE_TIME, getCallCount, HEAVY_GC_TIME } from './api';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
+import { DEFAULT_MAX_CACHE_SIZE } from './constants';
 
 const PRODUCT_IDS = ['1', '2', '3', '4', '5'];
 
@@ -262,16 +263,17 @@ const CachePage = () => {
 					other entry is the one that gets evicted.
 				</p>
 				<p>
-					{maxCacheSize > 3 ? (
+					{maxCacheSize > DEFAULT_MAX_CACHE_SIZE ? (
 						<>
 							Products share the cache with this page&apos;s own loader entry, and LRU only evicts once
-							every slot is taken — you would need to open {maxCacheSize} distinct products before the
-							oldest one drops out. Set the cache size slider to <code>3</code> to watch eviction in a few
-							clicks.
+							every slot is taken — you would need to open {maxCacheSize} distinct products/pages before
+							the oldest one drops out. Set the <Link to="/playground/settings">cache size</Link> slider
+							to <code>{DEFAULT_MAX_CACHE_SIZE}</code> to watch eviction in a few clicks.
 						</>
 					) : showCacheVisualizer ? (
 						<>
-							Open products #1–#5 — or hover them when prefetch is enabled — and watch the visualizer
+							Open products #1–#5 — or hover them when{' '}
+							<Link to="/playground/settings">hover prefetch</Link> is enabled — and watch the visualizer
 							evict the oldest entry.
 						</>
 					) : (

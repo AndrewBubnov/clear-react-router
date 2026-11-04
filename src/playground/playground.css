@@ -858,6 +858,10 @@
 	--viz-shadow: 0 8px 18px rgba(55, 65, 100, 0.05);
 	--viz-muted: #5b6078;
 
+	width: max-content;
+	min-width: min(430px, 100%);
+	max-width: min(100%, 720px);
+
 	background: var(--viz-bg);
 	border: 1px solid var(--viz-border);
 	box-shadow:
