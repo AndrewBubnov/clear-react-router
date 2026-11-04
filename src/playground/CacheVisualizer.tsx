@@ -192,7 +192,7 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 	const hidden = items.length - visible.length;
 	const full = cached.length >= maxSlots;
 	return (
-		<Card withBorder radius="lg" padding="sm" shadow="sm">
+		<Card padding="sm" className="pg-visualizer">
 			<Group justify="space-between" align="center" gap="xs">
 				<Text fw={700} size="sm">
 					Cache visualizer
