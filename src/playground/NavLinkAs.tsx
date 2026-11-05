@@ -13,7 +13,13 @@ const muiAs: LinkAsRenderer = (props, { isActive }) => (
 );
 
 const mantineAs: LinkAsRenderer = (props, { isActive }) => (
-	<MantineButton {...props} component="a" variant={isActive ? 'filled' : 'subtle'} size="compact-sm" />
+	<MantineButton
+		{...props}
+		component="a"
+		variant={isActive ? 'gradient' : 'subtle'}
+		size="compact-md"
+		gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+	/>
 );
 
 export const NAV_LINK_AS: Record<NavLinkAs, LinkAsRenderer> = {

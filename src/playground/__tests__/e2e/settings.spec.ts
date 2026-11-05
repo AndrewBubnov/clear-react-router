@@ -45,10 +45,16 @@ test('nav link element setting changes the rendered links live', async ({ page }
 	const cacheLink = page.locator('.pg-nav').getByRole('link', { name: 'Cache', exact: true });
 
 	await expect(cacheLink).not.toHaveClass(/mantine-Button-root/);
+	await expect(cacheLink).toHaveClass(/pg-nav-link/);
 
 	await page.getByRole('radio', { name: 'Mantine Button' }).check();
 
 	await expect(cacheLink).toHaveClass(/mantine-Button-root/);
+	await expect(cacheLink).toHaveAttribute('data-variant', 'subtle');
+
+	await cacheLink.click();
+	await expect(page.getByRole('heading', { name: /Cache: eviction/ })).toBeVisible();
+	await expect(cacheLink).toHaveAttribute('data-variant', 'gradient');
 });
 
 test('status badge setting hides and restores the badge', async ({ page }) => {

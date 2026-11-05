@@ -13,7 +13,7 @@ const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; childre
 			exact={exact}
 			as={NAV_LINK_AS[navLinkAs]}
 			className="pg-nav-link"
-			style={navLinkAs === 'mantine' ? { background: 'transparent' } : {}}
+			activeClassName={navLinkAs === 'link' ? 'active-link' : ''}
 		>
 			{children}
 		</Link>

@@ -77,7 +77,7 @@
 	border-radius: 999px;
 	background: var(--accent-bg);
 	color: var(--accent);
-	font-family: var(--mono);
+	font-family: var(--mono), sans-serif;
 	font-size: 9px;
 	font-weight: 650;
 	letter-spacing: 0.1em;
@@ -1037,11 +1037,16 @@
 	gap: 1.5rem;
 }
 
-.pg-nav .active-link {
+.pg-nav .pg-nav-link.active-link {
 	border-color: var(--accent-border);
 	background: var(--accent-bg);
 	color: var(--accent);
 	text-decoration: none;
+}
+
+/* Unlayered `a { color: currentColor }` beats Mantine's layered button color. */
+.pg-nav .mantine-Button-root {
+	color: var(--button-color);
 }
 
 .pg-gear-link {

@@ -1,12 +1,11 @@
-import { Button, createTheme, Slider } from '@mantine/core';
+import { createTheme, Slider } from '@mantine/core';
 
 const BACKGROUND = 'light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-9))';
-const BACKGROUND_HOVER = 'var(--mantine-color-brand-8)';
-const COLOR = 'light-dark(var(--mantine-color-brand-2), var(--mantine-color-brand-3))';
+const COLOR = 'light-dark(var(--mantine-color-white), var(--mantine-color-brand-3))';
 
 export const theme = createTheme({
 	primaryColor: 'brand',
-	primaryShade: { light: 6, dark: 4 },
+	primaryShade: { light: 6, dark: 9 },
 	fontFamily: "'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
 	fontFamilyMonospace: "'Geist Mono Variable', ui-monospace, 'Cascadia Code', Consolas, monospace",
 	headings: {
@@ -41,16 +40,6 @@ export const theme = createTheme({
 					width: 160,
 				},
 			},
-		}),
-		Button: Button.extend({
-			vars: () => ({
-				root: {
-					'--button-bg': BACKGROUND,
-					'--button-color': COLOR,
-					'--button-hover': BACKGROUND_HOVER,
-					'--button-hover-color': COLOR,
-				},
-			}),
 		}),
 	},
 });
