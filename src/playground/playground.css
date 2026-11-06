@@ -1089,12 +1089,6 @@
 	pointer-events: none;
 }
 
-.pg-nav-presets .pg-radio:focus-within {
-	outline: 2px solid var(--accent);
-	outline-offset: 3px;
-	border-radius: 4px;
-}
-
 /* Unlayered `a { color: currentColor }` beats Mantine's layered button color. */
 a.mantine-Button-root {
 	color: var(--button-color);

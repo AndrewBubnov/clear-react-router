@@ -49,6 +49,37 @@ const SettingsPage = () => {
 			<h1>Settings</h1>
 			<div className="pg-settings-grid">
 				<div className="pg-card">
+					<h2>Nav link element</h2>
+					<div className="pg-row" role="radiogroup" aria-label="Nav link element">
+						<NavLinkPresets />
+					</div>
+					<p className="pg-hint">
+						Renders every menu link through Link's <code>as</code> prop: a plain <code>&lt;a&gt;</code>, a
+						real MUI <code>Button</code>, or a real Mantine <code>Button</code>. The router drives the same
+						navigation, active and pending states in all three.
+					</p>
+				</div>
+				<div className="pg-card">
+					<h2>Link prefetch strategy</h2>
+					<div className="pg-block-row">
+						<SegmentedControl
+							aria-label="Link prefetch strategy"
+							className="pg-prefetch-options"
+							data={PREFETCH_PRESETS}
+							value={defaultPrefetch}
+							onChange={value => setDefaultPrefetch(value as PrefetchSetting)}
+							fullWidth
+							radius="xl"
+							color="brand"
+						/>
+					</div>
+					<p className="pg-hint">
+						Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
+						<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
+						<code>prefetch</code> prop (like the lab links) are unaffected.
+					</p>
+				</div>
+				<div className="pg-card">
 					<h2>Page transitions</h2>
 					<div className="pg-row pg-space-between">
 						<Switch
@@ -97,37 +128,6 @@ const SettingsPage = () => {
 					<p className="pg-hint">
 						Lowering the limit evicts old entries gradually as new data loads — it does not purge the cache
 						instantly.
-					</p>
-				</div>
-				<div className="pg-card">
-					<h2>Nav link element</h2>
-					<div className="pg-row" role="radiogroup" aria-label="Nav link element">
-						<NavLinkPresets />
-					</div>
-					<p className="pg-hint">
-						Renders every menu link through Link's <code>as</code> prop: a plain <code>&lt;a&gt;</code>, a
-						real MUI <code>Button</code>, or a real Mantine <code>Button</code>. The router drives the same
-						navigation, active and pending states in all three.
-					</p>
-				</div>
-				<div className="pg-card">
-					<h2>Link prefetch strategy</h2>
-					<div className="pg-block-row">
-					<SegmentedControl
-						aria-label="Link prefetch strategy"
-						className="pg-prefetch-options"
-						data={PREFETCH_PRESETS}
-							value={defaultPrefetch}
-							onChange={value => setDefaultPrefetch(value as PrefetchSetting)}
-							fullWidth
-							radius="xl"
-							color="brand"
-						/>
-					</div>
-					<p className="pg-hint">
-						Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}
-						<code>hover</code> on desktop. Applies to menu links live — routes with an explicit{' '}
-						<code>prefetch</code> prop (like the lab links) are unaffected.
 					</p>
 				</div>
 				<div className="pg-card">
