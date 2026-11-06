@@ -132,12 +132,11 @@
 
 .pg-nav-link {
 	flex: none;
-	padding: 3px 9px;
+	padding: 5px 10px;
 	border: 1px solid transparent;
 	border-radius: 999px;
 	color: var(--text);
 	font-size: 15px;
-	font-weight: 550;
 	line-height: 1.2;
 	white-space: nowrap;
 	cursor: pointer;
@@ -1046,14 +1045,14 @@
 .pg-nav .pg-nav-link.active-link {
 	border-color: var(--accent-border);
 	background: var(--accent-bg);
-	color: var(--accent);
+	color: var(--text-h);
 	text-decoration: none;
 }
 
 .pg-active-settings-link {
 	border-color: var(--accent-border);
 	background: var(--accent-bg);
-	color: var(--accent);
+	color: var(--text-h);
 	text-decoration: none;
 }
 
