@@ -1086,12 +1086,16 @@ a.MuiButton-root {
 	color: var(--text);
 }
 
-a.MuiButton-root[aria-current='page'] {
+[data-mantine-color-scheme='light'] a.MuiButton-root[aria-current='page'] {
 	color: var(--mantine-color-white);
 }
 
-[data-mantine-color-scheme='dark'] a.MuiButton-root, a.MuiButton-root[aria-current='page'] {
-	color: var(--accent);
+[data-mantine-color-scheme='dark'] a.mantine-Button-root, a.MuiButton-root, a.MuiButton-root[aria-current='page'] {
+	color: var(--text);
+}
+
+[data-mantine-color-scheme='dark'] a.MuiButton-root:hover {
+	background: var(--accent-bg);
 }
 
 .pg-gear-link {
