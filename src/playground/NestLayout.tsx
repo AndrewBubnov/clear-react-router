@@ -8,7 +8,7 @@ export const NestLayout = ({ children }: { children: ReactNode }) => {
 	return (
 		<>
 			<div className="pg-layout-bar">
-				<Card withBorder radius="md" padding="lg">
+				<Card radius="md" padding="lg" className="pg-hint">
 					<Stack gap="sm">
 						<Group justify="space-between" align="center">
 							<Text fw={600}>Shared layout for this whole section</Text>

@@ -7,7 +7,7 @@ export const NestChildLayout = ({ children }: { children: ReactNode }) => {
 
 	return (
 		<div className="pg-layout-bar">
-			<Paper withBorder radius="md" p="md">
+			<Paper radius="md" p="md" className="pg-hint">
 				<Group justify="space-between" align="center">
 					<Text fw={600}>Nested layout</Text>
 					<Badge variant="light" color="grape">
