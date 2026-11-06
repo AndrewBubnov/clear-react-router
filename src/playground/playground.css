@@ -1079,7 +1079,7 @@
 /* Unlayered `a { color: currentColor }` beats Mantine's layered button color. */
 a.mantine-Button-root {
 	color: var(--button-color);
-	font-size: 14px;
+	font-weight: 500;
 }
 
 a.MuiButton-root {
@@ -1090,8 +1090,12 @@ a.MuiButton-root {
 	color: var(--mantine-color-white);
 }
 
-[data-mantine-color-scheme='dark'] a.mantine-Button-root, a.MuiButton-root, a.MuiButton-root[aria-current='page'] {
+[data-mantine-color-scheme='dark'] a.mantine-Button-root, a.MuiButton-root {
 	color: var(--text);
+}
+
+[data-mantine-color-scheme='dark'] a.mantine-Button-root[aria-current='page'], a.MuiButton-root[aria-current='page'] {
+	color: var(--text-h);
 }
 
 [data-mantine-color-scheme='dark'] a.MuiButton-root:hover {
