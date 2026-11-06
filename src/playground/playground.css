@@ -1145,24 +1145,6 @@ h1 {
 	margin-top: 100px;
 }
 
-.pg-route-progress {
-	position: fixed;
-	inset: 0 0 auto;
-	z-index: 100;
-	height: 3px;
-	background: linear-gradient(90deg, #6366f1, #06b6d4 55%, #f472b6);
-	box-shadow: 0 0 18px rgba(99, 102, 241, 0.55);
-	opacity: 0;
-	transform: scaleX(0.04);
-	transform-origin: left;
-	pointer-events: none;
-}
-
-.pg-route-progress.is-active {
-	opacity: 1;
-	animation: pg-progress 1.35s ease-in-out infinite;
-}
-
 @keyframes pg-progress {
 	0% {
 		transform: scaleX(0.05);
@@ -1402,15 +1384,6 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
 	.pg-app,
 	.pg-card-link,
-	.pg-route-progress.is-active {
-		animation: none;
-	}
-
-	.pg-route-progress.is-active {
-		opacity: 1;
-		transform: scaleX(1);
-	}
-
 	.pg-brand-mark,
 	.pg-card-home,
 	.pg-card-arrow,

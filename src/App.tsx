@@ -7,14 +7,8 @@ import { PlaygroundNav } from './playground/PlaygroundNav';
 import { playgroundRoutes } from './playground/routes';
 import { PlaygroundSettingsProvider } from './playground/settings';
 import { usePlaygroundSettings } from './playground/usePlaygroundSettings';
-import { theme } from './playground/theme.ts';
+import { theme } from './playground/theme';
 import './playground/playground.css';
-
-const RouteProgress = () => {
-	const status = useRouteStatus();
-	const busy = status === 'pending' || status === 'optimistic';
-	return <div className={`pg-route-progress${busy ? ' is-active' : ''}`} aria-hidden="true" />;
-};
 
 const CacheVizSlot = ({ maxSlots }: { maxSlots: number }) => {
 	const entries = useCacheSnapshot();
@@ -56,7 +50,6 @@ const Shell = () => {
 		usePlaygroundSettings();
 	return (
 		<div className="pg-app">
-			<RouteProgress />
 			{/* Remount on strategy change: Link's viewport/render effects attach at mount time only. */}
 			<PlaygroundNav key={defaultPrefetch} />
 			<main className="pg-content">
