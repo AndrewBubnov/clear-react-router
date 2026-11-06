@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Skeleton, Slider, Switch, Tooltip, Button } from '@mantine/core';
+import { Skeleton, Slider, Switch, Tooltip, Button, SegmentedControl } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import NavLinkPresets from './NavLinkPresets';
@@ -112,18 +112,17 @@ const SettingsPage = () => {
 				</div>
 				<div className="pg-card">
 					<h2>Link prefetch strategy</h2>
-					<div className="pg-row" role="radiogroup" aria-label="Link prefetch strategy">
-						{PREFETCH_PRESETS.map(preset => (
-							<label key={preset.value} className="pg-radio">
-								<input
-									type="radio"
-									name="prefetch-strategy"
-									checked={defaultPrefetch === preset.value}
-									onChange={() => setDefaultPrefetch(preset.value)}
-								/>
-								{preset.label}
-							</label>
-						))}
+					<div className="pg-block-row">
+					<SegmentedControl
+						aria-label="Link prefetch strategy"
+						className="pg-prefetch-options"
+						data={PREFETCH_PRESETS}
+							value={defaultPrefetch}
+							onChange={value => setDefaultPrefetch(value as PrefetchSetting)}
+							fullWidth
+							radius="xl"
+							color="brand"
+						/>
 					</div>
 					<p className="pg-hint">
 						Auto follows the device: <code>viewport</code> on mobile (links prefetch as soon as they mount),{' '}

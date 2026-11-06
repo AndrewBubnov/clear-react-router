@@ -62,6 +62,18 @@ test('nav link element setting changes the rendered links live', async ({ page }
 	await expect(cacheLink).toHaveCSS('color', 'rgb(255, 255, 255)');
 });
 
+test('prefetch strategy switches with Mantine segmented control', async ({ page }) => {
+	await page.goto('/playground/settings');
+	const group = page.getByRole('radiogroup', { name: 'Link prefetch strategy' });
+	const auto = group.getByRole('radio', { name: 'auto' });
+	const hover = group.getByRole('radio', { name: 'hover' });
+
+	await expect(auto).toBeChecked();
+	await group.getByText('hover', { exact: true }).click();
+	await expect(hover).toBeChecked();
+	await expect(auto).not.toBeChecked();
+});
+
 test('status badge setting hides and restores the badge', async ({ page }) => {
 	await page.goto('/playground/settings');
 	const toggle = page.getByLabel('show badge');

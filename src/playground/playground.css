@@ -315,6 +315,10 @@
 	margin: 12px 0;
 }
 
+.pg-block-row {
+	margin: 12px 0;
+}
+
 .pg-inner-row {
 	display: flex;
 	gap: 16px;
@@ -648,6 +652,18 @@
 
 [data-mantine-color-scheme='dark'] .pg-radio input[type='radio'] {
 	--accent: #312e81;
+}
+
+.pg-prefetch-options {
+	background: var(--accent-bg);
+}
+
+.pg-prefetch-options .mantine-SegmentedControl-label {
+	color: var(--text);
+}
+
+.pg-prefetch-options .mantine-SegmentedControl-label[data-active] {
+	color: var(--mantine-color-white);
 }
 
 .pg-home-grid {
@@ -1364,7 +1380,7 @@ h1 {
 }
 
 @media (width >= 480px) {
-	.pg-row {
+	.pg-row, .pg-block-row {
 		min-height: 30px;
 	}
 }
