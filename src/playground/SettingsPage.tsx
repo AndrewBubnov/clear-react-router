@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Skeleton, Slider, Switch, Tooltip, Button } from '@mantine/core';
 import { Link } from '../clear-router';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
+import NavLinkPresets from './NavLinkPresets';
 import type { PrefetchSetting } from './settings';
-import type { NavLinkAs } from './NavLinkAs';
 import { DEFAULT_MAX_CACHE_SIZE } from './constants';
 
 const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
@@ -12,12 +12,6 @@ const PREFETCH_PRESETS: { value: PrefetchSetting; label: string }[] = [
 	{ value: 'viewport', label: 'viewport' },
 	{ value: 'render', label: 'render' },
 	{ value: 'none', label: 'none' },
-];
-
-const NAV_LINK_PRESETS: { value: NavLinkAs; label: string }[] = [
-	{ value: 'link', label: 'Link (plain <a> tag)' },
-	{ value: 'mui', label: 'MUI Button' },
-	{ value: 'mantine', label: 'Mantine Button' },
 ];
 
 const SettingsLoader = ({ duration }: { duration: number | undefined }) => {
@@ -48,11 +42,8 @@ const SettingsPage = () => {
 		setDefaultPrefetch,
 		minLoaderDuration,
 		setMinLoaderDuration,
-		navLinkAs,
-		setNavLinkAs,
 	} = usePlaygroundSettings();
 	const [previewDuration, setPreviewDuration] = useState(minLoaderDuration);
-
 	return (
 		<div className="pg-wrap">
 			<h1>Settings</h1>
@@ -97,7 +88,7 @@ const SettingsPage = () => {
 							max={90}
 							value={maxCacheSize}
 							onChange={setMaxCacheSize}
-							label={v => `${v}`}
+							label={String}
 							labelAlwaysOn
 							thumbLabel="Maximum number of cached loader entries"
 							style={{ width: '100%' }}
@@ -111,17 +102,7 @@ const SettingsPage = () => {
 				<div className="pg-card">
 					<h2>Nav link element</h2>
 					<div className="pg-row" role="radiogroup" aria-label="Nav link element">
-						{NAV_LINK_PRESETS.map(preset => (
-							<label key={preset.value} className="pg-radio">
-								<input
-									type="radio"
-									name="nav-link-as"
-									checked={navLinkAs === preset.value}
-									onChange={() => setNavLinkAs(preset.value)}
-								/>
-								{preset.label}
-							</label>
-						))}
+						<NavLinkPresets />
 					</div>
 					<p className="pg-hint">
 						Renders every menu link through Link's <code>as</code> prop: a plain <code>&lt;a&gt;</code>, a
