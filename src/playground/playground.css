@@ -559,8 +559,7 @@
 	margin: 6px 0;
 }
 
-
-.pg-wrap a:not(.MuiButton-root):not(.mantine-Button-root) {
+.pg-wrap a:not(.MuiButton-root):not(.mantine-Button-root):not(.pg-active-settings-link) {
 	color: var(--text);
 	text-decoration: underline;
 	text-underline-offset: 3px;
@@ -1075,6 +1074,11 @@
 	pointer-events: none;
 }
 
+.pg-nav-presets .pg-radio:focus-within {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
 
 /* Unlayered `a { color: currentColor }` beats Mantine's layered button color. */
 a.mantine-Button-root {
@@ -1082,6 +1086,7 @@ a.mantine-Button-root {
 	font-weight: 500;
 }
 
+a.mantine-Button-root[data-variant='subtle'],
 a.MuiButton-root {
 	color: var(--text);
 }
@@ -1090,16 +1095,20 @@ a.MuiButton-root {
 	color: var(--mantine-color-white);
 }
 
-[data-mantine-color-scheme='dark'] a.mantine-Button-root, a.MuiButton-root {
-	color: var(--text);
-}
+[data-mantine-color-scheme='dark'] {
+	a.mantine-Button-root,
+	a.MuiButton-root {
+		color: var(--text);
+	}
 
-[data-mantine-color-scheme='dark'] a.mantine-Button-root[aria-current='page'], a.MuiButton-root[aria-current='page'] {
-	color: var(--text-h);
-}
+	a.mantine-Button-root[aria-current='page'],
+	a.MuiButton-root[aria-current='page'] {
+		color: var(--text-h);
+	}
 
-[data-mantine-color-scheme='dark'] a.MuiButton-root:hover {
-	background: var(--accent-bg);
+	a.MuiButton-root:hover {
+		background: var(--accent-bg);
+	}
 }
 
 .pg-gear-link {
