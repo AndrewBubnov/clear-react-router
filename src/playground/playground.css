@@ -1083,6 +1083,7 @@
 a.mantine-Button-root {
 	color: var(--button-color);
 	font-weight: 500;
+	font-size: 14px;
 }
 
 a.mantine-Button-root[data-variant='subtle'],
