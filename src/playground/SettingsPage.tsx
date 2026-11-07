@@ -164,7 +164,7 @@ const SettingsPage = () => {
 						/>
 					</div>
 					<p className="pg-hint">
-						Shows the current route status in the header badge: idle, pending, active, optimistic, or error.
+						Shows the current route status in the footer badge: idle, pending, active, optimistic, or error.
 					</p>
 				</div>
 			</div>
