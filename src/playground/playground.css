@@ -1060,8 +1060,8 @@
 }
 
 .pg-battery-piece {
-	width: 10px;
-	height: 4px;
+	width: 8px;
+	height: 3px;
 	border-radius: 3px;
 	transition: opacity 150ms;
 }

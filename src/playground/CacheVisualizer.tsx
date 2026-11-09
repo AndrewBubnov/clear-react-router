@@ -36,6 +36,8 @@ const REASON = {
 	},
 } as const;
 
+const BATTERY_PICES_COUNT = 4;
+
 const REASON_ICON = {
 	navigation: IconArrowRight,
 	prefetch: IconBolt,
@@ -64,11 +66,14 @@ const FreshnessLegend = () => (
 );
 
 const Battery = ({ item }: { item: DisplayItem }) => {
-	const [visibleBlocks, setVisibleBlocks] = useState<number>(4);
+	const [visibleBlocks, setVisibleBlocks] = useState<number>(BATTERY_PICES_COUNT);
 
 	const style = REASON[item.reason];
-	// eslint-disable-next-line react-hooks/set-state-in-effect
-	useEffect(() => setVisibleBlocks(item.reason === 'prefetch' || !item.entry.staleTime ? 0 : 4), [item.reason]);
+	useEffect(
+		// eslint-disable-next-line react-hooks/set-state-in-effect
+		() => setVisibleBlocks(item.reason === 'prefetch' || !item.entry.staleTime ? 0 : BATTERY_PICES_COUNT),
+		[item.entry.staleTime, item.reason]
+	);
 	useEffect(() => {
 		if (!item.entry.staleTime || item.reason === 'prefetch') return;
 		let timeout: number = 0;
@@ -80,18 +85,18 @@ const Battery = ({ item }: { item: DisplayItem }) => {
 			setVisibleBlocks(prevState => {
 				if (prevState) {
 					clear();
-					timeout = window.setTimeout(reduce, item.entry.staleTime! / 4);
+					timeout = window.setTimeout(reduce, item.entry.staleTime! / BATTERY_PICES_COUNT);
 					return prevState - 1;
 				}
 				clear();
 				return prevState;
 			});
-		timeout = window.setTimeout(reduce, item.entry.staleTime / 4);
+		timeout = window.setTimeout(reduce, item.entry.staleTime / BATTERY_PICES_COUNT);
 		return clear;
 	}, [item.entry.staleTime, item.reason]);
 	return (
 		<div className="pg-battery">
-			{Array.from({ length: 4 }, (_, index) => (
+			{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => (
 				<div
 					key={index}
 					className="pg-battery-piece"
