@@ -71,10 +71,9 @@ const Battery = ({ item }: { item: DisplayItem }) => {
 
 	const [elapsed] = useState(() => Date.now() - entry.timestamp);
 
-	const hasWindow = Number.isFinite(entry.staleTime); // undefined и Infinity: не протухает
+	const hasWindow = Number.isFinite(entry.staleTime);
 	const staleTime = hasWindow ? entry.staleTime! : 0;
 	const pieceMs = staleTime / BATTERY_PICES_COUNT;
-	console.log({ staleTime: entry.staleTime, pieceMs: pieceMs, hasWindow });
 	return (
 		<div className="pg-battery-wrap">
 			<span
