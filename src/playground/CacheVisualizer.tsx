@@ -65,39 +65,38 @@ const FreshnessLegend = () => (
 	</Group>
 );
 
-const Battery = ({ item, now }: { item: DisplayItem; now: number }) => {
+const Battery = ({ item }: { item: DisplayItem }) => {
 	const { entry, reason } = item;
 	const style = REASON[reason];
-	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
+
+	const [elapsed] = useState(() => Date.now() - entry.timestamp);
+
+	const hasWindow = Number.isFinite(entry.staleTime); // undefined и Infinity: не протухает
+	const staleTime = hasWindow ? entry.staleTime! : 0;
+	const pieceMs = staleTime / BATTERY_PICES_COUNT;
+	console.log({ staleTime: entry.staleTime, pieceMs: pieceMs, hasWindow });
 	return (
 		<div className="pg-battery-wrap">
 			<span
-				data-freshness={stale ? 'stale' : 'fresh'}
-				title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
-				style={{
-					width: 7,
-					height: 7,
-					borderRadius: '50%',
-					background: freshnessColor(stale),
-				}}
+				className="pg-battery-dot"
+				data-animated={hasWindow || undefined}
+				title={hasWindow ? `fresh for ${staleTime / 1000}s` : 'never goes stale'}
+				style={{ '--dot-delay': `${staleTime - elapsed}ms` } as CSSProperties}
 			/>
-			<div className="pg-battery" key={entry.timestamp}>
-				{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => {
-					const stale = entry.staleTime || 0;
-					const pieceMs = stale / BATTERY_PICES_COUNT;
-					return (
-						<div
-							key={index}
-							className="pg-battery-piece"
-							style={
-								{
-									'background': reason === 'navigation' ? style.border : 'transparent',
-									'--seg-drain-delay': `${(BATTERY_PICES_COUNT - index) * pieceMs}ms`,
-								} as CSSProperties
-							}
-						/>
-					);
-				})}
+			<div className="pg-battery">
+				{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => (
+					<div
+						key={index}
+						className="pg-battery-piece"
+						style={
+							{
+								'background':
+									reason === 'navigation' || reason === 'prefetch' ? style.border : 'transparent',
+								'--seg-drain-delay': `${(BATTERY_PICES_COUNT - index) * pieceMs - elapsed}ms`,
+							} as CSSProperties
+						}
+					/>
+				))}
 			</div>
 		</div>
 	);
@@ -142,17 +141,9 @@ const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }
 const CacheCard = ({ item }: { item: DisplayItem }) => {
 	const [now, setNow] = useState(() => Date.now());
 	const style = REASON[item.reason];
-	const { entry } = item;
+	const { entry, reason } = item;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
 	const progress = remaining !== undefined && entry.gcDuration ? (remaining / entry.gcDuration) * 100 : undefined;
-
-	useEffect(() => {
-		if (entry.staleTime === undefined) return;
-		const age = Date.now() - entry.timestamp;
-		if (age >= entry.staleTime) return;
-		const timeout = window.setTimeout(() => setNow(Date.now()), entry.staleTime - age);
-		return () => window.clearTimeout(timeout);
-	}, [entry.timestamp, entry.staleTime]);
 
 	useEffect(() => {
 		const expiresAt = entry.gcExpiresAt;
@@ -188,7 +179,7 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 				gap: 6,
 			}}
 		>
-			<Battery item={item} now={now} />
+			<Battery key={`${entry.timestamp}-${entry.staleTime}-${reason}`} item={item} />
 			<CardIcon isLoading={entry.isLoading} item={item} />
 			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
 				{shortLabel(entry.path)}

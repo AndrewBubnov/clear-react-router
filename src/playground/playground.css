@@ -1077,6 +1077,24 @@ root {
 	animation-delay: var(--seg-drain-delay);
 }
 
+.pg-battery-dot {
+	--pg-fresh: var(--mantine-color-teal-6);
+	--pg-stale: var(--mantine-color-orange-6);
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--pg-fresh);
+}
+
+.pg-battery-dot[data-animated] {
+	animation: pg-dot-stale 200ms linear forwards;
+	animation-delay: var(--dot-delay);
+}
+
+@keyframes pg-dot-stale {
+	to { background: var(--pg-stale); }
+}
+
 @keyframes pg-seg-drain { to { opacity: 0; } }
 
 .pg-items-row {
