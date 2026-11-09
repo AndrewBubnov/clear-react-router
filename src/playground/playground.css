@@ -1,3 +1,6 @@
+root {
+	--seg-drain-delay: 0;
+}
 .pg-app {
 	min-height: 100svh;
 	animation: pg-page-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -1063,15 +1066,18 @@
 
 .pg-battery {
 	display: flex;
-	gap: 1px;
+	gap: 2px;
 }
 
 .pg-battery-piece {
-	width: 10px;
+	width: 9px;
 	height: 3px;
 	border-radius: 3px;
-	transition: opacity 150ms;
+	animation: pg-seg-drain 150ms linear forwards;
+	animation-delay: var(--seg-drain-delay);
 }
+
+@keyframes pg-seg-drain { to { opacity: 0; } }
 
 .pg-items-row {
 	gap: 1.5rem;

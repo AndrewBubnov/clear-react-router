@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, Card, Group, Loader, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
 import { IconArrowRight, IconBolt, IconRefresh, IconReload } from '@tabler/icons-react';
@@ -66,37 +66,9 @@ const FreshnessLegend = () => (
 );
 
 const Battery = ({ item, now }: { item: DisplayItem; now: number }) => {
-	const [visibleBlocks, setVisibleBlocks] = useState<number>(BATTERY_PICES_COUNT);
-	const { entry } = item;
-
-	const style = REASON[item.reason];
+	const { entry, reason } = item;
+	const style = REASON[reason];
 	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
-
-	useEffect(
-		// eslint-disable-next-line react-hooks/set-state-in-effect
-		() => setVisibleBlocks(item.reason === 'prefetch' || !item.entry.staleTime ? 0 : BATTERY_PICES_COUNT),
-		[item.entry.staleTime, item.reason]
-	);
-	useEffect(() => {
-		if (!item.entry.staleTime || item.reason === 'prefetch') return;
-		let timeout: number = 0;
-		const clear = () => {
-			window.clearTimeout(timeout);
-			timeout = 0;
-		};
-		const reduce = () =>
-			setVisibleBlocks(prevState => {
-				if (prevState) {
-					clear();
-					timeout = window.setTimeout(reduce, item.entry.staleTime! / BATTERY_PICES_COUNT);
-					return prevState - 1;
-				}
-				clear();
-				return prevState;
-			});
-		timeout = window.setTimeout(reduce, item.entry.staleTime / BATTERY_PICES_COUNT);
-		return clear;
-	}, [item.entry.staleTime, item.reason]);
 	return (
 		<div className="pg-battery-wrap">
 			<span
@@ -109,14 +81,23 @@ const Battery = ({ item, now }: { item: DisplayItem; now: number }) => {
 					background: freshnessColor(stale),
 				}}
 			/>
-			<div className="pg-battery">
-				{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => (
-					<div
-						key={index}
-						className="pg-battery-piece"
-						style={{ background: style.border, opacity: visibleBlocks > index ? 0.7 : 0 }}
-					/>
-				))}
+			<div className="pg-battery" key={entry.timestamp}>
+				{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => {
+					const stale = entry.staleTime || 0;
+					const pieceMs = stale / BATTERY_PICES_COUNT;
+					return (
+						<div
+							key={index}
+							className="pg-battery-piece"
+							style={
+								{
+									'background': reason === 'navigation' ? style.border : 'transparent',
+									'--seg-drain-delay': `${(BATTERY_PICES_COUNT - index) * pieceMs}ms`,
+								} as CSSProperties
+							}
+						/>
+					);
+				})}
 			</div>
 		</div>
 	);
