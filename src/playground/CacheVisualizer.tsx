@@ -90,7 +90,7 @@ const Battery = ({ item }: { item: DisplayItem }) => {
 		return clear;
 	}, [item.entry.staleTime, item.reason]);
 	return (
-		<div className="pg-visualizer-card-wrap">
+		<div className="pg-battery">
 			{Array.from({ length: 4 }, (_, index) => (
 				<div
 					key={index}
