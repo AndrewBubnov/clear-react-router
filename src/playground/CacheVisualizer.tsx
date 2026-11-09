@@ -63,6 +63,45 @@ const FreshnessLegend = () => (
 	</Group>
 );
 
+const Battery = ({ item }: { item: DisplayItem }) => {
+	const [visibleBlocks, setVisibleBlocks] = useState<number>(4);
+
+	const style = REASON[item.reason];
+	// eslint-disable-next-line react-hooks/set-state-in-effect
+	useEffect(() => setVisibleBlocks(item.reason === 'prefetch' || !item.entry.staleTime ? 0 : 4), [item.reason]);
+	useEffect(() => {
+		if (!item.entry.staleTime || item.reason === 'prefetch') return;
+		let timeout: number = 0;
+		const clear = () => {
+			window.clearTimeout(timeout);
+			timeout = 0;
+		};
+		const reduce = () =>
+			setVisibleBlocks(prevState => {
+				if (prevState) {
+					clear();
+					timeout = window.setTimeout(reduce, item.entry.staleTime! / 4);
+					return prevState - 1;
+				}
+				clear();
+				return prevState;
+			});
+		timeout = window.setTimeout(reduce, item.entry.staleTime / 4);
+		return clear;
+	}, [item.entry.staleTime, item.reason]);
+	return (
+		<div className="pg-visualizer-card-wrap">
+			{Array.from({ length: 4 }, (_, index) => (
+				<div
+					key={index}
+					className="pg-battery-piece"
+					style={{ background: style.border, opacity: visibleBlocks > index ? 0.7 : 0 }}
+				/>
+			))}
+		</div>
+	);
+};
+
 const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }) => {
 	const Icon = REASON_ICON[item.reason];
 	const style = REASON[item.reason];
@@ -135,6 +174,8 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 			transition={{ type: 'spring', stiffness: 200, damping: 35 }}
 			title={entry.path}
 			style={{
+				display: 'flex',
+				flexDirection: 'column',
 				width: 72,
 				flexShrink: 0,
 				padding: '8px 6px',
@@ -143,43 +184,44 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 				borderColor: style.border,
 				borderRadius: 12,
 				backgroundColor: style.bg,
-				display: 'flex',
-				flexDirection: 'column',
 				alignItems: 'center',
-				gap: 2,
+				gap: 6,
 				position: 'relative',
 			}}
 		>
-			<span
-				data-freshness={stale ? 'stale' : 'fresh'}
-				title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
-				style={{
-					position: 'absolute',
-					top: 5,
-					right: 5,
-					width: 7,
-					height: 7,
-					borderRadius: '50%',
-					background: freshnessColor(stale),
-				}}
-			/>
-			<CardIcon isLoading={entry.isLoading} item={item} />
-			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
-				{shortLabel(entry.path)}
-			</Text>
-			<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
-				{style.label}
-			</Text>
-			{progress !== undefined && remaining !== undefined && (
-				<Progress
-					value={progress}
-					size={3}
-					radius="xl"
-					w="100%"
-					mt={2}
-					color={remaining > 0 ? 'teal' : 'gray'}
+			<div className="pg-visualizer-card-inner">
+				<span
+					data-freshness={stale ? 'stale' : 'fresh'}
+					title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
+					style={{
+						position: 'absolute',
+						top: 5,
+						right: 5,
+						width: 7,
+						height: 7,
+						borderRadius: '50%',
+						background: freshnessColor(stale),
+					}}
 				/>
-			)}
+				<CardIcon isLoading={entry.isLoading} item={item} />
+				<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
+					{shortLabel(entry.path)}
+				</Text>
+				<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
+					{style.label}
+				</Text>
+				{progress !== undefined && remaining !== undefined && (
+					<Progress
+						value={progress}
+						size={3}
+						radius="xl"
+						w="100%"
+						mt={2}
+						color={remaining > 0 ? 'teal' : 'gray'}
+					/>
+				)}
+			</div>
+			<Battery item={item} />
 		</motion.div>
 	);
 };

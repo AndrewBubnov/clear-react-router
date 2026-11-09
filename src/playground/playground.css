@@ -1054,6 +1054,19 @@
 	gap: 1rem;
 }
 
+.pg-visualizer-card-wrap {
+	height: 100%;
+	display: flex;
+	gap: 2px;
+}
+
+.pg-battery-piece {
+	width: 10px;
+	height: 4px;
+	border-radius: 3px;
+	transition: opacity 150ms;
+}
+
 .pg-items-row {
 	gap: 1.5rem;
 }
@@ -1200,6 +1213,15 @@ h1 {
 	max-width: var(--content-width);
 	margin: var(--page-gutter) auto 0;
 	padding-inline: var(--page-gutter);
+}
+
+.pg-visualizer-card-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 5px;
+	width: 100%;
+	height: 100%;
 }
 
 .pg-cache-viz {
