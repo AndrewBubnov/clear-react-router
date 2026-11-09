@@ -1,11 +1,10 @@
-import { CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Badge, Card, Group, Loader, Progress, Text, ThemeIcon, Tooltip } from '@mantine/core';
+import { Badge, Card, Group, Loader, Text, ThemeIcon, Tooltip } from '@mantine/core';
 import { IconArrowRight, IconBolt, IconRefresh, IconReload } from '@tabler/icons-react';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from '../clear-router';
 
 const VISIBLE_LIMIT = 6;
-const REMAINING_INTERVAL = 100;
 
 type DisplayItem = { entry: CacheSnapshotEntry; reason: CacheReason };
 
@@ -138,23 +137,8 @@ const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }
 };
 
 const CacheCard = ({ item }: { item: DisplayItem }) => {
-	const [now, setNow] = useState(() => Date.now());
 	const style = REASON[item.reason];
 	const { entry, reason } = item;
-	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
-	const progress = remaining !== undefined && entry.gcDuration ? (remaining / entry.gcDuration) * 100 : undefined;
-
-	useEffect(() => {
-		const expiresAt = entry.gcExpiresAt;
-		if (expiresAt === undefined || expiresAt <= Date.now()) return;
-		const interval = window.setInterval(() => {
-			const current = Date.now();
-			setNow(current);
-			if (current >= expiresAt) window.clearInterval(interval);
-		}, REMAINING_INTERVAL);
-		return () => window.clearInterval(interval);
-	}, [entry.gcExpiresAt]);
-
 	return (
 		<motion.div
 			data-loading={entry.isLoading ? 'true' : undefined}
@@ -163,20 +147,8 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 			exit={{ opacity: 0 }}
 			transition={{ type: 'spring', stiffness: 200, damping: 35 }}
 			title={entry.path}
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				width: 72,
-				flexShrink: 0,
-				padding: '8px 6px',
-				borderWidth: 2,
-				borderStyle: 'solid',
-				borderColor: style.border,
-				borderRadius: 12,
-				backgroundColor: style.bg,
-				alignItems: 'center',
-				gap: 6,
-			}}
+			className="pg-cache-viz-card"
+			style={{ borderColor: style.border, backgroundColor: style.bg }}
 		>
 			<Battery key={`${entry.timestamp}-${entry.staleTime}-${reason}`} item={item} />
 			<CardIcon isLoading={entry.isLoading} item={item} />
@@ -186,14 +158,10 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 			<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
 				{style.label}
 			</Text>
-			{progress !== undefined && remaining !== undefined && (
-				<Progress
-					value={progress}
-					size={3}
-					radius="xl"
-					w="100%"
-					mt={2}
-					color={remaining > 0 ? 'teal' : 'gray'}
+			{entry.gcExpiresAt && (
+				<div
+					className="pg-gc-progress"
+					style={{ '--progress-duration': `${entry.gcDuration}ms` } as CSSProperties}
 				/>
 			)}
 		</motion.div>
