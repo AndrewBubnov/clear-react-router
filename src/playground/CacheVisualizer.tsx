@@ -65,10 +65,13 @@ const FreshnessLegend = () => (
 	</Group>
 );
 
-const Battery = ({ item }: { item: DisplayItem }) => {
+const Battery = ({ item, now }: { item: DisplayItem; now: number }) => {
 	const [visibleBlocks, setVisibleBlocks] = useState<number>(BATTERY_PICES_COUNT);
+	const { entry } = item;
 
 	const style = REASON[item.reason];
+	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
+
 	useEffect(
 		// eslint-disable-next-line react-hooks/set-state-in-effect
 		() => setVisibleBlocks(item.reason === 'prefetch' || !item.entry.staleTime ? 0 : BATTERY_PICES_COUNT),
@@ -95,14 +98,26 @@ const Battery = ({ item }: { item: DisplayItem }) => {
 		return clear;
 	}, [item.entry.staleTime, item.reason]);
 	return (
-		<div className="pg-battery">
-			{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => (
-				<div
-					key={index}
-					className="pg-battery-piece"
-					style={{ background: style.border, opacity: visibleBlocks > index ? 0.7 : 0 }}
-				/>
-			))}
+		<div className="pg-battery-wrap">
+			<span
+				data-freshness={stale ? 'stale' : 'fresh'}
+				title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
+				style={{
+					width: 7,
+					height: 7,
+					borderRadius: '50%',
+					background: freshnessColor(stale),
+				}}
+			/>
+			<div className="pg-battery">
+				{Array.from({ length: BATTERY_PICES_COUNT }, (_, index) => (
+					<div
+						key={index}
+						className="pg-battery-piece"
+						style={{ background: style.border, opacity: visibleBlocks > index ? 0.7 : 0 }}
+					/>
+				))}
+			</div>
 		</div>
 	);
 };
@@ -147,7 +162,6 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 	const [now, setNow] = useState(() => Date.now());
 	const style = REASON[item.reason];
 	const { entry } = item;
-	const stale = entry.staleTime !== undefined && now >= entry.timestamp + entry.staleTime;
 	const remaining = entry.gcExpiresAt === undefined ? undefined : Math.max(0, entry.gcExpiresAt - now);
 	const progress = remaining !== undefined && entry.gcDuration ? (remaining / entry.gcDuration) * 100 : undefined;
 
@@ -191,42 +205,26 @@ const CacheCard = ({ item }: { item: DisplayItem }) => {
 				backgroundColor: style.bg,
 				alignItems: 'center',
 				gap: 6,
-				position: 'relative',
 			}}
 		>
-			<div className="pg-visualizer-card-inner">
-				<span
-					data-freshness={stale ? 'stale' : 'fresh'}
-					title={stale ? 'stale: older than staleTime' : 'fresh: within staleTime'}
-					style={{
-						position: 'absolute',
-						top: 5,
-						right: 5,
-						width: 7,
-						height: 7,
-						borderRadius: '50%',
-						background: freshnessColor(stale),
-					}}
+			<Battery item={item} now={now} />
+			<CardIcon isLoading={entry.isLoading} item={item} />
+			<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
+				{shortLabel(entry.path)}
+			</Text>
+			<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
+				{style.label}
+			</Text>
+			{progress !== undefined && remaining !== undefined && (
+				<Progress
+					value={progress}
+					size={3}
+					radius="xl"
+					w="100%"
+					mt={2}
+					color={remaining > 0 ? 'teal' : 'gray'}
 				/>
-				<CardIcon isLoading={entry.isLoading} item={item} />
-				<Text size="xs" fw={700} truncate style={{ maxWidth: '100%' }} c={style.theme}>
-					{shortLabel(entry.path)}
-				</Text>
-				<Text size="10px" truncate style={{ maxWidth: '100%', opacity: 0.9 }} c={style.theme}>
-					{style.label}
-				</Text>
-				{progress !== undefined && remaining !== undefined && (
-					<Progress
-						value={progress}
-						size={3}
-						radius="xl"
-						w="100%"
-						mt={2}
-						color={remaining > 0 ? 'teal' : 'gray'}
-					/>
-				)}
-			</div>
-			<Battery item={item} />
+			)}
 		</motion.div>
 	);
 };

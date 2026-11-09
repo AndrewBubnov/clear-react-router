@@ -1054,13 +1054,20 @@
 	gap: 1rem;
 }
 
+.pg-battery-wrap {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	width: 100%;
+}
+
 .pg-battery {
 	display: flex;
-	gap: 2px;
+	gap: 1px;
 }
 
 .pg-battery-piece {
-	width: 8px;
+	width: 10px;
 	height: 3px;
 	border-radius: 3px;
 	transition: opacity 150ms;
@@ -1212,15 +1219,6 @@ h1 {
 	max-width: var(--content-width);
 	margin: var(--page-gutter) auto 0;
 	padding-inline: var(--page-gutter);
-}
-
-.pg-visualizer-card-inner {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 5px;
-	width: 100%;
-	height: 100%;
 }
 
 .pg-cache-viz {
