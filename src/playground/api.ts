@@ -69,7 +69,7 @@ export const fetchProduct = async (id: string) => {
 };
 
 /** The cache lab route sets this staleTime, so revisits within the window reuse the payload. */
-export const CACHE_STALE_TIME = 3000;
+export const CACHE_STALE_TIME = 10000;
 
 /** Payload for the cache lab home page itself. */
 export const fetchCachePayload = async () => {
