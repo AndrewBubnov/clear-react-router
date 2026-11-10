@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page, Locator } from '@playwright/test';
 
 test('visualizer shows existing entries when enabled after navigation', async ({ page }) => {
 	await page.goto('/playground');
@@ -13,25 +13,33 @@ test('visualizer shows existing entries when enabled after navigation', async ({
 	await expect(visualizer.getByText('cache', { exact: true })).toBeVisible();
 });
 
+const vizDot = (page: Page) => page.locator('.pg-cache-viz .pg-battery-dot').first();
+const dotColor = (dot: Locator) => dot.evaluate(el => getComputedStyle(el).backgroundColor);
+
 test('visualizer marks a cached entry stale after staleTime', async ({ page }) => {
 	await page.goto('/playground/optimistic');
-	const dot = page.locator('.pg-cache-viz [data-freshness]').first();
+	const viz = page.locator('.pg-cache-viz');
+	const dot = vizDot(page);
 
-	await expect(page.locator('.pg-cache-viz').getByText('fresh', { exact: true })).toBeVisible();
-	await expect(page.locator('.pg-cache-viz').getByText('stale', { exact: true })).toBeVisible();
-	await expect(dot).toHaveAttribute('data-freshness', 'fresh');
-	await expect(dot).toHaveAttribute('data-freshness', 'stale', { timeout: 5000 });
+	await expect(viz.getByText('fresh', { exact: true })).toBeVisible();
+	await expect(viz.getByText('stale', { exact: true })).toBeVisible();
+
+	const freshColor = await dotColor(dot);
+	await expect(dot).not.toHaveCSS('background-color', freshColor, { timeout: 5000 });
 });
 
 test('visualizer keeps an already-stale entry stale after remounting', async ({ page }) => {
 	await page.goto('/playground/optimistic');
-	const dot = page.locator('.pg-cache-viz [data-freshness]').first();
-	await expect(dot).toHaveAttribute('data-freshness', 'stale', { timeout: 5000 });
+	const dot = vizDot(page);
+
+	const freshColor = await dotColor(dot);
+	await expect(dot).not.toHaveCSS('background-color', freshColor, { timeout: 5000 });
+	const staleColor = await dotColor(dot);
 
 	const toggle = page.getByLabel('visualize cache');
 	await toggle.uncheck();
 	await expect(page.locator('.pg-cache-viz')).toHaveCount(0);
 	await toggle.check();
 
-	await expect(dot).toHaveAttribute('data-freshness', 'stale', { timeout: 500 });
+	await expect(dot).toHaveCSS('background-color', staleColor, { timeout: 500 });
 });
