@@ -575,6 +575,44 @@ describe('revalidateCache', () => {
 		expect(loader).toHaveBeenCalledOnce();
 	});
 
+	it('does not let a cancelled prefetch overwrite newer navigation data', async () => {
+		let resolvePrefetch!: (value: string) => void;
+		let resolveNavigation!: (value: string) => void;
+		const loader = vi
+			.fn()
+			.mockImplementationOnce(
+				() =>
+					new Promise<string>(resolve => {
+						resolvePrefetch = resolve;
+					})
+			)
+			.mockImplementationOnce(
+				() =>
+					new Promise<string>(resolve => {
+						resolveNavigation = resolve;
+					})
+			);
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		const prefetchPromise = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+		const navPromise = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			signal: new AbortController().signal,
+		});
+		resolveNavigation('new data');
+		await navPromise;
+		resolvePrefetch('old data');
+		await prefetchPromise;
+
+		expect(state.loaderMap.get('/test')?.state.data).toBe('new data');
+	});
+
 	it('aborted prefetch cleanup does not remove the navigation entry', async () => {
 		let resolveNav!: (value: string) => void;
 		const loader = vi

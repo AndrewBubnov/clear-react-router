@@ -273,6 +273,31 @@ describe('navigate', () => {
 		expect(loader).toHaveBeenCalledTimes(firstCallCount);
 	});
 
+	it('restarts a cancelled loader when navigating to the same URL again', async () => {
+		const loader = vi
+			.fn()
+			.mockImplementationOnce(
+				({ signal }: { signal: AbortSignal }) =>
+					new Promise<string>((_resolve, reject) => {
+						signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+					})
+			)
+			.mockResolvedValueOnce('fresh data');
+		const routeItem = createMockRouteItem({ loader });
+		routerConfig.configure({ routes: [routeItem] });
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		const firstNavigation = navigate({ pathname: '/test' });
+		await vi.advanceTimersByTimeAsync(0);
+		const secondNavigation = navigate({ pathname: '/test' });
+		await Promise.all([firstNavigation, secondNavigation]);
+
+		expect(state.routeDataState.getState().loaderState.data).toBe('fresh data');
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
 	it('aborts previous navigation', async () => {
 		let resolveFirst!: (value: string) => void;
 		const loader = vi
@@ -327,6 +352,26 @@ describe('navigate', () => {
 		await navigate({ pathname: '/test' });
 
 		expect(afterLoad).toHaveBeenCalled();
+	});
+
+	it('runs defaultAfterLoad and logs errors when route afterLoad fails', async () => {
+		const routeError = new Error('route afterLoad failed');
+		const defaultError = new Error('default afterLoad failed');
+		const afterLoad = vi.fn().mockRejectedValue(routeError);
+		const defaultAfterLoad = vi.fn().mockRejectedValue(defaultError);
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const routeItem = createMockRouteItem({ afterLoad });
+		routerConfig.configure({ routes: [routeItem], defaultAfterLoad });
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await expect(navigate({ pathname: '/test' })).resolves.toBeUndefined();
+
+		expect(afterLoad).toHaveBeenCalledOnce();
+		expect(defaultAfterLoad).toHaveBeenCalledOnce();
+		expect(consoleError).toHaveBeenCalledWith('[clear-router] Route afterLoad failed:', routeError);
+		expect(consoleError).toHaveBeenCalledWith('[clear-router] Default afterLoad failed:', defaultError);
 	});
 
 	it('defaultAfterLoad is called', async () => {

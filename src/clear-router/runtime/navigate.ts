@@ -174,8 +174,20 @@ export const createNavigate = (
 		const { defaultAfterLoad } = routerConfig;
 		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
 		const args = { context: contextState.getState(), params, searchParams };
-		if (routeItem?.afterLoad) await routeItem.afterLoad(args);
-		if (defaultAfterLoad) await defaultAfterLoad(args);
+		if (routeItem?.afterLoad) {
+			try {
+				await routeItem.afterLoad(args);
+			} catch (error) {
+				console.error('[clear-router] Route afterLoad failed:', error);
+			}
+		}
+		if (defaultAfterLoad) {
+			try {
+				await defaultAfterLoad(args);
+			} catch (error) {
+				console.error('[clear-router] Default afterLoad failed:', error);
+			}
+		}
 	};
 
 	const checkBlocked = (nextLocation: Location) => {

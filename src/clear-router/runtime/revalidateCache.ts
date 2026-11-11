@@ -60,8 +60,9 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 
 		if (loadingPromises.has(path)) {
 			const owner = flightOwners.get(path);
-			if (signal && owner instanceof AbortController) {
-				owner.abort();
+			const ownerWasAborted = owner instanceof AbortController ? owner.signal.aborted : owner?.aborted;
+			if ((signal && owner instanceof AbortController) || ownerWasAborted) {
+				if (owner instanceof AbortController) owner.abort();
 				loadingPromises.delete(path);
 				flightOwners.delete(path);
 				syncCacheSnapshot();
@@ -97,6 +98,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 					signal: effectiveSignal,
 					attempt: retried + 1,
 				});
+				if (!isOwner() || effectiveSignal.aborted) return { data: null, error: null };
 				const resolvedStaleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime ?? 0;
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
@@ -109,7 +111,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 				syncCacheSnapshot();
 				return { data: result, error: null };
 			} catch (error) {
-				if (effectiveSignal.aborted) return { data: null, error: null };
+				if (effectiveSignal.aborted || !isOwner()) return { data: null, error: null };
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
 					if (isOwner()) {
