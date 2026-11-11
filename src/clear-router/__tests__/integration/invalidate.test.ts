@@ -261,6 +261,31 @@ describe('invalidate', () => {
 		expect(result[0].path).toBe('/users?page=1');
 	});
 
+	it('does not apply a revalidated search variant to a different active search', async () => {
+		const pageLoader = vi.fn(
+			async ({ searchParams }: { searchParams: Record<string, string> }) => `page:${searchParams.page}`
+		);
+		const routeItem = createMockRouteItem({ path: '/users', pattern: '/users', loader: pageLoader });
+		routerConfig.configure({ routes: [routeItem], maxCacheSize: 10 });
+		state.loaderMap.set('/users?page=1', {
+			state: { data: 'old page 1', loaderError: null, beforeLoadError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+		});
+		state.routeDataState.setState({
+			routeItem,
+			location: { pathname: '/users', search: '?page=2' },
+			status: 'active',
+			loaderState: { data: 'current page 2', loaderError: null, beforeLoadError: null },
+		});
+
+		const result = await invalidate('/users?page=1');
+
+		expect(result[0]?.data).toBe('page:1');
+		expect(state.routeDataState.getState().loaderState.data).toBe('current page 2');
+		expect(state.routeDataState.getState().status).toBe('active');
+	});
+
 	it('fetches uncached path by default (implicit force)', async () => {
 		state.routeDataState.setState({
 			routeItem: createMockRouteItem({ loader }),

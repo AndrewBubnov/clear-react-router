@@ -7,11 +7,23 @@ const isLazy = (component: unknown): component is LazyComponent =>
 const resolve = (component: RenderElement | LazyComponent | undefined, fallback: RenderElement): RenderElement =>
 	isLazy(component) ? createLazyComponent(component.importFn, fallback).Component : component;
 
+const warnAboutRepeatedParentPath = (parentPattern: string, el: ClientRouteItem) => {
+	if (!import.meta.env.DEV || !parentPattern || parentPattern === '/') return;
+	const repeatsParent = el.path === parentPattern || el.path.startsWith(`${parentPattern}/`);
+	if (!repeatsParent) return;
+	const suggestion = el.path.slice(parentPattern.length) || '/<segment>';
+	console.warn(
+		`[clear-router] Child route "${el.path}" under "${parentPattern}" repeats the parent prefix. ` +
+			`Child paths are appended to the parent pattern — write only the new segment(s), e.g. "${suggestion}".`
+	);
+};
+
 const parseClientRouteItem = (
 	el: ClientRouteItem,
 	parentPattern = '',
 	inheritedLayouts: RenderElement[] = []
 ): RouteItem[] => {
+	warnAboutRepeatedParentPath(parentPattern, el);
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
 	const preloadElement = isLazy(el.element)
 		? createLazyComponent(el.element.importFn, el.fallback).preloadElement

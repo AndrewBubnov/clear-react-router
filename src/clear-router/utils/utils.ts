@@ -44,6 +44,7 @@ export const comparePaths = (route: RouteItem, pathname: string) => {
 };
 
 export const isMobile = () => {
+	if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
 	const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
 	const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
 	return hasCoarsePointer && isSmallScreen;

@@ -58,6 +58,8 @@ Netlify (`public/_redirects`):
 /*    /index.html   200
 ```
 
+The host rewrite only serves the app shell. To render your own UI for unknown client-side URLs, add a router-level catch-all — see [Catch-all / 404](#catch-all--404).
+
 ## API
 
 ### `Router`
@@ -94,7 +96,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `path` | `string` | Route path, e.g., `/user/:userId` |
+| `path` | `string` | Route path, e.g., `/user/:userId`. A child path is appended to the parent pattern — see [Nested routes](#nested-routes) |
 | `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
 | `layout` | Component that accepts `children` | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` nests *inside* the inherited ones (see [Layouts](#layouts)) |
 | `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
@@ -134,6 +136,8 @@ see [`Location`](#uselocation) and [`Where you came from`](#where-you-came-from)
 ```
 see [`redirect`](#redirect) for details on programmatic redirects
 
+> `beforeLoad` runs only for the route that matched the URL (plus the global `Router.defaultBeforeLoad`). It is **not inherited** from parent routes — put an auth guard on the leaf route or use `defaultBeforeLoad` for app-wide checks.
+
 `loader` additionally receives:
 ```ts
 {
@@ -143,6 +147,49 @@ see [`redirect`](#redirect) for details on programmatic redirects
 ```
 > **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
 If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
+
+### Nested routes
+
+A child `path` is **appended to the parent pattern**. Write only the new segment(s), not a full absolute path:
+
+```tsx
+const routes = createRouter([
+  {
+    path: '/projects',
+    element: <Projects />,
+    children: [
+      { path: ':projectId', element: <Project /> }, // -> /projects/:projectId
+      { path: 'new', element: <NewProject /> }, // -> /projects/new
+    ],
+  },
+]);
+```
+
+A leading `/` is tolerated — `settings` and `/settings` produce the same pattern — but it does **not** make the path absolute. Repeating the parent prefix creates a wrong pattern:
+
+```tsx
+// ❌ becomes /projects/projects/p-2 — no URL matches it
+{ path: '/projects', children: [{ path: '/projects/p-2', element: <Project /> }] }
+
+// ✅ /projects/p-2
+{ path: '/projects', children: [{ path: ':projectId', element: <Project /> }] }
+```
+
+In development, `createRouter` warns when a child path repeats the parent prefix, and the router warns when a navigation matches no route. To render a UI for unknown URLs, add a catch-all route.
+
+### Catch-all / 404
+
+Add one route with `path: '*'` as the **last** entry. It matches any depth:
+
+```tsx
+const routes = createRouter([
+  { path: '/', element: <Home /> },
+  // ...other routes
+  { path: '*', element: <NotFound /> },
+]);
+```
+
+`/:notFound` matches exactly one segment; `path: '*'` is the single catch-all for all unknown URLs. Keep it last so it doesn't shadow real routes.
 
 ### Layouts
 
@@ -200,7 +247,7 @@ Component for client-side navigation with prefetch support, active state detecti
 
 Rule of thumb: `to` for plain URLs, `path` + `params` when you want the pattern checked and segments URL-encoded.
 
-Active matching: `'/'` matches only exactly `'/'`; any other target is active on exact match or — with the default `exact={false}` — on nested URLs too (`/settings` is active at `/settings/profile`).
+Active matching: `'/'` matches only exactly `'/'`; any other target is active on exact match or — with the default `exact={false}` — on nested URLs too (`/settings` is active at `/settings/profile`). Pass `exact` on contextual links (for example a back-link to `/settings`) when a child URL should not keep the link active.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -1034,17 +1081,18 @@ will revalidate the cached child routes:
 ```
 #### Status transitions
 
-When the revalidated path is the currently active route, a successful revalidation also
-resets its status to `active`, while a failed one sets it to `error` — so recovering from
-an error page is just `await invalidate()`:
+When the revalidated path matches the currently active `pathname + search`, a successful
+revalidation also resets its status to `active`, while a failed one sets it to `error` — so
+recovering from an error page is just `await invalidate()`:
 
 ```tsx
 // On an errorElement: refetch, and show the page again on success
 await invalidate();
 ```
 
-Revalidating any other route never touches the current page status — background refreshes
-stay invisible.
+Revalidating any other route or search variant never touches the current page status —
+background refreshes stay invisible. Note that invalidating a pathname revalidates every
+cached search variant of that pathname.
 
 #### Returns
 
@@ -1264,6 +1312,32 @@ function ProductFilter() {
 - **Stable reference** — `setSearchParams` reference is stable and safe to use in `useEffect`
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
+
+> **Note:** `setSearchParams` replaces the current history entry in place and does **not** run the route `loader` again. If the loader depends on query params, opt in explicitly:
+
+```tsx
+function ProductFilter() {
+  const { searchParams, setSearchParams } = useSearchParams();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const invalidate = useInvalidate();
+
+  // Full navigation: runs beforeLoad / loader / afterLoad and pushes a history entry
+  const applyFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.set('brand', 'nike');
+    navigate({ pathname, search: `?${next.toString()}` });
+  };
+
+  // Explicit revalidation: keeps the history entry, reruns the loader, skips beforeLoad / afterLoad
+  const revalidateFilter = async () => {
+    setSearchParams('brand', 'nike');
+    await invalidate();
+  };
+}
+```
+
+`invalidate()` revalidates every cached search variant of the pathname; only the variant matching the active `pathname + search` updates the current loader state.
 
 ## Lazy Loading
 

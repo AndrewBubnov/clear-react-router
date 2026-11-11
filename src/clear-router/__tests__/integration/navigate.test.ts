@@ -90,6 +90,27 @@ describe('navigate', () => {
 		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
+	it('warns in dev when no route matches', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/missing/page' });
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('No route matched'));
+	});
+
+	it('does not warn when a catch-all route matches', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		routerConfig.configure({ routes: [createMockRouteItem({ path: '*', pattern: '/*' })] });
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/missing/page' });
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
 	it('sets pending status while loader is running', async () => {
 		let resolveLoader!: (value: string) => void;
 		const loader = vi.fn(

@@ -1023,6 +1023,99 @@ describe('hooks', () => {
 			},
 			TEST_TIMEOUT
 		);
+
+		it(
+			'setSearchParams does not rerun the route loader',
+			async () => {
+				const loader = vi.fn().mockResolvedValue('cached data');
+				const SearchPage = () => {
+					const { getSearchParams, setSearchParams } = useSearchParams();
+					const { data } = useLoaderState<string>();
+					return (
+						<div>
+							<span data-testid="loader-data">{data}</span>
+							<span data-testid="brand">{getSearchParams('brand')}</span>
+							<button data-testid="set-brand" onClick={() => setSearchParams('brand', 'nike')}>
+								Set brand
+							</button>
+						</div>
+					);
+				};
+
+				const routes = createRouter([{ path: '/test', element: <SearchPage />, loader }]);
+				window.history.pushState({}, '', '/test');
+				render(<Router routes={routes} />);
+
+				await waitFor(
+					() => {
+						expect(screen.getByTestId('loader-data')).toHaveTextContent('cached data');
+					},
+					{ timeout: 5000 }
+				);
+				expect(loader).toHaveBeenCalledTimes(1);
+
+				await act(async () => {
+					screen.getByTestId('set-brand').click();
+				});
+
+				expect(window.location.search).toBe('?brand=nike');
+				expect(screen.getByTestId('brand')).toHaveTextContent('nike');
+				expect(screen.getByTestId('loader-data')).toHaveTextContent('cached data');
+				expect(loader).toHaveBeenCalledTimes(1);
+			},
+			TEST_TIMEOUT
+		);
+
+		it(
+			'invalidate after setSearchParams reruns the loader with the new search',
+			async () => {
+				const brands: string[] = [];
+				const loader = vi.fn(async ({ searchParams }: { searchParams: Record<string, string> }) => {
+					const brand = searchParams.brand ?? '';
+					brands.push(brand);
+					return brand ? `brand:${brand}` : 'no brand';
+				});
+				const SearchPage = () => {
+					const { setSearchParams } = useSearchParams();
+					const invalidate = useInvalidate();
+					const { data } = useLoaderState<string>();
+					return (
+						<div>
+							<span data-testid="loader-data">{data}</span>
+							<button
+								data-testid="apply-brand"
+								onClick={async () => {
+									setSearchParams('brand', 'nike');
+									await invalidate();
+								}}
+							>
+								Apply brand
+							</button>
+						</div>
+					);
+				};
+
+				const routes = createRouter([{ path: '/test', element: <SearchPage />, loader }]);
+				window.history.pushState({}, '', '/test');
+				render(<Router routes={routes} />);
+
+				await waitFor(
+					() => {
+						expect(screen.getByTestId('loader-data')).toHaveTextContent('no brand');
+					},
+					{ timeout: 5000 }
+				);
+
+				await act(async () => {
+					screen.getByTestId('apply-brand').click();
+				});
+
+				expect(window.location.search).toBe('?brand=nike');
+				expect(screen.getByTestId('loader-data')).toHaveTextContent('brand:nike');
+				expect(new Set(brands)).toEqual(new Set(['', 'nike']));
+			},
+			TEST_TIMEOUT
+		);
 	});
 
 	describe('useRouterContext', () => {

@@ -4,6 +4,11 @@ import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, R
 
 const separatePathname = (text: string) => text.split('?')[0].replace(/\/+$/, '') || '/';
 
+const normalizePath = (text: string) => {
+	const [pathname, search = ''] = text.split('?');
+	return `${separatePathname(pathname)}${search ? `?${search}` : ''}`;
+};
+
 export const createInvalidate = (
 	{ routeDataState, loaderMap, loadingPromises }: RouterState,
 	revalidateCache: RevalidateCache,
@@ -14,7 +19,6 @@ export const createInvalidate = (
 		pathname: string,
 		options?: InvalidateOptions
 	): Promise<InvalidateResult> => {
-		const routePathname = routeDataState.getState().location.pathname;
 		if (!options?.staleOnly) {
 			loaderMap.delete(pathname);
 			syncCacheSnapshot();
@@ -30,7 +34,8 @@ export const createInvalidate = (
 			force: !options?.staleOnly,
 		});
 
-		if (result && path === routePathname) {
+		const activeLocation = routeDataState.getState().location;
+		if (result && normalizePath(pathname) === normalizePath(`${activeLocation.pathname}${activeLocation.search}`)) {
 			routeDataState.setState(prevState => ({
 				...prevState,
 				loaderState: {

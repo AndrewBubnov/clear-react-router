@@ -13,7 +13,6 @@ import { RouterProps } from '../types';
 
 const EmptyBoundary = ({ children }: PropsWithChildren) => children;
 
-const IS_MOBILE = isMobile();
 const MOBILE_CACHE_SIZE = 60;
 const DESKTOP_CACHE_SIZE = 150;
 
@@ -31,13 +30,17 @@ export const Router = ({
 	defaultMinLoaderDuration = 0,
 	revalidateOnFocus = false,
 	revalidateOnReconnect = false,
-	maxCacheSize = IS_MOBILE ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE,
-	defaultPrefetch = IS_MOBILE ? 'viewport' : 'hover',
+	maxCacheSize,
+	defaultPrefetch,
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
 	defaultScrollRestorationBehavior = 'auto',
 	errorBoundary: ErrorBoundary = EmptyBoundary,
 	enableCacheSnapshot = false,
 }: RouterProps) => {
+	const isMobileDevice = isMobile();
+	const resolvedMaxCacheSize = maxCacheSize ?? (isMobileDevice ? MOBILE_CACHE_SIZE : DESKTOP_CACHE_SIZE);
+	const resolvedDefaultPrefetch = defaultPrefetch ?? (isMobileDevice ? 'viewport' : 'hover');
+
 	const { useRouteDataSelector } = router.hooks;
 	const routeItem = useRouteDataSelector(state => state.routeItem);
 	const location = useRouteDataSelector(state => state.location);
@@ -51,14 +54,14 @@ export const Router = ({
 	useSetRouterConfig({
 		routes,
 		isAnimated,
-		defaultPrefetch,
+		defaultPrefetch: resolvedDefaultPrefetch,
 		defaultHoverPrefetchDelay,
 		defaultBeforeLoad,
 		defaultAfterLoad,
 		defaultRetry,
 		defaultStaleTime,
 		defaultMinLoaderDuration,
-		maxCacheSize,
+		maxCacheSize: resolvedMaxCacheSize,
 		revalidateOnFocus,
 		revalidateOnReconnect,
 		defaultScrollRestorationBehavior,

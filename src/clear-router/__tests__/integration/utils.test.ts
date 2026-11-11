@@ -160,6 +160,16 @@ describe('utils', () => {
 
 			expect(isMobile()).toBe(false);
 		});
+
+		it('returns false when matchMedia is unavailable', () => {
+			const originalMatchMedia = window.matchMedia;
+			(window as { matchMedia?: typeof window.matchMedia }).matchMedia = undefined;
+			try {
+				expect(isMobile()).toBe(false);
+			} finally {
+				window.matchMedia = originalMatchMedia;
+			}
+		});
 	});
 
 	describe('sleep', () => {

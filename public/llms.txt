@@ -1,0 +1,36 @@
+# Clear Router
+
+> A lightweight, provider-free routing library for client-side React SPAs: nested routes, loaders with caching, actions, navigation blockers, prefetching, scroll restoration, and optimistic navigation.
+
+Render `<Router routes={createRouter([...])} />` once and use hooks such as `useNavigate`, `useParams`, `useLoaderState`, `useInvalidate`, `useBlocker`, and `useSearchParams` anywhere. There is no provider or React context: state lives in a global store.
+
+## Docs
+
+- [README](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md): full API reference, hooks, caching, actions, blockers, prefetch, and scroll restoration.
+- [Nested routes](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#nested-routes): a child `path` is appended to the parent pattern; write only the new segment(s), do not repeat the parent prefix.
+- [Layouts](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#layouts): layouts stack outermost-first and are inherited by every descendant.
+- [Catch-all / 404](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#catch-all--404): `{ path: '*' }` matches any depth and should be the last route.
+- [Link](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#link): `to` vs `path` + `params`, active matching, `exact`, prefetch strategies, and custom elements via `as`.
+- [useNavigate](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#usenavigate): string, `NavigationLocation`, typed `path` + `params`, or `-1`.
+- [useLoaderState](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#useloaderstatet): cached loader data, loader errors, and `beforeLoad` errors.
+- [Caching behavior](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#caching-behavior): `staleTime`, `gcTime`, `maxCacheSize`, and cache eviction.
+- [useInvalidate](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#useinvalidate): revalidate the current route, concrete paths, dynamic patterns, stale-only, and child routes.
+- [useBlocker](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#useblockercallback): block programmatic navigation and browser Back/Forward.
+- [useSearchParams](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#usesearchparams): read and update query parameters, including functional updates.
+- [Route Actions](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#route-actions): `useSubmitAction` and `useAction`.
+- [Deployment](https://github.com/AndrewBubnov/clear-react-router/blob/master/README.md#deployment-static-hosting): History API only; configure an SPA fallback on static hosts.
+
+## Examples
+
+- [Live playground](https://clear-react-router.vercel.app/playground): interactive demo against a fake in-browser server.
+- [Playground routes](https://github.com/AndrewBubnov/clear-react-router/blob/master/src/playground/routes.tsx): nested routes, params, loaders, layouts, and catch-all.
+- [E2E demo](https://github.com/AndrewBubnov/clear-react-router/blob/master/src/e2e-demo.tsx): minimal app used by Playwright.
+
+## Package
+
+- [npm](https://www.npmjs.com/package/clear-react-router)
+- [GitHub](https://github.com/AndrewBubnov/clear-react-router)
+
+## Optional
+
+- [AGENTS.md](https://github.com/AndrewBubnov/clear-react-router/blob/master/AGENTS.md): repository conventions for coding agents; not part of the public API docs.

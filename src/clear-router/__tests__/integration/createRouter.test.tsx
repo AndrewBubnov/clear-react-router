@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { createRouter } from '../../creators/createRouter';
 import { lazy } from '../../utils/lazy';
 import { Link } from '../../components/Link';
@@ -17,6 +17,10 @@ const Test = () => {
 };
 
 describe('createRouter', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it('flattens simple routes', () => {
 		const routes: ClientRouteItem[] = [
 			{ path: '/', element: TestElement },
@@ -87,6 +91,51 @@ describe('createRouter', () => {
 		const result = createRouter(routes);
 		expect(result).toHaveLength(2);
 		expect(result[1].pattern).toBe('/*');
+	});
+
+	it('warns when a child path repeats the parent prefix', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/projects',
+				element: TestElement,
+				children: [{ path: '/projects/p-2', element: TestElement }],
+			},
+		];
+
+		createRouter(routes);
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('repeats the parent prefix'));
+	});
+
+	it('does not warn for a relative child path', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/projects',
+				element: TestElement,
+				children: [{ path: '/:projectId', element: TestElement }],
+			},
+		];
+
+		createRouter(routes);
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
+	it('does not warn for children of the root route', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/',
+				element: TestElement,
+				children: [{ path: '/settings', element: TestElement }],
+			},
+		];
+
+		createRouter(routes);
+
+		expect(warn).not.toHaveBeenCalled();
 	});
 
 	it('preserves route properties', () => {

@@ -6,7 +6,6 @@ const MOBILE_PREFETCH_CONCURRENCY = 2;
 const DESKTOP_PREFETCH_CONCURRENCY = 4;
 
 export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache: RevalidateCache) => {
-	const maxConcurrent = isMobile() ? MOBILE_PREFETCH_CONCURRENCY : DESKTOP_PREFETCH_CONCURRENCY;
 	const queue: (() => Promise<void>)[] = [];
 	let active = 0;
 
@@ -20,6 +19,7 @@ export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache:
 	};
 
 	const drain = () => {
+		const maxConcurrent = isMobile() ? MOBILE_PREFETCH_CONCURRENCY : DESKTOP_PREFETCH_CONCURRENCY;
 		while (active < maxConcurrent && queue.length) {
 			active++;
 			queue.shift()!();

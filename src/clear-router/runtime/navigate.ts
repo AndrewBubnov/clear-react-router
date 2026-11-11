@@ -15,6 +15,7 @@ export const createNavigate = (
 	let interval = 0;
 	let abortController: AbortController | null = null;
 	let pollingController: AbortController | null = null;
+	const unmatchedRouteWarnings = new Set<string>();
 
 	const stopPolling = () => {
 		window.clearInterval(interval);
@@ -37,6 +38,13 @@ export const createNavigate = (
 
 	const routeResolve = (location: Location) => {
 		const nextItem = findRoute(location.pathname, true);
+		if (import.meta.env.DEV && !nextItem && !unmatchedRouteWarnings.has(location.pathname)) {
+			unmatchedRouteWarnings.add(location.pathname);
+			console.warn(
+				`[clear-router] No route matched "${location.pathname}". ` +
+					'Add a catch-all route ({ path: \'*\', element: <NotFound /> }) or check the route path.'
+			);
+		}
 		const params = getParams(location, nextItem);
 		return { nextItem, params };
 	};
