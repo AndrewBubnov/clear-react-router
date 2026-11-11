@@ -8,6 +8,7 @@ type LinkAsRenderer = NonNullable<LinkProps['as']>;
 
 const linkAs: LinkAsRenderer = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 
+// eslint-disable-next-line react-refresh/only-export-components
 const MuiButton = lazy(() => import('./MuiNavButton'));
 
 const muiAs: LinkAsRenderer = (props, { isActive }) => (
