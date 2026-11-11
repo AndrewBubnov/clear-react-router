@@ -14,9 +14,10 @@ test('visualizer shows existing entries when enabled after navigation', async ({
 });
 
 const vizDot = (page: Page) => page.locator('.pg-cache-viz .pg-battery-dot').first();
-const dotColor = (dot: Locator) => dot.evaluate(el => getComputedStyle(el).backgroundColor);
 
 test('visualizer marks a cached entry stale after staleTime', async ({ page }) => {
+	const dotColor = (dot: Locator) => dot.evaluate(el => getComputedStyle(el).backgroundColor);
+
 	await page.goto('/playground/optimistic');
 	const viz = page.locator('.pg-cache-viz');
 	const dot = vizDot(page);
@@ -29,13 +30,14 @@ test('visualizer marks a cached entry stale after staleTime', async ({ page }) =
 });
 
 test('visualizer keeps an already-stale entry stale after remounting', async ({ page }) => {
+	const dotColor = (dot: Locator) => dot.evaluate(el => getComputedStyle(el).backgroundColor);
+
 	await page.goto('/playground/optimistic');
 	const dot = vizDot(page);
 
 	const freshColor = await dotColor(dot);
 	await expect(dot).not.toHaveCSS('background-color', freshColor, { timeout: 5000 });
 	const staleColor = await dotColor(dot);
-
 	const toggle = page.getByLabel('visualize cache');
 	await toggle.uncheck();
 	await expect(page.locator('.pg-cache-viz')).toHaveCount(0);

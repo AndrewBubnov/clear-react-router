@@ -1,4 +1,4 @@
-import MuiButton from '@mui/material/Button';
+import { lazy, Suspense } from 'react';
 import { Button as MantineButton } from '@mantine/core';
 import type { ElementProps, LinkProps } from '../clear-router';
 
@@ -8,8 +8,12 @@ type LinkAsRenderer = NonNullable<LinkProps['as']>;
 
 const linkAs: LinkAsRenderer = (props: ElementProps<HTMLAnchorElement>) => <a {...props} />;
 
+const MuiButton = lazy(() => import('./MuiNavButton'));
+
 const muiAs: LinkAsRenderer = (props, { isActive }) => (
-	<MuiButton {...props} variant={isActive ? 'contained' : 'text'} size="small" />
+	<Suspense fallback={<a {...props} />}>
+		<MuiButton {...props} variant={isActive ? 'contained' : 'text'} size="small" />
+	</Suspense>
 );
 
 const mantineAs: LinkAsRenderer = (props, { isActive }) => (
