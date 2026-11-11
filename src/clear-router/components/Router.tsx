@@ -49,8 +49,6 @@ export const Router = ({
 	const isError = status === 'error';
 	const isLoading = status === 'pending';
 
-	useNavigation();
-
 	useSetRouterConfig({
 		routes,
 		isAnimated,
@@ -71,6 +69,7 @@ export const Router = ({
 	useSetInitialContext(initialContext);
 	useRestoreRouteScroll(defaultScrollRestorationBehavior);
 	useReload();
+	useNavigation();
 
 	const loadingContent = isLoading && !isError;
 
@@ -78,11 +77,13 @@ export const Router = ({
 
 	const Boundary = ErrorBoundary as ComponentType<{ children: ReactNode }>;
 
-	const content = loadingContent
-		? renderElement(routeItem.loaderFallback || defaultLoaderFallback)
-		: isError
-			? renderElement(routeItem.errorElement || defaultErrorElement)
-			: <Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>;
+	const content = loadingContent ? (
+		renderElement(routeItem.loaderFallback || defaultLoaderFallback)
+	) : isError ? (
+		renderElement(routeItem.errorElement || defaultErrorElement)
+	) : (
+		<Boundary key={location.pathname}>{renderElement(routeItem.element)}</Boundary>
+	);
 
 	return routeItem.layouts.reduceRight<ReactNode>(
 		(acc, Layout) => {

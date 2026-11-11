@@ -11,6 +11,25 @@ describe('Router integration', () => {
 		window.history.pushState({}, '', '/');
 	});
 
+	it('makes initial context available to beforeLoad', async () => {
+		window.history.pushState({}, '', '/guarded');
+		let observedContext: Record<string, unknown> | undefined;
+		const initialContext = { isAuthorized: true };
+		const guardedRoutes = createRouter([{ path: '/guarded', element: <div>Guarded Page</div> }]);
+
+		render(
+			<Router
+				routes={guardedRoutes}
+				context={initialContext}
+				defaultBeforeLoad={({ context }) => {
+					observedContext = context;
+				}}
+			/>
+		);
+
+		await waitFor(() => expect(observedContext).toEqual(initialContext));
+	});
+
 	it(
 		'renders home page after loader completes',
 		async () => {
