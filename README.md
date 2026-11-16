@@ -21,6 +21,10 @@ It provides first-class support for:
 
 > TL;DR? **[Try the live playground](https://clear-react-router.vercel.app/playground)** — no setup, click around.
 
+> Need compile-time route safety and are okay with a build step, file-based route conventions, and a generated route tree in exchange? Check out
+> [Clear Safe Router](https://github.com/AndrewBubnov/clear-safe-router) ([npm](https://www.npmjs.com/package/clear-safe-router)) —
+> built on this runtime.
+
 
 ## Features
 
