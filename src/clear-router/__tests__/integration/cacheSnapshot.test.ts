@@ -68,6 +68,19 @@ describe('cache snapshot', () => {
 		);
 	});
 
+	it('shows a canonical cache key for a trailing-slash pathname', async () => {
+		const route = createMockRouteItem({ loader: vi.fn().mockResolvedValue('data') });
+		routerConfig.configure({ routes: [route], enableCacheSnapshot: true });
+		const instance = createRouterInstance(useSyncExternalStore);
+		const { result } = renderHook(() => instance.hooks.useCacheSnapshot());
+
+		await act(async () => {
+			await instance.runtime.prefetch({ pathname: '/test/' });
+		});
+
+		expect(result.current).toContainEqual(expect.objectContaining({ path: '/test', isCached: true }));
+	});
+
 	it('distinguishes a first load from a cached entry being revalidated', async () => {
 		let resolveFirst!: (value: string) => void;
 		let resolveSecond!: (value: string) => void;

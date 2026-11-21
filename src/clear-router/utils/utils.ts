@@ -51,6 +51,19 @@ export const splitPathAndSearch = (value: string): [string, string] => {
 	return question === -1 ? [value, ''] : [value.slice(0, question), value.slice(question)];
 };
 
+/**
+ * Canonical cache key: trailing slashes collapse and search params are sorted
+ * and re-encoded, so URL variants of one fact share one entry. The URL itself
+ * (history, address bar) is never rewritten — only the cache identity is.
+ */
+export const toCacheKey = (path: string) => {
+	const [base, query = ''] = splitPathAndSearch(path);
+	const params = new URLSearchParams(query);
+	params.sort();
+	const canonical = params.toString();
+	return `${base.replace(/\/{2,}/g, '/').replace(/\/+$/, '') || '/'}${canonical ? `?${canonical}` : ''}`;
+};
+
 export const comparePaths = (route: RouteItem, pathname: string) => {
 	const pattern = route.pattern.split('/').filter(Boolean);
 	const current = pathname.split('/').filter(Boolean);

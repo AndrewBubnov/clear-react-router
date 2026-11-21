@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParams, getPartialLoaderArgs, sleep, updateScrollMap } from '../utils/utils';
+import { getParams, getPartialLoaderArgs, sleep, toCacheKey, updateScrollMap } from '../utils/utils';
 import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 export const createNavigate = (
@@ -34,7 +34,7 @@ export const createNavigate = (
 		return abortController.signal;
 	};
 
-	const getPath = (nextLocation: Location) => `${nextLocation.pathname}${nextLocation.search}`;
+	const getPath = (nextLocation: Location) => toCacheKey(`${nextLocation.pathname}${nextLocation.search}`);
 
 	const routeResolve = (location: Location) => {
 		const nextItem = findRoute(location.pathname, true);
@@ -77,7 +77,7 @@ export const createNavigate = (
 	const createGcTimeout = () => {
 		const { routeItem, location } = routeDataState.getState();
 		if (!routeItem?.gcTime) return;
-		const path = `${location.pathname}${location.search}`;
+		const path = toCacheKey(`${location.pathname}${location.search}`);
 		const currentLoaderEntry = loaderMap.get(path);
 		if (!currentLoaderEntry) return;
 		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
@@ -142,7 +142,7 @@ export const createNavigate = (
 			});
 			if (!result || signal.aborted) return;
 			const { location: currentLocation } = routeDataState.getState();
-			const currentPath = `${currentLocation.pathname}${currentLocation.search ?? ''}`;
+			const currentPath = toCacheKey(`${currentLocation.pathname}${currentLocation.search ?? ''}`);
 			if (currentPath !== getPath(nextLocation)) return;
 			routeDataState.setState(prevState => ({
 				...prevState,
@@ -205,7 +205,7 @@ export const createNavigate = (
 	};
 
 	const clearCurrentGcTimeout = (routeItem: RouteItem | undefined, location: Location) => {
-		const path = `${location.pathname}${location.search}`;
+		const path = toCacheKey(`${location.pathname}${location.search}`);
 		if (!routeItem?.gcTime) return;
 		const currentLoaderEntry = loaderMap.get(path);
 		if (!currentLoaderEntry?.gcTimeout) return;

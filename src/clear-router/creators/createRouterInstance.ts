@@ -4,7 +4,14 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
 import { createCacheSnapshot } from '../runtime/syncCacheSnapshot';
-import { formatSearchObject, getParams, interpolatePath, isVerticalScroll, splitPathAndSearch } from '../utils/utils';
+import {
+	formatSearchObject,
+	getParams,
+	interpolatePath,
+	isVerticalScroll,
+	splitPathAndSearch,
+	toCacheKey,
+} from '../utils/utils';
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import { routerConfig } from '../config/routerConfig';
 import {
@@ -109,7 +116,7 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					try {
 						const currentAction = getCurrentAction(action);
 						const { location } = routerState.routeDataState.getState();
-						const path = `${location.pathname}${location.search ?? ''}`;
+						const path = toCacheKey(`${location.pathname}${location.search ?? ''}`);
 						const data = await currentAction(input);
 						await invalidate(path);
 						options.onSuccess?.(data);

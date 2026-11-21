@@ -1,5 +1,5 @@
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
-import { getPartialLoaderArgs, sleep } from '../utils/utils';
+import { getPartialLoaderArgs, sleep, toCacheKey } from '../utils/utils';
 import { routerConfig } from '../config/routerConfig';
 import { LoadingPromise, Retry, RevalidateCacheArgs, RouteItem, RouterState } from '../types';
 
@@ -30,7 +30,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
 		const { pathname, search = '' } = routeDataState.getState().location;
-		const currentPath = `${pathname}${search}`;
+		const currentPath = toCacheKey(`${pathname}${search}`);
 		const oldestKey = [...loaderMap.keys()].find(key => key !== currentPath);
 		if (oldestKey) {
 			// A pending GC timer of the evicted entry must not fire later and
@@ -65,7 +65,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 		const { pathname, search = '' } = location;
-		const path = `${pathname}${search}`;
+		const path = toCacheKey(`${pathname}${search}`);
 
 		if (loadingPromises.has(path)) {
 			const owner = flightOwners.get(path);

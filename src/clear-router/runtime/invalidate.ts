@@ -1,13 +1,10 @@
 import { findRoute } from '../utils/findRoute';
-import { isParamSegment, matchPathPattern } from '../utils/utils';
+import { isParamSegment, matchPathPattern, splitPathAndSearch, toCacheKey } from '../utils/utils';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
 
 const separatePathname = (text: string) => text.split('?')[0].replace(/\/+$/, '') || '/';
 
-const normalizePath = (text: string) => {
-	const [pathname, search = ''] = text.split('?');
-	return `${separatePathname(pathname)}${search ? `?${search}` : ''}`;
-};
+const normalizePath = (text: string) => toCacheKey(text);
 
 export const createInvalidate = (
 	{ routeDataState, loaderMap, loadingPromises }: RouterState,
@@ -24,7 +21,8 @@ export const createInvalidate = (
 			syncCacheSnapshot();
 			await loadingPromises.get(pathname);
 		}
-		const [path, search = ''] = pathname.split('?');
+		// Location.search carries its leading '?' everywhere downstream.
+		const [path, search] = splitPathAndSearch(pathname);
 		const location = { pathname: path, search };
 
 		const result = await revalidateCache({
@@ -50,7 +48,8 @@ export const createInvalidate = (
 		return { path: pathname, ...result } as InvalidateResult;
 	};
 
-	const invalidateItem = async (pathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {
+	const invalidateItem = async (rawPathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {
+		const pathname = toCacheKey(rawPathname);
 		const routeItem = findRoute(separatePathname(pathname));
 
 		if (!routeItem) return [];
@@ -87,7 +86,7 @@ export const createInvalidate = (
 
 	return async (pathList?: string | string[], options?: InvalidateOptions) => {
 		const { pathname, search } = routeDataState.getState().location;
-		const routePathname = `${pathname}${search}`;
+		const routePathname = toCacheKey(`${pathname}${search}`);
 		const pathnameList = Array.isArray(pathList) ? pathList : pathList ? [pathList] : [routePathname];
 		const result = await Promise.all(pathnameList.map(pathname => invalidateItem(pathname, options)));
 		return result.flat();

@@ -98,6 +98,8 @@ Required: `<Router>` expects the output of `createRouter` (`RouteItem[]` with bu
 
 Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
+> **Cache identity is canonical.** Trailing slashes collapse and query params are sorted and re-encoded, so `/users`, `/users/` and reordered query params share one cache entry — one loader run, one `optimistic` hit. The URL in the address bar is never rewritten: the cache key is normalized, your URL spelling stays.
+
 > **Route matching is order-sensitive:** the first matching route wins. Declare static siblings (`/users/new`) before dynamic ones (`/users/:id`), and a `*` catch-all last — in dev mode a warning fires for a shadowed route, a same-shape duplicate, or a catch-all that is not last.
 
 > Route options are **per-leaf**: each route's `staleTime`, `retry`, `gcTime`, etc. apply to that route only (app-wide defaults come from `<Router>` props). The only options inherited from a parent to all its descendants are `layout` and `externalCache` (a child can override either — including opting out with `externalCache: false`).

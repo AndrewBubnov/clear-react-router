@@ -206,6 +206,19 @@ describe('invalidate', () => {
 		expect(result).toEqual([]);
 	});
 
+	it('re-caches a revalidated search path under the real key', async () => {
+		state.loaderMap.set('/users?page=1', {
+			state: { data: 'old', loaderError: null, beforeLoadError: null },
+			timestamp: Date.now(),
+			staleTime: 10000,
+		});
+
+		await invalidate('/users?page=1');
+
+		expect(state.loaderMap.has('/users?page=1')).toBe(true);
+		expect(state.loaderMap.has('/userspage=1')).toBe(false);
+	});
+
 	it('invalidates multiple paths', async () => {
 		state.loaderMap.set('/users', {
 			state: { data: 'old', loaderError: null, beforeLoadError: null },
@@ -370,7 +383,11 @@ describe('invalidate', () => {
 		expect(result).toHaveLength(1);
 		expect(result[0].data).toBe('fresh data');
 		expect(state.routeDataState.getState().status).toBe('active');
-		expect(state.routeDataState.getState().loaderState).toEqual({ data: 'fresh data', loaderError: null, beforeLoadError: null });
+		expect(state.routeDataState.getState().loaderState).toEqual({
+			data: 'fresh data',
+			loaderError: null,
+			beforeLoadError: null,
+		});
 	});
 
 	it('sets status to error when revalidation of the working page fails', async () => {
@@ -453,15 +470,14 @@ describe('invalidate', () => {
 	it('treats a trailing slash as the same pathname but still not a sibling', async () => {
 		const dynamicLoader = createDynamicLoader();
 		configureDynamicRoute(dynamicLoader);
-		seedCache('/users/1/');
+		seedCache('/users/1');
 		seedCache('/users/2');
 
-		const result = await invalidate('/users/1');
+		const result = await invalidate('/users/1/');
 
-		expect(result.map(entry => entry.path).sort()).toEqual(['/users/1', '/users/1/']);
-		expect(dynamicLoader).toHaveBeenCalledTimes(2);
-		const requestedPaths = dynamicLoader.mock.calls.map(([args]) => args.location.pathname).sort();
-		expect(requestedPaths).toEqual(['/users/1', '/users/1/']);
+		expect(result).toHaveLength(1);
+		expect(result[0].path).toBe('/users/1');
+		expect(dynamicLoader).toHaveBeenCalledTimes(1);
 		expect(state.loaderMap.get('/users/2')?.state.data).toBe('old /users/2');
 	});
 

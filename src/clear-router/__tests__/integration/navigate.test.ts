@@ -459,6 +459,38 @@ describe('navigate', () => {
 		expect(state.loaderMap.has('/a')).toBe(true);
 	});
 
+	it('reuses one cache entry across trailing-slash forms', async () => {
+		const loader = vi.fn().mockResolvedValue('data');
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader, staleTime: 10_000 })],
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/users' });
+		await navigate({ pathname: '/users/' });
+
+		expect(loader).toHaveBeenCalledTimes(1);
+		expect(state.loaderMap.size).toBe(1);
+	});
+
+	it('reuses one cache entry across search-parameter orderings', async () => {
+		const loader = vi.fn().mockResolvedValue('data');
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/items', pattern: '/items', loader, staleTime: 10_000 })],
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/items', search: '?b=2&a=1' });
+		await navigate({ pathname: '/items', search: '?a=1&b=2' });
+
+		expect(loader).toHaveBeenCalledTimes(1);
+		expect(state.loaderMap.size).toBe(1);
+	});
+
 	it('route without loader just commits state', async () => {
 		const routeItem = createMockRouteItem({ loader: undefined });
 		routerConfig.configure({ routes: [routeItem] });
