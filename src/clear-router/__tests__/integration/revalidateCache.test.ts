@@ -463,6 +463,52 @@ describe('revalidateCache', () => {
 		expect(loader).toHaveBeenCalledOnce();
 	});
 
+	it('a prefetch does not supersede an in-flight invalidation', async () => {
+		let resolveLoader!: (value: string) => void;
+		const loader = vi.fn(() => new Promise<string>(resolve => (resolveLoader = resolve)));
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, staleTime: 10_000 });
+		routerConfig.configure({ routes: [routeItem], maxCacheSize: 10 });
+
+		const invalidation = revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'invalidate',
+			force: true,
+		});
+
+		revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+			signal: new AbortController().signal,
+		});
+
+		resolveLoader('fresh');
+
+		expect(await invalidation).toEqual({ data: 'fresh', error: null });
+	});
+
+	it('an already-aborted call starts no flight', async () => {
+		const loader = vi.fn().mockResolvedValue('data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+		routerConfig.configure({ routes: [routeItem], maxCacheSize: 10 });
+
+		const controller = new AbortController();
+		controller.abort();
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+			signal: controller.signal,
+		});
+
+		expect(result).toEqual({ data: null, error: null });
+		expect(loader).not.toHaveBeenCalled();
+		expect(state.loaderMap.size).toBe(0);
+	});
+
 	it('caches loader error', async () => {
 		const error = new Error('load failed');
 		const loader = vi.fn().mockRejectedValue(error);

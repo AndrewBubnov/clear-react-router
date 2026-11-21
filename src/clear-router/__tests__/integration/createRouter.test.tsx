@@ -350,6 +350,22 @@ describe('shadowed route warnings', () => {
 		expect(warn).not.toHaveBeenCalled();
 	});
 
+	it('warns when a nested catch-all shadows its subtree', () => {
+		createRouter([
+			{
+				path: '/playground',
+				element: TestElement,
+				children: [
+					{ path: '*', element: TestElement },
+					{ path: '/:id', element: TestElement },
+				],
+			},
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		expect(warn.mock.calls[0]?.[0]).toContain('"/playground/*"');
+	});
+
 	it('warns about same-shape duplicates', () => {
 		createRouter([
 			{ path: '/a/:id', element: TestElement },

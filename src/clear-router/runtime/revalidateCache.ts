@@ -58,6 +58,9 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 		retried = 0
 	): LoadingPromise => {
 		if (!routeItem?.loader) return;
+		// An already-aborted caller would start a flight whose result is
+		// discarded — and would supersede a live flight for nothing.
+		if (signal?.aborted) return { data: null, error: null };
 
 		// The Router-level default is applied here, in the core, and still
 		// respects an explicit `externalCache: false` on the route.
@@ -76,7 +79,10 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 			// signal can be aborted by a third party at any moment without
 			// superseding the navigation, which would commit empty data.
 			const canRide = reason === 'prefetch' || flightReasons.get(path) !== 'prefetch';
-			if ((signal && owner instanceof AbortController) || ownerWasAborted || !canRide) {
+			// A prefetch is never a superseder: it rides or, when nothing live is
+			// running, starts its own flight.
+			const canTakeOver = reason !== 'prefetch' && !!signal && owner instanceof AbortController;
+			if (canTakeOver || ownerWasAborted || !canRide) {
 				if (owner instanceof AbortController) owner.abort();
 				loadingPromises.delete(path);
 				flightOwners.delete(path);

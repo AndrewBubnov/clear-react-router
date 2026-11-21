@@ -88,12 +88,19 @@ const warnAboutShadowedRoutes = (routes: RouteItem[]) => {
 
 	// Only a top-level catch-all (pattern "/*") is global; a nested "*" merely
 	// catches its own subtree.
-	const catchAllIndex = routes.findIndex(route => route.pattern === '/*');
-	if (catchAllIndex !== -1 && catchAllIndex !== routes.length - 1)
-		console.warn(
-			`[clear-router] Catch-all route "${NOT_FOUND}" is not declared last: it matches every pathname ` +
-				'(the first matching route wins) and shadows all routes declared after it.'
-		);
+	// A catch-all shadows only its own subtree: warn when a later route shares
+	// its parent prefix. A top-level '*' (pattern "/*") covers '' — every later
+	// route. A nested "*" only shadows siblings under its own parent.
+	routes.forEach((route, index) => {
+		if (!route.pattern.endsWith('/*')) return;
+		const parent = route.pattern.slice(0, -2);
+		const shadowsLater = routes.slice(index + 1).some(next => next.pattern.startsWith(`${parent}/`));
+		if (shadowsLater)
+			console.warn(
+				`[clear-router] Catch-all route "${route.pattern}" is not declared last: it matches every remaining ` +
+					'pathname under its parent and shadows the routes declared after it.'
+			);
+	});
 };
 
 export const createRouter = (clientList: ClientRouteItem[]) => {
