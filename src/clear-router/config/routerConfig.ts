@@ -13,6 +13,7 @@ class RouterConfig {
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];
 	defaultRetry?: RouterProps['defaultRetry'];
 	defaultStaleTime?: RouterProps['defaultStaleTime'];
+	defaultExternalCache?: RouterProps['defaultExternalCache'];
 	defaultMinLoaderDuration?: RouterProps['defaultMinLoaderDuration'];
 	defaultScrollRestorationBehavior: RouterProps['defaultScrollRestorationBehavior'];
 	enableCacheSnapshot: boolean = false;

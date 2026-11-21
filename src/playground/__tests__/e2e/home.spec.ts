@@ -31,7 +31,7 @@ for (const width of [390, 1000]) {
 		await expect(toggle).toBeVisible();
 		await toggle.click();
 
-		await expect(page.locator('.pg-nav a:visible')).toHaveCount(14);
+		await expect(page.locator('.pg-nav a:visible')).toHaveCount(15);
 		const settings = page.locator('.pg-gear-link');
 		await expect(settings).toBeVisible();
 	});

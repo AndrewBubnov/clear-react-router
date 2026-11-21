@@ -101,7 +101,9 @@ export const PlaygroundNav = () => {
 					<NavLink to="/playground" exact>
 						Home
 					</NavLink>
-					<NavLink to="/playground/cache">Cache</NavLink>
+					<NavLink to="/playground/cache" exact>
+						Cache
+					</NavLink>
 					<NavLink to="/playground/retry">Retry</NavLink>
 					<NavLink to="/playground/retry-raw">No-retry</NavLink>
 					<NavLink to="/playground/actions">Actions</NavLink>
@@ -113,6 +115,7 @@ export const PlaygroundNav = () => {
 					<NavLink to="/playground/nest">Nested</NavLink>
 					<NavLink to="/playground/live">Live</NavLink>
 					<NavLink to="/playground/scroll">Scroll</NavLink>
+					<NavLink to="/playground/cache/external/CLR">External cache</NavLink>
 					<NavLink to="/playground/search">Search</NavLink>
 				</nav>
 			</div>

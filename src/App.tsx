@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, MantineProvider, type MantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router, useCacheSnapshot, useRouteStatus, type Status as RouteStatus } from './clear-router';
 import { CacheVisualizer } from './playground/CacheVisualizer';
 import { PlaygroundNav } from './playground/PlaygroundNav';
@@ -62,6 +63,7 @@ const Shell = () => {
 					defaultPrefetch={defaultPrefetch === 'auto' ? undefined : defaultPrefetch}
 					defaultMinLoaderDuration={minLoaderDuration}
 					enableCacheSnapshot={showCacheVisualizer}
+					context={{ queryClient }}
 				/>
 			</main>
 		</div>
@@ -94,13 +96,22 @@ const cssVariablesResolver = (t: MantineTheme) => ({
 	dark: { '--mantine-color-brand-light-color': t.colors.brand[3] },
 });
 
+const queryClient = new QueryClient();
+
+// Dev bridge for e2e: lets specs inspect/invalidate facts between hover and click.
+if (import.meta.env.DEV) {
+	(window as unknown as { __queryClient?: QueryClient }).__queryClient = queryClient;
+}
+
 const App = () => {
 	return (
 		<MantineProvider theme={theme} defaultColorScheme="auto" cssVariablesResolver={cssVariablesResolver}>
-			<PlaygroundSettingsProvider>
-				<Shell />
-				<Status />
-			</PlaygroundSettingsProvider>
+			<QueryClientProvider client={queryClient}>
+				<PlaygroundSettingsProvider>
+					<Shell />
+					<Status />
+				</PlaygroundSettingsProvider>
+			</QueryClientProvider>
 		</MantineProvider>
 	);
 };

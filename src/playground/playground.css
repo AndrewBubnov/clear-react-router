@@ -137,7 +137,7 @@ root {
 
 .pg-nav-link {
 	flex: none;
-	padding: 5px 10px;
+	padding: 5px 8px;
 	border: 1px solid transparent;
 	border-radius: 999px;
 	color: var(--text);
@@ -1144,6 +1144,7 @@ root {
 }
 
 .pg-nav-presets {
+	width: 100%;
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 8px 16px;
@@ -1164,12 +1165,18 @@ root {
 a.mantine-Button-root {
 	color: var(--button-color);
 	font-weight: 500;
-	font-size: 14px;
+	font-size: 15px;
 }
 
 a.mantine-Button-root[data-variant='subtle'],
 a.MuiButton-root {
-	color: var(--text);
+	text-transform: none;
+	font-size: 15px;
+	font-weight: 500;
+	padding: 4px 8px;
+	min-width: 0;
+	white-space: nowrap;
+	flex: none;
 }
 
 [data-mantine-color-scheme='light'] a.MuiButton-root[aria-current='page'] {
@@ -1320,8 +1327,8 @@ h1 {
 	transition: transform 0.25s ease;
 }
 
-/* 14 nav links need about 1140px; collapse earlier so they never clip. */
-@media (width <= 1160px) {
+/* 15 nav links need about 1250px; collapse earlier so they never clip. */
+@media (width <= 1250px) {
 	:root {
 		--header-h: 60px;
 	}

@@ -40,6 +40,13 @@ export type ClientRouteItem = {
 	layout?: RenderElement;
 	children?: ClientRouteItem[];
 	staleTime?: number;
+	/**
+	 * The route's data freshness is owned by the loader's source (e.g. an external
+	 * cache like TanStack Query): the router cache stores values but never claims
+	 * freshness — every navigation re-runs the loader. Inherited by children;
+	 * a child can opt out with `false`.
+	 */
+	externalCache?: boolean;
 	gcTime?: number;
 	optimistic?: boolean;
 	pollingInterval?: number;
@@ -110,6 +117,8 @@ export type RouterProps = {
 	animationDuration?: number;
 	defaultRetry?: Retry;
 	defaultStaleTime?: number;
+	/** `externalCache` fallback for routes that don't declare it. */
+	defaultExternalCache?: boolean;
 	defaultLoaderFallback?: RenderElement;
 	defaultErrorElement?: RenderElement;
 	defaultPrefetch?: 'hover' | 'render' | 'viewport' | 'none';

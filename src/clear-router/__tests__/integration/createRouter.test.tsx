@@ -227,4 +227,41 @@ describe('createRouter', () => {
 		expect(result[0].layouts).toEqual([Layout]);
 		expect(result[1].layouts).toEqual([]);
 	});
+
+	it('propagates externalCache to children unless a child opts out', () => {
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/external',
+				element: TestElement,
+				externalCache: true,
+				children: [
+					{ path: '/:id', element: TestElement },
+					{ path: '/manual', element: TestElement, externalCache: false },
+				],
+			},
+			{ path: '/other', element: TestElement },
+		];
+
+		const result = createRouter(routes);
+		const [parent, inherited, optedOut, sibling] = result;
+		expect(parent.externalCache).toBe(true);
+		expect(inherited.externalCache).toBe(true);
+		expect(optedOut.externalCache).toBe(false);
+		expect(sibling.externalCache).toBeUndefined();
+	});
+
+	it('propagates externalCache through nested levels', () => {
+		const routes: ClientRouteItem[] = [
+			{
+				path: '/a',
+				element: TestElement,
+				externalCache: true,
+				children: [{ path: '/b', element: TestElement, children: [{ path: '/c', element: TestElement }] }],
+			},
+		];
+
+		const result = createRouter(routes);
+		expect(result[2].pattern).toBe('/a/b/c');
+		expect(result[2].externalCache).toBe(true);
+	});
 });

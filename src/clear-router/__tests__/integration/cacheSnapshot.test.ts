@@ -31,6 +31,43 @@ describe('cache snapshot', () => {
 		);
 	});
 
+	it('shows the built-in grace on prefetched entries of ordinary routes', async () => {
+		const route = createMockRouteItem({
+			loader: vi.fn().mockResolvedValue('data'),
+		});
+		routerConfig.configure({ routes: [route], enableCacheSnapshot: true });
+		const instance = createRouterInstance(useSyncExternalStore);
+		const { result } = renderHook(() => instance.hooks.useCacheSnapshot());
+
+		await act(async () => {
+			await instance.runtime.prefetch({ pathname: '/test' });
+		});
+
+		// The router treats this entry as fresh for the built-in 30s grace; the
+		// snapshot must agree with the resolver, not understate the window.
+		expect(result.current).toContainEqual(
+			expect.objectContaining({ path: '/test', staleTime: 30_000, reason: 'prefetch', isCached: true })
+		);
+	});
+
+	it('shows staleTime 0 on externalCache entries', async () => {
+		const route = createMockRouteItem({
+			loader: vi.fn().mockResolvedValue('data'),
+			externalCache: true,
+		});
+		routerConfig.configure({ routes: [route], enableCacheSnapshot: true });
+		const instance = createRouterInstance(useSyncExternalStore);
+		const { result } = renderHook(() => instance.hooks.useCacheSnapshot());
+
+		await act(async () => {
+			await instance.runtime.prefetch({ pathname: '/test' });
+		});
+
+		expect(result.current).toContainEqual(
+			expect.objectContaining({ path: '/test', staleTime: 0, reason: 'prefetch', isCached: true })
+		);
+	});
+
 	it('distinguishes a first load from a cached entry being revalidated', async () => {
 		let resolveFirst!: (value: string) => void;
 		let resolveSecond!: (value: string) => void;

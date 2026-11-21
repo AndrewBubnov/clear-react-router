@@ -21,7 +21,8 @@ const warnAboutRepeatedParentPath = (parentPattern: string, el: ClientRouteItem)
 const parseClientRouteItem = (
 	el: ClientRouteItem,
 	parentPattern = '',
-	inheritedLayouts: RenderElement[] = []
+	inheritedLayouts: RenderElement[] = [],
+	inheritedExternalCache?: boolean
 ): RouteItem[] => {
 	warnAboutRepeatedParentPath(parentPattern, el);
 	const pattern = `${parentPattern}/${el.path}`.replace(/\/+/g, '/');
@@ -29,8 +30,10 @@ const parseClientRouteItem = (
 		? createLazyComponent(el.element.importFn, el.fallback).preloadElement
 		: undefined;
 	const layouts = el.layout ? [...inheritedLayouts, el.layout] : inheritedLayouts;
+	const externalCache = el.externalCache ?? inheritedExternalCache;
 	const currentRoute: RouteItem = {
 		...el,
+		externalCache,
 		pattern,
 		element: resolve(el.element, el.fallback),
 		errorElement: resolve(el.errorElement, el.fallback),
@@ -38,7 +41,8 @@ const parseClientRouteItem = (
 		layouts,
 	};
 
-	const childRoutes = el.children?.flatMap(child => parseClientRouteItem(child, pattern, layouts)) ?? [];
+	const childRoutes =
+		el.children?.flatMap(child => parseClientRouteItem(child, pattern, layouts, externalCache)) ?? [];
 
 	return [currentRoute, ...childRoutes];
 };

@@ -53,6 +53,10 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 	): LoadingPromise => {
 		if (!routeItem?.loader) return;
 
+		// The Router-level default is applied here, in the core, and still
+		// respects an explicit `externalCache: false` on the route.
+		const externalCache = routeItem.externalCache ?? routerConfig.defaultExternalCache;
+
 		const isCacheItemFresh = createIsCacheItemFresh(loaderMap);
 
 		const { pathname, search = '' } = location;
@@ -76,7 +80,9 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 			const item = loaderMap.get(path);
 			if (reason === 'navigation' && item?.reason === 'prefetch') {
 				item.reason = 'navigation';
-				item.staleTime = routeItem.staleTime;
+				// Flagged routes never claim freshness — the entry stays stale (0)
+				// after demotion; ordinary routes take the route's own policy.
+				item.staleTime = externalCache ? 0 : routeItem.staleTime;
 			}
 			moveItemToLastPosition(path);
 			if (!item?.state) return undefined;
@@ -103,8 +109,11 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
 					timestamp: Date.now(),
-					staleTime:
-						reason === 'prefetch' ? Math.max(resolvedStaleTime, PRELOAD_STALE_TIME) : routeItem.staleTime,
+					staleTime: externalCache
+						? 0
+						: reason === 'prefetch'
+							? Math.max(resolvedStaleTime, PRELOAD_STALE_TIME)
+							: routeItem.staleTime,
 					reason,
 				});
 				evict();

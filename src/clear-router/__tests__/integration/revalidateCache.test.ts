@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createRevalidateCache } from '../../runtime/revalidateCache';
+import { createRouter } from '../../creators/createRouter';
 import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
 import {
+	ClientRouteItem,
 	LoaderStateItem,
 	LoadingPromise,
 	Location,
@@ -43,6 +45,7 @@ describe('revalidateCache', () => {
 			maxCacheSize: 10,
 			defaultRetry: undefined,
 			defaultStaleTime: undefined,
+			defaultExternalCache: undefined,
 		});
 		vi.useFakeTimers();
 	});
@@ -182,6 +185,152 @@ describe('revalidateCache', () => {
 		const result = await revalidateCache({
 			routeItem,
 			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('an externalCache route re-runs the loader on the first navigation after prefetch', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, externalCache: true });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('an externalCache route ignores defaultStaleTime', async () => {
+		routerConfig.configure({ defaultStaleTime: 60_000 });
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, externalCache: true });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('an externalCache route ignores its own staleTime', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, externalCache: true, staleTime: Infinity });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('navigation entries of an externalCache route are never fresh', async () => {
+		routerConfig.configure({ defaultStaleTime: 60_000 });
+		const loader = vi.fn().mockResolvedValueOnce('v1').mockResolvedValueOnce('v2');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, externalCache: true });
+
+		await revalidateCache({ routeItem, location: { pathname: '/test' } });
+
+		const result = await revalidateCache({ routeItem, location: { pathname: '/test' } });
+
+		expect(result).toEqual({ data: 'v2', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('defaultExternalCache: true marks every route', async () => {
+		routerConfig.configure({ defaultExternalCache: true });
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'navigation data', error: null });
+		expect(loader).toHaveBeenCalledTimes(2);
+	});
+
+	it('defaultStaleTime does not shorten the built-in prefetch grace', async () => {
+		routerConfig.configure({ defaultStaleTime: 0 });
+		const loader = vi.fn().mockResolvedValue('prefetched');
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader });
+
+		await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem,
+			location: { pathname: '/test' },
+			reason: 'navigation',
+		});
+
+		expect(result).toEqual({ data: 'prefetched', error: null });
+		expect(loader).toHaveBeenCalledOnce();
+	});
+
+	it('prefetch then navigation re-run the loader on a leaf inheriting externalCache', async () => {
+		const loader = vi.fn().mockResolvedValueOnce('prefetched').mockResolvedValueOnce('navigation data');
+		const [, leaf] = createRouter([
+			{ path: '/external', externalCache: true, children: [{ path: '/:extId', loader }] },
+		] as unknown as ClientRouteItem[]);
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+
+		await revalidateCache({
+			routeItem: leaf,
+			location: { pathname: '/external/CLR' },
+			reason: 'prefetch',
+		});
+
+		const result = await revalidateCache({
+			routeItem: leaf,
+			location: { pathname: '/external/CLR' },
 			reason: 'navigation',
 		});
 

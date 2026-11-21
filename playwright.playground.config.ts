@@ -5,6 +5,8 @@ export default defineConfig({
 	retries: process.env.CI ? 2 : 0,
 	use: {
 		baseURL: 'http://localhost:5175',
+		// The nav collapses at 1280px (15 links); keep tests on a desktop viewport.
+		viewport: { width: 1440, height: 900 },
 		trace: 'on-first-retry',
 	},
 	webServer: {

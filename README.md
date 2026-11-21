@@ -13,11 +13,11 @@ There is no `RouterProvider` or provider hierarchy to manage. Simply render `<Ro
 
 It provides first-class support for:
 
-* Predictable routing
-* Built-in data loading
-* Route actions
-* Simple, provider-free architecture
-* Small, explicit API
+- Predictable routing
+- Built-in data loading
+- Route actions
+- Simple, provider-free architecture
+- Small, explicit API
 
 > TL;DR? **[Try the live playground](https://clear-react-router.vercel.app/playground)** — no setup, click around.
 
@@ -25,11 +25,10 @@ It provides first-class support for:
 > [Clear Safe Router](https://github.com/AndrewBubnov/clear-safe-router) ([npm](https://www.npmjs.com/package/clear-safe-router)) —
 > built on this runtime.
 
-
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
-- **Route Layouts** - A `layout` declared on a route wraps it *and* every descendant (stacking outermost-first), keeping shared chrome and state alive across nested navigation
+- **Route Layouts** - A `layout` declared on a route wraps it _and_ every descendant (stacking outermost-first), keeping shared chrome and state alive across nested navigation
 - **Data Loading** - Built-in loaders with TTL-based caching (`staleTime`)
 - **Navigation Blocking** - Prevent accidental navigation with `useBlocker`
 - **Smooth Animations** - Page transitions with fade effect (customizable duration)
@@ -38,7 +37,7 @@ It provides first-class support for:
 - **Cache invalidation** - Manual route invalidation
 - **Bounded Cache** - Automatically evicts least recently used entries once `maxCacheSize` is reached, keeping memory usage predictable in long sessions
 - **Cache inspection** - Opt into a live, read-only snapshot of cached loader entries with `enableCacheSnapshot` and `useCacheSnapshot()`
-- **Prefetching** - Preload data on hover; prefetched entries stay fresh for 30 seconds before the first navigation
+- **Prefetching** - Preload data on hover; prefetched entries of router-cached routes stay fresh for 30 seconds before the first navigation, while `externalCache` routes re-run their loader every time
 - **Lazy Loading** - Code-split your routes with dynamic imports for optimal performance
 - **Scroll Restoration** — Automatically saves and restores scroll position when navigating back to a page (preserves user's scroll position)
 - **Optimistic navigation** — Instantly renders stale cached data while fresh data is loaded in the background.
@@ -68,27 +67,28 @@ The host rewrite only serves the app shell. To render your own UI for unknown cl
 
 ### `Router`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `routes` | `RouteItem[]` | required | Array of route configurations |
-| `maxCacheSize` | `number \| undefined` | 60 for mobile, 150 for desktop | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted |
-| `isAnimated` | `boolean \| undefined` | `false` | Enable smooth page fade transitions |
-| `animationDuration` | `number \| undefined` | `optional` | Animation duration in milliseconds (browser default is used if not set) |
-| `context` | `object` | `{}` | Initial context (user, theme, etc.) |
-| `errorBoundary` | `ComponentType<{ children: ReactNode }>` | `undefined` | Custom error boundary component for catching render errors in route components |
-| `defaultMinLoaderDuration` | `number \| undefined` | `0` | Default minimum time the loader fallback stays visible, to avoid flickering |
-| `defaultLoaderFallback` | `ReactElement \| () => ReactElement` | `optional` | Default loading fallback for every route loader |
-| `defaultErrorElement` | `ReactElement \| () => ReactElement` | `optional` | Default error fallback for every route |
-| `defaultRetry` | `number \| { count: number; delay: number }` | `optional` | Default cache revalidation retry policy for all routes |
-| `defaultStaleTime` | `number` | `0` | Default time in milliseconds before cached loader data is considered stale. When unset (or `0`), data is stale immediately and navigation revalidates it |
-| `defaultBeforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | `undefined` | Runs before every navigation. Useful for authentication, analytics, or updating shared context.            |
-| `defaultAfterLoad`  | `({ params, context, searchParams }) => Promise<void>`  | `undefined` | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects. |
-| `defaultPrefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components |
-| `defaultHoverPrefetchDelay` | `number \| undefined` | `150` | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy) |
-| `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | `auto` | Default scroll restoration behavior |
-| `revalidateOnFocus` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser tab regains focus |
-| `revalidateOnReconnect` | `boolean \| undefined` | `undefined` | Revalidate the current route's `loader` data when the browser regains an internet connection |
-| `enableCacheSnapshot` | `boolean` | `false` | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list |
+| Prop                               | Type                                                                                             | Default                                        | Description                                                                                                                                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `routes`                           | `RouteItem[]`                                                                                    | required                                       | Array of route configurations                                                                                                                                                                                                                         |
+| `maxCacheSize`                     | `number \| undefined`                                                                            | 60 for mobile, 150 for desktop                 | Maximum number of cached loader entries. Once the limit is reached, the least recently used entries are evicted                                                                                                                                       |
+| `isAnimated`                       | `boolean \| undefined`                                                                           | `false`                                        | Enable smooth page fade transitions                                                                                                                                                                                                                   |
+| `animationDuration`                | `number \| undefined`                                                                            | `optional`                                     | Animation duration in milliseconds (browser default is used if not set)                                                                                                                                                                               |
+| `context`                          | `object`                                                                                         | `{}`                                           | Initial context (user, theme, etc.)                                                                                                                                                                                                                   |
+| `errorBoundary`                    | `ComponentType<{ children: ReactNode }>`                                                         | `undefined`                                    | Custom error boundary component for catching render errors in route components                                                                                                                                                                        |
+| `defaultMinLoaderDuration`         | `number \| undefined`                                                                            | `0`                                            | Default minimum time the loader fallback stays visible, to avoid flickering                                                                                                                                                                           |
+| `defaultLoaderFallback`            | `ReactElement \| () => ReactElement`                                                             | `optional`                                     | Default loading fallback for every route loader                                                                                                                                                                                                       |
+| `defaultErrorElement`              | `ReactElement \| () => ReactElement`                                                             | `optional`                                     | Default error fallback for every route                                                                                                                                                                                                                |
+| `defaultRetry`                     | `number \| { count: number; delay: number }`                                                     | `optional`                                     | Default cache revalidation retry policy for all routes                                                                                                                                                                                                |
+| `defaultStaleTime`                 | `number`                                                                                         | `0`                                            | Default time in milliseconds before cached loader data is considered stale. When unset (or `0`), data is stale immediately and navigation revalidates it                                                                                              |
+| `defaultExternalCache`             | `boolean`                                                                                        | `undefined`                                    | `externalCache` fallback for routes that don't declare it. Marks routes whose data freshness is owned by the loader's source (e.g. TanStack Query): the router cache stores values but never claims freshness, so every navigation re-runs the loader |
+| `defaultBeforeLoad`                | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | `undefined`                                    | Runs before every navigation. Useful for authentication, analytics, or updating shared context.                                                                                                                                                       |
+| `defaultAfterLoad`                 | `({ params, context, searchParams }) => Promise<void>`                                           | `undefined`                                    | Runs after every successful navigation. Useful for analytics, page tracking, or other global side effects.                                                                                                                                            |
+| `defaultPrefetch`                  | `'hover' \| 'render' \| 'viewport' \| 'none'`                                                    | `'hover'` for desktop, `'viewport'` for mobile | Default prefetch strategy for all `<Link>` components                                                                                                                                                                                                 |
+| `defaultHoverPrefetchDelay`        | `number \| undefined`                                                                            | `150`                                          | Default delay in milliseconds before prefetching on hover (only for `'hover'` strategy)                                                                                                                                                               |
+| `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'`                                                                | `auto`                                         | Default scroll restoration behavior                                                                                                                                                                                                                   |
+| `revalidateOnFocus`                | `boolean \| undefined`                                                                           | `undefined`                                    | Revalidate the current route's `loader` data when the browser tab regains focus                                                                                                                                                                       |
+| `revalidateOnReconnect`            | `boolean \| undefined`                                                                           | `undefined`                                    | Revalidate the current route's `loader` data when the browser regains an internet connection                                                                                                                                                          |
+| `enableCacheSnapshot`              | `boolean`                                                                                        | `false`                                        | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list                                                                                                |
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
 
@@ -98,59 +98,105 @@ Required: `<Router>` expects the output of `createRouter` (`RouteItem[]` with bu
 
 Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `path` | `string` | Route path, e.g., `/user/:userId`. A child path is appended to the parent pattern — see [Nested routes](#nested-routes) |
-| `element` | `ReactElement \| () => ReactElement \| LazyComponent` | Component to render |
-| `layout` | Component that accepts `children` | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` nests *inside* the inherited ones (see [Layouts](#layouts)) |
-| `beforeLoad` | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void` | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router |
-| `loader` | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>` | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext` |
-| `afterLoad` | `({ params, context, searchParams }) => Promise<void> \| void` | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext` |
-| `minLoaderDuration` | `number \| undefined` | `undefined` | Minimum time the loader fallback stays visible, to avoid flickering |
-| `fallback` | `ReactElement \| () => ReactElement` | Loading fallback (for lazy loading) |
-| `loaderFallback` | `ReactElement \| () => ReactElement` | Loading fallback for the route's `loader`. Overrides the global `Router.defaultLoaderFallback` |
-| `retry` | `number \| { count: number; delay: number }` | Overrides the global cache revalidation retry policy for this route |
-| `optimistic` |  `boolean \| undefined` | Instant navigation using stale data while fresh data is loaded in the background |
-| `errorElement` | `ReactElement \| () => ReactElement \| LazyComponent` | Error fallback for the route. Overrides the global `Router.defaultErrorElement` |
-| `staleTime` | `number \| undefined` | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, data is stale immediately and navigation revalidates it. Use `Infinity` to never consider it stale |
-| `gcTime` | `number \| undefined` | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected |
-| `actions` | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations. |
-| `pollingInterval` | `number \| undefined` | Polling interval (in milliseconds) for automatically revalidating data while the route is active. Each tick refetches unconditionally, ignoring `staleTime` |
-| `scrollRestoration` | `boolean \| string[] \| undefined` | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id` |
-| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'` | Scroll restoration behavior |
+> Route options are **per-leaf**: each route's `staleTime`, `retry`, `gcTime`, etc. apply to that route only (app-wide defaults come from `<Router>` props). The only options inherited from a parent to all its descendants are `layout` and `externalCache` (a child can override either — including opting out with `externalCache: false`).
+
+| Property                    | Type                                                                                                                                          | Description                                                                                                                                                                                                                                                         |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `path`                      | `string`                                                                                                                                      | Route path, e.g., `/user/:userId`. A child path is appended to the parent pattern — see [Nested routes](#nested-routes)                                                                                                                                             |
+| `element`                   | `ReactElement \| () => ReactElement \| LazyComponent`                                                                                         | Component to render                                                                                                                                                                                                                                                 |
+| `layout`                    | Component that accepts `children`                                                                                                             | Wraps this route's element and is inherited by every descendant route. A descendant's own `layout` nests _inside_ the inherited ones (see [Layouts](#layouts))                                                                                                      |
+| `beforeLoad`                | `({ params, context, redirect, setContext, location }) => Promise<unknown> \| undefined \| void`                                              | Runs before every route navigation. Auth checks and redirects. Can update context via `setContext`. `redirect` is provided by the router                                                                                                                            |
+| `loader`                    | `({ params, context, setContext, searchParams, signal }) => Promise<unknown>`                                                                 | Fetch data using route params, search params, abort controller signal and context. Can update context via `setContext`                                                                                                                                              |
+| `afterLoad`                 | `({ params, context, searchParams }) => Promise<void> \| void`                                                                                | Runs after a successful navigation once the route has finished loading. Analytics, side effects after data is loaded. Can update context via `setContext`                                                                                                           |
+| `minLoaderDuration`         | `number \| undefined`                                                                                                                         | `undefined`                                                                                                                                                                                                                                                         | Minimum time the loader fallback stays visible, to avoid flickering |
+| `fallback`                  | `ReactElement \| () => ReactElement`                                                                                                          | Loading fallback (for lazy loading)                                                                                                                                                                                                                                 |
+| `loaderFallback`            | `ReactElement \| () => ReactElement`                                                                                                          | Loading fallback for the route's `loader`. Overrides the global `Router.defaultLoaderFallback`                                                                                                                                                                      |
+| `retry`                     | `number \| { count: number; delay: number }`                                                                                                  | Overrides the global cache revalidation retry policy for this route                                                                                                                                                                                                 |
+| `optimistic`                | `boolean \| undefined`                                                                                                                        | Instant navigation using stale data while fresh data is loaded in the background                                                                                                                                                                                    |
+| `errorElement`              | `ReactElement \| () => ReactElement \| LazyComponent`                                                                                         | Error fallback for the route. Overrides the global `Router.defaultErrorElement`                                                                                                                                                                                     |
+| `staleTime`                 | `number \| undefined`                                                                                                                         | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, data is stale immediately and navigation revalidates it. Use `Infinity` to never consider it stale                             |
+| `externalCache`             | `boolean \| undefined`                                                                                                                        | The route's data freshness is owned by the loader's source (e.g. an external cache like TanStack Query): the router cache stores values but never claims freshness, so every navigation re-runs the loader. Inherited by children; a child can opt out with `false` |
+| `gcTime`                    | `number \| undefined`                                                                                                                         | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected                                                                                                                                           |
+| `actions`                   | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations.                                                                                                                                                                                                                           |
+| `pollingInterval`           | `number \| undefined`                                                                                                                         | Polling interval (in milliseconds) for automatically revalidating data while the route is active. Each tick refetches unconditionally, ignoring `staleTime`                                                                                                         |
+| `scrollRestoration`         | `boolean \| string[] \| undefined`                                                                                                            | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id`                                                                            |
+| `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'`                                                                                                             | Scroll restoration behavior                                                                                                                                                                                                                                         |
 
 `beforeLoad`, `loader` and `actions` receive:
 
 ```ts
 {
-  params: Record<string, string>;                                // Route parameters
-  context: Record<string, unknown>;                              // Router context
-  setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
-  searchParams: Record<string, string>;                          // URL search parameters
-  location: Location;                                            // Route location
+	params: Record<string, string>; // Route parameters
+	context: Record<string, unknown>; // Router context
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
+	searchParams: Record<string, string>; // URL search parameters
+	location: Location; // Route location
 }
 ```
+
 see [`Location`](#uselocation) and [`Where you came from`](#where-you-came-from) for type details
- 
+
 `beforeLoad` additionally receives:
+
 ```ts
 {
-  redirect: (arg: Location | string) => Promise<void>;           // Programmatic redirection, see [redirect](#redirect)
+	redirect: (arg: Location | string) => Promise<void>; // Programmatic redirection, see [redirect](#redirect)
 }
 ```
+
 see [`redirect`](#redirect) for details on programmatic redirects
 
 > `beforeLoad` runs only for the route that matched the URL (plus the global `Router.defaultBeforeLoad`). It is **not inherited** from parent routes — put an auth guard on the leaf route or use `defaultBeforeLoad` for app-wide checks.
 
 `loader` additionally receives:
+
 ```ts
 {
-  signal: AbortSignal; // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
-  attempt: number;     // 1-based attempt counter within this fetch: 1 on first try, 2+ on retries
+	signal: AbortSignal; // Aborted if a newer navigation supersedes this one — pass to fetch() to cancel in-flight requests
+	attempt: number; // 1-based attempt counter within this fetch: 1 on first try, 2+ on retries
 }
 ```
+
 > **Note:** `gcTime` is independent from `staleTime` — `staleTime` controls when cached data is considered outdated (and needs a refetch), while `gcTime` controls how long the cache entry stays in memory at all once you leave that route. Data can be fresh and still get garbage-collected, or stale and still linger in memory, depending on which you set. The timer starts only when you navigate away from the route and is cancelled if you come back before it fires — it isn't affected by prefetching. This is mainly useful for routes with heavy or fast-changing data (large tables, dashboards with charts) that you don't want lingering in memory indefinitely, even when `maxCacheSize` hasn't been reached yet.
-If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
+> If a route is both `optimistic` and has `gcTime` set, keep in mind the cached snapshot can disappear while you're relying on it for an instant render — combine the two deliberately, not by default.
+
+### External data cache (TanStack Query)
+
+The router stays data-agnostic: a `loader` can delegate storage and freshness to an external cache (e.g. TanStack Query) passed through `<Router context={{ queryClient }}>`. One route flag keeps the router cache from outranking the external cache.
+
+```tsx
+import { QueryClient } from '@tanstack/react-query';
+
+// Single helper with the single legitimate cast: context is Record<string, unknown>.
+const getQueryClient = (context: Record<string, unknown>): QueryClient => {
+	if (context.queryClient instanceof QueryClient) return context.queryClient;
+	throw new Error('getQueryClient: router context has no queryClient');
+};
+
+const productLoader = ({ context, params }: { context: Record<string, unknown>; params: Record<string, string> }) =>
+	getQueryClient(context).query({
+		queryKey: ['product', params.productId],
+		queryFn: () => fetchProduct(params.productId),
+		staleTime: 5000,
+	});
+```
+
+The contract:
+
+- `queryClient.query()` resolves from the query cache while the fact is fresh and **awaits a refetch once stale**. The queryKey is **fact identity** (`['product', id]`), not route identity — that is where cross-route fact sharing comes from.
+- Never `ensureQueryData`: in query-core 5.108 it returns cached data whenever it exists regardless of staleness (refetch only via `revalidateIfStale`, still resolving cached) and it is `@deprecated` → use `queryClient.query()`.
+- `<QueryClientProvider client={queryClient}>` wraps the app for components (`useQuery`, `useMutation`); loaders and actions get the client through router context alone.
+- Rules: flag the external section `externalCache: true` — the router cache then stores values but never claims freshness there, so route `staleTime` no longer decides freshness on it (and a global `defaultStaleTime` cannot leak in; `gcTime` still governs eviction). Invalidate **facts** from actions (`queryClient.invalidateQueries({ queryKey: ['product', id] })`), not URLs; router `invalidate()` after a TQ invalidate is optional (it only re-runs loaders — use it solely to refresh the loader snapshot while staying on the page); mutations are TQ primitives.
+
+The prefetch window and the `externalCache` flag:
+
+- By default a prefetched snapshot stays fresh for 30 seconds, so the first navigation reuses it **without running the loader** — TanStack Query is never consulted, and a fact invalidated between hover and click renders stale. This is the one place the router cache outranks the external cache.
+- The fix is one declaration, not disabling prefetch: flag the external section `externalCache: true` (or `defaultExternalCache` on `<Router>` for every route). Hover prefetch still runs the loader and warms the external cache; **every** navigation re-runs the loader, which resolves from the external cache — the router cache stores values but never claims freshness. What this restores is the division of labor: **facts belong to the external cache; the render snapshot belongs to the router.** The router keeps owning its snapshot's `staleTime`/`gcTime`/`optimistic` — they operate on its copy of the value and no longer outrank the fact.
+- For mixed apps (some routes on TanStack Query, some on the router cache), a Router-level default marks router-cache routes too (every navigation refetches) — flag sections instead. The flag is inherited by a section's children (like `layout`), and a child can opt out with `externalCache: false`.
+
+> **Note:** prefetched entries of ordinary routes keep the built-in grace (30s, never shortened by the route's own window) and report it through `useCacheSnapshot()`. Entries of `externalCache` routes are never fresh — the entry is stored with `staleTime: 0`, so the snapshot reports `0` too. An explicit route value beats the `<Router>` default.
+
+Honest limits: `staleTime`/`gcTime`/`optimistic` still operate on the router's **copy** of the loader value (the optimistic snapshot renders the router-cache entry; the gc timer still evicts) — they no longer decide external freshness. See the [playground demo](https://clear-react-router.vercel.app/playground/cache/external/CLR) for the live behavior.
 
 ### Nested routes
 
@@ -158,14 +204,14 @@ A child `path` is **appended to the parent pattern**. Write only the new segment
 
 ```tsx
 const routes = createRouter([
-  {
-    path: '/projects',
-    element: <Projects />,
-    children: [
-      { path: ':projectId', element: <Project /> }, // -> /projects/:projectId
-      { path: 'new', element: <NewProject /> }, // -> /projects/new
-    ],
-  },
+	{
+		path: '/projects',
+		element: <Projects />,
+		children: [
+			{ path: ':projectId', element: <Project /> }, // -> /projects/:projectId
+			{ path: 'new', element: <NewProject /> }, // -> /projects/new
+		],
+	},
 ]);
 ```
 
@@ -187,9 +233,9 @@ Add one route with `path: '*'` as the **last** entry. It matches any depth:
 
 ```tsx
 const routes = createRouter([
-  { path: '/', element: <Home /> },
-  // ...other routes
-  { path: '*', element: <NotFound /> },
+	{ path: '/', element: <Home /> },
+	// ...other routes
+	{ path: '*', element: <NotFound /> },
 ]);
 ```
 
@@ -197,40 +243,40 @@ const routes = createRouter([
 
 ### Layouts
 
-A route can declare a `layout`: a component that wraps the route's element and is **inherited by every descendant route**. Layouts **stack**: a descendant's own `layout` nests *inside* the inherited ones, outermost first. Use it for chrome and state that must survive navigation within a subtree — an app shell, a section navbar, tabs, a scroll container, a wizard.
+A route can declare a `layout`: a component that wraps the route's element and is **inherited by every descendant route**. Layouts **stack**: a descendant's own `layout` nests _inside_ the inherited ones, outermost first. Use it for chrome and state that must survive navigation within a subtree — an app shell, a section navbar, tabs, a scroll container, a wizard.
 
 ```tsx
 const AppShell = ({ children }: { children: ReactNode }) => (
-  <div className="shell">
-    <TopNav />
-    {children}
-  </div>
+	<div className="shell">
+		<TopNav />
+		{children}
+	</div>
 );
 
 const SectionLayout = ({ children }: { children: ReactNode }) => (
-  <div className="section">
-    <SectionNav />
-    {children}
-  </div>
+	<div className="section">
+		<SectionNav />
+		{children}
+	</div>
 );
 
 const routes = createRouter([
-  {
-    path: '/',
-    element: <Home />,
-    layout: AppShell, // outermost: wraps everything under /
-    children: [
-      {
-        path: '/settings',
-        element: <SettingsHome />,
-        layout: SectionLayout, // nests inside AppShell
-        children: [
-          { path: '/profile', element: <Profile /> }, // AppShell ⊃ SectionLayout ⊃ Profile
-          { path: '/billing', element: <Billing />, layout: BillingLayout }, // AppShell ⊃ SectionLayout ⊃ BillingLayout ⊃ Billing
-        ],
-      },
-    ],
-  },
+	{
+		path: '/',
+		element: <Home />,
+		layout: AppShell, // outermost: wraps everything under /
+		children: [
+			{
+				path: '/settings',
+				element: <SettingsHome />,
+				layout: SectionLayout, // nests inside AppShell
+				children: [
+					{ path: '/profile', element: <Profile /> }, // AppShell ⊃ SectionLayout ⊃ Profile
+					{ path: '/billing', element: <Billing />, layout: BillingLayout }, // AppShell ⊃ SectionLayout ⊃ BillingLayout ⊃ Billing
+				],
+			},
+		],
+	},
 ]);
 ```
 
@@ -253,30 +299,30 @@ Rule of thumb: `to` for plain URLs, `path` + `params` when you want the pattern 
 
 Active matching: `'/'` matches only exactly `'/'`; any other target is active on exact match or — with the default `exact={false}` — on nested URLs too (`/settings` is active at `/settings/profile`). Pass `exact` on contextual links (for example a back-link to `/settings`) when a child URL should not keep the link active.
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `to` | `string` | required (unless `path` is set) | Target path as a raw URL. Mutually exclusive with `path` |
-| `path` | `string` (route pattern) | required (unless `to` is set) | Route pattern with `:segments`, e.g. `/product/:productId`. Segments are filled from `params` |
-| `params` | `Record<string, string \| number>` | required if `path` has `:segments` | Values for the pattern segments (URL-encoded). A missing param throws at runtime |
-| `search` | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined` | `undefined` | Query string or object appended to the target path |
-| `state` | `unknown` | `undefined` | Arbitrary value attached to the navigation entry |
-| `as` | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>` | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
-| `exact` | `boolean` | `false` | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes) |
-| `prefetch` | `'hover' \| 'render' \| 'viewport' \| 'none'` | `Router` config | Override the global prefetch strategy |
-| `hoverPrefetchDelay` | `number` | `Router` config | Override the global hover delay |
-| `children` | `ReactNode` | required | Content to render inside the link |
-| `className` | `string \| ({ isActive, isPending }) => string` | `undefined` | CSS class name(s). Can be a function for dynamic styling |
-| `style` | `CSSProperties \| ({ isActive, isPending }) => CSSProperties` | `undefined` | Inline styles. Can be a function for dynamic styling |
-| `activeClassName` | `string` optional | `'active-link'` | Class name applied when the link matches the current URL |
-| `pendingClassName` | `string` optional | `'pending-link'` | Class name applied when the link's target is loading |
-| `beforeNavigate` | `() => Promise<void> \| undefined` | `undefined` | Callback fired before navigation |
+| Prop                 | Type                                                                                         | Default                            | Description                                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `to`                 | `string`                                                                                     | required (unless `path` is set)    | Target path as a raw URL. Mutually exclusive with `path`                                                                                                                                                                                                                                                                                               |
+| `path`               | `string` (route pattern)                                                                     | required (unless `to` is set)      | Route pattern with `:segments`, e.g. `/product/:productId`. Segments are filled from `params`                                                                                                                                                                                                                                                          |
+| `params`             | `Record<string, string \| number>`                                                           | required if `path` has `:segments` | Values for the pattern segments (URL-encoded). A missing param throws at runtime                                                                                                                                                                                                                                                                       |
+| `search`             | `string \| Record<string, string \| number \| boolean \| null \| undefined> \| undefined`    | `undefined`                        | Query string or object appended to the target path                                                                                                                                                                                                                                                                                                     |
+| `state`              | `unknown`                                                                                    | `undefined`                        | Arbitrary value attached to the navigation entry                                                                                                                                                                                                                                                                                                       |
+| `as`                 | `(props: ElementProps<T>, state: { isActive: boolean; isPending: boolean }) => ReactElement` | renders `<a>`                      | Render function for using a custom element/component instead of the default <a>. Receives the props to spread onto your element (href, ref, event handlers, className, style, children) as the first argument, and `{ isActive, isPending }` as a separate second argument — kept separate so these values are never accidentally forwarded to the DOM |
+| `exact`              | `boolean`                                                                                    | `false`                            | When `false`, the link is also considered active if the current URL starts with `to` (useful for nested routes)                                                                                                                                                                                                                                        |
+| `prefetch`           | `'hover' \| 'render' \| 'viewport' \| 'none'`                                                | `Router` config                    | Override the global prefetch strategy                                                                                                                                                                                                                                                                                                                  |
+| `hoverPrefetchDelay` | `number`                                                                                     | `Router` config                    | Override the global hover delay                                                                                                                                                                                                                                                                                                                        |
+| `children`           | `ReactNode`                                                                                  | required                           | Content to render inside the link                                                                                                                                                                                                                                                                                                                      |
+| `className`          | `string \| ({ isActive, isPending }) => string`                                              | `undefined`                        | CSS class name(s). Can be a function for dynamic styling                                                                                                                                                                                                                                                                                               |
+| `style`              | `CSSProperties \| ({ isActive, isPending }) => CSSProperties`                                | `undefined`                        | Inline styles. Can be a function for dynamic styling                                                                                                                                                                                                                                                                                                   |
+| `activeClassName`    | `string` optional                                                                            | `'active-link'`                    | Class name applied when the link matches the current URL                                                                                                                                                                                                                                                                                               |
+| `pendingClassName`   | `string` optional                                                                            | `'pending-link'`                   | Class name applied when the link's target is loading                                                                                                                                                                                                                                                                                                   |
+| `beforeNavigate`     | `() => Promise<void> \| undefined`                                                           | `undefined`                        | Callback fired before navigation                                                                                                                                                                                                                                                                                                                       |
 
 **State values:**
 
-| State | Type | Description |
-|-------|------|-------------|
-| `isActive` | `boolean` | `true` when the link's `to` matches the current URL considering `exact` value |
-| `isPending` | `boolean` | `true` when the target route is currently loading (loader is running) |
+| State       | Type      | Description                                                                   |
+| ----------- | --------- | ----------------------------------------------------------------------------- |
+| `isActive`  | `boolean` | `true` when the link's `to` matches the current URL considering `exact` value |
+| `isPending` | `boolean` | `true` when the target route is currently loading (loader is running)         |
 
 ### Accessibility
 
@@ -286,7 +332,7 @@ Extra `data-*` and `aria-*` props passed to `<Link>` (e.g. `data-testid`, `aria-
 
 ```tsx
 <Link to="/about" aria-label="About section" data-testid="about-link">
-  About
+	About
 </Link>
 ```
 
@@ -294,14 +340,14 @@ When using a custom element via `as`, these attributes arrive in `props` togethe
 
 ### Prefetch Strategies
 
-| Strategy | Behavior |
-|----------|----------|
-| `'hover'` | Prefetches when the user hovers over the link (with configurable delay) |
-| `'render'` | Prefetches immediately when the link is rendered |
+| Strategy     | Behavior                                                                   |
+| ------------ | -------------------------------------------------------------------------- |
+| `'hover'`    | Prefetches when the user hovers over the link (with configurable delay)    |
+| `'render'`   | Prefetches immediately when the link is rendered                           |
 | `'viewport'` | Prefetches when the link enters the viewport (using Intersection Observer) |
-| `'none'` | No prefetching |
+| `'none'`     | No prefetching                                                             |
 
-> A prefetched entry is considered fresh for 30 seconds. The first navigation within that window reuses it without running the loader; after that, the route's normal `staleTime` applies (by default `0`, so the next revisit revalidates). A longer route `staleTime` is never shortened by prefetching.
+> A prefetched entry is considered fresh for the built-in grace window (30 seconds; never shortened by the route's `staleTime`) unless the route is flagged `externalCache`, in which case every navigation re-runs the loader — see [External data cache](#external-data-cache-tanstack-query). The first navigation within the window reuses the entry without running the loader; after that, the route's normal `staleTime` applies (by default `0`, so the next revisit revalidates). A longer route `staleTime` is never shortened by prefetching.
 
 ### Custom elements via `as`
 
@@ -314,23 +360,19 @@ When using `as` to render a custom component instead of the default `<a>`, your 
 
 ```tsx
 // ✅ correct — every prop is forwarded to the host element
-const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => (
-  <button {...props}>{children}</button>
-);
+const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => <button {...props}>{children}</button>;
 
 // ❌ wrong — ref, event handlers, and href are silently dropped
-const Button = ({ children }: { children: ReactNode }) => (
-  <button>{children}</button>
-);
+const Button = ({ children }: { children: ReactNode }) => <button>{children}</button>;
 ```
 
 If you only want to add or override specific props (e.g. add a `variant`), spread the received props first, then apply your own on top:
 
 ```tsx
 const Button = ({ children, ...props }: ElementProps<HTMLButtonElement>) => (
-  <button {...props} className={`btn ${props.className ?? ''}`}>
-    {children}
-  </button>
+	<button {...props} className={`btn ${props.className ?? ''}`}>
+		{children}
+	</button>
 );
 ```
 
@@ -364,6 +406,7 @@ import { Button } from '@mui/material';
   To about page
 </Link>
 ```
+
 ### Styling link states with CSS
 
 Before reaching for `as`, check whether CSS is enough: active and loading states are already
@@ -374,25 +417,25 @@ screen readers) intact:
 
 ```tsx
 <Link to="/playground/settings" aria-label="Settings" className="gear-link">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-    <path d="..." />
-  </svg>
+	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+		<path d="..." />
+	</svg>
 </Link>
 ```
 
 ```css
 /* Active page — no state plumbing needed */
 .gear-link[aria-current='page'] {
-  color: steelblue;
+	color: steelblue;
 }
 /* CSS beats SVG presentation attributes (fill="none"), so this fills the icon: */
 .gear-link[aria-current='page'] svg {
-  fill: steelblue;
-  stroke: steelblue;
+	fill: steelblue;
+	stroke: steelblue;
 }
 /* Target is loading: */
 .gear-link[aria-busy='true'] {
-  opacity: 0.6;
+	opacity: 0.6;
 }
 ```
 
@@ -445,6 +488,7 @@ Reach for `as` only when the element itself must change (a `<button>`, a UI-kit 
   Settings
 </Link>
 ```
+
 **Important**: prefetch="render" should be used sparingly, as it preloads data immediately when the link is rendered, which may cause unnecessary network requests.
 
 ## Retry
@@ -498,10 +542,10 @@ Unlike many routing libraries, retry is **not limited to the initial loader exec
 
 The retry policy is applied to the router's **cache revalidation mechanism**, so it automatically works for every operation that reloads route data, including:
 
-* Initial route loading
-* Cache revalidation
-* `invalidate()`
-* `prefetch()`
+- Initial route loading
+- Cache revalidation
+- `invalidate()`
+- `prefetch()`
 
 This ensures consistent behavior regardless of how the data is being refreshed.
 
@@ -519,40 +563,39 @@ Function provided to `beforeLoad` for programmatic redirection.
 import type { createRouter } from 'clear-react-router';
 
 const routes = createRouter([
-  {
-    path: '/dashboard',
-    element: <Dashboard />,
-    beforeLoad: ({ context, redirect }) => {
-      if (!context.isAuthorized) return redirect('/');
-    },
-  },
+	{
+		path: '/dashboard',
+		element: <Dashboard />,
+		beforeLoad: ({ context, redirect }) => {
+			if (!context.isAuthorized) return redirect('/');
+		},
+	},
 ]);
 
 const routes = createRouter([
-  {
-    path: '/dashboard',
-    element: <Dashboard />,
-    beforeLoad: ({ context, redirect }) => {
-      if (!context.isAuthorized) return redirect({ pathname: '/login', state: { from: '/dashboard' } });
-    },
-  },
+	{
+		path: '/dashboard',
+		element: <Dashboard />,
+		beforeLoad: ({ context, redirect }) => {
+			if (!context.isAuthorized) return redirect({ pathname: '/login', state: { from: '/dashboard' } });
+		},
+	},
 ]);
 
 const routes = createRouter([
-  {
-    path: '/user/:userId',
-    loader: async ({ params, context, setContext }) => {
-      const user = await fetchUser(params.userId);
-      setContext({ ...context, currentUser: user });
-      return { user };
-    },
-    beforeLoad: async ({ context, setContext, redirect }) => {
-      if (!context.token) return redirect('/login');
-      setContext({ ...context, lastVisit: Date.now() });
-    },
-  }
+	{
+		path: '/user/:userId',
+		loader: async ({ params, context, setContext }) => {
+			const user = await fetchUser(params.userId);
+			setContext({ ...context, currentUser: user });
+			return { user };
+		},
+		beforeLoad: async ({ context, setContext, redirect }) => {
+			if (!context.token) return redirect('/login');
+			setContext({ ...context, lastVisit: Date.now() });
+		},
+	},
 ]);
- 
 ```
 
 ### Usage with Parameters
@@ -563,29 +606,29 @@ The `loader`, `beforeLoad`, and `afterLoad` hooks receive `params` (extracted fr
 import type { createRouter } from 'clear-react-router';
 
 const routes = createRouter([
-  {
-    path: '/user/:userId',
-    element: <UserProfile />,
-    loader: async ({ params, context }) => {
-      // params.userId is available from the URL
-      const user = await fetchUser(params.userId);
-      return { user };
-    },
-    beforeLoad: async ({ params, context, redirect }) => {
-      // Authentication check
-      if (!context.isAuthorized) {
-        return redirect('/login');
-      }
-      // Validate parameter
-      if (!params.userId || !isValidUserId(params.userId)) {
-        return redirect('/users');
-      }
-    },
-    afterLoad: ({ params, context }) => {
-      // Analytics or side effects
-      console.log(`User ${params.userId} loaded`);
-    },
-  },
+	{
+		path: '/user/:userId',
+		element: <UserProfile />,
+		loader: async ({ params, context }) => {
+			// params.userId is available from the URL
+			const user = await fetchUser(params.userId);
+			return { user };
+		},
+		beforeLoad: async ({ params, context, redirect }) => {
+			// Authentication check
+			if (!context.isAuthorized) {
+				return redirect('/login');
+			}
+			// Validate parameter
+			if (!params.userId || !isValidUserId(params.userId)) {
+				return redirect('/users');
+			}
+		},
+		afterLoad: ({ params, context }) => {
+			// Analytics or side effects
+			console.log(`User ${params.userId} loaded`);
+		},
+	},
 ]);
 ```
 
@@ -606,11 +649,11 @@ actions?: ({ params, context, searchParams, setContext, location }) => ({
 
 ```ts
 {
-  params: Record<string, string>;                                // Route parameters
-  context: Record<string, unknown>;                              // Router context
-  setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
-  searchParams: Record<string, string>;                          // URL search parameters
-  location: Location;                                            // Route location
+	params: Record<string, string>; // Route parameters
+	context: Record<string, unknown>; // Router context
+	setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
+	searchParams: Record<string, string>; // URL search parameters
+	location: Location; // Route location
 }
 ```
 
@@ -626,15 +669,15 @@ A record where each key is an action name and each value is a function accepting
 import { useSubmitAction } from 'clear-react-router';
 
 const CreateUserForm = () => {
-    const { onSubmit, isSubmitting, error } = useSubmitAction('createUser');
+	const { onSubmit, isSubmitting, error } = useSubmitAction('createUser');
 
-    return (
-       <form onSubmit={onSubmit}>
-          <input name="email" disabled={isSubmitting} />
-          <button disabled={isSubmitting}>Create</button>
-          {error && <span>{error.message}</span>}
-       </form>
-    );
+	return (
+		<form onSubmit={onSubmit}>
+			<input name="email" disabled={isSubmitting} />
+			<button disabled={isSubmitting}>Create</button>
+			{error && <span>{error.message}</span>}
+		</form>
+	);
 };
 ```
 
@@ -647,28 +690,28 @@ const { register, handleSubmit } = useForm<FormValues>();
 const { submit, isSubmitting } = useSubmitAction('createUser');
 
 <form onSubmit={handleSubmit(submit)}>
-    <input {...register('email')} disabled={isSubmitting} />
-</form>
+	<input {...register('email')} disabled={isSubmitting} />
+</form>;
 ```
 
 Arguments:
 
-| Argument | Type | Default | Description |
-|---|---|---|---|
-| `action` | `string` | — | The action key defined in the route's `actions` |
-| `options.onSuccess` | `(data: unknown) => void \| undefined` | `undefined` | Called after a successful submission |
-| `options.onError` | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws |
-| `options.autoReset` | `boolean \| undefined` | `true` | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
+| Argument            | Type                                    | Default     | Description                                                                                               |
+| ------------------- | --------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| `action`            | `string`                                | —           | The action key defined in the route's `actions`                                                           |
+| `options.onSuccess` | `(data: unknown) => void \| undefined`  | `undefined` | Called after a successful submission                                                                      |
+| `options.onError`   | `(error: unknown) => void \| undefined` | `undefined` | Called if the action throws                                                                               |
+| `options.autoReset` | `boolean \| undefined`                  | `true`      | Reset the form element after a successful native submission (`onSubmit` only — has no effect on `submit`) |
 
 Return value:
 
-| Field | Type | Description |
-|---|---|---|
-| `submit` | `(data: Record<string, unknown>) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source |
-| `onSubmit` | `(evt: SubmitEvent<HTMLFormElement>) => Promise<void>` | Ready-made handler for a native `<form onSubmit={...}>` |
-| `data` | `unknown` | Result of the last successful submission |
-| `error` | `Error \| null` | Error from the last failed submission |
-| `isSubmitting` | `boolean` | `true` while the action is in flight |
+| Field          | Type                                                                                  | Description                                             |
+| -------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `submit`       | `(data: Record<string, unknown>) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source     |
+| `onSubmit`     | `(evt: SubmitEvent<HTMLFormElement>) => Promise<void>`                                | Ready-made handler for a native `<form onSubmit={...}>` |
+| `data`         | `unknown`                                                                             | Result of the last successful submission                |
+| `error`        | `Error \| null`                                                                       | Error from the last failed submission                   |
+| `isSubmitting` | `boolean`                                                                             | `true` while the action is in flight                    |
 
 > The native `onSubmit` handler converts the form via `Object.fromEntries(new FormData(...))` —
 > if your form has multiple fields sharing the same `name` (checkbox groups, `<select multiple>`),
@@ -681,10 +724,10 @@ Return value:
 
 ### Arguments
 
-| Argument | Type | Description |
-|----------|------|-------------|
-| `action` | `string` | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
-| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails. |
+| Argument  | Type      | Description                                                                                              |
+| --------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `action`  | `string`  | Name of the route action to execute. Must match a key returned from the route's `actions` configuration. |
+| `options` | `Options` | Optional callbacks invoked after the action succeeds or fails.                                           |
 
 ```ts
 type Options = { onSuccess?: (args: unknown) => void; onError?: (args: unknown) => void };
@@ -694,13 +737,12 @@ type Options = { onSuccess?: (args: unknown) => void; onError?: (args: unknown) 
 const save = useAction('save');
 const handleClick = async () => await save({ data: 'Hello world!' });
 
-<button onClick={handleClick}>Save</button>
+<button onClick={handleClick}>Save</button>;
 ```
 
 `useAction` automatically invalidates the route where the action was triggered after a successful action, causing `loader` to run again in the background. This remains the same route even if the user navigates away while the action is in flight.
 
 This hook is useful when the mutation is triggered programmatically, such as from dialogs, context menus, drag-and-drop interactions, keyboard shortcuts, or custom UI components.
-
 
 ### Error Boundaries
 
@@ -711,8 +753,9 @@ import { Router } from 'clear-react-router';
 import { routes } from './routes';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
+const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />;
 ```
+
 **Note:** The `errorBoundary` prop only catches render-time errors in route components. It does not catch errors in `loader` or `beforeLoad` — those are handled by the router's `errorElement` mechanism.
 
 ## Hooks
@@ -722,13 +765,17 @@ const App = () => <Router routes={routes} errorBoundary={ErrorBoundary} />
 Returns a function to navigate programmatically. Accepts a string (pathname, optionally with a `?query`), a `NavigationLocation` object (`pathname`, or typed `path` + `params` — see below), or `-1` to go back.
 
 ```tsx
-type NavigationLocation = { pathname: string; search?: string | Record<string, string | number | boolean | null | undefined>; state?: unknown }
+type NavigationLocation = {
+	pathname: string;
+	search?: string | Record<string, string | number | boolean | null | undefined>;
+	state?: unknown;
+};
 
 const navigate = useNavigate();
 
-navigate('/about');                                                                            // string
-navigate({ pathname: '/user/123', search: { user: 'Jane Doe' }, state: { from: 'home' } });    // NavigationLocation
-navigate(-1);                                                                                  // go back
+navigate('/about'); // string
+navigate({ pathname: '/user/123', search: { user: 'Jane Doe' }, state: { from: 'home' } }); // NavigationLocation
+navigate(-1); // go back
 ```
 
 **Note:** Navigation state can be accessed via [`useLocation()`](#uselocation):
@@ -765,7 +812,7 @@ navigation, pass a route pattern via `path` with matching `params` instead — t
 interpolates the segments (values are URL-encoded, a missing param throws):
 
 ```tsx
-<Link path="/product/:productId" params={{ productId: '7' }} />
+<Link path="/product/:productId" params={{ productId: '7' }} />;
 navigate({ path: '/product/:productId', params: { productId: '7' } });
 ```
 
@@ -776,7 +823,7 @@ Declarative and imperative forms are equivalent — this link:
 
 ```tsx
 <Link path="/nest/:nestId/item/:itemId" params={{ nestId, itemId }}>
-  {itemId}
+	{itemId}
 </Link>
 ```
 
@@ -785,9 +832,7 @@ does the same as this button:
 ```tsx
 const navigate = useNavigate();
 
-<button onClick={() => navigate({ path: '/nest/:nestId/item/:itemId', params: { nestId, itemId } })}>
-  {itemId}
-</button>
+<button onClick={() => navigate({ path: '/nest/:nestId/item/:itemId', params: { nestId, itemId } })}>{itemId}</button>;
 ```
 
 Same type-checking, same interpolation. Use links for navigation, buttons with `navigate`
@@ -802,37 +847,38 @@ userland pattern — adopt it ladder-style, each rung optional:
 - **Rung 1 — `path` + `params` on plain `Link`.** No union, no wrapper, no setup:
   TypeScript infers the pattern from the `path` literal itself and checks `params`
   against it:
-  ```tsx
-  <Link path="/product/:productId" params={{ productId: '7' }} /> // ok
-  <Link path="/product/:productId" />                             // error: params missing
-  <Link path="/product/:productId" params={{ id: '7' }} />        // error: wrong param name
-  ```
-  But path *existence* is unchecked — there is no list to check against, so this
-  compiles silently:
-  ```tsx
-  <Link path="/playgroud/cache" /> // typo, no error (no union knows the routes)
-  ```
-  In other words: rung 1 checks internal consistency (`path` ↔ `params`), not the
-  outside world (path ↔ app routes). That half needs a union — rung 3.
+    ```tsx
+    <Link path="/product/:productId" params={{ productId: '7' }} /> // ok
+    <Link path="/product/:productId" />                             // error: params missing
+    <Link path="/product/:productId" params={{ id: '7' }} />        // error: wrong param name
+    ```
+    But path _existence_ is unchecked — there is no list to check against, so this
+    compiles silently:
+    ```tsx
+    <Link path="/playgroud/cache" /> // typo, no error (no union knows the routes)
+    ```
+    In other words: rung 1 checks internal consistency (`path` ↔ `params`), not the
+    outside world (path ↔ app routes). That half needs a union — rung 3.
 - **Rung 2 — thin wrapper, no union.** Gives the pattern a name without any type file:
-  ```tsx
-  import { Link, type LinkProps } from 'clear-react-router';
 
-  export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T>) => (
-  	<Link {...props} />
-  );
-  ```
+    ```tsx
+    import { Link, type LinkProps } from 'clear-react-router';
+
+    export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T>) => <Link {...props} />;
+    ```
+
 - **Rung 3 — wrapper + union.** Binds one union for existence checking:
-  ```tsx
-  type AppPaths = '/cache' | '/product/:productId';
 
-  export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T, AppPaths>) => (
-  	<Link {...props} />
-  );
+    ```tsx
+    type AppPaths = '/cache' | '/product/:productId';
 
-  <AppLink path="/product/:productId" params={{ productId: '7' }} /> // ok
-  <AppLink path="/playgroud/cache" /> // error: not in AppPaths
-  ```
+    export const AppLink = <T extends HTMLElement = HTMLAnchorElement>(props: LinkProps<T, AppPaths>) => (
+    	<Link {...props} />
+    );
+
+    <AppLink path="/product/:productId" params={{ productId: '7' }} /> // ok
+    <AppLink path="/playgroud/cache" /> // error: not in AppPaths
+    ```
 
 The union is generated by script or hand-written.
 Keep it next to the routes so drift is visible in review; a forgotten path fails
@@ -841,16 +887,18 @@ compilation at usage (fail-closed), a leftover entry is harmless.
 ### `useLocation()`
 
 Returns current location `{ pathname, search, state }`.
+
 ```tsx
 type Location = {
 	pathname: string;
 	search?: string;
 	state?: unknown;
 	prevLocation?: Omit<Location, 'state' | 'prevLocation'>;
-}
+};
 
 const { pathname, search, state } = useLocation();
 ```
+
 ### Where you came from
 
 Every `location` carries `prevLocation` — the pathname and search of the route you
@@ -860,16 +908,16 @@ navigated away from. Useful for a contextual "Back" link, or for redirect logic 
 ```tsx
 const location = useLocation();
 
-<Link to={location.prevLocation?.pathname ?? '/'}>← Back</Link>
+<Link to={location.prevLocation?.pathname ?? '/'}>← Back</Link>;
 ```
 
 ```tsx
 // beforeLoad
 beforeLoad: async ({ location, redirect }) => {
-   if (!isAuthenticated && location.prevLocation?.pathname !== '/login') {
-      await redirect('/login');
-   }
-}
+	if (!isAuthenticated && location.prevLocation?.pathname !== '/login') {
+		await redirect('/login');
+	}
+};
 ```
 
 > `prevLocation` reflects only the immediately preceding route — it doesn't accumulate
@@ -882,11 +930,11 @@ Returns the cached data loaded by the current route's `loader`, along with any e
 
 **Returns:**
 
-| Property | Type | Description |
-|----------|:----:|-------------|
-| `data` | `T` | The data returned from the route's `loader` |
-| `loaderError` | `Error \| null` | Error from the `loader` (if any) |
-| `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any) |
+| Property          |      Type       | Description                                 |
+| ----------------- | :-------------: | ------------------------------------------- |
+| `data`            |       `T`       | The data returned from the route's `loader` |
+| `loaderError`     | `Error \| null` | Error from the `loader` (if any)            |
+| `beforeLoadError` | `Error \| null` | Error from the `beforeLoad` hook (if any)   |
 
 ```tsx
 const UserProfile = () => {
@@ -913,7 +961,6 @@ const UserProfile = () => {
 <Router routes={routes} maxCacheSize={200} />
 ```
 
-
 ### `useCacheSnapshot()`
 
 Returns a read-only snapshot of the loader cache — intended for devtools panels, debugging, and cache
@@ -923,36 +970,36 @@ monitoring. Requires `<Router enableCacheSnapshot>`; while the flag is off the s
 import { useCacheSnapshot } from 'clear-react-router';
 
 const CachePanel = () => {
-  const entries = useCacheSnapshot();
+	const entries = useCacheSnapshot();
 
-  return (
-    <ul>
-      {entries.map(entry => (
-        <li key={entry.path}>
-          {entry.path} — {entry.reason ?? 'unknown'} —{' '}
-          {entry.isCached ? (entry.isLoading ? 'revalidating' : 'cached') : 'loading'}
-        </li>
-      ))}
-    </ul>
-  );
+	return (
+		<ul>
+			{entries.map(entry => (
+				<li key={entry.path}>
+					{entry.path} — {entry.reason ?? 'unknown'} —{' '}
+					{entry.isCached ? (entry.isLoading ? 'revalidating' : 'cached') : 'loading'}
+				</li>
+			))}
+		</ul>
+	);
 };
 
-<Router routes={routes} enableCacheSnapshot />
+<Router routes={routes} enableCacheSnapshot />;
 ```
 
 ```ts
 type CacheReason = 'navigation' | 'prefetch' | 'invalidate' | 'polling';
 
 type CacheSnapshotEntry = {
-  path: string;                       // pathname + search
-  data: unknown;                      // loader result; undefined while the first load is in flight
-  timestamp: number;                  // when the entry was written (ms since epoch)
-  staleTime: number | undefined;      // effective staleTime: route value, default, or 0 when neither is set
-  reason?: CacheReason;               // what wrote the entry last
-  gcExpiresAt: number | undefined;    // GC deadline, if a GC timer is pending
-  gcDuration: number | undefined;     // the route's gcTime, for progress display
-  isCached: boolean;                  // a loader result exists in memory (fresh or stale)
-  isLoading: boolean;                 // a loader for this path is currently running
+	path: string; // pathname + search
+	data: unknown; // loader result; undefined while the first load is in flight
+	timestamp: number; // when the entry was written (ms since epoch)
+	staleTime: number | undefined; // effective freshness window: prefetch grace, route/default staleTime, or 0 for externalCache
+	reason?: CacheReason; // what wrote the entry last
+	gcExpiresAt: number | undefined; // GC deadline, if a GC timer is pending
+	gcDuration: number | undefined; // the route's gcTime, for progress display
+	isCached: boolean; // a loader result exists in memory (fresh or stale)
+	isLoading: boolean; // a loader for this path is currently running
 };
 
 type CacheSnapshot = CacheSnapshotEntry[];
@@ -1030,6 +1077,7 @@ await invalidate('/post/[id]/comment/:commentId');
 ```
 
 #### Force revalidation
+
 By default concrete pathnames are always revalidated, even if they were never cached
 — this also makes `invalidate()` work on an error page with an empty cache.
 Pass `{ force: false }` to go back to cache-only revalidation:
@@ -1042,11 +1090,14 @@ Explicit `{ force: true }` behaves the same as the default for concrete paths. P
 targets stay cache-only regardless of `force`.
 
 #### Stale-only revalidation
+
 By default, `invalidate` deletes matching cache entries and refetches them.
 Pass `{ staleOnly: true }` to only revalidate entries that are already stale, leaving fresh ones untouched:
+
 ```tsx
 await invalidate('/notes', { staleOnly: true });
 ```
+
 Note: `staleOnly` disables the default force — uncached paths are left alone, so no new
 network requests are started for routes you never visited.
 
@@ -1083,6 +1134,7 @@ will revalidate the cached child routes:
 /post/23
 /post/42/comments
 ```
+
 #### Status transitions
 
 When the revalidated path matches the currently active `pathname + search`, a successful
@@ -1101,24 +1153,29 @@ cached search variant of that pathname.
 #### Returns
 
 An array of objects with the following structure:
+
 ```ts
-{ path: string; data: unknown; error: unknown }
+{
+	path: string;
+	data: unknown;
+	error: unknown;
+}
 ```
+
 Each object represents a revalidated route, where `path` is the route pathname, `data` is the revalidated loader result, and `error` is the loader error, if any.
 
 #### Notes
 
-* Without `force: false`, concrete pathnames you pass are always revalidated (and stored in the cache), even if they were never cached. Dynamic patterns only revalidate cached matches and never fetch the pattern itself. Pass `{ force: false }` to revalidate **only routes that already have cached data**.
-* With `{ staleOnly: true }`, uncached paths are never fetched — the default force does not apply.
-* Cached data is cleared before the new loader starts.
-* When used as an event handler, wrap the call in an arrow function:
+- Without `force: false`, concrete pathnames you pass are always revalidated (and stored in the cache), even if they were never cached. Dynamic patterns only revalidate cached matches and never fetch the pattern itself. Pass `{ force: false }` to revalidate **only routes that already have cached data**.
+- With `{ staleOnly: true }`, uncached paths are never fetched — the default force does not apply.
+- Cached data is cleared before the new loader starts.
+- When used as an event handler, wrap the call in an arrow function:
 
 ```tsx
 <button onClick={() => invalidate()}>Refresh</button>
 ```
 
 Passing `invalidate` directly (`onClick={invalidate}`) is not supported because React passes a `MouseEvent` object to event handlers.
-
 
 ### `useBlocker(callback)`
 
@@ -1127,7 +1184,7 @@ Blocks navigation - including the browser's Back/Forward buttons - while `callba
 The library calls `callback` on every navigation attempt with the current, target location and router context, so you can decide whether to block based on where the user is headed, not just your app's internal state:
 
 ```ts
-callback: (arg: { location: Location; nextLocation: Location | null; context: Record<string, unknown> }) => boolean
+callback: (arg: { location: Location; nextLocation: Location | null; context: Record<string, unknown> }) => boolean;
 ```
 
 - `location` - the route the user is currently on.
@@ -1136,24 +1193,24 @@ callback: (arg: { location: Location; nextLocation: Location | null; context: Re
 
 **Returns:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `state` | `'unblocked' \| 'charged' \| 'blocked'` | `'unblocked'` — `callback` returns `false`, navigation isn't intercepted. `'charged'` — `callback` returns `true`, blocking is armed, but no navigation has been attempted yet. `'blocked'` — a navigation attempt was just intercepted; `nextLocation` inside `callback` now points to the attempted target. |
-| `process()` | `() => void` | Confirm and complete the blocked navigation |
-| `reset()` | `() => void` | Cancel the blocked navigation and stay on the current route |
+| Property    | Type                                    | Description                                                                                                                                                                                                                                                                                                   |
+| ----------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `state`     | `'unblocked' \| 'charged' \| 'blocked'` | `'unblocked'` — `callback` returns `false`, navigation isn't intercepted. `'charged'` — `callback` returns `true`, blocking is armed, but no navigation has been attempted yet. `'blocked'` — a navigation attempt was just intercepted; `nextLocation` inside `callback` now points to the attempted target. |
+| `process()` | `() => void`                            | Confirm and complete the blocked navigation                                                                                                                                                                                                                                                                   |
+| `reset()`   | `() => void`                            | Cancel the blocked navigation and stay on the current route                                                                                                                                                                                                                                                   |
 
 ```tsx
 const { state, process, reset } = useBlocker(({ nextLocation }) => hasUnsavedChanges);
 
 useEffect(() => {
-   if (state === 'blocked') {
-      // Show your custom modal
-      if (confirm('Leave without saving?')) {
-         process();
-      } else {
-         reset();
-      }
-   }
+	if (state === 'blocked') {
+		// Show your custom modal
+		if (confirm('Leave without saving?')) {
+			process();
+		} else {
+			reset();
+		}
+	}
 }, [state, process, reset]);
 ```
 
@@ -1165,19 +1222,19 @@ If you'd rather not manage the `useEffect` or conditional rendering yourself, yo
 
 ```tsx
 type BlockerProps = {
-    children: (blocker: ReturnType<typeof useBlocker>) => ReactNode;
-    callback: (args: BlockerCallback) => boolean;
+	children: (blocker: ReturnType<typeof useBlocker>) => ReactNode;
+	callback: (args: BlockerCallback) => boolean;
 };
 
 const Blocker = ({ callback, children }: BlockerProps) => {
-    const blocker = useBlocker(callback);
-    return blocker.state === 'blocked' ? children(blocker) : null;
+	const blocker = useBlocker(callback);
+	return blocker.state === 'blocked' ? children(blocker) : null;
 };
 ```
 
 ```tsx
 <Blocker callback={() => formState.isDirty}>
-    {({ process, reset }) => <Dialog onConfirm={process} onClose={reset} />}
+	{({ process, reset }) => <Dialog onConfirm={process} onClose={reset} />}
 </Blocker>
 ```
 
@@ -1187,50 +1244,50 @@ Returns a callback that restores the saved scroll position for the current route
 
 The automatic restore covers content that is ready when navigation finishes (including route `loader` data). Call the callback yourself for content that arrives later:
 
-* deferred data streamed via React 19 `use()`,
-* lazily loaded route chunks,
-* any container that mounts after the initial render.
+- deferred data streamed via React 19 `use()`,
+- lazily loaded route chunks,
+- any container that mounts after the initial render.
 
 ```tsx
 import { useRestoreScroll, useLoaderState } from 'clear-react-router';
 
 const SlowTable = () => {
-    const restoreScroll = useRestoreScroll();
-    const { data } = useLoaderState<{ rows: Promise<Row[]> }>();
+	const restoreScroll = useRestoreScroll();
+	const { data } = useLoaderState<{ rows: Promise<Row[]> }>();
 
-    return (
-        <Suspense fallback={<Skeleton />}>
-            <Table rows={data.rows} onReady={restoreScroll} />
-        </Suspense>
-    );
+	return (
+		<Suspense fallback={<Skeleton />}>
+			<Table rows={data.rows} onReady={restoreScroll} />
+		</Suspense>
+	);
 };
 ```
 
-Data fetched outside the route `loader` (e.g. a `useEffect` fetch inside the component) is invisible to the router, so the automatic restore can't account for it either. The rule of thumb is simple: whenever *your* data arrives and the scrollable content is in place, call the callback:
+Data fetched outside the route `loader` (e.g. a `useEffect` fetch inside the component) is invisible to the router, so the automatic restore can't account for it either. The rule of thumb is simple: whenever _your_ data arrives and the scrollable content is in place, call the callback:
 
 ```tsx
 const Dashboard = () => {
-    const restoreScroll = useRestoreScroll();
-    const [rows, setRows] = useState<Row[] | null>(null);
+	const restoreScroll = useRestoreScroll();
+	const [rows, setRows] = useState<Row[] | null>(null);
 
-    useEffect(() => {
-        fetchRows().then(data => {
-            setRows(data);
-            // DOM updates after setState — wait a frame so the container exists
-            requestAnimationFrame(() => restoreScroll());
-        });
-    }, [restoreScroll]);
+	useEffect(() => {
+		fetchRows().then(data => {
+			setRows(data);
+			// DOM updates after setState — wait a frame so the container exists
+			requestAnimationFrame(() => restoreScroll());
+		});
+	}, [restoreScroll]);
 
-    return rows ? <Table rows={rows} /> : <Skeleton />;
+	return rows ? <Table rows={rows} /> : <Skeleton />;
 };
 ```
 
 Details worth knowing:
 
-* The callback reads the latest saved positions at call time, not at render time — so it stays correct even if called long after mount, and repeated calls pick up the newest data. It also works from components outside `<Router>` (e.g. a static navbar), since it doesn't depend on the render tree.
-* Calling it is always safe: it silently does nothing when there is nothing saved for the current route, or when the route opted out with `scrollRestoration: false`.
-* An optional behavior argument on the hook overrides the scroll behavior for these calls (`useRestoreScroll('smooth')`); by default the route's `scrollRestorationBehavior`, then the router's `defaultScrollRestorationBehavior`, applies.
-* For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` logs a warning and skips that container.
+- The callback reads the latest saved positions at call time, not at render time — so it stays correct even if called long after mount, and repeated calls pick up the newest data. It also works from components outside `<Router>` (e.g. a static navbar), since it doesn't depend on the render tree.
+- Calling it is always safe: it silently does nothing when there is nothing saved for the current route, or when the route opted out with `scrollRestoration: false`.
+- An optional behavior argument on the hook overrides the scroll behavior for these calls (`useRestoreScroll('smooth')`); by default the route's `scrollRestorationBehavior`, then the router's `defaultScrollRestorationBehavior`, applies.
+- For element-level restoration (`scrollRestoration: ['panel']`), container `id`s must be unique and stable across visits — a typo or a remounted `id` logs a warning and skips that container.
 
 ### `useRouteStatus()`
 
@@ -1249,13 +1306,13 @@ To render your own loading indicator (for example next to a link while its targe
 import { Link, useRouteStatus } from 'clear-react-router';
 
 const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
-  const isLoading = useRouteStatus(status => status === 'pending' || status === 'optimistic');
-  return (
-    <Link to={to} className={({ isPending }) => (isPending ? 'link-pending' : '')}>
-      {children}
-      {isLoading && <span aria-hidden="true"> •••</span>}
-    </Link>
-  );
+	const isLoading = useRouteStatus(status => status === 'pending' || status === 'optimistic');
+	return (
+		<Link to={to} className={({ isPending }) => (isPending ? 'link-pending' : '')}>
+			{children}
+			{isLoading && <span aria-hidden="true"> •••</span>}
+		</Link>
+	);
 };
 ```
 
@@ -1266,6 +1323,7 @@ For per-link pending styling without custom components, `pendingClassName` and t
 ### `useRouterContext()`
 
 Returns the router context object and a function to update it. Useful for accessing or modifying global state (like user authentication, theme, etc.) from anywhere in your app.
+
 ```tsx
 const { setContext, context } = useRouterContext();
 const loginHandler = () => setContext({ ...context, user: { name: 'John' } });
@@ -1279,34 +1337,35 @@ Returns an object for working with URL query parameters. Supports reading and se
 import { useSearchParams } from 'clear-react-router';
 
 function ProductFilter() {
-  const { searchParams, getSearchParams, setSearchParams } = useSearchParams();
+	const { searchParams, getSearchParams, setSearchParams } = useSearchParams();
 
-  // Get a single value or array
-  const brand = getSearchParams('brand'); // 'nike' | ['nike', 'reebok'] | ''
+	// Get a single value or array
+	const brand = getSearchParams('brand'); // 'nike' | ['nike', 'reebok'] | ''
 
-  // Set a single value
-  setSearchParams('brand', 'nike'); // ?brand=nike
+	// Set a single value
+	setSearchParams('brand', 'nike'); // ?brand=nike
 
-  // Set multiple values (array)
-  setSearchParams('brand', ['nike', 'reebok']); // ?brand=nike&brand=reebok
+	// Set multiple values (array)
+	setSearchParams('brand', ['nike', 'reebok']); // ?brand=nike&brand=reebok
 
-  // Functional update (preserves other params)
-  setSearchParams((prev) => {
-    prev.set('page', '2');
-    prev.append('color', 'red');
-    return prev;
-  });
+	// Functional update (preserves other params)
+	setSearchParams(prev => {
+		prev.set('page', '2');
+		prev.append('color', 'red');
+		return prev;
+	});
 
-  // Direct access to URLSearchParams
-  const allParams = searchParams.toString(); // "brand=nike&brand=reebok&page=2"
+	// Direct access to URLSearchParams
+	const allParams = searchParams.toString(); // "brand=nike&brand=reebok&page=2"
 }
 ```
+
 **Returns:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `searchParams` | `URLSearchParams` | Raw `URLSearchParams` object for low-level access |
-| `getSearchParams` | `(key: string) => string \| string[]` | Returns a single value or an array if multiple values exist for the key |
+| Property          | Type                                                                                                                      | Description                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `searchParams`    | `URLSearchParams`                                                                                                         | Raw `URLSearchParams` object for low-level access                              |
+| `getSearchParams` | `(key: string) => string \| string[]`                                                                                     | Returns a single value or an array if multiple values exist for the key        |
 | `setSearchParams` | `(param: string, value: string \| string[]) => void` `or` `(updater: (prev: URLSearchParams) => URLSearchParams) => void` | Update query parameters. Supports single values, arrays, or functional updates |
 
 **Key features:**
@@ -1321,23 +1380,23 @@ function ProductFilter() {
 
 ```tsx
 function ProductFilter() {
-  const { searchParams, setSearchParams } = useSearchParams();
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const invalidate = useInvalidate();
+	const { searchParams, setSearchParams } = useSearchParams();
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
+	const invalidate = useInvalidate();
 
-  // Full navigation: runs beforeLoad / loader / afterLoad and pushes a history entry
-  const applyFilter = () => {
-    const next = new URLSearchParams(searchParams);
-    next.set('brand', 'nike');
-    navigate({ pathname, search: `?${next.toString()}` });
-  };
+	// Full navigation: runs beforeLoad / loader / afterLoad and pushes a history entry
+	const applyFilter = () => {
+		const next = new URLSearchParams(searchParams);
+		next.set('brand', 'nike');
+		navigate({ pathname, search: `?${next.toString()}` });
+	};
 
-  // Explicit revalidation: keeps the history entry, reruns the loader, skips beforeLoad / afterLoad
-  const revalidateFilter = async () => {
-    setSearchParams('brand', 'nike');
-    await invalidate();
-  };
+	// Explicit revalidation: keeps the history entry, reruns the loader, skips beforeLoad / afterLoad
+	const revalidateFilter = async () => {
+		setSearchParams('brand', 'nike');
+		await invalidate();
+	};
 }
 ```
 
@@ -1346,6 +1405,7 @@ function ProductFilter() {
 ## Lazy Loading
 
 Clear Router supports code-splitting out of the box. Simply wrap dynamic import into a library's `lazy` function:
+
 ```tsx
 import { lazy } from 'clear-react-router';
 
@@ -1375,14 +1435,14 @@ fast data while slow data streams in separately:
 
 ```tsx
 const Slow = () => {
-   const { data } = useLoaderState<{ slow: Promise<string> }>();
-   return use(data.slow);
+	const { data } = useLoaderState<{ slow: Promise<string> }>();
+	return use(data.slow);
 };
 
 const About = () => (
-   <Suspense fallback={<Skeleton />}>
-      <Slow />
-   </Suspense>
+	<Suspense fallback={<Skeleton />}>
+		<Slow />
+	</Suspense>
 );
 ```
 
@@ -1411,6 +1471,7 @@ View Transitions API requires modern browsers:
 For older browsers, the router gracefully falls back to regular navigation without animation.
 
 ## Requirements
+
 - React 16.8+ (for React.lazy and Suspense)
 - Use `default` export for your lazy-loaded components
 
@@ -1425,5 +1486,6 @@ LRU eviction with a tiny cache, gcTime cleanup, an invalidation lab, a live cach
 in-browser server.
 Open devtools and click around.
 
- ## License
- MIT
+## License
+
+MIT

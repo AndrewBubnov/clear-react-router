@@ -122,6 +122,24 @@ export const fetchNestItem = async (nestId: string, itemId: string) => {
 	};
 };
 
+/** The external-cache demo: TanStack Query owns freshness with this staleTime. */
+export const EXTERNAL_QUOTE_STALE_TIME = 5000;
+
+export type ExternalQuote = { symbol: string; price: number; loads: number; fetchedAt: string };
+
+/**
+ * Drifting quote for the external-cache demo. `loads` rides inside the payload
+ * so every consumer of the fact sees the same fetch counter.
+ */
+export const fetchExternalQuote = async (symbol: string): Promise<ExternalQuote> => {
+	const n = trackCall(`ext-${symbol}`);
+	await delay(500);
+	const base = PRICES[symbol] ?? 50;
+	const drift = (Math.random() - 0.5) * base * 0.04;
+	PRICES[symbol] = Math.round((base + drift) * 100) / 100;
+	return { symbol, price: PRICES[symbol], loads: n, fetchedAt: timeNow() };
+};
+
 /** gcTime for /playground/heavy — also drives the live countdown in the cache lab. */
 export const HEAVY_GC_TIME = 10000;
 

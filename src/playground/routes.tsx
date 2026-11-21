@@ -3,6 +3,7 @@ import { PlaygroundHome } from './PlaygroundHome';
 import { DeferredSkeleton, PageSkeleton, ProductSkeleton } from './Skeletons';
 import { NestLayout } from './NestLayout';
 import { NestChildLayout } from './NestChildLayout';
+import { externalQuoteLoader } from './externalCache';
 import {
 	CACHE_STALE_TIME,
 	HEAVY_GC_TIME,
@@ -129,6 +130,21 @@ export const playgroundRoutes = createRouter([
 				staleTime: Infinity,
 				gcTime: HEAVY_GC_TIME,
 				loaderFallback: <PageSkeleton />,
+			},
+			// External cache section: the router cache never outranks TanStack Query —
+			// every navigation re-runs the loader, the external cache decides the network.
+			{
+				path: '/external',
+				element: lazy(() => import('./ExternalCachePage')),
+				externalCache: true,
+				children: [
+					{
+						path: '/:extId',
+						element: lazy(() => import('./ExternalCachePage')),
+						loader: externalQuoteLoader,
+						loaderFallback: <PageSkeleton />,
+					},
+				],
 			},
 		],
 	},

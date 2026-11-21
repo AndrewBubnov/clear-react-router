@@ -37,6 +37,15 @@ test('visualizer keeps an already-stale entry stale after remounting', async ({ 
 
 	const freshColor = await dotColor(dot);
 	await expect(dot).not.toHaveCSS('background-color', freshColor, { timeout: 5000 });
+	// pg-dot-stale animates for 200ms; capture the settled color — a
+	// mid-transition frame does not survive the remount. Color sampling is not
+	// reliable here (headless throttles frames, so mid-animation samples can
+	// repeat), so poll the animation state itself.
+	await expect
+		.poll(() => dot.evaluate(el => el.getAnimations().every(a => a.playState === 'finished')), {
+			timeout: 3000,
+		})
+		.toBe(true);
 	const staleColor = await dotColor(dot);
 	const toggle = page.getByLabel('visualize cache');
 	await toggle.uncheck();
