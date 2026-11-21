@@ -3,7 +3,7 @@ import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
 import { routerConfig } from '../config/routerConfig';
 import { findRoute } from '../utils/findRoute';
-import { getParams, getPartialLoaderArgs, sleep, toCacheKey, updateScrollMap } from '../utils/utils';
+import { getParams, getPartialLoaderArgs, sleep, splitPathAndSearch, toCacheKey, updateScrollMap } from '../utils/utils';
 import { BeforeLoad, LoaderState, Location, RevalidateCache, RouteItem, RouterState } from '../types';
 
 export const createNavigate = (
@@ -57,11 +57,11 @@ export const createNavigate = (
 			const redirect = async (redirected: Location | string) => {
 				const { location } = routeDataState.getState();
 				const prevLocation = { pathname: location.pathname, search: location.search };
-				return await navigate(
-					typeof redirected === 'string'
-						? { pathname: redirected, prevLocation }
-						: { ...redirected, prevLocation }
-				);
+				if (typeof redirected === 'string') {
+					const [pathname, search] = splitPathAndSearch(redirected);
+					return await navigate({ pathname, search, prevLocation });
+				}
+				return await navigate({ ...redirected, prevLocation });
 			};
 			try {
 				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem), signal });

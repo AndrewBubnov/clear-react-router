@@ -26,6 +26,7 @@ const getRetry = (routeItem: RouteItem | undefined) => {
 export const createRevalidateCache = (routerState: RouterState, syncCacheSnapshot: () => void) => {
 	const { loaderMap, loadingPromises, contextState, routeDataState } = routerState;
 	const flightOwners = new Map<string, AbortController | AbortSignal>();
+	const flightReasons = new Map<string, RevalidateCacheArgs['reason']>();
 
 	const evict = () => {
 		if (loaderMap.size <= routerConfig.maxCacheSize) return;
@@ -70,10 +71,16 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 		if (loadingPromises.has(path)) {
 			const owner = flightOwners.get(path);
 			const ownerWasAborted = owner instanceof AbortController ? owner.signal.aborted : owner?.aborted;
-			if ((signal && owner instanceof AbortController) || ownerWasAborted) {
+			// A navigation may ride another navigation's flight (the supersede
+			// chain aborts both together), but never a prefetch flight: its external
+			// signal can be aborted by a third party at any moment without
+			// superseding the navigation, which would commit empty data.
+			const canRide = reason === 'prefetch' || flightReasons.get(path) !== 'prefetch';
+			if ((signal && owner instanceof AbortController) || ownerWasAborted || !canRide) {
 				if (owner instanceof AbortController) owner.abort();
 				loadingPromises.delete(path);
 				flightOwners.delete(path);
+				flightReasons.delete(path);
 				syncCacheSnapshot();
 			} else {
 				moveItemToLastPosition(path);
@@ -102,6 +109,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 			const effectiveSignal = signal ?? prefetchController!.signal;
 			const ownerToken: AbortController | AbortSignal = prefetchController ?? signal!;
 			flightOwners.set(path, ownerToken);
+			flightReasons.set(path, reason);
 			const isOwner = () => flightOwners.get(path) === ownerToken;
 			try {
 				const result = await routeItem?.loader({
@@ -131,6 +139,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 					if (isOwner()) {
 						loadingPromises.delete(path);
 						flightOwners.delete(path);
+						flightReasons.delete(path);
 					}
 					if (retry.delay) await sleep(retry.delay);
 					return revalidateCache({ routeItem, location, signal, force, reason }, retried + 1);
@@ -141,6 +150,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 				if (isOwner()) {
 					loadingPromises.delete(path);
 					flightOwners.delete(path);
+					flightReasons.delete(path);
 					syncCacheSnapshot();
 				}
 			}

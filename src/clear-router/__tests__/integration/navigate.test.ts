@@ -459,6 +459,64 @@ describe('navigate', () => {
 		expect(state.loaderMap.has('/a')).toBe(true);
 	});
 
+	it('a navigation does not inherit an abortable prefetch flight', async () => {
+		let resolveLoader!: (value: string) => void;
+		const loader = vi.fn(() => new Promise<string>(resolve => (resolveLoader = resolve)));
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		const routeItem = createMockRouteItem({ loader, staleTime: 10_000 });
+		routerConfig.configure({ routes: [routeItem], maxCacheSize: 10 });
+
+		const controller = new AbortController();
+		revalidateCache({ routeItem, location: { pathname: '/test' }, reason: 'prefetch', signal: controller.signal });
+
+		const navigation = revalidateCache({ routeItem, location: { pathname: '/test' }, reason: 'navigation' });
+
+		controller.abort();
+		resolveLoader('late');
+		await navigation;
+
+		expect(state.loaderMap.get('/test')?.state.data).toBe('late');
+	});
+
+	it('reuses one cache entry across same-name parameter orderings', async () => {
+		const loader = vi.fn().mockResolvedValue('data');
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/items', pattern: '/items', loader, staleTime: 10_000 })],
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/items', search: '?tag=a&tag=b' });
+		await navigate({ pathname: '/items', search: '?tag=b&tag=a' });
+
+		expect(loader).toHaveBeenCalledTimes(1);
+		expect(state.loaderMap.size).toBe(1);
+	});
+
+	it('redirects by string with a query', async () => {
+		const loginLoader = vi.fn().mockResolvedValue('login data');
+		routerConfig.configure({
+			routes: [
+				createMockRouteItem({ path: '/login', pattern: '/login', loader: loginLoader }),
+				createMockRouteItem({
+					path: '/secret',
+					pattern: '/secret',
+					loader: vi.fn(),
+					beforeLoad: ({ redirect }) => redirect('/login?next=/x'),
+				}),
+			],
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/secret' });
+
+		expect(state.routeDataState.getState().location.pathname).toBe('/login');
+		expect(state.routeDataState.getState().location.search).toBe('?next=/x');
+	});
+
 	it('reuses one cache entry across trailing-slash forms', async () => {
 		const loader = vi.fn().mockResolvedValue('data');
 		routerConfig.configure({

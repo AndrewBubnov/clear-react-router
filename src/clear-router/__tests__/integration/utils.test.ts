@@ -60,6 +60,18 @@ describe('utils', () => {
 			const params = getParams(location, routeItem);
 			expect(params).toEqual({ userId: 'john doe' });
 		});
+
+		it('extracts params from a pathname with collapsed double slashes', () => {
+			const location: Location = { pathname: '/user//123' };
+			const routeItem: RouteItem = {
+				path: '/user/:userId',
+				element: TestElement,
+				pattern: '/user/:userId',
+			} as RouteItem;
+
+			const params = getParams(location, routeItem);
+			expect(params).toEqual({ userId: '123' });
+		});
 	});
 
 	describe('comparePaths', () => {

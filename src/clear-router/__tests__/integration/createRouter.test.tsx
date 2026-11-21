@@ -328,6 +328,28 @@ describe('shadowed route warnings', () => {
 		expect(warn).not.toHaveBeenCalled();
 	});
 
+	it('does not warn for partially overlapping same-depth patterns', () => {
+		createRouter([
+			{ path: '/a/:x/b', element: TestElement },
+			{ path: '/a/c/:y', element: TestElement },
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
+	it('does not warn for a nested catch-all route', () => {
+		createRouter([
+			{
+				path: '/playground',
+				element: TestElement,
+				children: [{ path: '*', element: TestElement }],
+			},
+			{ path: '/about', element: TestElement },
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
 	it('warns about same-shape duplicates', () => {
 		createRouter([
 			{ path: '/a/:id', element: TestElement },

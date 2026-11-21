@@ -54,10 +54,12 @@ const warnAboutShadowedRoutes = (routes: RouteItem[]) => {
 	const isParam = (segment: string) => segment.startsWith(':');
 	// Two same-length patterns overlap in matched pathnames when every position
 	// pair is (param, anything) or equal statics.
-	const compatible = (earlier: string, later: string) => isParam(earlier) || isParam(later) || earlier === later;
-	// `later` can win a pathname that also matches `earlier` when it is static
-	// where `earlier` is a parameter (the positional-specificity rule).
 	const isMoreSpecific = (a: string[], b: string[]) => a.some((segment, k) => !isParam(segment) && isParam(b[k]));
+	// Strict coverage: `earlier` shadows `later` only if every pathname `later`
+	// matches also matches `earlier`. A mere overlap (/a/:x/b vs /a/c/:y both
+	// match /a/c/b) is not shadowing — `later` stays reachable elsewhere.
+	const covers = (earlier: string[], later: string[]) =>
+		earlier.every((segment, k) => isParam(segment) || segment === later[k]);
 
 	for (let j = 1; j < routes.length; j++) {
 		const later = segments(routes[j].pattern);
@@ -65,7 +67,7 @@ const warnAboutShadowedRoutes = (routes: RouteItem[]) => {
 			if (routes[i].path === NOT_FOUND || routes[j].path === NOT_FOUND) continue;
 			const earlier = segments(routes[i].pattern);
 			if (earlier.length !== later.length) continue;
-			if (!earlier.every((segment, k) => compatible(segment, later[k]))) continue;
+			if (!covers(earlier, later)) continue;
 			if (isMoreSpecific(later, earlier)) {
 				console.warn(
 					`[clear-router] Route "${routes[j].pattern}" is shadowed by "${routes[i].pattern}" declared earlier ` +
@@ -84,7 +86,9 @@ const warnAboutShadowedRoutes = (routes: RouteItem[]) => {
 		}
 	}
 
-	const catchAllIndex = routes.findIndex(route => route.path === NOT_FOUND);
+	// Only a top-level catch-all (pattern "/*") is global; a nested "*" merely
+	// catches its own subtree.
+	const catchAllIndex = routes.findIndex(route => route.pattern === '/*');
 	if (catchAllIndex !== -1 && catchAllIndex !== routes.length - 1)
 		console.warn(
 			`[clear-router] Catch-all route "${NOT_FOUND}" is not declared last: it matches every pathname ` +

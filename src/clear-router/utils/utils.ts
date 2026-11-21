@@ -14,8 +14,8 @@ const decodeSegment = (value: string) => {
 export const getParams = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
 
-	const pathnameSegments = location.pathname.split('/');
-	const rawSegments = routeItem.pattern.split('/');
+	const pathnameSegments = location.pathname.split('/').filter(Boolean);
+	const rawSegments = routeItem.pattern.split('/').filter(Boolean);
 
 	return rawSegments.reduce(
 		(acc, segment, index) => {
@@ -59,8 +59,12 @@ export const splitPathAndSearch = (value: string): [string, string] => {
 export const toCacheKey = (path: string) => {
 	const [base, query = ''] = splitPathAndSearch(path);
 	const params = new URLSearchParams(query);
-	params.sort();
-	const canonical = params.toString();
+	// Sort by name AND value: URLSearchParams.sort() is name-only and stable,
+	// so reordered same-name params would stay distinct keys.
+	const entries = [...params.entries()].sort(([aKey, aValue], [bKey, bValue]) =>
+		aKey < bKey ? -1 : aKey > bKey ? 1 : aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+	);
+	const canonical = new URLSearchParams(entries).toString();
 	return `${base.replace(/\/{2,}/g, '/').replace(/\/+$/, '') || '/'}${canonical ? `?${canonical}` : ''}`;
 };
 
