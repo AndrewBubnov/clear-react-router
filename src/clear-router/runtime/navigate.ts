@@ -51,6 +51,8 @@ export const createNavigate = (
 
 	const beforeLoad = async (routeItem: RouteItem | undefined, nextLocation: Location) => {
 		const { defaultBeforeLoad } = routerConfig;
+		// One signal per navigation: the next navigate's createSignal supersedes it.
+		const signal = createSignal();
 		const runBeforeLoad = async (loaderFn: BeforeLoad) => {
 			const redirect = async (redirected: Location | string) => {
 				const { location } = routeDataState.getState();
@@ -62,7 +64,7 @@ export const createNavigate = (
 				);
 			};
 			try {
-				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem) });
+				await loaderFn({ redirect, ...getPartialLoaderArgs(contextState, nextLocation, routeItem), signal });
 				return null;
 			} catch (error) {
 				return error as Error;

@@ -6,6 +6,6 @@ export const useSetInitialContext = (initialContext?: RouterProps['context']) =>
 	const [, setContext] = router.hooks.useContextState();
 
 	useEffect(() => {
-		if (initialContext) setContext(initialContext);
+		if (initialContext) setContext(prev => ({ ...prev, ...initialContext }));
 	}, [initialContext, setContext]);
 };

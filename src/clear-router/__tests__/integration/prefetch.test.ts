@@ -66,6 +66,27 @@ describe('prefetch', () => {
 		expect(state.loaderMap.has('/test')).toBe(true);
 	});
 
+	it('stops an aborted prefetch before it writes the cache', async () => {
+		let resolveLoader!: (value: string) => void;
+		const loader = vi.fn(() => new Promise<string>(resolve => (resolveLoader = resolve)));
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/test', pattern: '/test', loader })],
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		prefetch = createPrefetch(state, revalidateCache);
+
+		const controller = new AbortController();
+		const promise = prefetch({ pathname: '/test' }, controller.signal);
+		// Abort mid-flight: wait until the loader is running, then abort.
+		await vi.waitFor(() => expect(loader).toHaveBeenCalled());
+		controller.abort();
+		resolveLoader('late');
+		await promise;
+
+		expect(state.loaderMap.has('/test')).toBe(false);
+	});
+
 	it('skips when already at same location', async () => {
 		const loader = vi.fn().mockResolvedValue('data');
 		const routeItem = createMockRouteItem({ loader });

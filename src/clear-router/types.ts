@@ -20,7 +20,7 @@ type LoaderArgs = {
 };
 
 export type BeforeLoad = (
-	arg: LoaderArgs & { redirect: (arg: Location | string) => Promise<void> }
+	arg: LoaderArgs & { signal: AbortSignal; redirect: (arg: Location | string) => Promise<void> }
 ) => Promise<unknown> | undefined | void;
 
 export type ScrollRestorationBehavior = 'auto' | 'smooth' | 'instant';

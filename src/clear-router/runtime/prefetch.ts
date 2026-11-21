@@ -9,13 +9,13 @@ export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache:
 	const queue: (() => Promise<void>)[] = [];
 	let active = 0;
 
-	const run = async (location: Location) => {
+	const run = async (location: Location, signal?: AbortSignal) => {
 		const item = findRoute(location.pathname);
 		if (!item) return;
 		const currentLocation = routeDataState.getState().location;
 		if (location.pathname === currentLocation.pathname && location.search === currentLocation.search) return;
 		await item.preloadElement?.();
-		await revalidateCache({ routeItem: item, location, reason: 'prefetch' });
+		await revalidateCache({ routeItem: item, location, reason: 'prefetch', signal });
 	};
 
 	const drain = () => {
@@ -30,7 +30,7 @@ export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache:
 		new Promise<void>(resolve => {
 			queue.push(async () => {
 				try {
-					if (!signal?.aborted) await run(location);
+					if (!signal?.aborted) await run(location, signal);
 				} catch {
 					// prefetch — best effort
 				} finally {

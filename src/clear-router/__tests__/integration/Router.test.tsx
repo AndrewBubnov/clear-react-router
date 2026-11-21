@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
-import { Router, Link, createRouter, useLoaderState, useLocation, useRouteStatus } from '../..';
+import {
+	Router,
+	Link,
+	createRouter,
+	useLoaderState,
+	useLocation,
+	useRouteStatus,
+	useRouterContext,
+	useNavigate,
+} from '../..';
 import { routes } from '../common';
 
 const TEST_TIMEOUT = 10000;
@@ -9,6 +18,80 @@ const TEST_TIMEOUT = 10000;
 describe('Router integration', () => {
 	beforeEach(() => {
 		window.history.pushState({}, '', '/');
+	});
+
+	it('provides a navigation signal to beforeLoad and aborts it when superseded', async () => {
+		window.history.pushState({}, '', '/slow-before');
+		const observedSignals: AbortSignal[] = [];
+		const signalRoutes = createRouter([
+			{
+				path: '/slow-before',
+				element: <div>Slow Before</div>,
+				beforeLoad: ({ signal }) => {
+					observedSignals.push(signal);
+					return new Promise(() => {});
+				},
+			},
+			{ path: '/other-before', element: <div>Other Before</div> },
+			{ path: '/', element: <div>Home</div> },
+		]);
+		const NavProbe = () => {
+			const navigate = useNavigate();
+			return <button data-testid="go-other" onClick={() => navigate('/other-before')} />;
+		};
+		render(
+			<div>
+				<NavProbe />
+				<Router routes={signalRoutes} />
+			</div>
+		);
+
+		await waitFor(() => expect(observedSignals.length).toBe(1));
+		expect(observedSignals[0].aborted).toBe(false);
+
+		fireEvent.click(screen.getByTestId('go-other'));
+		await waitFor(() => expect(screen.getByText('Other Before')).toBeInTheDocument());
+
+		expect(observedSignals[0].aborted).toBe(true);
+	});
+
+	it('keeps loader context updates when the context prop is a new inline object', async () => {
+		window.history.pushState({}, '', '/ctx');
+		const contextRoutes = createRouter([
+			{
+				path: '/ctx',
+				element: <div>Ctx Page</div>,
+				loader: ({ setContext }) => {
+					setContext(prev => ({ ...prev, fromLoader: 'yes' }));
+					return Promise.resolve('x');
+				},
+			},
+			{ path: '/', element: <div>Home</div> },
+		]);
+		const ContextProbe = () => {
+			const { context, setContext } = useRouterContext();
+			// The context store is process-global; leave it empty for the next test.
+			useEffect(() => () => setContext({}), [setContext]);
+			return <span data-testid="keys">{Object.keys(context).sort().join(',')}</span>;
+		};
+		const Wrapper = () => {
+			const [, force] = useState(0);
+			return (
+				<div>
+					<button data-testid="rerender" onClick={() => force(n => n + 1)} />
+					<ContextProbe />
+					<Router routes={contextRoutes} context={{ app: 'v1' }} />
+				</div>
+			);
+		};
+		render(<Wrapper />);
+
+		await waitFor(() => expect(screen.getByTestId('keys')).toHaveTextContent('app,fromLoader'));
+
+		fireEvent.click(screen.getByTestId('rerender'));
+		await waitFor(() => expect(screen.getByText('Ctx Page')).toBeInTheDocument());
+
+		expect(screen.getByTestId('keys')).toHaveTextContent('app,fromLoader');
 	});
 
 	it('makes initial context available to beforeLoad', async () => {
