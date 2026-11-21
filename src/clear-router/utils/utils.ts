@@ -2,6 +2,15 @@ import { Store } from '../create';
 import { WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import { Location, RouteItem, RouteData, RouterState, ScrollMap, SearchObject } from '../types';
 
+const decodeSegment = (value: string) => {
+	try {
+		return decodeURIComponent(value);
+	} catch {
+		// Malformed %-sequence — keep the raw segment rather than throwing.
+		return value;
+	}
+};
+
 export const getParams = (location: Location, routeItem?: RouteItem) => {
 	if (!routeItem) return {};
 
@@ -11,7 +20,8 @@ export const getParams = (location: Location, routeItem?: RouteItem) => {
 	return rawSegments.reduce(
 		(acc, segment, index) => {
 			if (segment.startsWith(':')) {
-				acc[segment.slice(1)] = pathnameSegments[index];
+				// interpolatePath encodes on the way in; decode on the way out.
+				acc[segment.slice(1)] = decodeSegment(pathnameSegments[index]);
 			}
 			return acc;
 		},
@@ -33,6 +43,12 @@ export const matchPathPattern = (pattern: string, pathname: string) => {
 	return patternSegments.length === pathSegments.length
 		? patternSegments.every((segment, index) => isParamSegment(segment) || segment === pathSegments[index])
 		: false;
+};
+
+/** Splits a path-with-query string; the search part keeps its leading '?' (or is ''). */
+export const splitPathAndSearch = (value: string): [string, string] => {
+	const question = value.indexOf('?');
+	return question === -1 ? [value, ''] : [value.slice(0, question), value.slice(question)];
 };
 
 export const comparePaths = (route: RouteItem, pathname: string) => {

@@ -12,7 +12,7 @@ import {
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
 import { routerConfig } from '../config/routerConfig';
-import { formatSearchObject, interpolatePath } from '../utils/utils';
+import { formatSearchObject, interpolatePath, splitPathAndSearch } from '../utils/utils';
 import { LinkDestination, RouterProps, Location, SearchObject } from '../types';
 
 const VIEWPORT_DWELL_MS = 250;
@@ -58,7 +58,7 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 	to,
 	path,
 	params,
-	search = '',
+	search,
 	state,
 	as = defaultAs as unknown as (props: ElementProps<T>) => ReactElement,
 	prefetch: linkPrefetch,
@@ -71,8 +71,12 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 	pendingClassName = 'pending-link',
 	...rest
 }: LinkProps<T, TPath>) => {
-	const pathname = path !== undefined ? interpolatePath(path, params ?? {}) : (to ?? '');
-	const searchString = typeof search === 'object' ? formatSearchObject(search) : search;
+	// A query may ride in `to` ('/items?filter=x'); the `search` prop, when
+	// given, takes precedence over the query embedded in `to`.
+	const [toPathname, toSearch] = splitPathAndSearch(to ?? '');
+	const pathname = path !== undefined ? interpolatePath(path, params ?? {}) : toPathname;
+	const searchString =
+		search === undefined ? toSearch : typeof search === 'object' ? formatSearchObject(search) : search;
 
 	const { useRouteDataSelector } = router.hooks;
 

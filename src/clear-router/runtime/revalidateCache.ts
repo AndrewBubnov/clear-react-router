@@ -33,6 +33,11 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 		const currentPath = `${pathname}${search}`;
 		const oldestKey = [...loaderMap.keys()].find(key => key !== currentPath);
 		if (oldestKey) {
+			// A pending GC timer of the evicted entry must not fire later and
+			// delete whatever (possibly fresh) entry is then stored under the
+			// same path.
+			const item = loaderMap.get(oldestKey);
+			if (item?.gcTimeout) window.clearTimeout(item.gcTimeout);
 			loaderMap.delete(oldestKey);
 			syncCacheSnapshot();
 		}

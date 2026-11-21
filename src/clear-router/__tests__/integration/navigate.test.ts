@@ -432,6 +432,33 @@ describe('navigate', () => {
 		expect(state.loaderMap.has('/gc')).toBe(false);
 	});
 
+	it('a stale GC timer does not delete a re-created entry', async () => {
+		const loaderA = vi.fn().mockResolvedValue('a');
+		const loaderB = vi.fn().mockResolvedValue('b');
+		routerConfig.configure({
+			routes: [
+				createMockRouteItem({ path: '/a', pattern: '/a', loader: loaderA, gcTime: 5000 }),
+				createMockRouteItem({ path: '/b', pattern: '/b', loader: loaderB }),
+			],
+			maxCacheSize: 1,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/a' });
+		await navigate({ pathname: '/b' });
+
+		// /a is evicted by maxCacheSize while its GC timer is still armed.
+		expect(state.loaderMap.has('/a')).toBe(false);
+
+		await navigate({ pathname: '/a' });
+		expect(state.loaderMap.has('/a')).toBe(true);
+
+		vi.advanceTimersByTime(5000);
+		// The old timer must not delete the fresh entry stored under the same path.
+		expect(state.loaderMap.has('/a')).toBe(true);
+	});
+
 	it('route without loader just commits state', async () => {
 		const routeItem = createMockRouteItem({ loader: undefined });
 		routerConfig.configure({ routes: [routeItem] });

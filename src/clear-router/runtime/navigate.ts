@@ -83,6 +83,10 @@ export const createNavigate = (
 		if (currentLoaderEntry.gcTimeout) window.clearTimeout(currentLoaderEntry?.gcTimeout);
 		const gcExpiresAt = Date.now() + routeItem.gcTime;
 		const gcTimeout = window.setTimeout(() => {
+			// Skip when the entry was evicted or replaced while this timer was
+			// armed: whatever is stored under the path now is not what this timer
+			// was created for, and a fresh entry owns its own (or no) timer.
+			if (loaderMap.get(path)?.gcTimeout !== gcTimeout) return;
 			loaderMap.delete(path);
 			syncCacheSnapshot();
 		}, routeItem.gcTime);

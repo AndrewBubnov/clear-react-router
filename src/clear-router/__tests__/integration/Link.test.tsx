@@ -1380,4 +1380,85 @@ describe('hooks', () => {
 			TEST_TIMEOUT
 		);
 	});
+
+	describe('query strings in `to` and string navigation', () => {
+		it(
+			'navigates when `to` contains a query string',
+			async () => {
+				const routes = createRouter([
+					{
+						path: '/',
+						element: (
+							<div>
+								<Link to="/items?filter=x">Items</Link>
+							</div>
+						),
+					},
+					{ path: '/items', element: <div>Items page</div>, loader: () => Promise.resolve('items') },
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				window.history.pushState({}, '', '/');
+				render(<Router routes={routes} />);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Items')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				screen.getByText('Items').click();
+				await waitFor(
+					() => {
+						expect(screen.getByText('Items page')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				expect(screen.queryByText('Not Found')).toBeNull();
+				expect(window.location.search).toBe('?filter=x');
+			},
+			TEST_TIMEOUT
+		);
+
+		it(
+			'navigates by string with a query and keeps the whole query tail',
+			async () => {
+				const routes = createRouter([
+					{ path: '/', element: <div>Home</div> },
+					{ path: '/items', element: <div>Items page</div>, loader: () => Promise.resolve('items') },
+					{ path: '/query', element: <div>Query page</div>, loader: () => Promise.resolve('query') },
+					{ path: '*', element: <div>Not Found</div> },
+				]);
+				const Probe = () => {
+					const navigate = useNavigate();
+					return <button data-testid="go-query" onClick={() => navigate('/query?a?b')} />;
+				};
+				window.history.pushState({}, '', '/');
+				render(
+					<div>
+						<Probe />
+						<Router routes={routes} />
+					</div>
+				);
+				await waitFor(
+					() => {
+						expect(screen.getByText('Home')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				screen.getByTestId('go-query').click();
+				await waitFor(
+					() => {
+						expect(screen.getByText('Query page')).toBeInTheDocument();
+					},
+					{ timeout: 5000 }
+				);
+
+				expect(screen.queryByText('Not Found')).toBeNull();
+				expect(window.location.search).toBe('?a?b');
+			},
+			TEST_TIMEOUT
+		);
+	});
 });

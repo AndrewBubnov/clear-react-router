@@ -48,6 +48,18 @@ describe('utils', () => {
 			const params = getParams(location, routeItem);
 			expect(params).toEqual({ postId: '456', commentId: '789' });
 		});
+
+		it('decodes encoded dynamic segments', () => {
+			const location: Location = { pathname: '/user/john%20doe' };
+			const routeItem: RouteItem = {
+				path: '/user/:userId',
+				element: TestElement,
+				pattern: '/user/:userId',
+			} as RouteItem;
+
+			const params = getParams(location, routeItem);
+			expect(params).toEqual({ userId: 'john doe' });
+		});
 	});
 
 	describe('comparePaths', () => {

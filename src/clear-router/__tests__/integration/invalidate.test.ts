@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createRevalidateCache } from '../../runtime/revalidateCache';
 import { createInvalidate } from '../../runtime/invalidate';
+import { createRouter } from '../../creators/createRouter';
 import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
 import { createMockRouteItem, EMPTY_LOADER_STATE } from '../common';
@@ -82,6 +83,28 @@ describe('invalidate', () => {
 			maxCacheSize: 10,
 		});
 	};
+
+	it('invalidates children of a parent with relative child paths', async () => {
+		const parentLoader = vi.fn().mockResolvedValue('parent data');
+		const childLoader = vi.fn().mockResolvedValue('child data');
+		routerConfig.configure({
+			routes: createRouter([
+				{
+					path: '/users',
+					loader: parentLoader,
+					children: [{ path: 'details', loader: childLoader }],
+				},
+			] as unknown as ClientRouteItem[]),
+			maxCacheSize: 10,
+		});
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		invalidate = createInvalidate(state, revalidateCache, syncCacheSnapshot);
+
+		await invalidate('/users', { withChildren: true });
+
+		expect(parentLoader).toHaveBeenCalledTimes(1);
+		expect(childLoader).toHaveBeenCalledTimes(1);
+	});
 
 	it('invalidates cached path and re-fetches', async () => {
 		state.loaderMap.set('/users', {

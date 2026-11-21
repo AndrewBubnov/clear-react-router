@@ -74,8 +74,12 @@ export const createInvalidate = (
 		if (!options?.withChildren || !routeItem.children?.length) return currentResults;
 
 		const [parentPath] = pathname.split('?');
+		// Child paths are authored relative ('details'), but may carry a leading
+		// slash — join and collapse so both forms resolve to '/users/details'.
 		const childResults = await Promise.all(
-			routeItem.children.map(child => invalidateItem(`${parentPath}${child.path}`, options))
+			routeItem.children.map(child =>
+				invalidateItem(`${parentPath}/${child.path}`.replace(/\/{2,}/g, '/'), options)
+			)
 		);
 
 		return [...currentResults, ...childResults.flat()];

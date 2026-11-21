@@ -4,7 +4,7 @@ import { createInvalidate } from '../runtime/invalidate';
 import { createPrefetch } from '../runtime/prefetch';
 import { createRevalidateCache } from '../runtime/revalidateCache';
 import { createCacheSnapshot } from '../runtime/syncCacheSnapshot';
-import { formatSearchObject, getParams, interpolatePath, isVerticalScroll } from '../utils/utils';
+import { formatSearchObject, getParams, interpolatePath, isVerticalScroll, splitPathAndSearch } from '../utils/utils';
 import { EMPTY_LOADER_STATE, WINDOW_LEFT, WINDOW_TOP } from '../constants';
 import { routerConfig } from '../config/routerConfig';
 import {
@@ -84,7 +84,9 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				const prevLocation = { pathname: location.pathname, search: location.search };
 				if (arg === -1) return history.go(arg);
 				if (typeof arg === 'string') {
-					const [pathname, search = ''] = arg.split('?');
+					// The search part keeps its leading '?' — Location.search carries
+					// it everywhere (Link, window.location, cache keys).
+					const [pathname, search] = splitPathAndSearch(arg);
 					if (pathname !== location.pathname || search !== location.search) {
 						await navigate({ pathname, search, prevLocation });
 					}
