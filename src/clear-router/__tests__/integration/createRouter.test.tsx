@@ -265,3 +265,76 @@ describe('createRouter', () => {
 		expect(result[2].externalCache).toBe(true);
 	});
 });
+
+describe('shadowed route warnings', () => {
+	let warn: ReturnType<typeof vi.spyOn>;
+
+	beforeEach(() => {
+		warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('warns when a static sibling is declared after a dynamic one', () => {
+		createRouter([
+			{
+				path: '/users',
+				element: TestElement,
+				children: [
+					{ path: '/:id', element: TestElement },
+					{ path: 'new', element: TestElement },
+				],
+			},
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		expect(warn.mock.calls[0]?.[0]).toContain('"/users/new"');
+		expect(warn.mock.calls[0]?.[0]).toContain('"/users/:id"');
+	});
+
+	it('does not warn when the static sibling is declared first', () => {
+		createRouter([
+			{
+				path: '/users',
+				element: TestElement,
+				children: [
+					{ path: 'new', element: TestElement },
+					{ path: '/:id', element: TestElement },
+				],
+			},
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
+	it('warns when a catch-all route is not declared last', () => {
+		createRouter([
+			{ path: '*', element: TestElement },
+			{ path: '/about', element: TestElement },
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		expect(warn.mock.calls[0]?.[0]).toContain('Catch-all');
+	});
+
+	it('does not warn when a catch-all route is declared last', () => {
+		createRouter([
+			{ path: '/about', element: TestElement },
+			{ path: '*', element: TestElement },
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).not.toHaveBeenCalled();
+	});
+
+	it('warns about same-shape duplicates', () => {
+		createRouter([
+			{ path: '/a/:id', element: TestElement },
+			{ path: '/a/:userId', element: TestElement },
+		] as unknown as ClientRouteItem[]);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		expect(warn.mock.calls[0]?.[0]).toContain('same match shape');
+	});
+});

@@ -98,6 +98,8 @@ Required: `<Router>` expects the output of `createRouter` (`RouteItem[]` with bu
 
 Normalizes route configuration. Extracts dynamic params, builds nested paths.
 
+> **Route matching is order-sensitive:** the first matching route wins. Declare static siblings (`/users/new`) before dynamic ones (`/users/:id`), and a `*` catch-all last — in dev mode a warning fires for a shadowed route, a same-shape duplicate, or a catch-all that is not last.
+
 > Route options are **per-leaf**: each route's `staleTime`, `retry`, `gcTime`, etc. apply to that route only (app-wide defaults come from `<Router>` props). The only options inherited from a parent to all its descendants are `layout` and `externalCache` (a child can override either — including opting out with `externalCache: false`).
 
 | Property                    | Type                                                                                                                                          | Description                                                                                                                                                                                                                                                         |
@@ -1069,6 +1071,8 @@ This revalidates all cached routes such as:
 
 Pattern-based invalidation is cache-only: it never sends `:param`/`[param]` to a loader.
 If no cached route matches, nothing is fetched.
+
+> Bracket syntax (`[param]`) is an **invalidation-pattern** form of `:param` — route declarations use `:param` only. Both forms are accepted here so you can copy a route pattern straight into `invalidate()`. `*` is not a valid invalidation pattern: catch-all pages are not prefetched or invalidated by path.
 
 This also works for nested dynamic routes:
 
