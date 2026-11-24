@@ -4,7 +4,7 @@ test('home lists every demo and the gear opens settings', async ({ page }) => {
 	await page.goto('/playground');
 
 	await expect(page.locator('.pg-card-home')).toHaveCount(12);
-	await expect(page.getByRole('heading', { name: 'Deferred render' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'External data cache' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toHaveCount(0);
 
 	await page.locator('.pg-gear-link').click();

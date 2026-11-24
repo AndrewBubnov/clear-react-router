@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
-import { ActionIcon, Switch, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
-import { IconMenu2, IconMoon, IconRoute, IconSettings, IconSun, IconX } from '@tabler/icons-react';
 import { Link } from '../clear-router';
+import { ActionIcon, Switch, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { MenuIcon, MoonIcon, RouteIcon, SettingsIcon, SunIcon, XIcon } from '@animateicons/react/lucide';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
 
@@ -34,7 +34,7 @@ const ThemeToggle = () => {
 			onClick={() => setColorScheme(dark ? 'light' : 'dark')}
 			aria-label={label}
 		>
-			{dark ? <IconSun size={19} stroke={1.8} /> : <IconMoon size={19} stroke={1.8} />}
+			{dark ? <SunIcon size={19} /> : <MoonIcon size={19} />}
 		</ActionIcon>
 	);
 };
@@ -54,7 +54,7 @@ export const PlaygroundNav = () => {
 					aria-label="Clear Router playground — npm package (opens in new tab)"
 				>
 					<span className="pg-brand-mark" aria-hidden="true">
-						<IconRoute size={20} stroke={1.8} />
+						<RouteIcon size={20} />
 					</span>
 					<span className="pg-brand-copy">
 						<span className="pg-brand">Clear React Router</span>
@@ -73,7 +73,7 @@ export const PlaygroundNav = () => {
 					/>
 					<ThemeToggle />
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link pg-icon-button">
-						<IconSettings size={19} stroke={1.8} aria-hidden="true" />
+						<SettingsIcon size={19} aria-hidden="true" />
 					</Link>
 					<ActionIcon
 						className="pg-menu-toggle pg-icon-button"
@@ -85,7 +85,7 @@ export const PlaygroundNav = () => {
 						aria-expanded={menuOpen}
 						aria-controls="pg-nav"
 					>
-						{menuOpen ? <IconX size={19} stroke={1.8} /> : <IconMenu2 size={19} stroke={1.8} />}
+						{menuOpen ? <XIcon size={19} /> : <MenuIcon size={19} />}
 					</ActionIcon>
 				</div>
 			</div>

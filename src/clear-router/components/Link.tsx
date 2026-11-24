@@ -8,6 +8,7 @@ import {
 	ReactElement,
 	Ref,
 	useMemo,
+	AnchorHTMLAttributes,
 } from 'react';
 import { router } from '../instance';
 import { useNavigate } from '../hooks/useNavigate';
@@ -32,7 +33,10 @@ export type ElementProps<T extends HTMLElement = HTMLElement> = {
 	'aria-busy'?: boolean;
 } & Record<`data-${string}` | `aria-${string}`, unknown>;
 
-export type LinkProps<T extends HTMLElement = HTMLAnchorElement, TPath extends string = string> = {
+export type LinkProps<T extends HTMLElement = HTMLAnchorElement, TPath extends string = string> = Omit<
+	AnchorHTMLAttributes<HTMLAnchorElement>,
+	'href' | 'onClick' | 'style' | 'className'
+> & {
 	search?: string | SearchObject;
 	state?: unknown;
 	children?: ReactNode;
@@ -69,6 +73,8 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 	exact = false,
 	activeClassName = 'active-link',
 	pendingClassName = 'pending-link',
+	onMouseEnter: onMouseEnterProp,
+	onMouseLeave: onMouseLeaveProp,
 	...rest
 }: LinkProps<T, TPath>) => {
 	// A query may ride in `to` ('/items?filter=x'); the `search` prop, when
@@ -106,20 +112,30 @@ export const Link = <T extends HTMLElement = HTMLAnchorElement, const TPath exte
 		[searchString, state, pathname]
 	);
 
-	const onMouseEnter = useCallback(() => {
-		const prefetchDelay = getPrefetchDelay();
-		if (getPrefetchStrategy() !== 'hover' || !prefetchDelay) return;
-		if (timeout.current) clearTimeout(timeout.current);
-		timeout.current = window.setTimeout(() => router.runtime.prefetch(location), prefetchDelay);
-	}, [getPrefetchStrategy, getPrefetchDelay, location]);
+	// User handlers run first, then the internal hover prefetch: a consumer
+	// hooking hover (e.g. animated icons) must not shadow prefetch.
+	const onMouseEnter = useCallback(
+		(event: MouseEvent) => {
+			onMouseEnterProp?.(event as MouseEvent<HTMLAnchorElement>);
+			const prefetchDelay = getPrefetchDelay();
+			if (getPrefetchStrategy() !== 'hover' || !prefetchDelay) return;
+			if (timeout.current) clearTimeout(timeout.current);
+			timeout.current = window.setTimeout(() => router.runtime.prefetch(location), prefetchDelay);
+		},
+		[onMouseEnterProp, getPrefetchStrategy, getPrefetchDelay, location]
+	);
 
-	const onMouseLeave = useCallback(() => {
-		if (getPrefetchStrategy() !== 'hover' || !getPrefetchDelay()) return;
-		if (timeout.current) {
-			clearTimeout(timeout.current);
-			timeout.current = 0;
-		}
-	}, [getPrefetchStrategy, getPrefetchDelay]);
+	const onMouseLeave = useCallback(
+		(event: MouseEvent) => {
+			onMouseLeaveProp?.(event as MouseEvent<HTMLAnchorElement>);
+			if (getPrefetchStrategy() !== 'hover' || !getPrefetchDelay()) return;
+			if (timeout.current) {
+				clearTimeout(timeout.current);
+				timeout.current = 0;
+			}
+		},
+		[onMouseLeaveProp, getPrefetchStrategy, getPrefetchDelay]
+	);
 
 	useEffect(() => {
 		if (getPrefetchStrategy() !== 'render') return;

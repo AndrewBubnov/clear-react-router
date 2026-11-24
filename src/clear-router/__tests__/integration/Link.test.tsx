@@ -730,6 +730,54 @@ describe('prefetch', () => {
 		},
 		TEST_TIMEOUT
 	);
+
+	it(
+		'a user-provided onMouseEnter does not disable hover prefetch',
+		async () => {
+			const loader = vi.fn(async () => 'shadow data');
+			const onMouseEnter = vi.fn();
+			// Unique target path: the runtime is a per-file singleton whose loaderMap
+			// outlives tests, and a previous test's prefetch entry ('/about' etc.)
+			// carries a 30s prefetch grace — it would mask this loader entirely.
+			const hoverRoutes = createRouter([
+				{
+					path: '/',
+					element: (
+						<div>
+							<h3>Hover Home</h3>
+							<Link to="/shadow-hover-target" hoverPrefetchDelay={10} onMouseEnter={onMouseEnter}>
+								<span>Shadow Hover</span>
+							</Link>
+						</div>
+					),
+				},
+				{ path: '/shadow-hover-target', element: <div>Shadow Page</div>, loader },
+				{ path: '*', element: <div>Not Found</div> },
+			]);
+			render(<Router routes={hoverRoutes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByText('Hover Home')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+
+			try {
+				routerConfig.configure({ defaultPrefetch: 'hover' });
+				fireEvent.mouseEnter(screen.getByText('Shadow Hover'));
+				await waitFor(
+					() => {
+						expect(loader).toHaveBeenCalledTimes(1);
+					},
+					{ timeout: 5000 }
+				);
+				expect(onMouseEnter).toHaveBeenCalled();
+			} finally {
+				routerConfig.configure({ defaultPrefetch: 'hover' });
+			}
+		},
+		TEST_TIMEOUT
+	);
 });
 
 describe('path params', () => {

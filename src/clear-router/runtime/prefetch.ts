@@ -31,6 +31,7 @@ export const createPrefetch = ({ routeDataState }: RouterState, revalidateCache:
 			queue.push(async () => {
 				try {
 					if (!signal?.aborted) await run(location, signal);
+
 				} catch {
 					// prefetch — best effort
 				} finally {

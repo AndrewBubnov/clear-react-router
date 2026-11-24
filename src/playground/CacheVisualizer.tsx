@@ -2,7 +2,7 @@ import { CSSProperties, useState } from 'react';
 import { useCacheSnapshot, type CacheReason, type CacheSnapshotEntry } from '../clear-router';
 import { AnimatePresence, motion } from 'motion/react';
 import { Badge, Card, Group, Loader, Text, ThemeIcon, Tooltip } from '@mantine/core';
-import { IconArrowRight, IconBolt, IconRefresh, IconReload } from '@tabler/icons-react';
+import { ArrowRightIcon, RefreshCwIcon, RotateCwIcon, ZapIcon } from '@animateicons/react/lucide';
 
 const VISIBLE_LIMIT = 6;
 
@@ -38,10 +38,10 @@ const REASON = {
 const BATTERY_PICES_COUNT = 4;
 
 const REASON_ICON = {
-	navigation: IconArrowRight,
-	prefetch: IconBolt,
-	invalidate: IconReload,
-	polling: IconRefresh,
+	navigation: ArrowRightIcon,
+	prefetch: ZapIcon,
+	invalidate: RotateCwIcon,
+	polling: RefreshCwIcon,
 } as const;
 
 const shortLabel = (path: string) => {
@@ -127,7 +127,7 @@ const CardIcon = ({ isLoading, item }: { isLoading: boolean; item: DisplayItem }
 							transition={{ duration: 0.2 }}
 							style={{ display: 'flex' }}
 						>
-							<Icon size={16} stroke={2} />
+							<Icon size={16} className="pg-anim-icon-inline" />
 						</motion.div>
 					</AnimatePresence>
 				)}
