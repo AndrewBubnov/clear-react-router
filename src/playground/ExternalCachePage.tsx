@@ -1,8 +1,27 @@
+import { useEffect, useRef } from 'react';
 import { Button, Stack, Text } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { PlugZapIcon } from '@animateicons/react/lucide';
 import { Link, useInvalidate, useLoaderState, useParams } from '../clear-router';
 
 import { EXTERNAL_QUOTE_STALE_TIME, fetchExternalQuote, type ExternalQuote } from './api';
+
+/** Pulses once per fact refetch: the effect on `loads` start()s the animated
+ * icon whenever the counter changes — the icon literally shows the external
+ * cache doing work (hover-trigger still applies, like every animated icon). */
+const LoadPulse = ({ loads }: { loads: number }) => {
+	const iconRef = useRef<{ startAnimation: () => void; stopAnimation: () => void }>(null);
+	const mounted = useRef(false);
+	useEffect(() => {
+		// Skip the initial mount: the pulse is for RE-fetches, not the first load.
+		if (!mounted.current) {
+			mounted.current = true;
+			return;
+		}
+		iconRef.current?.startAnimation();
+	}, [loads]);
+	return <PlugZapIcon className="pg-anim-icon-inline" ref={iconRef} size={20} aria-hidden="true" />;
+};
 
 /** Same as the loader: TQ decides whether a refetch is needed. */
 const quoteQuery = (symbol: string, staleTime = EXTERNAL_QUOTE_STALE_TIME) => ({
@@ -60,17 +79,19 @@ const ExternalCachePage = () => {
 		<div className="pg-wrap">
 			<h1>External data cache (TanStack Query)</h1>
 			<div className="pg-card">
-				<h2>Route snapshot (loader pipeline)</h2>
+				<h2>
+					Route snapshot (loader pipeline) <LoadPulse loads={data.loads} />
+				</h2>
 				<p className="pg-row pg-no-margin">
 					{loadError ? (
 						<span className="pg-badge err">{loadError.message}</span>
 					) : (
 						<>
-							<span className="pg-badge">{data?.symbol}</span>
-							<span className="pg-badge ok">${data?.price}</span>
-							<span className="pg-badge">fetched at {data?.fetchedAt}</span>
+							<span className="pg-badge">{data.symbol}</span>
+							<span className="pg-badge ok">${data.price}</span>
+							<span className="pg-badge">fetched at {data.fetchedAt}</span>
 							<span className="pg-badge" data-testid="ext-snapshot-loads">
-								{count(data?.loads ?? 0)}
+								{count(data.loads)}
 							</span>
 						</>
 					)}
@@ -88,7 +109,7 @@ const ExternalCachePage = () => {
 				<h2>Fact subscription (live TanStack cache)</h2>
 				<Stack gap={4}>
 					<Text size="sm">
-						<code>useQuery</code> panel — same query key <code>['quote', {extId}]</code>:
+						<code>useQuery</code> panel — same query key <code>[&apos;quote&apos;, {extId}]</code>:
 					</Text>
 					<Text size="sm">
 						{ticker.data ? (
@@ -118,6 +139,9 @@ const ExternalCachePage = () => {
 					<span className="pg-badge" data-testid="ext-loads">
 						{count(ticker.data?.loads ?? 0)}
 					</span>
+					{/* Pulses exactly when the counter bumps: silent for a no-op router
+						invalidate inside the freshness window, pulsing on a real refetch. */}
+					<LoadPulse loads={ticker.data?.loads ?? 0} />
 				</p>
 				<div className="pg-btn-grid">
 					<Button
@@ -156,12 +180,12 @@ const ExternalCachePage = () => {
 					<Link to="/playground/live">Live page</Link> quotes the same ones). All three buttons open the same
 					route — only the <code>:extId</code> param differs. The router sees three different navigations; the
 					external cache sees three different facts (one per symbol). The counter below is this symbol&apos;s
-					fetch count — it travels with you across symbols. This section is flagged <code>externalCache</code>
-					: the router cache never claims freshness over the facts — hover prefetch still warms the external
-					cache, but the loader re-runs on every navigation and the external cache decides whether a fetch
-					happens. Try it: open CLR, then VITE — each first visit fetches. Now open CLR again within{' '}
-					<code>5 seconds</code> — the loader still runs, but the counter does not move: the cached value
-					renders instantly.
+					fetch count — it travels with you across symbols. This section is flagged{' '}
+					<code>externalCache: true</code> (inherited from the section route): the router cache never claims
+					freshness here — hover prefetch still warms the external cache, but the loader re-runs on every
+					navigation and the external cache decides whether a fetch happens. Try it: open CLR, then VITE —
+					each first visit fetches. Now open CLR again within <code>5 seconds</code> — the loader still runs,
+					but the counter does not move: the cached value renders instantly.
 				</p>
 				<p className="pg-row pg-no-margin">
 					<span className="pg-badge">{count(ticker.data?.loads ?? 0)}</span>
@@ -170,8 +194,7 @@ const ExternalCachePage = () => {
 					{SYMBOLS.map(symbol => (
 						<Link
 							key={symbol}
-							path="/playground/cache/external/:extId"
-							params={{ extId: symbol }}
+							to={`/playground/cache/external/${symbol}`}
 							data-testid={`ext-symbol-${symbol}`}
 						>
 							{symbol}
