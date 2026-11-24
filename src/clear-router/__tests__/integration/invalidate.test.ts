@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createRevalidateCache } from '../../runtime/revalidateCache';
 import { createInvalidate } from '../../runtime/invalidate';
+import { createNavigate } from '../../runtime/navigate';
 import { createRouter } from '../../creators/createRouter';
 import { create } from '../../create';
 import { routerConfig } from '../../config/routerConfig';
@@ -619,5 +620,41 @@ describe('invalidate', () => {
 		expect(childLoader).toHaveBeenCalledTimes(1);
 		expect(childLoader.mock.calls[0]?.[0]).toMatchObject({ params: { nestId: 'abc' } });
 		expect(result.map(entry => entry.path).sort()).toEqual(['/nest', '/nest/abc']);
+	});
+
+	it('a superseded invalidation does not commit null data over the navigation result', async () => {
+		const resolvers: ((value: string) => void)[] = [];
+		const deferredLoader = vi.fn(() => new Promise<string>(resolve => resolvers.push(resolve)));
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: deferredLoader })],
+			maxCacheSize: 10,
+		});
+		state = createMockRouterState();
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		invalidate = createInvalidate(state, revalidateCache, syncCacheSnapshot);
+		const navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		// Seed: the navigation's flight resolves first.
+		const seeded = navigate({ pathname: '/users' });
+		await new Promise(resolve => setTimeout(resolve, 0));
+		resolvers[0]('v1');
+		await seeded;
+
+		// Invalidate starts its own deferred flight.
+		const invalidation = invalidate();
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		// A navigation to the same path takes the invalidation's flight over.
+		const navigation = navigate({ pathname: '/users' });
+		await new Promise(resolve => setTimeout(resolve, 0));
+		resolvers[2]('v2');
+		await navigation;
+
+		// The superseded invalidation flight resolves late: it is no longer the
+		// owner, so its result must never reach the committed loader state.
+		resolvers[1]('v1-bis');
+		await invalidation;
+
+		expect(state.routeDataState.getState().loaderState.data).toBe('v2');
 	});
 });

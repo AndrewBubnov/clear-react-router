@@ -90,6 +90,27 @@ describe('navigate', () => {
 		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
+	it('commits the retry attempt result when the first loader attempt fails', async () => {
+		const loader = vi.fn((args: { attempt: number }) =>
+			args.attempt === 1 ? Promise.reject(new Error('flaky')) : Promise.resolve('retry data')
+		);
+		const routeItem = createMockRouteItem({
+			path: '/retry',
+			pattern: '/retry',
+			loader,
+			retry: { count: 1, delay: 0 },
+		});
+		routerConfig.configure({ routes: [routeItem] });
+
+		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+		navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+		await navigate({ pathname: '/retry' });
+
+		expect(state.routeDataState.getState().loaderState.data).toBe('retry data');
+		expect(state.routeDataState.getState().status).toBe('active');
+	});
+
 	it('warns in dev when no route matches', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		revalidateCache = createRevalidateCache(state, syncCacheSnapshot);

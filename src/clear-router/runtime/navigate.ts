@@ -233,7 +233,7 @@ export const createNavigate = (
 		const result = beforeLoadError
 			? { data: null, error: null, beforeLoadError }
 			: await loader(nextItem, nextLocation, seq);
-		if (seq !== navigationSeq) return;
+		if (seq !== navigationSeq || result === null) return;
 		const loaderStateValue: LoaderState = {
 			data: result?.data,
 			loaderError: (result?.error as Error | null) ?? null,

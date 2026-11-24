@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLoaderState, useRouterContext } from '../clear-router';
+import { PageSkeleton } from './Skeletons';
 
 type Badge = { id: number; cached: boolean } | null;
 
@@ -8,15 +9,20 @@ const RetryPage = () => {
 	const { context, setContext } = useRouterContext();
 	const [badge, setBadge] = useState<Badge>(null);
 
-	if (badge?.id !== data.fetchedAt) {
-		setBadge({ id: data.fetchedAt, cached: context.retryFetchedAt === data.fetchedAt });
-	}
-
 	useEffect(() => {
+		if (!data) return;
 		if (context.retryFetchedAt !== data.fetchedAt) {
 			setContext(prevState => ({ ...prevState, retryFetchedAt: data.fetchedAt }));
 		}
-	}, [context.retryFetchedAt, data.fetchedAt, setContext]);
+	}, [context.retryFetchedAt, data, setContext]);
+
+	// The router commits status 'active' only together with a loader result, but a
+	// superseded commit used to land here with nothing — keep the showcase alive.
+	if (!data) return <PageSkeleton />;
+
+	if (badge?.id !== data.fetchedAt) {
+		setBadge({ id: data.fetchedAt, cached: context.retryFetchedAt === data.fetchedAt });
+	}
 
 	return (
 		<div className="pg-wrap">

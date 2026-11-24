@@ -209,3 +209,5 @@ export const CacheVisualizer = ({ maxSlots }: { maxSlots: number }) => {
 		</Card>
 	);
 };
+
+export default CacheVisualizer;

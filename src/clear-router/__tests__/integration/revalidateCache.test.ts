@@ -504,7 +504,7 @@ describe('revalidateCache', () => {
 			signal: controller.signal,
 		});
 
-		expect(result).toEqual({ data: null, error: null });
+		expect(result).toBeNull();
 		expect(loader).not.toHaveBeenCalled();
 		expect(state.loaderMap.size).toBe(0);
 	});
@@ -676,8 +676,9 @@ describe('revalidateCache', () => {
 		controller.abort();
 		vi.advanceTimersByTime(100);
 
+		// An aborted flight has no result at all — null, not an empty-looking {null, null}.
 		const result = await promise;
-		expect(result).toEqual({ data: null, error: null });
+		expect(result).toBeNull();
 		expect(state.loaderMap.has('/test')).toBe(false);
 	});
 
@@ -735,7 +736,8 @@ describe('revalidateCache', () => {
 
 		const [prefetchResult, navResult] = await Promise.all([prefetchPromise, navPromise]);
 
-		expect(prefetchResult).toEqual({ data: null, error: null });
+		// The superseded prefetch flight's result is 'nothing happened'.
+		expect(prefetchResult).toBeNull();
 		expect(navResult).toEqual({ data: 'navigation data', error: null });
 		expect(loader).toHaveBeenCalledTimes(2);
 	});

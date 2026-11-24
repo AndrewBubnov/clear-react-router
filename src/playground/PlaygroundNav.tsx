@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from 'react';
 import { Link } from '../clear-router';
-import { ActionIcon, Switch, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import { MenuIcon, MoonIcon, RouteIcon, SettingsIcon, SunIcon, XIcon } from '@animateicons/react/lucide';
 import { usePlaygroundSettings } from './usePlaygroundSettings';
 import { NAV_LINK_AS } from './NavLinkAs';
@@ -20,22 +19,38 @@ const NavLink = ({ to, exact, children }: { to: string; exact?: boolean; childre
 	);
 };
 
+const STORAGE_KEY = 'mantine-color-scheme-value';
+
+const applyScheme = (next: 'light' | 'dark') => {
+	window.localStorage.setItem(STORAGE_KEY, next);
+	// The browser fires `storage` events only in other tabs, but MantineProvider's
+	// manager listens for them — dispatch one so the provider (and its attribute)
+	// stays in sync on this tab too.
+	window.dispatchEvent(
+		new StorageEvent('storage', { key: STORAGE_KEY, newValue: next, storageArea: window.localStorage })
+	);
+};
+
 const ThemeToggle = () => {
-	const { setColorScheme } = useMantineColorScheme();
-	const computed = useComputedColorScheme('light');
-	const dark = computed === 'dark';
+	const [scheme, setScheme] = useState<'auto' | 'light' | 'dark'>(() => {
+		const stored = window.localStorage.getItem(STORAGE_KEY);
+		return stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'auto';
+	});
+	const dark = scheme === 'dark' || (scheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 	const label = `Switch to ${dark ? 'light' : 'dark'} theme`;
 	return (
-		<ActionIcon
+		<button
+			type="button"
 			className="pg-icon-button"
-			variant="default"
-			size="lg"
-			radius="xl"
-			onClick={() => setColorScheme(dark ? 'light' : 'dark')}
+			onClick={() => {
+				const next = dark ? 'light' : 'dark';
+				setScheme(next);
+				applyScheme(next);
+			}}
 			aria-label={label}
 		>
 			{dark ? <SunIcon size={19} /> : <MoonIcon size={19} />}
-		</ActionIcon>
+		</button>
 	);
 };
 
@@ -62,31 +77,33 @@ export const PlaygroundNav = () => {
 					</span>
 				</a>
 				<div className="pg-brand-controls">
-					<Switch
-						className="pg-cache-switch"
-						size="xs"
-						label="visualize cache"
+					<button
+						type="button"
+						role="switch"
+						aria-checked={showCacheVisualizer}
 						aria-label="visualize cache"
-						checked={showCacheVisualizer}
-						onChange={e => setShowCacheVisualizer(e.currentTarget.checked)}
-						styles={{ label: { lineHeight: 1.2 } }}
-					/>
+						className="pg-cache-switch pg-switch"
+						onClick={() => setShowCacheVisualizer(!showCacheVisualizer)}
+					>
+						<span className="pg-switch-track" aria-hidden="true">
+							<span className="pg-switch-thumb" />
+						</span>
+						<span className="pg-switch-label">visualize cache</span>
+					</button>
 					<ThemeToggle />
 					<Link to="/playground/settings" aria-label="Settings" className="pg-gear-link pg-icon-button">
 						<SettingsIcon size={19} aria-hidden="true" />
 					</Link>
-					<ActionIcon
+					<button
+						type="button"
 						className="pg-menu-toggle pg-icon-button"
-						variant="default"
-						size="lg"
-						radius="xl"
 						onClick={() => setMenuOpen(open => !open)}
 						aria-label={menuLabel}
 						aria-expanded={menuOpen}
 						aria-controls="pg-nav"
 					>
 						{menuOpen ? <XIcon size={19} /> : <MenuIcon size={19} />}
-					</ActionIcon>
+					</button>
 				</div>
 			</div>
 			<div className="pg-nav-row">

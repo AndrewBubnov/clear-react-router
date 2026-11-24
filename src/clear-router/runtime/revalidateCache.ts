@@ -59,8 +59,9 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 	): LoadingPromise => {
 		if (!routeItem?.loader) return;
 		// An already-aborted caller would start a flight whose result is
-		// discarded — and would supersede a live flight for nothing.
-		if (signal?.aborted) return { data: null, error: null };
+		// discarded — and would supersede a live flight for nothing. Null =
+		// 'nothing happened', same sentinel as every other discarded flight.
+		if (signal?.aborted) return null;
 
 		// The Router-level default is applied here, in the core, and still
 		// respects an explicit `externalCache: false` on the route.
@@ -123,7 +124,9 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 					signal: effectiveSignal,
 					attempt: retried + 1,
 				});
-				if (!isOwner() || effectiveSignal.aborted) return { data: null, error: null };
+				// Superseded or aborted flights have no authoritative result: return
+				// null so callers treat it as 'nothing happened' (their guards skip it).
+				if (!isOwner() || effectiveSignal.aborted) return null;
 				const resolvedStaleTime = routeItem.staleTime ?? routerConfig.defaultStaleTime ?? 0;
 				loaderMap.set(path, {
 					state: { data: result, beforeLoadError: null, loaderError: null },
@@ -139,7 +142,7 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 				syncCacheSnapshot();
 				return { data: result, error: null };
 			} catch (error) {
-				if (effectiveSignal.aborted || !isOwner()) return { data: null, error: null };
+				if (effectiveSignal.aborted || !isOwner()) return null;
 				const retry = getRetry(routeItem);
 				if (retry && retry.count > retried) {
 					if (isOwner()) {
@@ -148,7 +151,10 @@ export const createRevalidateCache = (routerState: RouterState, syncCacheSnapsho
 						flightReasons.delete(path);
 					}
 					if (retry.delay) await sleep(retry.delay);
-					return revalidateCache({ routeItem, location, signal, force, reason }, retried + 1);
+					// A bare `return promise` runs the finally synchronously and wipes this retry
+					// flight's owner entries (both share the owner token) — the retry's result
+					// would then be discarded as 'not owner'. Await keeps the finally after the chain.
+					return await revalidateCache({ routeItem, location, signal, force, reason }, retried + 1);
 				} else {
 					return { data: null, error };
 				}

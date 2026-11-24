@@ -43,6 +43,9 @@ Single maintainer project — keep changes small, consistent and verified.
   `routeItemDataState` next to `pushState`/`replaceState`. Never add a second source of truth for the URL.
 - **Status semantics**: `routeItemData.status` ∈ idle|pending|active|optimistic|error. Element renders only
   with matching `loaderState` — see `prepareNavigation` branches; keep them paired in the same commit.
+- **Loader-less routes** commit `status: 'active'` with `loaderState.data === undefined` (navigate uses
+  `result?.data` for them). Invariant: an `element` on a route without `loader` must not read `data` —
+  the router cannot guard reading a property off `undefined`.
 - **Fix scope rule.** Can the symptom corrupt user-visible state? (route/data tearing — yes) → treat the cause
   structurally, the cost is justified (united store). Is it only a perf/behavioral nuance? (prefetch strategy
   staleness — yes) → a minimal local read at the right moment suffices, don't touch the architecture.

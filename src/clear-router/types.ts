@@ -160,7 +160,7 @@ export type CacheSnapshotEntry = {
 
 export type CacheSnapshot = CacheSnapshotEntry[];
 
-export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | undefined>;
+export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | null | undefined>;
 
 export type ScrollMap = Record<string, [string, number][]>;
 

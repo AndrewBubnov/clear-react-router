@@ -567,7 +567,10 @@ root {
 	margin: 6px 0;
 }
 
-.pg-wrap a:not(.MuiButton-root):not(.mantine-Button-root):not(.pg-active-settings-link):not(.pg-wrap a.pg-button--primary) {
+.pg-wrap
+	a:not(.MuiButton-root):not(.mantine-Button-root):not(.pg-active-settings-link):not(
+		.pg-wrap a.pg-button--primary
+	):not(.pg-card-link) {
 	color: var(--text);
 	text-decoration: underline;
 	text-underline-offset: 3px;
@@ -580,6 +583,91 @@ root {
 
 .mantine-Switch-root {
 	--switch-color: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-9));
+}
+
+/* Own minimal switch (nav "visualize cache") — same look as Mantine's xs. */
+.pg-switch {
+	--switch-color: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-9));
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	border: 0;
+	background: none;
+	padding: 0;
+	font-size: 13px;
+	color: inherit;
+	cursor: pointer;
+}
+
+.pg-switch-track {
+	position: relative;
+	flex: none;
+	width: 30px;
+	height: 16px;
+	border-radius: 999px;
+	background: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-5));
+	transition: background-color 300ms ease;
+}
+
+.pg-switch[aria-checked='true'] .pg-switch-track {
+	background: var(--switch-color);
+}
+
+.pg-switch-thumb {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 12px;
+	height: 12px;
+	border-radius: 999px;
+	background: var(--mantine-color-white);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	transition: translate 200ms ease;
+}
+
+.pg-switch[aria-checked='true'] .pg-switch-thumb {
+	translate: 14px 0;
+}
+
+@media (hover: hover) {
+	.pg-switch:hover {
+		--switch-color: var(--mantine-color-brand-8);
+	}
+}
+
+/* Own status badge (was Mantine Badge, light variant) */
+.status-badge {
+	display: inline-flex;
+	align-items: center;
+	height: 25px;
+	padding: 0 12px;
+	border-radius: 999px;
+	font-size: 13px;
+}
+
+.pg-status-idle {
+	background: var(--mantine-color-gray-light);
+	color: var(--mantine-color-gray-light-color);
+}
+
+.pg-status-pending {
+	background: var(--mantine-color-indigo-light);
+	color: var(--mantine-color-indigo-light-color);
+}
+
+.pg-status-active {
+	background: var(--mantine-color-teal-light);
+	color: var(--mantine-color-teal-light-color);
+}
+
+.pg-status-optimistic {
+	background: var(--mantine-color-yellow-light);
+	color: var(--mantine-color-yellow-light-color);
+}
+
+.pg-status-error {
+	background: var(--mantine-color-red-light);
+	color: var(--mantine-color-red-light-color);
 }
 
 .mantine-Slider-root {
@@ -1428,7 +1516,7 @@ h1 {
 }
 
 @media (width <= 480px) {
-	.pg-cache-switch .mantine-Switch-labelWrapper {
+	.pg-cache-switch .pg-switch-label {
 		display: none;
 	}
 
