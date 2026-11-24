@@ -160,7 +160,9 @@ export type CacheSnapshotEntry = {
 
 export type CacheSnapshot = CacheSnapshotEntry[];
 
-export type LoadingPromise = Promise<{ data: unknown; error: null } | { data: null; error: unknown } | null | undefined>;
+export type LoadingPromise = Promise<
+	{ data: unknown; error: null } | { data: null; error: unknown } | null | undefined
+>;
 
 export type ScrollMap = Record<string, [string, number][]>;
 
@@ -199,7 +201,6 @@ export type RouterType = {
 		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
 		useRouteDataSelector<T>(callback: (arg: RouteData) => T): T;
 		useCacheSnapshot(): CacheSnapshot;
-		useSetLocation(): (location: Location) => void;
 	};
 };
 

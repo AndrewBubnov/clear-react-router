@@ -1,3 +1,5 @@
+import type { Location } from '../clear-router';
+
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Quote = { symbol: string; price: number };
@@ -175,4 +177,26 @@ export const randomIds = (prefix: string) => {
 	const ids = new Set<number>();
 	while (ids.size < 3) ids.add(Math.floor(Math.random() * 90) + 10);
 	return [...ids].map(n => `${prefix}-${n}`);
+};
+
+const PRODUCTS = [
+	'nike Air Zoom',
+	'nike Pegasus',
+	'reebok Nano',
+	'reebok Classic',
+	'adidas Ultraboost',
+	'adidas Samba',
+];
+
+/** Search demo: fake server-side filtering; every param combination is its own cache entry. */
+export type SearchResults = { brands: string[]; products: string[]; loads: number; fetchedAt: string };
+
+export const fetchSearchResults = async ({ location }: { location: Location }) => {
+	const n = trackCall('search');
+	await delay(400);
+	const brands = new URLSearchParams(location.search).getAll('brand');
+	const products = brands.length
+		? PRODUCTS.filter(product => brands.some(brand => product.startsWith(brand)))
+		: PRODUCTS;
+	return { brands, products, loads: n, fetchedAt: timeNow() };
 };

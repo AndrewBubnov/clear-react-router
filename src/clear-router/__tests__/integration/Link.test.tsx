@@ -1073,9 +1073,11 @@ describe('hooks', () => {
 		);
 
 		it(
-			'setSearchParams does not rerun the route loader',
+			'setSearchParams reruns the route loader for the new search',
 			async () => {
-				const loader = vi.fn().mockResolvedValue('cached data');
+				const loader = vi.fn((args: { searchParams: Record<string, string> }) =>
+					Promise.resolve(`data:${args.searchParams.brand ?? 'none'}`)
+				);
 				const SearchPage = () => {
 					const { getSearchParams, setSearchParams } = useSearchParams();
 					const { data } = useLoaderState<string>();
@@ -1096,7 +1098,7 @@ describe('hooks', () => {
 
 				await waitFor(
 					() => {
-						expect(screen.getByTestId('loader-data')).toHaveTextContent('cached data');
+						expect(screen.getByTestId('loader-data')).toHaveTextContent('data:none');
 					},
 					{ timeout: 5000 }
 				);
@@ -1106,10 +1108,18 @@ describe('hooks', () => {
 					screen.getByTestId('set-brand').click();
 				});
 
+				// The new search is a full navigation: pushed entry, loader re-run,
+				// fresh data committed for the new path+search cache key.
 				expect(window.location.search).toBe('?brand=nike');
 				expect(screen.getByTestId('brand')).toHaveTextContent('nike');
-				expect(screen.getByTestId('loader-data')).toHaveTextContent('cached data');
-				expect(loader).toHaveBeenCalledTimes(1);
+				await waitFor(
+					() => {
+						expect(screen.getByTestId('loader-data')).toHaveTextContent('data:nike');
+					},
+					{ timeout: 5000 }
+				);
+				expect(loader).toHaveBeenCalledTimes(2);
+				expect(loader.mock.calls[1]?.[0]).toMatchObject({ searchParams: { brand: 'nike' } });
 			},
 			TEST_TIMEOUT
 		);

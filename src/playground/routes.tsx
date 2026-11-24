@@ -18,6 +18,7 @@ import {
 	fetchOptimisticValue,
 	fetchProduct,
 	fetchQuotes,
+	fetchSearchResults,
 	fetchSlow,
 	fetchUnstable,
 } from './api';
@@ -151,6 +152,10 @@ export const playgroundRoutes = createRouter([
 	{
 		path: '/playground/search',
 		element: lazy(() => import('./SearchPage')),
+		loader: fetchSearchResults,
+		staleTime: 60000,
+		loaderFallback: <PageSkeleton />,
+		optimistic: true,
 	},
 	{
 		path: '/playground/guard',

@@ -19,10 +19,10 @@ const useLatest = <T>(value: T) => {
 };
 
 export const useSearchParams = (): UseSearchParamsReturn => {
-	const { useRouteDataSelector, useSetLocation } = router.hooks;
+	const { useRouteDataSelector, useNavigate } = router.hooks;
 	const location = useRouteDataSelector(state => state.location);
 	const { search = window.location.search } = location;
-	const setLocation = useSetLocation();
+	const navigate = useNavigate();
 
 	const searchRef = useLatest(search);
 
@@ -40,10 +40,12 @@ export const useSearchParams = (): UseSearchParamsReturn => {
 		(params: URLSearchParams) => {
 			const newSearch = params.toString();
 			const search = newSearch ? `?${newSearch}` : '';
-			history.replaceState(history.state, '', (location ?? window.location).pathname + search);
-			setLocation({ ...location, search });
+			// Identical parameters are a no-op: the navigation would only push a
+			// duplicate history entry.
+			if (search === (location.search ?? '')) return;
+			navigate({ ...location, search });
 		},
-		[location, setLocation]
+		[location, navigate]
 	);
 
 	const setSearchParams = useCallback(

@@ -117,7 +117,7 @@ const demos: Demo[] = [
 	{
 		to: '/playground/search',
 		title: 'Search params',
-		text: 'Filter via useSearchParams — single values and arrays, URL updates as you type.',
+		text: 'Filters as URL state: every combination is a cached navigation — the loader reruns, Back walks the history.',
 		icon: SearchIcon,
 		tone: 'cyan',
 	},

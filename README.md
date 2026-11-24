@@ -1385,31 +1385,16 @@ function ProductFilter() {
 
 > **Note:** `getSearchParams` returns `string` for single values, `string[]` for multiple values, and `''` if the key is not found.
 
-> **Note:** `setSearchParams` replaces the current history entry in place and does **not** run the route `loader` again. If the loader depends on query params, opt in explicitly:
+> **Note:** `setSearchParams` performs a full navigation to the same pathname with the new query:
+> it pushes a history entry and runs the route `loader` again with the updated `searchParams`.
+> Loader data is cached per `pathname + search`, so returning to a previously visited combination
+> of parameters is instant. To revalidate the current parameters without adding a history entry,
+> use `useInvalidate()`:
 
 ```tsx
-function ProductFilter() {
-	const { searchParams, setSearchParams } = useSearchParams();
-	const { pathname } = useLocation();
-	const navigate = useNavigate();
-	const invalidate = useInvalidate();
-
-	// Full navigation: runs beforeLoad / loader / afterLoad and pushes a history entry
-	const applyFilter = () => {
-		const next = new URLSearchParams(searchParams);
-		next.set('brand', 'nike');
-		navigate({ pathname, search: `?${next.toString()}` });
-	};
-
-	// Explicit revalidation: keeps the history entry, reruns the loader, skips beforeLoad / afterLoad
-	const revalidateFilter = async () => {
-		setSearchParams('brand', 'nike');
-		await invalidate();
-	};
-}
+const invalidate = useInvalidate();
+await invalidate(); // reruns the loader, keeps the history entry
 ```
-
-`invalidate()` revalidates every cached search variant of the pathname; only the variant matching the active `pathname + search` updates the current loader state.
 
 ## Lazy Loading
 

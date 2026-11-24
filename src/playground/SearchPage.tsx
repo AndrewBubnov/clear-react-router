@@ -1,4 +1,5 @@
-import { Link, useSearchParams } from '../clear-router';
+import { Link, useLoaderState, useSearchParams } from '../clear-router';
+import type { SearchResults } from './api';
 import { Button } from '@mantine/core';
 import { motion } from 'motion/react';
 
@@ -6,6 +7,7 @@ const BRANDS = ['nike', 'reebok', 'adidas'];
 
 const SearchPage = () => {
 	const { searchParams, getSearchParams, setSearchParams } = useSearchParams();
+	const { data } = useLoaderState<SearchResults>();
 	const active = getSearchParams('brand');
 	const query = searchParams.toString();
 	const paramCount = Array.from(searchParams.keys()).length;
@@ -14,8 +16,9 @@ const SearchPage = () => {
 		<div className="pg-wrap">
 			<h1>Search params</h1>
 			<p className="pg-hint">
-				The URL query string updates as you click — no navigation, no loader restart. `getSearchParams` returns
-				an array when a key has multiple values.
+				Every parameter combination is a full navigation: the loader reruns with the new query and the result is
+				cached per <code>pathname + search</code> — clicking a visited combination again renders instantly from
+				cache, and the browser Back button walks your filter history.
 			</p>
 			<div className="pg-card">
 				<div className="pg-row">
@@ -76,6 +79,42 @@ const SearchPage = () => {
 					</motion.div>
 				</div>
 			</div>
+			{data && (
+				<div className="pg-card">
+					<div className="pg-invalidate-result">
+						<div className="pg-invalidate-result__head">
+							<span className="pg-invalidate-result__title">Server results (loader)</span>
+							<span className="pg-badge" data-testid="search-loads">
+								loader call #{data.loads}
+							</span>
+						</div>
+						<motion.div
+							key={data.fetchedAt}
+							initial={{ opacity: 0, y: -6 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+						>
+							<div
+								className="pg-invalidate-result__row"
+								style={{ flexDirection: 'column' }}
+								data-testid="search-results"
+							>
+								{data.products.map(product => (
+									<div key={product} className="pg-invalidate-result__entry">
+										<span className="pg-badge">{product.split(' ')[0]}</span>
+										<span className="pg-invalidate-result__data">{product}</span>
+									</div>
+								))}
+								{data.products.length === 0 && (
+									<div className="pg-invalidate-result__entry">
+										<span className="pg-badge">no matches</span>
+									</div>
+								)}
+							</div>
+						</motion.div>
+					</div>
+				</div>
+			)}
 			<p>
 				<Link to="/playground">← Back to playground home</Link>
 			</p>

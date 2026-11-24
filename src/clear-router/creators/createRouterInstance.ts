@@ -164,8 +164,6 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 				return synchronizer(state.subscribe, () => callback(state.getState()));
 			},
 			useCacheSnapshot: () => useGlobalState<CacheSnapshot>(routerState.cacheSnapshotState, synchronizer)[0],
-			useSetLocation: () => (location: Location) =>
-				routerState.routeDataState.setState(prevState => ({ ...prevState, location })),
 		},
 	};
 };
