@@ -104,6 +104,7 @@ export const createNavigate = (
 				routeItem,
 				location,
 				status: 'optimistic',
+				keepsPreviousData: false,
 				...(currentLoaderState && { loaderState: currentLoaderState }),
 			}));
 		});
@@ -111,7 +112,19 @@ export const createNavigate = (
 
 	const commitPendingState = (routeItem: RouteItem | undefined, location: Location) =>
 		commitNavigation(() =>
-			routeDataState.setState(prevState => ({ ...prevState, routeItem, location, status: 'pending' }))
+			routeDataState.setState(prevState => ({
+				...prevState,
+				routeItem,
+				location,
+				status: 'pending',
+				// keepPreviousData: same element (identity from the routes config) with data
+				// already on screen — keep showing it while the new variant loads.
+				keepsPreviousData:
+					!!routeItem?.keepPreviousData &&
+					prevState.routeItem === routeItem &&
+					prevState.loaderState.data !== undefined &&
+					prevState.status !== 'error',
+			}))
 		);
 
 	const isOptimisticHit = (routeItem: RouteItem | undefined, path: string) =>

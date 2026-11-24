@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useEffect, useState, type ReactNode } from 'react';
-import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
+import { act, render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import {
 	Router,
 	Link,
@@ -754,6 +754,195 @@ describe('layout rendering', () => {
 			);
 
 			expect(layoutMounts).toBe(mountsBeforeNavigation);
+		},
+		TEST_TIMEOUT
+	);
+});
+
+describe('keepPreviousData', () => {
+	const buildFilterRoutes = (keepPreviousData: boolean) => {
+		const resolvers: ((value: string) => void)[] = [];
+		const rejections: ((error: Error) => void)[] = [];
+		const loader = vi.fn((args: { searchParams: Record<string, string> }) => {
+			const variant = args.searchParams.x ?? '1';
+			if (variant === '3')
+				return new Promise<string>((_, reject) => {
+					rejections.push(reject);
+				});
+			if (variant === '1') return Promise.resolve(`data-1`);
+			return new Promise<string>(resolve => {
+				resolvers.push(resolve);
+			});
+		});
+		const FilterView = () => {
+			const { data } = useLoaderState<string>();
+			const status = useRouteStatus();
+			return (
+				<div>
+					<span data-testid="filter-status">{status}</span>
+					<span data-testid="filter-data">{data}</span>
+					<Link to="/filter?x=2">
+						<span>To variant 2</span>
+					</Link>
+					<Link to="/filter?x=3">
+						<span>To variant 3</span>
+					</Link>
+					<Link to="/other">
+						<span>To other</span>
+					</Link>
+				</div>
+			);
+		};
+		const routes = createRouter([
+			{
+				path: '/filter',
+				element: <FilterView />,
+				loader,
+				keepPreviousData,
+				loaderFallback: <div>Loading filter…</div>,
+				errorElement: <div>Filter error</div>,
+			},
+			// A different element: pending here must never show the filter's data.
+			{
+				path: '/other',
+				element: <div>Other page</div>,
+				loader: () => new Promise<string>(() => {}),
+				loaderFallback: <div>Loading other…</div>,
+			},
+		]);
+		return { routes, loader, resolvers, rejections };
+	};
+
+	it(
+		'keeps the previous loader data on screen while a new search variant loads',
+		async () => {
+			const { routes, resolvers } = buildFilterRoutes(true);
+			window.history.pushState({}, '', '/filter?x=1');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To variant 2').click();
+			// Pending is committed for the new variant while the old data stays mounted.
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-status')).toHaveTextContent('pending');
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+			expect(screen.queryByText('Loading filter…')).not.toBeInTheDocument();
+
+			await act(async () => {
+				resolvers[0]('data-2');
+			});
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-2');
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.getByTestId('filter-status')).toHaveTextContent('active');
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'shows the fallback during pending without the flag',
+		async () => {
+			const { routes, resolvers } = buildFilterRoutes(false);
+			window.history.pushState({}, '', '/filter?x=1');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To variant 2').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText('Loading filter…')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.queryByTestId('filter-data')).not.toBeInTheDocument();
+
+			await act(async () => {
+				resolvers[0]('data-2');
+			});
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-2');
+				},
+				{ timeout: 5000 }
+			);
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'shows the fallback when pending targets a different element',
+		async () => {
+			const { routes } = buildFilterRoutes(true);
+			window.history.pushState({}, '', '/filter?x=1');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To other').click();
+			await waitFor(
+				() => {
+					expect(screen.getByText('Loading other…')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.queryByTestId('filter-data')).not.toBeInTheDocument();
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'replaces kept data with the error element when the pending loader fails',
+		async () => {
+			const { routes, rejections } = buildFilterRoutes(true);
+			window.history.pushState({}, '', '/filter?x=1');
+			render(<Router routes={routes} />);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+				},
+				{ timeout: 5000 }
+			);
+
+			screen.getByText('To variant 3').click();
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('filter-status')).toHaveTextContent('pending');
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.getByTestId('filter-data')).toHaveTextContent('data-1');
+
+			await act(async () => {
+				rejections[0](new Error('boom'));
+			});
+			await waitFor(
+				() => {
+					expect(screen.getByText('Filter error')).toBeInTheDocument();
+				},
+				{ timeout: 5000 }
+			);
+			expect(screen.queryByTestId('filter-data')).not.toBeInTheDocument();
 		},
 		TEST_TIMEOUT
 	);

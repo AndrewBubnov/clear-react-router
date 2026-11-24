@@ -18,7 +18,8 @@ const SearchPage = () => {
 			<p className="pg-hint">
 				Every parameter combination is a full navigation: the loader reruns with the new query and the result is
 				cached per <code>pathname + search</code> — clicking a visited combination again renders instantly from
-				cache, and the browser Back button walks your filter history.
+				cache (<code>optimistic</code>), a new combination keeps the previous results on screen while it loads (
+				<code>keepPreviousData</code>), and the browser Back button walks your filter history.
 			</p>
 			<div className="pg-card">
 				<div className="pg-row">

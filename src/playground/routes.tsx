@@ -155,7 +155,7 @@ export const playgroundRoutes = createRouter([
 		loader: fetchSearchResults,
 		staleTime: 60000,
 		loaderFallback: <PageSkeleton />,
-		optimistic: true,
+		keepPreviousData: true,
 	},
 	{
 		path: '/playground/guard',

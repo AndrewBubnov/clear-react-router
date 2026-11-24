@@ -49,6 +49,9 @@ export type ClientRouteItem = {
 	externalCache?: boolean;
 	gcTime?: number;
 	optimistic?: boolean;
+	/** While pending, keep the previous loader data on screen instead of the fallback.
+	 * Applies only when the pending navigation targets the same element and previous data exists. */
+	keepPreviousData?: boolean;
 	pollingInterval?: number;
 	retry?: Retry;
 	minLoaderDuration?: number;
@@ -105,6 +108,8 @@ export type RouteData = {
 	routeItem: RouteItem | undefined;
 	status: Status;
 	loaderState: LoaderState;
+	/** Pending keeps the previous loader data on screen (routeItem.keepPreviousData). */
+	keepsPreviousData?: boolean;
 };
 
 type ObjectRetry = { count: number; delay: number };

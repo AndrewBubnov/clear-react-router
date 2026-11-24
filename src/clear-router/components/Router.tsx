@@ -46,9 +46,11 @@ export const Router = ({
 	const routeItem = useRouteDataSelector(state => state.routeItem);
 	const location = useRouteDataSelector(state => state.location);
 	const status = useRouteDataSelector(state => state.status);
+	const keepsPreviousData = useRouteDataSelector(state => state.keepsPreviousData ?? false);
 
 	const isError = status === 'error';
 	const isLoading = status === 'pending';
+	const loadingContent = isLoading && !isError && !keepsPreviousData;
 
 	useSetRouterConfig({
 		routes,
@@ -72,8 +74,6 @@ export const Router = ({
 	useRestoreRouteScroll(defaultScrollRestorationBehavior);
 	useReload();
 	useNavigation();
-
-	const loadingContent = isLoading && !isError;
 
 	if (!routeItem) return renderElement(loadingContent ? defaultLoaderFallback : undefined);
 
