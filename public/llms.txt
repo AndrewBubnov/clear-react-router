@@ -31,6 +31,10 @@ Render `<Router routes={createRouter([...])} />` once and use hooks such as `use
 - [npm](https://www.npmjs.com/package/clear-react-router)
 - [GitHub](https://github.com/AndrewBubnov/clear-react-router)
 
+## Agent Skills
+
+- [getting-started skill](https://github.com/AndrewBubnov/clear-react-router/blob/master/src/clear-router/skills/getting-started/SKILL.md): SKILL.md for AI coding agents — setup, mental model, the loading pipeline, and per-task references (routes and loaders, search params as URL state, navigation/blocking/invalidation). Ships with the package; the source of truth lives in `src/clear-router/skills/`.
+
 ## Optional
 
 - [AGENTS.md](https://github.com/AndrewBubnov/clear-react-router/blob/master/AGENTS.md): repository conventions for coding agents; not part of the public API docs.
