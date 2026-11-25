@@ -179,24 +179,78 @@ export const randomIds = (prefix: string) => {
 	return [...ids].map(n => `${prefix}-${n}`);
 };
 
-const PRODUCTS = [
-	'nike Air Zoom',
-	'nike Pegasus',
-	'reebok Nano',
-	'reebok Classic',
-	'adidas Ultraboost',
-	'adidas Samba',
-];
+// --- Table demo: loader-driven table with the whole query state in the URL ---
 
-/** Search demo: fake server-side filtering; every param combination is its own cache entry. */
-export type SearchResults = { brands: string[]; products: string[]; loads: number; fetchedAt: string };
+export type TableRow = {
+	id: number;
+	product: string;
+	brand: string;
+	price: number;
+	status: 'in stock' | 'low stock' | 'archived';
+};
 
-export const fetchSearchResults = async ({ location }: { location: Location }) => {
-	const n = trackCall('search');
-	await delay(400);
-	const brands = new URLSearchParams(location.search).getAll('brand');
-	const products = brands.length
-		? PRODUCTS.filter(product => brands.some(brand => product.startsWith(brand)))
-		: PRODUCTS;
-	return { brands, products, loads: n, fetchedAt: timeNow() };
+const TABLE_BRANDS = ['nike', 'reebok', 'adidas'];
+const TABLE_PRODUCTS = ['Air Zoom', 'Pegasus', 'Nano', 'Classic', 'Ultraboost', 'Samba', 'Metcon', 'Court'];
+const TABLE_STATUSES = ['in stock', 'low stock', 'archived'] as const;
+
+export const TABLE_ROWS: TableRow[] = Array.from({ length: 48 }, (_, i) => ({
+	id: 1001 + i,
+	product: TABLE_PRODUCTS[i % TABLE_PRODUCTS.length],
+	brand: TABLE_BRANDS[Math.floor(i / TABLE_PRODUCTS.length) % TABLE_BRANDS.length],
+	price: 29 + ((i * 7) % 120),
+	status: TABLE_STATUSES[i % TABLE_STATUSES.length],
+}));
+
+export const TABLE_PAGE_SIZE = 8;
+
+export type TablePayload = {
+	items: TableRow[];
+	total: number;
+	page: number;
+	pageCount: number;
+	loads: number;
+	fetchedAt: string;
+};
+
+const TABLE_COLUMNS = ['id', 'product', 'brand', 'price', 'status'] as const;
+
+/** The table's "server": filter, sort and paginate from the URL search only. */
+export const fetchTableData = async ({ location }: { location: Location }): Promise<TablePayload> => {
+	const n = trackCall('table');
+	await delay(350);
+	const params = new URLSearchParams(location.search);
+	const q = (params.get('q') ?? '').trim().toLowerCase();
+	const brands = params.getAll('brand');
+	const sortParam = params.get('sort') ?? 'id';
+	const sort = (TABLE_COLUMNS as readonly string[]).includes(sortParam) ? sortParam : 'id';
+	const desc = params.get('dir') === 'desc';
+	const page = Math.max(1, Number(params.get('page')) || 1);
+
+	let rows = TABLE_ROWS;
+	if (brands.length) {
+		rows = rows.filter(row => brands.includes(row.brand));
+	}
+	if (q) {
+		rows = rows.filter(row =>
+			[row.product, row.brand, row.status, String(row.id)].some(value => value.toLowerCase().includes(q))
+		);
+	}
+	rows = [...rows].sort((a, b) => {
+		const key = sort as keyof TableRow;
+		const av = a[key];
+		const bv = b[key];
+		const cmp = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv));
+		return desc ? -cmp : cmp;
+	});
+
+	const pageCount = Math.max(1, Math.ceil(rows.length / TABLE_PAGE_SIZE));
+	const safePage = Math.min(page, pageCount);
+	return {
+		items: rows.slice((safePage - 1) * TABLE_PAGE_SIZE, safePage * TABLE_PAGE_SIZE),
+		total: rows.length,
+		page: safePage,
+		pageCount,
+		loads: n,
+		fetchedAt: timeNow(),
+	};
 };

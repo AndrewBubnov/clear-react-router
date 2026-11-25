@@ -116,8 +116,8 @@ const demos: Demo[] = [
 	},
 	{
 		to: '/playground/search',
-		title: 'Search params',
-		text: 'Filters as URL state: every combination is a cached navigation — the loader reruns, Back walks the history.',
+		title: 'Data table',
+		text: 'TanStack Table over loader data: multi-brand checkboxes, sort and pagination all live in the URL — keepPreviousData holds the rows.',
 		icon: SearchIcon,
 		tone: 'cyan',
 	},

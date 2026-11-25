@@ -494,6 +494,44 @@ root {
 	font-size: 14px;
 }
 
+.pg-btn,
+.pg-sort {
+	font: inherit;
+	font-size: 14px;
+	padding: 6px 12px;
+	border-radius: 8px;
+	border: 1px solid var(--border);
+	background: var(--bg);
+	color: var(--text-h);
+	cursor: pointer;
+}
+
+.pg-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.pg-sort {
+	padding: 2px 8px;
+	border: none;
+	background: transparent;
+}
+
+.pg-sort.active {
+	color: var(--accent);
+	font-weight: 600;
+}
+
+.pg-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font: inherit;
+	font-size: 14px;
+	cursor: pointer;
+	user-select: none;
+}
+
 .pg-input {
 	font: inherit;
 	font-size: 16px;
