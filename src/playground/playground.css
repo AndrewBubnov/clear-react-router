@@ -512,7 +512,7 @@ root {
 }
 
 .pg-sort {
-	padding: 2px 8px;
+	padding: 2px 8px 2px 0;
 	border: none;
 	background: transparent;
 }
