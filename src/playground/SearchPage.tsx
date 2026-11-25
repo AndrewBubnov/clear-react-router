@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLoaderState, useSearchParams } from '../clear-router';
 import { createColumnHelper, tableFeatures, useTable } from '@tanstack/react-table';
 import type { TablePayload, TableRow } from './api';
-import { isMobile } from '../clear-router/utils/utils.ts';
+import { isMobileViewport } from './utils';
 
 // Core-only features: the URL owns filter/sort/pagination state, the loader owns
 // the processed page — the table instance is a pure renderer.
@@ -13,7 +13,7 @@ const columns = helper.columns([
 	helper.accessor('product', { header: 'Product' }),
 	helper.accessor('brand', { header: 'Brand' }),
 	helper.accessor('price', { header: 'Price' }),
-	...(isMobile() ? [] : [helper.accessor('status', { header: 'Status' })]),
+	...(isMobileViewport ? [] : [helper.accessor('status', { header: 'Status' })]),
 ]);
 // Module-scope fallback: a fresh `data?.items ?? []` would invalidate the row
 // model on every render.
