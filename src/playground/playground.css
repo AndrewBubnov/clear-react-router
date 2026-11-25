@@ -1294,7 +1294,7 @@ a.mantine-Button-root {
 	font-size: 15px;
 }
 
-a.mantine-Button-root[data-variant='subtle'],
+a.mantine-Button-root,
 a.MuiButton-root {
 	text-transform: none;
 	font-size: 15px;
