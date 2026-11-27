@@ -31,6 +31,7 @@ export const Router = ({
 	defaultMinLoaderDuration = 0,
 	revalidateOnFocus = false,
 	revalidateOnReconnect = false,
+	onBackgroundError,
 	maxCacheSize,
 	defaultPrefetch,
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY,
@@ -66,6 +67,7 @@ export const Router = ({
 		maxCacheSize: resolvedMaxCacheSize,
 		revalidateOnFocus,
 		revalidateOnReconnect,
+		onBackgroundError,
 		defaultScrollRestorationBehavior,
 		enableCacheSnapshot,
 	});

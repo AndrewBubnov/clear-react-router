@@ -25,6 +25,17 @@ It provides first-class support for:
 > [Clear Safe Router](https://github.com/AndrewBubnov/clear-safe-router) ([npm](https://www.npmjs.com/package/clear-safe-router)) —
 > built on this runtime.
 
+## For AI agents
+
+This library ships an agent skill: [`src/clear-router/skills/getting-started/SKILL.md`](src/clear-router/skills/getting-started/SKILL.md) —
+setup, route semantics, caching, search params, navigation blocking, with three reference files.
+Point your coding agent at it before writing code against this library:
+
+```bash
+npx clear-react-router skill           # print SKILL.md
+npx clear-react-router skill install   # copy it to .claude/skills/clear-react-router/ (--to <dir> for other agents)
+```
+
 ## Features
 
 - **Nested Routes** - Organize your UI with nested layouts and routes
@@ -88,6 +99,7 @@ The host rewrite only serves the app shell. To render your own UI for unknown cl
 | `defaultScrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'`                                                                | `auto`                                         | Default scroll restoration behavior                                                                                                                                                                                                                   |
 | `revalidateOnFocus`                | `boolean \| undefined`                                                                           | `undefined`                                    | Revalidate the current route's `loader` data when the browser tab regains focus                                                                                                                                                                       |
 | `revalidateOnReconnect`            | `boolean \| undefined`                                                                           | `undefined`                                    | Revalidate the current route's `loader` data when the browser regains an internet connection                                                                                                                                                          |
+| `onBackgroundError`                | `(error: Error, context: { path: string; route: RouteItem }) => void`                            | `undefined`                                    | Fires when a background revalidation of the displayed route fails (after `invalidate()`, on tab focus/reconnect, or a failed polling tick). Displayed data is kept and `loaderError` is set next to it — use this for toasts, analytics or error reporting. Failures with nothing displayed (initial load) render `errorElement` as usual |
 | `enableCacheSnapshot`              | `boolean`                                                                                        | `false`                                        | Enables cache snapshot tracking for [`useCacheSnapshot()`](#usecachesnapshot). Off by default: no snapshot is built and the hook returns an empty list                                                                                                |
 
 > **Note:** Global lifecycle hooks wrap every route navigation. The global `defaultBeforeLoad` runs **before** the route-specific beforeLoad, while the global `defaultAfterLoad` runs **after** the route-specific afterLoad.
@@ -932,6 +944,8 @@ beforeLoad: async ({ location, redirect }) => {
 ### `useLoaderState<T>()`
 
 Returns the cached data loaded by the current route's `loader`, along with any errors from `loader` or `beforeLoad`. Data is cached, but whether a revisit reuses it depends on `staleTime`: by default cached data is stale immediately and the loader runs again.
+
+> If a **background** revalidation of the displayed route fails (see [`onBackgroundError`](#router)), `data` stays on screen and `loaderError` is set next to it — render a small "stale data" banner from the same component. The page is only replaced by `errorElement` when there is nothing to display (e.g. the initial load fails).
 
 **Returns:**
 

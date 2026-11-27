@@ -1,3 +1,4 @@
+import { handleBackgroundFailure } from './backgroundError';
 import { createCommitState } from '../utils/commitState';
 import { commitNavigation } from '../utils/commitNavigation';
 import { createIsCacheItemFresh } from '../utils/isCacheItemFresh';
@@ -159,11 +160,32 @@ export const createNavigate = (
 			const { location: currentLocation } = routeDataState.getState();
 			const currentPath = toCacheKey(`${currentLocation.pathname}${currentLocation.search ?? ''}`);
 			if (currentPath !== getPath(nextLocation)) return;
+			if (result.error) {
+				// A failed tick must not null the displayed data on a live page: keep it
+				// and report; polling never swaps the page to errorElement.
+				const keptData = handleBackgroundFailure(
+					routerState.loaderMap,
+					currentPath,
+					result.error as Error,
+					routeItem,
+					routeDataState.getState().loaderState.data,
+					syncCacheSnapshot
+				);
+				routeDataState.setState(prevState => ({
+					...prevState,
+					loaderState: {
+						data: keptData ?? null,
+						loaderError: result.error as Error | null,
+						beforeLoadError: null,
+					},
+				}));
+				return;
+			}
 			routeDataState.setState(prevState => ({
 				...prevState,
 				loaderState: {
 					data: result.data,
-					loaderError: result.error as Error | null,
+					loaderError: null,
 					beforeLoadError: null,
 				},
 			}));

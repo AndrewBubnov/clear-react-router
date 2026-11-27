@@ -1,6 +1,11 @@
+import { handleBackgroundFailure } from './backgroundError';
 import { findRoute } from '../utils/findRoute';
 import { isParamSegment, matchPathPattern, splitPathAndSearch, toCacheKey } from '../utils/utils';
 import { type InvalidateOptions, InvalidateResult, RevalidateCache, RouteItem, RouterState } from '../types';
+
+// A miss is legal (unknown/pattern paths), so the dev hint fires once per path.
+const missedInvalidationWarnings = new Set<string>();
+export const resetMissedInvalidationWarnings = () => missedInvalidationWarnings.clear();
 
 const separatePathname = (text: string) => text.split('?')[0].replace(/\/+$/, '') || '/';
 
@@ -34,25 +39,55 @@ export const createInvalidate = (
 
 		const activeLocation = routeDataState.getState().location;
 		if (result && normalizePath(pathname) === normalizePath(`${activeLocation.pathname}${activeLocation.search}`)) {
-			routeDataState.setState(prevState => ({
-				...prevState,
-				loaderState: {
-					data: result.data,
-					loaderError: result.error as Error | null,
-					beforeLoadError: null,
-				},
-				status: result.error ? 'error' : 'active',
-			}));
+			if (result.error) {
+				// A background failure keeps displayed data and reports instead of swapping
+				// the page; without displayed data the errorElement path stays.
+				const keptData = handleBackgroundFailure(
+					loaderMap,
+					pathname,
+					result.error as Error,
+					routeItem,
+					routeDataState.getState().loaderState.data,
+					syncCacheSnapshot
+				);
+				routeDataState.setState(prevState => ({
+					...prevState,
+					loaderState: {
+						data: keptData ?? null,
+						loaderError: result.error as Error | null,
+						beforeLoadError: null,
+					},
+					status: keptData != null ? 'active' : 'error',
+				}));
+			} else {
+				routeDataState.setState(prevState => ({
+					...prevState,
+					loaderState: {
+						data: result.data,
+						loaderError: null,
+						beforeLoadError: null,
+					},
+					status: 'active',
+				}));
+			}
 		}
 
-		return { path: pathname, ...result } as InvalidateResult;
+		return { path: pathname, matched: true, ...result } as InvalidateResult;
 	};
 
 	const invalidateItem = async (rawPathname: string, options?: InvalidateOptions): Promise<InvalidateResult[]> => {
 		const pathname = toCacheKey(rawPathname);
 		const routeItem = findRoute(separatePathname(pathname));
 
-		if (!routeItem) return [];
+		if (!routeItem) {
+			if (import.meta.env.DEV && !missedInvalidationWarnings.has(pathname)) {
+				missedInvalidationWarnings.add(pathname);
+				console.warn(
+					`[clear-react-router] invalidate("${rawPathname}") matched no route. Paths are route templates like '/projects/:projectId', not concrete URLs.`
+				);
+			}
+			return [{ path: rawPathname, matched: false, data: null, error: null }];
+		}
 
 		const targetPathname = separatePathname(pathname);
 		const isPattern = targetPathname.split('/').filter(Boolean).some(isParamSegment);

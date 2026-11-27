@@ -8,6 +8,7 @@ class RouterConfig {
 	isAnimated: RouterProps['isAnimated'] = false;
 	revalidateOnFocus = false;
 	revalidateOnReconnect = false;
+	onBackgroundError?: RouterProps['onBackgroundError'];
 	defaultHoverPrefetchDelay = STANDARD_PREFETCH_DELAY;
 	defaultBeforeLoad?: ClientRouteItem['beforeLoad'];
 	defaultAfterLoad?: ClientRouteItem['afterLoad'];

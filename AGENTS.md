@@ -45,6 +45,10 @@ Single maintainer project — keep changes small, consistent and verified.
   with matching `loaderState` — see `prepareNavigation` branches; keep them paired in the same commit.
   Exception: `keepPreviousData: true` on the route keeps the previous loader data on screen during
   `pending` (same element + previous data exist); `errorElement` still replaces it on failure.
+  Second exception: a failed background revalidation (invalidate incl. focus/reconnect, polling)
+  of a page that already shows data keeps it — `status` stays `active`, `loaderError` is set, the
+  cache entry is demoted to stale, `routerConfig.onBackgroundError` fires, dev console warns. Only
+  a failure with nothing displayed commits `status: 'error'` (see `runtime/backgroundError.ts`).
 - **Loader-less routes** commit `status: 'active'` with `loaderState.data === undefined` (navigate uses
   `result?.data` for them). Invariant: an `element` on a route without `loader` must not read `data` —
   the router cannot guard reading a property off `undefined`.

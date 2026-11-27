@@ -718,6 +718,30 @@ describe('navigate', () => {
 			expect(state.routeDataState.getState().loaderState.data).toBe('v2');
 		});
 
+		it('keeps displayed data when a polling tick fails', async () => {
+			const loadError = new Error('tick failed');
+			const onBackgroundError = vi.fn();
+			const loader = vi.fn().mockResolvedValueOnce('v1').mockRejectedValue(loadError);
+			const routeItem = createMockRouteItem({ loader, pollingInterval: 1000, staleTime: 500 });
+			routerConfig.configure({ routes: [routeItem], maxCacheSize: 10, onBackgroundError });
+
+			revalidateCache = createRevalidateCache(state, syncCacheSnapshot);
+			navigate = createNavigate(state, revalidateCache, syncCacheSnapshot);
+
+			await navigate({ pathname: '/test' });
+			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
+
+			await vi.advanceTimersByTimeAsync(1000);
+
+			expect(loader).toHaveBeenCalledTimes(2);
+			expect(state.routeDataState.getState().loaderState.data).toBe('v1');
+			expect(state.routeDataState.getState().loaderState.loaderError).toBe(loadError);
+			expect(state.routeDataState.getState().status).toBe('active');
+			expect(onBackgroundError).toHaveBeenCalledWith(loadError, expect.objectContaining({ path: '/test' }));
+			expect(state.loaderMap.get('/test')?.staleTime).toBe(0);
+			routerConfig.configure({ onBackgroundError: undefined });
+		});
+
 		it('refetches on every polling tick even with an always-fresh cache', async () => {
 			// Regression (playground Live page): polling ticks kept returning the cached value
 			// when the cache was fresh. Polling is an explicit refetch signal and must bypass freshness.

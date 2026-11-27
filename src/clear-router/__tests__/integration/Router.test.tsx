@@ -10,6 +10,8 @@ import {
 	useRouteStatus,
 	useRouterContext,
 	useNavigate,
+	useSubmitAction,
+	useInvalidate,
 } from '../..';
 import { routes } from '../common';
 
@@ -216,6 +218,61 @@ describe('Router integration', () => {
 				},
 				{ timeout: 3000 }
 			);
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'wires onBackgroundError to background revalidation failures',
+		async () => {
+			const onBackgroundError = vi.fn();
+			const error = new Error('refetch failed');
+			const loader = vi.fn().mockResolvedValueOnce('ok').mockRejectedValue(error);
+			function Probe() {
+				const invalidate = useInvalidate();
+				return <button data-testid="refresh" onClick={() => invalidate('/data')} />;
+			}
+			window.history.pushState({}, '', '/data');
+			const backgroundRoutes = createRouter([
+				{ path: '/', element: <div>Home</div> },
+				{ path: '/data', element: <Probe />, loader },
+			]);
+			render(<Router routes={backgroundRoutes} onBackgroundError={onBackgroundError} />);
+
+			await screen.findByTestId('refresh');
+			fireEvent.click(screen.getByTestId('refresh'));
+
+			await waitFor(() =>
+				expect(onBackgroundError).toHaveBeenCalledWith(error, expect.objectContaining({ path: '/data' }))
+			);
+		},
+		TEST_TIMEOUT
+	);
+
+	it(
+		'runs the route action when a form inside the tree submits',
+		async () => {
+			const save = vi.fn(async () => 'ok');
+			function SettingsForm() {
+				const { onSubmit, isSubmitting } = useSubmitAction('save');
+				return (
+					<form onSubmit={onSubmit} data-testid="settings-form">
+						<input name="title" defaultValue="hello" />
+						<button type="submit">{isSubmitting ? 'Saving…' : 'Save'}</button>
+					</form>
+				);
+			}
+			window.history.pushState({}, '', '/settings');
+			const actionRoutes = createRouter([
+				{ path: '/', element: <div>Home</div> },
+				{ path: '/settings', element: <SettingsForm />, actions: () => ({ save }) },
+			]);
+			render(<Router routes={actionRoutes} />);
+
+			await screen.findByRole('button', { name: 'Save' });
+			fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+			await waitFor(() => expect(save).toHaveBeenCalledWith({ title: 'hello' }));
 		},
 		TEST_TIMEOUT
 	);

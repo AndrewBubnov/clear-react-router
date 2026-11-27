@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createRevalidateCache } from '../../runtime/revalidateCache';
-import { createInvalidate } from '../../runtime/invalidate';
+import { createInvalidate, resetMissedInvalidationWarnings } from '../../runtime/invalidate';
 import { createNavigate } from '../../runtime/navigate';
 import { createRouter } from '../../creators/createRouter';
 import { create } from '../../create';
@@ -195,7 +195,7 @@ describe('invalidate', () => {
 		expect(result[0].data).toBe('fresh data');
 	});
 
-	it('returns empty array for unknown path', async () => {
+	it('reports a miss for an unknown path instead of returning an empty list', async () => {
 		state.routeDataState.setState({
 			routeItem: undefined,
 			location: { pathname: '/', search: '' },
@@ -204,7 +204,27 @@ describe('invalidate', () => {
 		});
 
 		const result = await invalidate('/nonexistent');
-		expect(result).toEqual([]);
+		expect(result).toEqual([{ path: '/nonexistent', matched: false, data: null, error: null }]);
+	});
+
+	it('warns in dev when a path matches no route, once per path', async () => {
+		resetMissedInvalidationWarnings();
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		state.routeDataState.setState({
+			routeItem: undefined,
+			location: { pathname: '/', search: '' },
+			status: 'idle',
+			loaderState: EMPTY_LOADER_STATE,
+		});
+
+		await invalidate('/nonexistent');
+		await invalidate('/nonexistent');
+		await invalidate('/also-missing');
+
+		expect(warn).toHaveBeenCalledTimes(2);
+		expect(warn.mock.calls[0][0]).toContain('/nonexistent');
+		expect(warn.mock.calls[1][0]).toContain('/also-missing');
+		warn.mockRestore();
 	});
 
 	it('re-caches a revalidated search path under the real key', async () => {
@@ -391,9 +411,9 @@ describe('invalidate', () => {
 		});
 	});
 
-	it('sets status to error when revalidation of the working page fails', async () => {
+	it('keeps displayed data when a background revalidation fails', async () => {
 		const loadError = new Error('refetch failed');
-		const failingLoader = vi.fn().mockRejectedValueOnce(loadError).mockResolvedValue('fresh data');
+		const failingLoader = vi.fn().mockRejectedValue(loadError);
 		routerConfig.configure({
 			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: failingLoader })],
 			maxCacheSize: 10,
@@ -407,15 +427,89 @@ describe('invalidate', () => {
 			routeItem: createMockRouteItem({ loader: failingLoader }),
 			location: { pathname: '/users', search: '' },
 			status: 'active',
-			loaderState: EMPTY_LOADER_STATE,
+			loaderState: { data: 'old data', loaderError: null, beforeLoadError: null },
 		});
 
 		const result = await invalidate('/users');
 
 		expect(result).toHaveLength(1);
 		expect(result[0].error).toBe(loadError);
+		expect(state.routeDataState.getState().status).toBe('active');
+		expect(state.routeDataState.getState().loaderState).toEqual({
+			data: 'old data',
+			loaderError: loadError,
+			beforeLoadError: null,
+		});
+	});
+
+	it('shows the error page when a background revalidation fails and nothing is displayed', async () => {
+		const loadError = new Error('refetch failed');
+		const failingLoader = vi.fn().mockRejectedValue(loadError);
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: failingLoader })],
+			maxCacheSize: 10,
+		});
+		state.routeDataState.setState({
+			routeItem: createMockRouteItem({ loader: failingLoader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+			loaderState: EMPTY_LOADER_STATE,
+		});
+
+		await invalidate('/users');
+
 		expect(state.routeDataState.getState().status).toBe('error');
 		expect(state.routeDataState.getState().loaderState.loaderError).toBe(loadError);
+	});
+
+	it('reports background revalidation failures to onBackgroundError and warns in dev', async () => {
+		const loadError = new Error('refetch failed');
+		const failingLoader = vi.fn().mockRejectedValue(loadError);
+		const onBackgroundError = vi.fn();
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: failingLoader })],
+			maxCacheSize: 10,
+			onBackgroundError,
+		});
+		state.routeDataState.setState({
+			routeItem: createMockRouteItem({ loader: failingLoader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+			loaderState: { data: 'old data', loaderError: null, beforeLoadError: null },
+		});
+
+		await invalidate('/users');
+
+		expect(onBackgroundError).toHaveBeenCalledWith(loadError, expect.objectContaining({ path: '/users' }));
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('/users'));
+		warn.mockRestore();
+		routerConfig.configure({ onBackgroundError: undefined });
+	});
+
+	it('demotes the cache entry to stale when a staleOnly background revalidation fails', async () => {
+		const loadError = new Error('refetch failed');
+		const failingLoader = vi.fn().mockRejectedValue(loadError);
+		routerConfig.configure({
+			routes: [createMockRouteItem({ path: '/users', pattern: '/users', loader: failingLoader })],
+			maxCacheSize: 10,
+		});
+		state.loaderMap.set('/users', {
+			state: { data: 'old data', loaderError: null, beforeLoadError: null },
+			timestamp: Date.now() - 20000,
+			staleTime: 10000,
+		});
+		state.routeDataState.setState({
+			routeItem: createMockRouteItem({ loader: failingLoader }),
+			location: { pathname: '/users', search: '' },
+			status: 'active',
+			loaderState: { data: 'old data', loaderError: null, beforeLoadError: null },
+		});
+
+		await invalidate('/users', { staleOnly: true });
+
+		expect(state.loaderMap.get('/users')?.staleTime).toBe(0);
+		expect(state.routeDataState.getState().status).toBe('active');
 	});
 
 	it('does not touch current status when revalidating another route', async () => {

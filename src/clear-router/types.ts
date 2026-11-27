@@ -137,6 +137,12 @@ export type RouterProps = {
 	revalidateOnFocus?: boolean;
 	revalidateOnReconnect?: boolean;
 	context?: Record<string, unknown>;
+	/**
+	 * Fires when a background revalidation of a page-serving route fails (invalidate,
+	 * focus/reconnect, polling). Displayed data is kept; use this for toasts, analytics
+	 * or error reporting. The initial load keeps its errorElement path.
+	 */
+	onBackgroundError?: (error: Error, context: { path: string; route: RouteItem }) => void;
 	/** Enables cache snapshot tracking for devtools. `useCacheSnapshot` returns an empty list without it. */
 	enableCacheSnapshot?: boolean;
 };
@@ -217,7 +223,7 @@ export type InvalidateOptions = {
 export type RevalidateCache = (args: RevalidateCacheArgs) => LoadingPromise;
 export type Options = Partial<{ onSuccess: (args: unknown) => void; onError: (args: unknown) => void }> | undefined;
 
-export type InvalidateResult = { path: string; data: unknown; error: Error | null };
+export type InvalidateResult = { path: string; data: unknown; error: Error | null; matched?: boolean };
 
 export type SearchObject = Record<string, string | number | boolean | null | undefined>;
 export type NavigationLocation = Omit<Location, 'search'> & { search?: string | SearchObject };

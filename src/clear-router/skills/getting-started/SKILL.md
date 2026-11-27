@@ -72,6 +72,10 @@ below):
   attempts get an `attempt` counter; aborted flights never commit.
 - **Polling** — `pollingInterval` re-runs the loader while the route is active; stops
   on leave, restarts on return.
+- **Background errors** — a failed background revalidation (invalidate, focus/reconnect, polling)
+  keeps displayed data and reports instead of swapping the page: `loaderError` is set next to the
+  data, `onBackgroundError(error, { path, route })` fires on `<Router>`, the cache entry is demoted
+  to stale. The errorElement path is reserved for failures with nothing to display (initial load).
 - **Loading UX** — `optimistic` (instant cache hit for revisited keys),
   `keepPreviousData` (previous data held during pending, same element),
   `loaderFallback` / `defaultLoaderFallback`, `minLoaderDuration` /
@@ -120,6 +124,19 @@ below):
   superseding a navigation cancels the previous flight. Do not create your own
   `AbortController` for loaders.
 
+## Scope boundaries
+
+- Route URL state that must **survive a reload, be shareable by link, or drive the
+  back button**. Everything else — open tabs, wizard steps, open accordions — is
+  plain component state (`useState` + a tabs/stepper component). Do not route
+  transient UI state.
+- "Shareable" counts only when a link without the state **loses its meaning**
+  (an onboarding step: yes; an open spoiler: no).
+- Embedded panels that do need back or links (configurators, galleries) read and
+  write their slice of the host page's search params — they never get a second router.
+- One `<Router>` per page. This is a client-side SPA router by design; there is
+  no SSR support.
+
 ## Load by task
 
 - Route config, nesting, layouts, params, catch-all, lazy components →
@@ -134,8 +151,12 @@ below):
 
 ## API discovery
 
-Inspect `src/clear-router/index.ts` (the only public entry point), then
-`src/clear-router/types.ts` for `RouteItem` and hook signatures. The playground
+In an installed package, the public surface is
+`node_modules/clear-react-router/dist/index.d.ts` — every exported symbol with its
+signatures; consult `dist/index.js` only when runtime behavior is unclear.
+In the repository, the entry point is `src/clear-router/index.ts` and
+`src/clear-router/types.ts` holds `RouteItem` and hook signatures. The playground
 (`src/playground/routes.tsx`) shows every feature wired end-to-end against a fake
 in-browser server; the search page (`src/playground/SearchPage.tsx`) is the
-reference for URL-owned query state with TanStack Table.
+reference for URL-owned query state with TanStack Table. Live demo:
+https://clear-react-router.vercel.app/playground.
