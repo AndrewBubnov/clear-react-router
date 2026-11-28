@@ -93,8 +93,9 @@ export const getPartialLoaderArgs = (
 	const params = getParams(location, routeItem);
 	const context = contextState.getState();
 	const setContext = contextState.setState;
-	const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
-	return { params, context, setContext, searchParams, location };
+	const urlSearchParams = new URLSearchParams(location.search);
+	const searchParams: Record<string, string> = Object.fromEntries(urlSearchParams.entries());
+	return { params, context, setContext, searchParams, urlSearchParams, location };
 };
 
 export const isVerticalScroll = (el: Element | null) => !!el && el.scrollHeight > el.clientHeight;

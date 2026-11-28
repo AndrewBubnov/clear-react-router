@@ -1,5 +1,3 @@
-import type { Location } from '../clear-router';
-
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Quote = { symbol: string; price: number };
@@ -215,16 +213,19 @@ export type TablePayload = {
 const TABLE_COLUMNS = ['id', 'product', 'brand', 'price', 'status'] as const;
 
 /** The table's "server": filter, sort and paginate from the URL search only. */
-export const fetchTableData = async ({ location }: { location: Location }): Promise<TablePayload> => {
+export const fetchTableData = async ({
+	urlSearchParams,
+}: {
+	urlSearchParams: URLSearchParams;
+}): Promise<TablePayload> => {
 	const n = trackCall('table');
 	await delay(350);
-	const params = new URLSearchParams(location.search);
-	const q = (params.get('q') ?? '').trim().toLowerCase();
-	const brands = params.getAll('brand');
-	const sortParam = params.get('sort') ?? 'id';
+	const q = (urlSearchParams.get('q') ?? '').trim().toLowerCase();
+	const brands = urlSearchParams.getAll('brand');
+	const sortParam = urlSearchParams.get('sort') ?? 'id';
 	const sort = (TABLE_COLUMNS as readonly string[]).includes(sortParam) ? sortParam : 'id';
-	const desc = params.get('dir') === 'desc';
-	const page = Math.max(1, Number(params.get('page')) || 1);
+	const desc = urlSearchParams.get('dir') === 'desc';
+	const page = Math.max(1, Number(urlSearchParams.get('page')) || 1);
 
 	let rows = TABLE_ROWS;
 	if (brands.length) {

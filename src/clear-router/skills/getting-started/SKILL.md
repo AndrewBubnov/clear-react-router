@@ -106,10 +106,11 @@ below):
 
 - **No context, no provider.** Hooks read a global singleton; render `<Router>` once.
 - **The loader is the data owner.** `loader` receives
-  `{ params, searchParams, context, setContext, location, signal, attempt }` and
+  `{ params, searchParams, urlSearchParams, context, setContext, location, signal, attempt }` and
   returns anything serializable. Its result is cached per **`pathname + search`** —
   a different query string is a different entry. `searchParams` is a plain object
-  (multi-value keys collapse; read `location.search` raw for repeated keys).
+  (repeated keys collapse to the last value); use `urlSearchParams.getAll('tag')` for
+  multi-value keys.
 - **`beforeLoad` is for guards, not data.** Redirect via `redirect()` in its args; a
   thrown/rejected error lands in `beforeLoadError` and renders `errorElement`.
 - **Search params are navigations.** `setSearchParams` performs a full navigation: it

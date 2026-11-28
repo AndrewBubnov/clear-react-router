@@ -15,7 +15,10 @@ type LoaderArgs = {
 	context: Record<string, unknown>;
 	params: Record<string, string>;
 	setContext: SetStateFn<Record<string, unknown>>;
+	/** Single-value convenience view; repeated keys collapse to the last value. */
 	searchParams: Record<string, string>;
+	/** Standard accessor for repeated keys: `urlSearchParams.getAll('tag')`. */
+	urlSearchParams: URLSearchParams;
 	location: Location;
 };
 
@@ -63,10 +66,15 @@ export type ClientRouteItem = {
 		params: Record<string, string>;
 		searchParams: Record<string, string>;
 	}) => Promise<void> | void;
-	actions?: (
-		arg: LoaderArgs
-	) => Record<string, (arg: Record<string, unknown>) => Promise<unknown> | Promise<void> | void | unknown>;
+	actions?: (arg: LoaderArgs) => Record<string, ActionHandler>;
 };
+
+// Route actions are looked up by string at runtime, so this slot is never invoked
+// through its own type: every call goes through one documented cast inside the library
+// (createRouterInstance). `never` accepts handlers of any payload type (contravariance:
+// a handler for a narrower type still fits, legacy Record handlers keep compiling) while
+// forbidding direct calls; `any` would silently pass mistakes through the seam.
+export type ActionHandler = (arg: never) => Promise<unknown> | Promise<void> | void | unknown;
 
 export type RouteItem = ClientRouteItem & {
 	element: RenderElement;
@@ -205,10 +213,10 @@ export type RouterType = {
 			(arg: NavigationLocation | string | -1): Promise<void>;
 			<const TPath extends string>(arg: NavigatePathArg<TPath>): Promise<void>;
 		};
-		useAction(
+		useAction<Payload = Record<string, unknown>>(
 			action: string,
 			options?: Options
-		): (arg: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+		): (arg: Payload) => Promise<{ data: unknown; error: Error | null }>;
 		useScrollRestoration(restorationBehavior: ScrollRestorationBehavior): () => void;
 		useRouteDataSelector<T>(callback: (arg: RouteData) => T): T;
 		useCacheSnapshot(): CacheSnapshot;

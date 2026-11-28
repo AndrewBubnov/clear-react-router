@@ -7,6 +7,7 @@ import { createCacheSnapshot } from '../runtime/syncCacheSnapshot';
 import {
 	formatSearchObject,
 	getParams,
+	getPartialLoaderArgs,
 	interpolatePath,
 	isVerticalScroll,
 	splitPathAndSearch,
@@ -66,11 +67,9 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 		const { routeItem, location } = routerState.routeDataState.getState();
 		if (!routeItem) throw new Error('Route not found');
 		if (!routeItem.actions) throw new Error('Route action creator not found');
-		const context = routerState.contextState.getState();
-		const setContext = routerState.contextState.setState;
-		const params = getParams(location, routeItem);
-		const searchParams: Record<string, string> = Object.fromEntries(new URLSearchParams(location.search).entries());
-		const action = routeItem.actions({ context, setContext, params, location, searchParams })[actionKey];
+		const action = routeItem.actions(getPartialLoaderArgs(routerState.contextState, location, routeItem))[
+			actionKey
+		];
 		if (!action) throw new Error(`Action "${actionKey}" not found`);
 		return action;
 	};
@@ -111,13 +110,15 @@ export const createRouterInstance = (synchronizer: Synchronizer): RouterType => 
 					await navigate({ ...arg, search, prevLocation });
 				}
 			},
-			useAction: (action: string, options: Options = {}) => {
-				return async (input: Record<string, unknown>) => {
+			useAction: <Payload = Record<string, unknown>>(action: string, options: Options = {}) => {
+				return async (input: Payload) => {
 					try {
 						const currentAction = getCurrentAction(action);
 						const { location } = routerState.routeDataState.getState();
 						const path = toCacheKey(`${location.pathname}${location.search ?? ''}`);
-						const data = await currentAction(input);
+						// The runtime receives the payload through the stringly-typed hook seam;
+						// the ActionHandler slot itself is never callable (`never` parameter).
+						const data = await (currentAction as (arg: unknown) => unknown)(input);
 						await invalidate(path);
 						options.onSuccess?.(data);
 						return { data, error: null };

@@ -221,6 +221,18 @@ describe('utils', () => {
 			expect(args.searchParams).toEqual({ q: 'test' });
 			expect(args.location).toBe(location);
 		});
+
+		it('exposes every value of repeated keys via urlSearchParams', () => {
+			const contextState = create({} as Record<string, unknown>);
+			const location: Location = { pathname: '/items', search: '?tag=a&tag=b&q=x' };
+
+			const args = getPartialLoaderArgs(contextState, location);
+
+			expect(args.urlSearchParams.getAll('tag')).toEqual(['a', 'b']);
+			expect(args.urlSearchParams.get('q')).toBe('x');
+			// The record keeps its last-wins single-value contract (unchanged).
+			expect(args.searchParams).toEqual({ tag: 'b', q: 'x' });
+		});
 	});
 
 	describe('isVerticalScroll', () => {

@@ -7,14 +7,14 @@ type Options = {
 	autoReset?: boolean;
 };
 
-export const useSubmitAction = (action: string, options?: Options) => {
-	const currentAction = router.hooks.useAction(action, options);
+export const useSubmitAction = <Payload = Record<string, unknown>>(action: string, options?: Options) => {
+	const currentAction = router.hooks.useAction<Payload>(action, options);
 	const [data, setData] = useState<unknown>();
 	const [error, setError] = useState<Error | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const submit = useCallback(
-		async (data: Record<string, unknown>) => {
+		async (data: Payload) => {
 			setIsSubmitting(true);
 			const result = await currentAction(data);
 			setIsSubmitting(false);
@@ -29,7 +29,9 @@ export const useSubmitAction = (action: string, options?: Options) => {
 		async (evt: SubmitEvent<HTMLFormElement>) => {
 			evt.preventDefault();
 			const target = evt.target as HTMLFormElement;
-			const { error } = await submit(Object.fromEntries(new FormData(target)));
+			// FormData carries untyped string fields; the caller owns the shape they
+			// promised with the Payload type argument.
+			const { error } = await submit(Object.fromEntries(new FormData(target)) as Payload);
 			const preventReset = options?.autoReset === false;
 			if (!preventReset && !error) target.reset();
 		},

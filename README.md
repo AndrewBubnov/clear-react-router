@@ -133,7 +133,7 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 | `staleTime`                 | `number \| undefined`                                                                                                                         | Time in milliseconds before cached loader data is considered stale. Overrides Router.defaultStaleTime. If neither value is provided, data is stale immediately and navigation revalidates it. Use `Infinity` to never consider it stale                             |
 | `externalCache`             | `boolean \| undefined`                                                                                                                        | The route's data freshness is owned by the loader's source (e.g. an external cache like TanStack Query): the router cache stores values but never claims freshness, so every navigation re-runs the loader. Inherited by children; a child can opt out with `false` |
 | `gcTime`                    | `number \| undefined`                                                                                                                         | How long, in milliseconds, an unused cache entry is kept in memory after you navigate away, before it's garbage-collected                                                                                                                                           |
-| `actions`                   | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Record<string, unknown>) => unknown \| Promise<unknown>>` | Defines route actions for data mutations.                                                                                                                                                                                                                           |
+| `actions`                   | `({ params, context, searchParams, setContext, location }) => Record<string, (data: Payload) => unknown \| Promise<unknown>>` — any payload type; checked at `useSubmitAction<Payload>()` | Defines route actions for data mutations.                                                                                                                                                                                                                           |
 | `pollingInterval`           | `number \| undefined`                                                                                                                         | Polling interval (in milliseconds) for automatically revalidating data while the route is active. Each tick refetches unconditionally, ignoring `staleTime`                                                                                                         |
 | `scrollRestoration`         | `boolean \| string[] \| undefined`                                                                                                            | Restore scroll position when navigating back to this route. `true` restores the window scroll; a string array restores scroll inside specific scrollable elements, matched by their `id`                                                                            |
 | `scrollRestorationBehavior` | `'auto' \| 'smooth' \| 'instant'`                                                                                                             | Scroll restoration behavior                                                                                                                                                                                                                                         |
@@ -145,10 +145,13 @@ Normalizes route configuration. Extracts dynamic params, builds nested paths.
 	params: Record<string, string>; // Route parameters
 	context: Record<string, unknown>; // Router context
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
-	searchParams: Record<string, string>; // URL search parameters
+	searchParams: Record<string, string>; // URL search parameters — repeated keys collapse to the last value
+	urlSearchParams: URLSearchParams; // Standard accessor for repeated keys: urlSearchParams.getAll('tag')
 	location: Location; // Route location
 }
 ```
+
+Multi-value search params (`?tag=a&tag=b`) need the standard accessor: `searchParams.tag` returns only the last value, `urlSearchParams.getAll('tag')` returns both.
 
 see [`Location`](#uselocation) and [`Where you came from`](#where-you-came-from) for type details
 
@@ -657,10 +660,12 @@ Actions are available through the `useSubmitAction` and `useAction` hooks. After
 
 ```tsx
 actions?: ({ params, context, searchParams, setContext, location }) => ({
-  save: async (data: Record<string, unknown>) => await api.updatePost(params.id, data),
-  remove: async () => await api.deletePost(params.id),
+  save: async (data: PostInput) => await api.updatePost(params.id, data), // any payload type — checked at useSubmitAction<PostInput>()
+  remove: async () => await api.deletePost(params.id), // no-payload actions work as-is
 })
 ```
+
+Declare the payload type at the hook — see [Typed payloads](#typed-payloads) under `useSubmitAction`.
 
 #### Arguments
 
@@ -669,7 +674,8 @@ actions?: ({ params, context, searchParams, setContext, location }) => ({
 	params: Record<string, string>; // Route parameters
 	context: Record<string, unknown>; // Router context
 	setContext: Dispatch<SetStateAction<Record<string, unknown>>>; // Updates the router context
-	searchParams: Record<string, string>; // URL search parameters
+	searchParams: Record<string, string>; // URL search parameters — repeated keys collapse to the last value
+	urlSearchParams: URLSearchParams; // Standard accessor for repeated keys: urlSearchParams.getAll('tag')
 	location: Location; // Route location
 }
 ```
@@ -698,7 +704,29 @@ const CreateUserForm = () => {
 };
 ```
 
-`submit(data: Record<string, unknown>)` accepts a plain JS object, so it works with any form library that gives you validated values — not just native `<form>` submissions:
+`submit(data)` accepts a plain JS object, so it works with any form library that gives you validated values — not just native `<form>` submissions.
+
+### Typed payloads
+
+Declare the payload type once at the hook and every call is checked against it; the route `action` then receives it fully typed — no `Record<string, unknown>` casts:
+
+```tsx
+const routes = createRouter([
+	{
+		path: '/settings',
+		element: <SettingsPage />,
+		actions: () => ({
+			save: async (data: SettingsInput) => saveSettings(data), // fully typed, no casts
+		}),
+	},
+]);
+
+const { submit } = useSubmitAction<SettingsInput>('save');
+submit({ delayMs: 300 }); // checked
+submit({ delayMs: 'oops' }); // compile error
+```
+
+The type argument is manual — actions are selected by a string at runtime, so the compiler cannot infer it from the route config (typed route trees are a larger project). Handlers without a custom type (`async () => 'ok'`, legacy `Record<string, unknown>` handlers) keep working unchanged.
 
 ```tsx
 import { useForm } from 'react-hook-form';
@@ -724,7 +752,7 @@ Return value:
 
 | Field          | Type                                                                                  | Description                                             |
 | -------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `submit`       | `(data: Record<string, unknown>) => Promise<{ data: unknown; error: Error \| null }>` | Runs the action directly, from any form data source     |
+| `submit`       | `(data: Payload) => Promise<{ data: unknown; error: Error \| null }>` — `Payload` from the type argument, `Record<string, unknown>` by default | Runs the action directly, from any form data source     |
 | `onSubmit`     | `(evt: SubmitEvent<HTMLFormElement>) => Promise<void>`                                | Ready-made handler for a native `<form onSubmit={...}>` |
 | `data`         | `unknown`                                                                             | Result of the last successful submission                |
 | `error`        | `Error \| null`                                                                       | Error from the last failed submission                   |
